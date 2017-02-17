@@ -1,7 +1,15 @@
+/media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/ontology/Literal.java
 /media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/configs/AppInitializer.java
-/media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/daos/EmployeeDAO2.java
 /media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/controllers/EmployeeController.java
 /media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/services/EmployeeService.java
 /media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/configs/AppConfig.java
-/media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/models/Employee.java
+/media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/ontology/XSDDataTypes.java
 /media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/configs/DatabaseConnection.java
+/media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/ontology/Property.java
+/media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/ontology/MainOntology.java
+/media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/ontology/Class.java
+/media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/ontology/DataProperty.java
+/media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/daos/EmployeeDAO2.java
+/media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/ontology/ObjectProperty.java
+/media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/ontology/DataType.java
+/media/sf_old_ubuntu/IOT Platform/Workspace/IOT-Platform/src/com/iotplatform/models/Employee.java

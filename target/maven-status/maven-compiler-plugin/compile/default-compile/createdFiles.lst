@@ -1,7 +1,7 @@
-com/iotplatform/configs/DatabaseConnection.class
 com/iotplatform/services/EmployeeService.class
+com/iotplatform/models/Employee.class
+com/iotplatform/configs/DatabaseConnection.class
 com/iotplatform/configs/AppConfig.class
 com/iotplatform/daos/EmployeeDAO2.class
-com/iotplatform/models/Employee.class
 com/iotplatform/configs/AppInitializer.class
 com/iotplatform/controllers/EmployeeController.class

@@ -45,6 +45,7 @@ public class EmployeeDAO2 extends JdbcDaoSupport {
 		List<Employee> employees = null;
 
 		try {
+		
 			employees = jdbcTemplate.query("SELECT employee_id, first_name,last_name,email,phone_number FROM employees",
 					new BeanPropertyRowMapper<Employee>(Employee.class));
 		} catch (DataAccessException e) {
