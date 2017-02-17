@@ -20,7 +20,7 @@ import oracle.spatial.rdf.client.jena.*;
 public class MainOntology {
 
 	private Oracle oracle;
-	private final String MODEL_NAME = "main_ontology_model";
+	private final String MODEL_NAME = "MAIN_ONTOLOGY_MODEL";
 
 	@Autowired
 	public MainOntology(Oracle oracle) {
@@ -35,14 +35,13 @@ public class MainOntology {
 	 */
 	private boolean checkIfOntologyLoaded() {
 
-		String queryString = "SELECT COUNT(*) FROM  MDSYS.SEM_MODEL$ WHERE MODEL_NAME=?";
+		String queryString = "SELECT COUNT(*) FROM  MDSYS.SEM_MODEL$ WHERE MODEL_NAME='" + MODEL_NAME + "'";
 		ResultSet resultSet;
 		try {
 
-			resultSet = oracle.executeQueryWithArg(queryString, "'" + MODEL_NAME + "'");
+			resultSet = oracle.executeQuery(queryString);
 			resultSet.next();
 			int result = resultSet.getInt(1);
-
 			if (result == 1) {
 				return true;
 			} else {
@@ -68,12 +67,13 @@ public class MainOntology {
 			System.out.println("Ontology was loaded before");
 
 		} else {
+			System.out.println("not loaded");
 			// perform batch load to load the ontology to main_ontology_model
 
 			// read ontology turtle file for file system
 			Model model = ModelFactory.createDefaultModel();
 			try {
-				InputStream is = FileManager.get().open("../../../../iot-platform.n3");
+				InputStream is = FileManager.get().open("iot-platform.n3");
 				model.read(new InputStreamReader(is), "http://iot-platform", "TURTLE");
 				is.close();
 			} catch (IOException e) {
@@ -82,49 +82,65 @@ public class MainOntology {
 			}
 
 			// create model to load triples
-
-			ModelOracleSem modelDest = null;
-
 			try {
-				modelDest = ModelOracleSem.createOracleSemModel(oracle, MODEL_NAME);
+				Model modelDest = ModelOracleSem.createOracleSemModel(oracle, MODEL_NAME);
+				// getting default graph of the created model to load triples into
+				// it
+				GraphOracleSem g = (GraphOracleSem) modelDest.getGraph();
+
+				// dropping table index to enhance performance of batch loading
+				try {
+					g.dropApplicationTableIndex();
+				} catch (SQLException sqle) {
+					System.out.println("Error Cannot drop table index: " + sqle.getMessage());
+					modelDest.close();
+					sqle.printStackTrace();
+				}
+
+				long startTime = System.currentTimeMillis();
+				System.out.println("Start batch load");
+				try {
+					// perform batch loading
+					((OracleBulkUpdateHandler) g.getBulkUpdateHandler()).addInBatch(GraphUtil.findAll(model.getGraph()),
+							oracle.getConnection().getUserName());
+					System.out.println("End size " + modelDest.size());
+
+					// recreate table index again
+					g.rebuildApplicationTableIndex();
+
+					System.out.println(
+							"testLoadReal: elapsed time (sec): " + ((System.currentTimeMillis() - startTime) / 1000));
+				} catch (SQLException e) {
+
+					System.out.println("Cannot batch load ontology : " + e.getMessage());
+
+					try {
+						// Drop created model after failing to batch load the
+						// ontology
+						OracleUtils.dropSemanticModel(oracle, MODEL_NAME);
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+					e.printStackTrace();
+				} 
+				modelDest.close();
 			} catch (SQLException e) {
+				
 				e.printStackTrace();
 			}
-			// getting default graph of the created model to load triples into
-			// it
-			GraphOracleSem g = (GraphOracleSem) modelDest.getGraph();
-
-			// dropping table index to enhance performance of batch loading
-			try {
-				g.dropApplicationTableIndex();
-			} catch (SQLException sqle) {
-				System.out.println("Error Cannot drop table index: " + sqle.getMessage());
-				sqle.printStackTrace();
-			} finally {
-				modelDest.close();
-			}
-
-			long startTime = System.currentTimeMillis();
-			System.out.println("Start batch load");
-			try {
-				// perform batch loading
-				((OracleBulkUpdateHandler) g.getBulkUpdateHandler()).addInBatch(GraphUtil.findAll(model.getGraph()),
-						oracle.getConnection().getUserName());
-				System.out.println("End size " + modelDest.size());
-
-				// recreate table index again
-				g.rebuildApplicationTableIndex();
-				System.out.println(
-						"testLoadReal: elapsed time (sec): " + ((System.currentTimeMillis() - startTime) / 1000));
-			} catch (SQLException e) {
-				System.out.println("Cannot batch load ontology : " + e.getMessage());
-				e.printStackTrace();
-			} finally {
-				modelDest.close();
+			finally {
+				
 			}
 
 		}
 
 	}
 
+	public static void main(String[] args) {
+
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+		MainOntology main = new MainOntology(new Oracle(szJdbcURL, szUser, szPasswd));
+	}
 }
