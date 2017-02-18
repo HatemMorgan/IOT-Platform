@@ -21,6 +21,8 @@ public class Application extends Class {
 		properties = new Hashtable<>();
 		properties.put("description",
 				new DataProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed));
+		properties.put("name",
+				new DataProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed));
 	}
 
 }
