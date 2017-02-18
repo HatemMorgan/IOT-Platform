@@ -6,15 +6,15 @@ package com.iotplatform.ontology;
  */
 public class DataProperty extends Property {
 
-	private Literal object;
+	private XSDDataTypes dataType;
 
-	public DataProperty(Class subject, Literal object) {
-		super(subject);
-		this.object = object;
+	public DataProperty(String name, Prefixes prefix, XSDDataTypes dataType) {
+		super(name, prefix);
+		this.dataType = dataType;
 	}
 
-	public Literal getObject() {
-		return object;
+	public XSDDataTypes getDataType() {
+		return dataType;
 	}
 
 }

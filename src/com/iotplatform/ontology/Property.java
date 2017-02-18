@@ -5,15 +5,21 @@ package com.iotplatform.ontology;
  *  A property must have a subject which must be an instance of a Class
  */
 public abstract class Property {
-	private Class subject;
+	private String name;
+	private Prefixes prefix;
 
-	public Property(Class subject) {
+	public Property(String name, Prefixes prefix) {
 
-		this.subject = subject;
+		this.name = name;
+		this.prefix = prefix;
 	}
 
-	public Class getSubject() {
-		return subject;
+	public String getName() {
+		return name;
+	}
+
+	public Prefixes getPrefix() {
+		return prefix;
 	}
 
 }
