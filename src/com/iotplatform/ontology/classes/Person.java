@@ -20,6 +20,21 @@ public class Person extends Class {
 	public Person() {
 		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF);
 
+		if (properties == null) {
+			init();
+		}
+
+		System.out.println("Person Bean Created");
+	}
+
+	public Person(String name, String uri, Prefixes prefix) {
+		super(name, uri, prefix);
+		if (properties == null) {
+			init();
+		}
+	}
+
+	private void init() {
 		properties = new Hashtable<>();
 		properties.put("age", new DataProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed));
 		properties.put("birthday", new DataProperty("birthday", Prefixes.FOAF, XSDDataTypes.string_typed));

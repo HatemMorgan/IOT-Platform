@@ -16,4 +16,11 @@ public class ObjectProperty extends Property {
 		return object;
 	}
 
+	@Override
+	public String toString() {
+		return "ObjectProperty [object=" + object + ", getName()=" + getName() + ", getPrefix()=" + getPrefix() + "]";
+	}
+
+	
+	
 }

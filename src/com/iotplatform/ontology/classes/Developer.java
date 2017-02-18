@@ -1,25 +1,29 @@
 package com.iotplatform.ontology.classes;
 
-import java.util.Hashtable;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.OntologyClass;
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.ontology.Property;
+
 
 @Component
-public class Developer extends Class {
-	private Person person;
-	private Hashtable<String , Property> properties;
-	@Autowired
-	public Developer(Person person){
+public class Developer extends Person {
+
+	
+	public Developer(){
 		super("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM);
-		this.person = person;
-		this.properties =  this.person.getProperties();
-		this.properties.put("adminOf",new ObjectProperty("adminOf", Prefixes.IOT_PLATFORM, OntologyClass.Application));
+		System.out.println(super.getProperties());
+		super.getProperties().put("developedApplication",new ObjectProperty("developedApplication", Prefixes.IOT_PLATFORM, OntologyClass.Application));
+		System.out.println("Developer Bean Created");
+		System.out.println("propertes size = "+super.getProperties().size());
+		System.out.println(super.getProperties().toString());
 	}
+	
+//	public static void main(String[] args) {
+//		Developer developer = new Developer();
+//		System.out.println(developer.getProperties().toString());
+//		Admin admin = new Admin();
+//		System.out.println(admin.getProperties().toString());
+//	}
 }

@@ -6,6 +6,8 @@ package com.iotplatform.ontology;
  */
 public class DataProperty extends Property {
 
+	
+
 	private XSDDataTypes dataType;
 
 	public DataProperty(String name, Prefixes prefix, XSDDataTypes dataType) {
@@ -17,4 +19,8 @@ public class DataProperty extends Property {
 		return dataType;
 	}
 
+	@Override
+	public String toString() {
+		return "DataProperty [dataType=" + dataType + ", getName()=" + getName() + ", getPrefix()=" + getPrefix() + "]";
+	}
 }

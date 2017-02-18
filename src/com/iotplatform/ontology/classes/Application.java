@@ -17,12 +17,16 @@ public class Application extends Class {
 
 	public Application() {
 		super("Application", "http://iot-platform#Application", Prefixes.IOT_PLATFORM);
-
+		
 		properties = new Hashtable<>();
 		properties.put("description",
 				new DataProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed));
 		properties.put("name",
 				new DataProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed));
+		
+		System.out.println("Applicatoin Bean Created");
+		System.out.println("propertes size = "+this.properties.size());
+		System.out.println(this.properties.toString());
 	}
 
 }
