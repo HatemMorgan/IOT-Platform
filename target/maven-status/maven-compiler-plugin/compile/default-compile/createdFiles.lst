@@ -1,7 +1,16 @@
+com/iotplatform/validations/ApplicationValidation.class
+com/iotplatform/ontology/Property.class
+com/iotplatform/ontology/XSDDataTypes.class
+com/iotplatform/ontology/ObjectProperty.class
 com/iotplatform/services/EmployeeService.class
+com/iotplatform/ontology/Class.class
 com/iotplatform/models/Employee.class
+com/iotplatform/ontology/DataType.class
+com/iotplatform/ontology/Literal.class
+com/iotplatform/ontology/MainOntology.class
 com/iotplatform/configs/DatabaseConnection.class
 com/iotplatform/configs/AppConfig.class
 com/iotplatform/daos/EmployeeDAO2.class
 com/iotplatform/configs/AppInitializer.class
+com/iotplatform/ontology/DataProperty.class
 com/iotplatform/controllers/EmployeeController.class

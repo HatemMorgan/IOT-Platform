@@ -6,9 +6,14 @@ import java.io.InputStreamReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Component;
 
 import org.apache.jena.graph.*;
@@ -39,9 +44,16 @@ public class MainOntology {
 		ResultSet resultSet;
 		try {
 
+			// java.sql.Statement stmt =
+			// jdbcTemplate.getDataSource().getConnection().createStatement();
+			// resultSet = stmt.executeQuery(queryString);
+			// resultSet.next();
+			// int result = resultSet.getInt(1);
+			// System.out.println(result);
 			resultSet = oracle.executeQuery(queryString);
 			resultSet.next();
 			int result = resultSet.getInt(1);
+			System.out.println(result);
 			if (result == 1) {
 				return true;
 			} else {
@@ -84,7 +96,8 @@ public class MainOntology {
 			// create model to load triples
 			try {
 				Model modelDest = ModelOracleSem.createOracleSemModel(oracle, MODEL_NAME);
-				// getting default graph of the created model to load triples into
+				// getting default graph of the created model to load triples
+				// into
 				// it
 				GraphOracleSem g = (GraphOracleSem) modelDest.getGraph();
 
@@ -110,37 +123,43 @@ public class MainOntology {
 
 					System.out.println(
 							"testLoadReal: elapsed time (sec): " + ((System.currentTimeMillis() - startTime) / 1000));
+
 				} catch (SQLException e) {
 
 					System.out.println("Cannot batch load ontology : " + e.getMessage());
 
 					try {
+
 						// Drop created model after failing to batch load the
 						// ontology
 						OracleUtils.dropSemanticModel(oracle, MODEL_NAME);
 					} catch (SQLException e1) {
 						e1.printStackTrace();
+					} finally {
+						modelDest.close();
+						e.printStackTrace();
 					}
-					e.printStackTrace();
-				} 
+
+				}
 				modelDest.close();
 			} catch (SQLException e) {
-				
+
 				e.printStackTrace();
-			}
-			finally {
-				
+			} finally {
+
 			}
 
 		}
 
 	}
 
-	public static void main(String[] args) {
-
-		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
-		String szUser = "rdfusr";
-		String szPasswd = "rdfusr";
-		MainOntology main = new MainOntology(new Oracle(szJdbcURL, szUser, szPasswd));
-	}
+//	public static void main(String[] args) throws SQLException {
+//
+//		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+//		String szUser = "rdfusr";
+//		String szPasswd = "rdfusr";
+//		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+//		MainOntology main = new MainOntology(oracle);
+//		OracleUtils.dropSemanticModel(oracle, "MAIN_ONTOLOGY_MODEL");
+//	}
 }
