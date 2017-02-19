@@ -4,7 +4,7 @@ public enum Prefixes {
 	SSN("http://purl.oclc.org/NET/ssnx/ssn#","ssn:"), 
 	GEO("http://www.w3.org/2003/01/geo/wgs84_pos#","geo:"), 
 	IOT_LITE( "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#","iot-lite:"),
-	IOT_PLATFORM("http://iot-platform#","iot-platform:"),
+	IOT_PLATFORM("http://iot-platform.com#","iot-platform:"),
 	FOAF("http://xmlns.com/foaf/0.1/","foaf:"),
 	XSD("http://www.w3.org/2001/XMLSchema#","xsd:"),
 	OWL("http://www.w3.org/2002/07/owl#","owl:"),

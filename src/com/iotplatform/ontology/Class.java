@@ -16,4 +16,16 @@ public class Class {
 		this.prefix = prefix;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public String getUri() {
+		return uri;
+	}
+
+	public Prefixes getPrefix() {
+		return prefix;
+	}
+
 }
