@@ -2,6 +2,7 @@ package com.iotplatform.daos;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Hashtable;
@@ -155,9 +156,37 @@ public class ApplicationDAO {
 	 * getApplication method perform a query on application data graph
 	 */
 	public Hashtable<String, Object> getApplication(String applicationName){
+		String applicationModelName = applicationName.replaceAll(" ", "").toUpperCase() + suffix;
+		long startTime = System.currentTimeMillis();
+		System.out.println("Started at : "+startTime/1000);
+		
+		String subject = Prefixes.IOT_PLATFORM.getPrefix() + applicationName.replaceAll(" ", "").toLowerCase();
+		Hashtable<String,Object> results = new Hashtable<>();
+		
+		ResultSetMetaData metadata;
+		try {
+			String queryString = "select p,o from table(sem_match(' select  ?p ?o where {?s ?p ?o.}',SEM_Models('TESTAPP_MODEL'), null,SEM_ALIASES(SEM_ALIAS('iot-platform','http://iot-platform#')),null))";
+			System.out.println(queryString);
+			java.sql.ResultSet res = oracle.executeQuery(queryString,0, 1);
+			metadata = res.getMetaData();
+			int columnCount = metadata.getColumnCount();
+
+			
+
+			while (res.next()) {
+				 results.put(res.getString(1), res.getObject(2));
+		
+			}
+			System.out.println("test selecting: elapsed time (sec): " + ((System.currentTimeMillis() - startTime) / 1000));
+			return results;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return null;
 	}
-	
+
 	public static void main(String[] args) {
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
 		String szUser = "rdfusr";
@@ -200,5 +229,9 @@ public class ApplicationDAO {
 		// System.out.println("");
 		// applicationDAO.insertApplication(htblPropValue, "Test App");
 
+		// Testing select query of an application
+		System.out.println("Application Found :" + applicationDAO.checkIfApplicationModelExsist("Test App"));
+		Hashtable<String, Object> res = applicationDAO.getApplication("Test App");
+		System.out.println(res.toString());
 	}
 }

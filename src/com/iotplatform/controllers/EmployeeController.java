@@ -1,5 +1,6 @@
 package com.iotplatform.controllers;
 
+import java.util.Hashtable;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iotplatform.daos.ApplicationDAO;
+import com.iotplatform.models.ApplicationModel;
 import com.iotplatform.models.Employee;
 import com.iotplatform.services.EmployeeService;
 
@@ -21,6 +26,9 @@ import com.iotplatform.services.EmployeeService;
 public class EmployeeController {
 	@Autowired
 	private EmployeeService employeeService;
+	
+	@Autowired
+	private ApplicationDAO applicationDAO;
 
 //	@RequestMapping("/")
 //	public String showHome() {
@@ -52,4 +60,24 @@ public class EmployeeController {
 		}
 		return new ResponseEntity<Employee>(employee, HttpStatus.OK);
 	}
+	
+	@RequestMapping(value = "/test/{code}", method = RequestMethod.GET)
+	public ResponseEntity<String> getApplication(@PathVariable("code") String applicaitonCode) {
+		Hashtable<String, Object> res =  applicationDAO.getApplication(applicaitonCode);
+		if (res == null) {
+			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+		}
+		ApplicationModel applicationModel = new ApplicationModel(res);
+		ObjectMapper mapper = new ObjectMapper();
+		String jsonInString;
+		try {
+			jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(applicationModel);
+			return new ResponseEntity<String>(jsonInString, HttpStatus.OK);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+	}
+	
 }

@@ -1,8 +1,19 @@
 package com.iotplatform.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.Hashtable;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonView;
+
+
+
 public class ApplicationModel {
-	
+	@JsonView(View.Summary.class)
+	Hashtable<String,Object> list;
+
+	@JsonCreator
+	public ApplicationModel(Hashtable<String, Object>list) {
+		this.list = list;
+	}
 }
