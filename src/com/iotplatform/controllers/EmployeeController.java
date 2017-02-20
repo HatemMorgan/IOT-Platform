@@ -80,4 +80,22 @@ public class EmployeeController {
 		return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
 	}
 	
+	@RequestMapping(value = "/test", method = RequestMethod.GET)
+	public ResponseEntity<String> getOntoloy() {
+		Hashtable<String, Object> res =  applicationDAO.getOntology("");
+		if (res == null) {
+			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+		}
+		ApplicationModel applicationModel = new ApplicationModel(res);
+		ObjectMapper mapper = new ObjectMapper();
+		String jsonInString;
+		try {
+			jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(applicationModel);
+			return new ResponseEntity<String>(jsonInString, HttpStatus.OK);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+	}
 }
