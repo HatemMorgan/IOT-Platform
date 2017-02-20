@@ -20,22 +20,20 @@ import com.iotplatform.models.ApplicationModel;
 import com.iotplatform.models.Employee;
 import com.iotplatform.services.EmployeeService;
 
-
-
 @RestController
 public class EmployeeController {
 	@Autowired
 	private EmployeeService employeeService;
-	
+
 	@Autowired
 	private ApplicationDao applicationDAO;
 
-//	@RequestMapping("/")
-//	public String showHome() {
-//		return "home";
-//	}
-	
-	 public EmployeeController() {
+	// @RequestMapping("/")
+	// public String showHome() {
+	// return "home";
+	// }
+
+	public EmployeeController() {
 		System.out.println("EmployeeController Created");
 	}
 
@@ -60,42 +58,59 @@ public class EmployeeController {
 		}
 		return new ResponseEntity<Employee>(employee, HttpStatus.OK);
 	}
-	
-	@RequestMapping(value = "/test/{code}", method = RequestMethod.GET)
-	public ResponseEntity<String> getApplication(@PathVariable("code") String applicaitonCode) {
-		Hashtable<String, Object> res =  applicationDAO.getApplication(applicaitonCode);
+
+	@RequestMapping(value = "/test/{code}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<Hashtable<String, Object>> getApplication(@PathVariable("code") String applicaitonCode) {
+		Hashtable<String, Object> res = applicationDAO.getApplication(applicaitonCode);
 		if (res == null) {
-			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<Hashtable<String, Object>>(HttpStatus.NOT_FOUND);
 		}
-		ApplicationModel applicationModel = new ApplicationModel(res);
-		ObjectMapper mapper = new ObjectMapper();
-		String jsonInString;
-		try {
-			jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(applicationModel);
-			return new ResponseEntity<String>(jsonInString, HttpStatus.OK);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+
+		return new ResponseEntity<Hashtable<String, Object>>(res, HttpStatus.OK);
+//		if (res == null) {
+//			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+//		}
+//		ApplicationModel applicationModel = new ApplicationModel(res);
+//		ObjectMapper mapper = new ObjectMapper();
+//		String jsonInString;
+//		try {
+//			jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(applicationModel);
+//			return new ResponseEntity<String>(jsonInString, HttpStatus.OK);
+//		} catch (JsonProcessingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
 	}
-	
-	@RequestMapping(value = "/test", method = RequestMethod.GET)
-	public ResponseEntity<String> getOntoloy() {
-		Hashtable<String, Object> res =  applicationDAO.getOntology("");
+
+	// @RequestMapping(value = "/test", method = RequestMethod.GET)
+	// public ResponseEntity<String> getOntoloy() {
+	// Hashtable<String, Object> res = applicationDAO.getOntology("");
+	// if (res == null) {
+	// return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+	// }
+	// ApplicationModel applicationModel = new ApplicationModel(res);
+	// ObjectMapper mapper = new ObjectMapper();
+	// String jsonInString;
+	// try {
+	// jsonInString =
+	// mapper.writerWithDefaultPrettyPrinter().writeValueAsString(applicationModel);
+	// return new ResponseEntity<String>(jsonInString, HttpStatus.OK);
+	// } catch (JsonProcessingException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+	// }
+
+	@RequestMapping(value = "/ontology", method = RequestMethod.GET)
+	public ResponseEntity<Hashtable<String, Object>> getOntoloy() {
+		Hashtable<String, Object> res = applicationDAO.getOntology("");
 		if (res == null) {
-			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<Hashtable<String, Object>>(HttpStatus.NOT_FOUND);
 		}
-		ApplicationModel applicationModel = new ApplicationModel(res);
-		ObjectMapper mapper = new ObjectMapper();
-		String jsonInString;
-		try {
-			jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(applicationModel);
-			return new ResponseEntity<String>(jsonInString, HttpStatus.OK);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+
+		return new ResponseEntity<Hashtable<String, Object>>(res, HttpStatus.OK);
+
 	}
 }
