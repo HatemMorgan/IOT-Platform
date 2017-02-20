@@ -12,6 +12,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.classes.Admin;
@@ -30,27 +31,17 @@ public class ValidationDao {
 		this.oracle = oracle;
 	}
 
-	public int checkIfInstanceExsist(String applicationName, Class valueClassType, Object value) {
-		String modelName = applicationName.replaceAll(" ", "").toUpperCase() + suffix;
-		String queryString = "select found from table(sem_match('select (count(*) as ?found) where{ ? a ? .}',sem_models(?),null,SEM_ALIASES(SEM_ALIAS(?,?)),null))";
+	public int checkIfInstanceExsist(String applicationName, Hashtable<Class, Object> htblClassValue) {
+		String queryString = constructQuery(applicationName, htblClassValue);
 		try {
-			PreparedStatement stat = oracle.getConnection().prepareStatement(queryString);
-			stat.setObject(1, valueClassType.getPrefix().getPrefix() + value.toString());
-			stat.setObject(2, valueClassType.getPrefix() + valueClassType.getName());
-			stat.setString(3, modelName);
-			stat.setString(4, valueClassType.getPrefix().toString().toLowerCase());
-			stat.setString(5, valueClassType.getPrefix().getUri());
-
 			ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
 			resultSet.next();
-			int found = resultSet.getInt(1);
-			System.out.println(found);
+			return resultSet.getInt(1);
+			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new DatabaseException(e.getMessage(), e.getErrorCode());
+			
 		}
-
-		return 0;
 	}
 
 	/*
@@ -115,9 +106,16 @@ public class ValidationDao {
 		// System.out.println(Prefixes.SSN.toString().toLowerCase());
 		Hashtable<Class, Object> htblClassValue = new Hashtable<>();
 		htblClassValue.put(new Application(), "testApp");
-		htblClassValue.put(new Person(), "Hatem");
-		String autoConstructedQuery = validationDao.constructQuery("testApp", htblClassValue);
-		System.out.println(autoConstructedQuery);
+		// this will fail the check
+//		htblClassValue.put(new Person(), "Hatem");
+		try{
+		System.out.println(validationDao.checkIfInstanceExsist("testApp", htblClassValue));
+		}catch (DatabaseException e) {
+		  System.out.println(e.getCode());
+		  System.out.println(e.getMessage());
+		  System.out.println(e.getExceptionCode());
+		  System.out.println(e.getExceptionMessage());
+		}
 
 	}
 }
