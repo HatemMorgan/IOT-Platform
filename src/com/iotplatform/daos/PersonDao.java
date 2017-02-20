@@ -8,14 +8,14 @@ import com.iotplatform.ontology.classes.Developer;
 import com.iotplatform.ontology.classes.NormalUser;
 
 //@Component
-public class PersonDAO {
+public class PersonDao {
 
 	private Admin admin;
 	private Developer developer;
 	private NormalUser normalUser;
 
 //	@Autowired
-	public PersonDAO(Admin admin, Developer developer, NormalUser normalUser) {
+	public PersonDao(Admin admin, Developer developer, NormalUser normalUser) {
 		super();
 		this.admin = admin;
 		this.developer = developer;

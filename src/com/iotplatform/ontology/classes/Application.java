@@ -1,32 +1,25 @@
 package com.iotplatform.ontology.classes;
 
-import java.util.Hashtable;
-
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataProperty;
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 
 @Component
 public class Application extends Class {
 
-	private Hashtable<String, Property> properties;
-
 	public Application() {
 		super("Application", "http://iot-platform#Application", Prefixes.IOT_PLATFORM);
-		
-		properties = new Hashtable<>();
-		properties.put("description",
+
+		this.getProperties().put("description",
 				new DataProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed));
-		properties.put("name",
-				new DataProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed));
-		
+		this.getProperties().put("name", new DataProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed));
+
 		System.out.println("Applicatoin Bean Created");
-		System.out.println("propertes size = "+this.properties.size());
-		System.out.println(this.properties.toString());
+		System.out.println("propertes size = " + this.getProperties().size());
+		System.out.println(this.getProperties().toString());
 	}
 
 }

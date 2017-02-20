@@ -32,13 +32,13 @@ import oracle.spatial.rdf.client.jena.OracleUtils;
  *  Application Data Access Object which is responsible for dealing with application graph in database
  */
 @Component
-public class ApplicationDAO {
+public class ApplicationDao {
 	private Oracle oracle;
 	private final String suffix = "_MODEL";
 	private Application applicationClass;
 
 	@Autowired
-	public ApplicationDAO(Oracle oracle, Application applicationClass) {
+	public ApplicationDao(Oracle oracle, Application applicationClass) {
 		System.out.println("ApplicationDAO Created");
 		this.oracle = oracle;
 		this.applicationClass = applicationClass;
@@ -233,7 +233,7 @@ public class ApplicationDAO {
 		// dataSource.setUsername(szUser);
 		// dataSource.setPassword(szPasswd);
 
-		ApplicationDAO applicationDAO = new ApplicationDAO(new Oracle(szJdbcURL, szUser, szPasswd), new Application());
+		ApplicationDao applicationDAO = new ApplicationDao(new Oracle(szJdbcURL, szUser, szPasswd), new Application());
 
 		// test creation and dropping models
 		// System.out.println("Application Found :" +

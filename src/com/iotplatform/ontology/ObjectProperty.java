@@ -5,22 +5,21 @@ package com.iotplatform.ontology;
  * It must have a subject of type class and a value of instance of Class
  */
 public class ObjectProperty extends Property {
-	private OntologyClass object;
+	private Class object;
 
-	public ObjectProperty(String name, Prefixes prefix, OntologyClass object) {
+	public ObjectProperty(String name, Prefixes prefix, Class object) {
 		super(name, prefix);
 		this.object = object;
 	}
 
-	public OntologyClass getObject() {
+	public Class getObject() {
 		return object;
 	}
 
 	@Override
 	public String toString() {
-		return "ObjectProperty [object=" + object + ", getName()=" + getName() + ", getPrefix()=" + getPrefix() + "]";
+		return "ObjectProperty [object=" + object + "]";
 	}
 
-	
 	
 }
