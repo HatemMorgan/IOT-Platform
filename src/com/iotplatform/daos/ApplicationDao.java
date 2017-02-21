@@ -13,6 +13,7 @@ import org.apache.jena.update.UpdateAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.classes.Application;
 
@@ -101,7 +102,7 @@ public class ApplicationDao {
 	 * (eg:iot-plaform:applicationDescription) and the object of the property as
 	 * the value
 	 */
-	public int insertApplication(Hashtable<String, Object> htblPropValue, String applicationName) {
+	public void insertApplication(Hashtable<String, Object> htblPropValue, String applicationName) {
 		String applicationModelName = applicationName.replaceAll(" ", "").toUpperCase() + suffix;
 
 		ModelOracleSem model;
@@ -136,13 +137,11 @@ public class ApplicationDao {
 			System.out.println(stringBuilder.toString());
 			UpdateAction.parseExecute(stringBuilder.toString(), model);
 			model.close();
-			return 1;
-		} catch (SQLException e1) {
-			e1.printStackTrace();
 
+		} catch (SQLException e1) {
+			throw new DatabaseException(e1.getMessage(), "Application");
 		}
 
-		return 0;
 	}
 
 	/*
@@ -159,16 +158,16 @@ public class ApplicationDao {
 		ResultSetMetaData metadata;
 		try {
 			String queryString = "select p,o from table(sem_match('select  ?p ?o where {" + subject + "  ?p ?o.}',"
-					 			+ "SEM_Models('" + applicationModelName + "'), null,"
-					 			+ "SEM_ALIASES(SEM_ALIAS('iot-platform','http://iot-platform#')),null))";
-			
+					+ "SEM_Models('" + applicationModelName + "'), null,"
+					+ "SEM_ALIASES(SEM_ALIAS('iot-platform','http://iot-platform#')),null))";
+
 			System.out.println(queryString);
 			java.sql.ResultSet res = oracle.executeQuery(queryString, 0, 1);
 			metadata = res.getMetaData();
-			//int columnCount = metadata.getColumnCount();
+			// int columnCount = metadata.getColumnCount();
 
 			while (res.next()) {
-				
+
 				results.put(res.getString(1), res.getObject(2));
 
 			}
@@ -241,20 +240,25 @@ public class ApplicationDao {
 		// applicationDAO.checkIfApplicationModelExsist("test"));
 
 		// test inserting a new application
-//		System.out.println("Application dropped :" + applicationDAO.dropApplicationModel("Test App"));
-//		System.out.println("Application Found :" + applicationDAO.checkIfApplicationModelExsist("Test App"));
-//		System.out.println("Application Created :" + applicationDAO.createNewApplicationModel("Test App"));
-//
-//		Hashtable<String, Object> htblPropValue = new Hashtable<>();
-//		htblPropValue.put("iot-platform:description",
-//				"\"Test Application for testing purpose\"" + XSDDataTypes.string_typed.getXsdType());
-//		htblPropValue.put("iot-platform:name", "\"Test Application\"" + XSDDataTypes.string_typed.getXsdType());
-//		System.out.println("");
-//		applicationDAO.insertApplication(htblPropValue, "Test App");
+		// System.out.println("Application dropped :" +
+		// applicationDAO.dropApplicationModel("Test App"));
+		// System.out.println("Application Found :" +
+		// applicationDAO.checkIfApplicationModelExsist("Test App"));
+		// System.out.println("Application Created :" +
+		// applicationDAO.createNewApplicationModel("Test App"));
+		//
+		// Hashtable<String, Object> htblPropValue = new Hashtable<>();
+		// htblPropValue.put("iot-platform:description",
+		// "\"Test Application for testing purpose\"" +
+		// XSDDataTypes.string_typed.getXsdType());
+		// htblPropValue.put("iot-platform:name", "\"Test Application\"" +
+		// XSDDataTypes.string_typed.getXsdType());
+		// System.out.println("");
+		// applicationDAO.insertApplication(htblPropValue, "Test App");
 
 		// Testing select query of an application
-		 System.out.println("Application Found :" +applicationDAO.checkIfApplicationModelExsist("Test App"));
-		 Hashtable<String, Object> res = applicationDAO.getApplication("Test App");
-		 System.out.println(res.toString());
+		System.out.println("Application Found :" + applicationDAO.checkIfApplicationModelExsist("Test App"));
+		Hashtable<String, Object> res = applicationDAO.getApplication("Test App");
+		System.out.println(res.toString());
 	}
 }

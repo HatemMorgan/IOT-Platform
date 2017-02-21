@@ -40,7 +40,7 @@ public class ValidationDao {
 			return resultSet.getInt(1);
 
 		} catch (SQLException e) {
-			throw new DatabaseException(e.getMessage(), e.getErrorCode());
+			throw new DatabaseException(e.getMessage(),"Application");
 
 		}
 	}

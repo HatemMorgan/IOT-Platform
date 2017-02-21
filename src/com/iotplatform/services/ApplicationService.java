@@ -7,6 +7,11 @@ import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.ValidationDao;
+import com.iotplatform.exceptions.CannotCreateApplicationModelException;
+import com.iotplatform.exceptions.DatabaseException;
+import com.iotplatform.exceptions.InvalidPropertyValuesException;
+import com.iotplatform.exceptions.InvalidRequestFieldsException;
+import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.classes.Application;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -49,7 +54,10 @@ public class ApplicationService {
 				if (!exist) {
 					applicationName = value.toString();
 				} else {
-					return null;
+					CannotCreateApplicationModelException err = new CannotCreateApplicationModelException(
+							"There is an application exist with this name . application name has to be unique",
+							"Application");
+					return err.getExceptionHashTable();
 				}
 			}
 		}
@@ -67,7 +75,8 @@ public class ApplicationService {
 		if (isValid) {
 			isValid = requestValidationService.isPropertiesValid(applicationName, applicationClass, htblPropValue);
 		} else {
-			return null;
+			InvalidRequestFieldsException err = new InvalidRequestFieldsException("Application");
+			return err.getExceptionHashTable();
 		}
 
 		/*
@@ -75,19 +84,20 @@ public class ApplicationService {
 		 * then we are able to insert data to the application's model
 		 */
 		if (isValid) {
-			int count = applicationDao.insertApplication(htblPropValue, applicationName);
 
-			if (count == 1) {
-				// inserted successfully
-			} else {
-				return null;
+			try {
+				applicationDao.insertApplication(htblPropValue, applicationName);
+				SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application");
+				return successModel.getResponseJson();
+			} catch (DatabaseException ex) {
+				return ex.getExceptionHashTable();
 			}
 
 		} else {
-			return null;
+			InvalidPropertyValuesException err = new InvalidPropertyValuesException("Application");
+			return err.getExceptionHashTable();
 		}
 
-		return null;
 	}
 
 	public static void main(String[] args) {
@@ -105,7 +115,12 @@ public class ApplicationService {
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		htblPropValue.put("name", "Test Application");
 		htblPropValue.put("description", "Test App Description");
+		
+		long startTime = System.currentTimeMillis();
+		System.out.println("Started at : " + startTime / 1000);
 		applicationService.insertApplication(htblPropValue);
+		System.out.println(
+				"test inserting: elapsed time (sec): " + ((System.currentTimeMillis() - startTime) / 1000));
 
 	}
 }
