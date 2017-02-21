@@ -4,24 +4,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
-import javax.sql.DataSource;
-
-import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.update.UpdateAction;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.Application;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
@@ -31,7 +23,8 @@ import oracle.spatial.rdf.client.jena.OracleUtils;
 /*
  *  Application Data Access Object which is responsible for dealing with application graph in database
  */
-@Component
+
+@Repository("applicationDao")
 public class ApplicationDao {
 	private Oracle oracle;
 	private final String suffix = "_MODEL";

@@ -1,0 +1,57 @@
+package com.iotplatform.exceptions;
+
+import java.util.Hashtable;
+
+import org.springframework.http.HttpStatus;
+
+public class ErrorObjException extends RuntimeException {
+
+	private String message;
+	private int code;
+	private int exceptionCode;
+	private String exceptionMessage;
+	private String domain;
+
+	public ErrorObjException(String message, int code, int exceptionCode, String exceptionMessage, String domain) {
+		super();
+		this.message = message;
+		this.code = code;
+		this.exceptionCode = exceptionCode;
+		this.exceptionMessage = exceptionMessage;
+		this.domain = domain;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public int getCode() {
+		return code;
+	}
+
+	public int getExceptionCode() {
+		return exceptionCode;
+	}
+
+	public String getExceptionMessage() {
+		return exceptionMessage;
+	}
+
+	public Hashtable<String, Object> getExceptionHashTable() {
+		Hashtable<String, Object> htblException = new Hashtable<>();
+		htblException.put("code", code);
+		htblException.put("message", message);
+
+		Hashtable<String, Object>[] errorsArr = (Hashtable<String, Object>[]) new Hashtable<?, ?>[3];
+		Hashtable<String, Object> error = new Hashtable<>();
+		error.put("domain", domain);
+		error.put("errorCode", exceptionCode);
+		error.put("message", exceptionMessage);
+
+		errorsArr[0] = error;
+
+		htblException.put("errors", errorsArr);
+		return htblException;
+	}
+
+}

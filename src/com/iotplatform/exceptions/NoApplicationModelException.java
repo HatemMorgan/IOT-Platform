@@ -1,10 +1,21 @@
 package com.iotplatform.exceptions;
 
-public class NoApplicationModelException extends RuntimeException {
+import java.util.Hashtable;
+
+import org.springframework.http.HttpStatus;
+
+public class NoApplicationModelException extends ErrorObjException {
+
 	static String prefix = "No Application model with this name: ";
 	static String suffix = " . You have to register and create a new application with this name or enter the right name.";
-	public NoApplicationModelException(String applicationName){
-		super(prefix+applicationName+suffix);
+	
+	public NoApplicationModelException(String message, int code, int exceptionCode, String exceptionMessage,
+			String applicationname,String domain) {
+		super("Model Not Found", HttpStatus.NOT_FOUND.value(),exceptionCode, prefix+applicationname+suffix,domain);
+		// TODO Auto-generated constructor stub
 	}
 	
+	
+	
 }
+

@@ -1,4 +1,4 @@
-package com.iotplatform.validations;
+package com.iotplatform.services;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -18,12 +18,12 @@ import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 
 @Component
-public class RequestValidation {
+public class RequestValidationService {
 
 	private ValidationDao validationDao;
 
 	@Autowired
-	public RequestValidation(ValidationDao validationDao) {
+	public RequestValidationService(ValidationDao validationDao) {
 		System.out.println("Request Validation Bean Created");
 		this.validationDao = validationDao;
 	}
@@ -32,11 +32,13 @@ public class RequestValidation {
 	 * checkIfFieldsValid checks if the fields passed by the http request are
 	 * valid or not
 	 */
-	public boolean isFieldsValid(Class ontologyClass, ArrayList<String> fields) {
+	public boolean isFieldsValid(Class ontologyClass, Hashtable<String, Object> fields) {
 
 		Hashtable<String, Property> htblProperties = ontologyClass.getProperties();
+		Iterator<String> iterator = fields.keySet().iterator();
 
-		for (String field : fields) {
+		while (iterator.hasNext()) {
+			String field = iterator.next();
 			if (!htblProperties.containsKey(field)) {
 				return false;
 			}
