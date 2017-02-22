@@ -12,7 +12,7 @@ public class ErrorObjException extends RuntimeException {
 	private String domain;
 
 	public ErrorObjException(String message, int code, String exceptionMessage, String domain) {
-		super();
+		super(exceptionMessage);
 		this.message = message;
 		this.code = code;
 		this.exceptionMessage = exceptionMessage;

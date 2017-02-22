@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.DataProperty;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.Property;
@@ -66,8 +66,8 @@ public class RequestValidationService {
 			Property property = htblProperties.get(propertyName);
 			Object value = htblPropertyValue.get(propertyName);
 
-			if (property instanceof DataProperty) {
-				DataProperty targetDataProperty = (DataProperty) property;
+			if (property instanceof DataTypeProperty) {
+				DataTypeProperty targetDataProperty = (DataTypeProperty) property;
 
 				if (!isDataValueValid(targetDataProperty, value)) {
 					return false;
@@ -119,8 +119,8 @@ public class RequestValidationService {
 			default:
 				alias = prefix.getPrefix().toLowerCase();
 			}
-			if(property instanceof DataProperty){
-				XSDDataTypes xsdDataType = ((DataProperty) property).getDataType();
+			if(property instanceof DataTypeProperty){
+				XSDDataTypes xsdDataType = ((DataTypeProperty) property).getDataType();
 				value = "\""+value.toString()+"\""+ xsdDataType.getXsdType();
 			}
 			
@@ -135,7 +135,7 @@ public class RequestValidationService {
 	 * checkIfDatatypesValid checks that the datatype of the values passed with
 	 * the property are valid to maintain data integrity and consistency
 	 */
-	private boolean isDataValueValid(DataProperty dataProperty, Object value) {
+	private boolean isDataValueValid(DataTypeProperty dataProperty, Object value) {
 
 		XSDDataTypes xsdDataType = dataProperty.getDataType();
 		switch (xsdDataType) {

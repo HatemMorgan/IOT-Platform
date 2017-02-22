@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.DataProperty;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
@@ -37,16 +37,16 @@ public class Person extends Class {
 	}
 
 	private void init() {
-		this.getProperties().put("age", new DataProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed));
-		this.getProperties().put("birthday", new DataProperty("birthday", Prefixes.FOAF, XSDDataTypes.string_typed));
+		this.getProperties().put("age", new DataTypeProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed));
+		this.getProperties().put("birthday", new DataTypeProperty("birthday", Prefixes.FOAF, XSDDataTypes.string_typed));
 		this.getProperties().put("familyName",
-				new DataProperty("familyName", Prefixes.FOAF, XSDDataTypes.string_typed));
-		this.getProperties().put("firstName", new DataProperty("firstName", Prefixes.FOAF, XSDDataTypes.string_typed));
-		this.getProperties().put("lastName", new DataProperty("lastName", Prefixes.FOAF, XSDDataTypes.string_typed));
-		this.getProperties().put("gender", new DataProperty("gender", Prefixes.FOAF, XSDDataTypes.string_typed));
-		this.getProperties().put("id", new DataProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed));
-		this.getProperties().put("title", new DataProperty("title", Prefixes.FOAF, XSDDataTypes.string_typed));
-		this.getProperties().put("userName", new DataProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed));
+				new DataTypeProperty("familyName", Prefixes.FOAF, XSDDataTypes.string_typed));
+		this.getProperties().put("firstName", new DataTypeProperty("firstName", Prefixes.FOAF, XSDDataTypes.string_typed));
+		this.getProperties().put("lastName", new DataTypeProperty("lastName", Prefixes.FOAF, XSDDataTypes.string_typed));
+		this.getProperties().put("gender", new DataTypeProperty("gender", Prefixes.FOAF, XSDDataTypes.string_typed));
+		this.getProperties().put("id", new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed));
+		this.getProperties().put("title", new DataTypeProperty("title", Prefixes.FOAF, XSDDataTypes.string_typed));
+		this.getProperties().put("userName", new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed));
 		this.getProperties().put("knows", new ObjectProperty("knows", Prefixes.FOAF,this));
 	}
 
