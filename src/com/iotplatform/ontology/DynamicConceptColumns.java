@@ -1,6 +1,6 @@
 package com.iotplatform.ontology;
 
-public enum DynamicPropertyColumns {
+public enum DynamicConceptColumns {
 	APPLICATION_NAME, CLASS_NAME, CLASS_URI, CLASS_PREFIX_URI, 
 	CLASS_PREFIX_ALIAS, PROPERTY_NAME, PROPERTY_URI, PROPERTY_PREFIX_URI,
 	PROPERTY_PREFIX_ALIAS, PROPERTY_TYPE, PROPERTY_OBJECT_TYPE

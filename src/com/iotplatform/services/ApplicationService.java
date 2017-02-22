@@ -90,7 +90,7 @@ public class ApplicationService {
 			try {
 				Hashtable<String, Object> htblPrefixedPropertyValue = requestValidationService.getPrefixedProperties(htblPropValue, applicationClass);
 				applicationDao.insertApplication(htblPrefixedPropertyValue, applicationName);
-				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000);
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 				SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application",timeTaken);
 				return successModel.getResponseJson();
 			} catch (DatabaseException ex) {
