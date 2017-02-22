@@ -13,6 +13,7 @@ import com.iotplatform.exceptions.InvalidPropertyValuesException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.classes.Application;
+import com.iotplatform.validations.RequestValidationService;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 

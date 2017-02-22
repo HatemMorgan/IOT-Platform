@@ -1,4 +1,4 @@
-package com.iotplatform.services;
+package com.iotplatform.validations;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
