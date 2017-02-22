@@ -54,7 +54,6 @@ public class DatabaseConnection {
 	}
 	@Bean(name="dataSource")
 	public DataSource getDataSource(){
-		System.out.println("------>"+env.getProperty("jdbc.database-driver"));
 	  BasicDataSource dataSource = new BasicDataSource();
 	  dataSource.setDriverClassName(env.getProperty("jdbc.database-driver"));
       dataSource.setUrl(env.getProperty("jdbc.url"));
