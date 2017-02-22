@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Repository;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.models.DynamicConceptModel;
-import com.iotplatform.ontology.PropertyType;
 
 @Repository("dynamicConceptsDao")
 public class DynamicConceptDao extends JdbcDaoSupport {

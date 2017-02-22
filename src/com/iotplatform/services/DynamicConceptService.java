@@ -1,6 +1,7 @@
 package com.iotplatform.services;
 
 import java.util.Hashtable;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,7 +49,16 @@ public class DynamicConceptService {
 	}
 
 	public Hashtable<String, Object> getApplicationDynamicConcepts(String applicationName) {
-		return null;
+		
+		try{
+			List<DynamicConceptModel> concepts = dynamicConceptDao.getConceptsOfApplication(applicationName);
+			Hashtable<String, Object> json = new Hashtable<>();
+			json.put("dynamicAddedConcepts",concepts);
+			return json;
+		}catch (ErrorObjException e) {
+			return e.getExceptionHashTable();
+		}
+		
 	}
 
 }
