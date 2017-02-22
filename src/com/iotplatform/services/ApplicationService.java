@@ -38,8 +38,9 @@ public class ApplicationService {
 	 */
 
 	public Hashtable<String, Object> insertApplication(Hashtable<String, Object> htblPropValue) {
+		long startTime = System.currentTimeMillis();
 		String applicationName = "";
-
+		
 		/*
 		 * check if the model exist or not . it pass the application name after
 		 * checking that the passed request has property name and its value is a
@@ -88,7 +89,8 @@ public class ApplicationService {
 			try {
 				Hashtable<String, Object> htblPrefixedPropertyValue = requestValidationService.getPrefixedProperties(htblPropValue, applicationClass);
 				applicationDao.insertApplication(htblPrefixedPropertyValue, applicationName);
-				SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application");
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000);
+				SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application",timeTaken);
 				return successModel.getResponseJson();
 			} catch (DatabaseException ex) {
 				return ex.getExceptionHashTable();

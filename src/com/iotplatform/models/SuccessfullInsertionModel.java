@@ -15,6 +15,13 @@ public class SuccessfullInsertionModel {
 		responseJson.put("message", HttpStatus.CREATED.name());
 		responseJson.put("domain", domain);
 	}
+	
+
+	public SuccessfullInsertionModel(String domain,double time) {
+
+		this(domain);
+		responseJson.put("time",time+" sec");
+	}
 
 	public Hashtable<String, Object> getResponseJson() {
 		return responseJson;
