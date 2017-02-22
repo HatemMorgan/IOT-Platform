@@ -34,7 +34,9 @@ public class DynamicConceptService {
 			 * application name domain
 			 */
 
-			if (!applicationName.equals(newConcept.getApplication_name())) {
+			if (!applicationName.replaceAll(" ", "").toLowerCase()
+					.equals(newConcept.getApplication_name().replaceAll(" ", "").toLowerCase())) {
+				
 				ErrorObjException err = new ErrorObjException(HttpStatus.BAD_REQUEST.name(),
 						HttpStatus.BAD_REQUEST.value(), "Wrong Application name ", "Ontology");
 				return err.getExceptionHashTable();
@@ -49,16 +51,16 @@ public class DynamicConceptService {
 	}
 
 	public Hashtable<String, Object> getApplicationDynamicConcepts(String applicationName) {
-		
-		try{
+
+		try {
 			List<DynamicConceptModel> concepts = dynamicConceptDao.getConceptsOfApplication(applicationName);
 			Hashtable<String, Object> json = new Hashtable<>();
-			json.put("dynamicAddedConcepts",concepts);
+			json.put("dynamicAddedConcepts", concepts);
 			return json;
-		}catch (ErrorObjException e) {
+		} catch (ErrorObjException e) {
 			return e.getExceptionHashTable();
 		}
-		
+
 	}
 
 }
