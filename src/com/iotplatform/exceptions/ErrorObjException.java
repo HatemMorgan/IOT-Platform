@@ -37,7 +37,7 @@ public class ErrorObjException extends RuntimeException {
 		htblException.put("code", code);
 		htblException.put("message", message);
 
-		Hashtable<String, Object>[] errorsArr = (Hashtable<String, Object>[]) new Hashtable<?, ?>[3];
+		Hashtable<String, Object>[] errorsArr = (Hashtable<String, Object>[]) new Hashtable<?, ?>[1];
 		Hashtable<String, Object> error = new Hashtable<>();
 		error.put("domain", domain);
 		error.put("message", exceptionMessage);

@@ -116,6 +116,7 @@ public class ApplicationDao {
 			stringBuilder.append(
 					"PREFIX " + Prefixes.IOT_PLATFORM.getPrefix() + "<" + Prefixes.IOT_PLATFORM.getUri() + ">\n");
 			stringBuilder.append("PREFIX " + Prefixes.XSD.getPrefix() + "<" + Prefixes.XSD.getUri() + ">\n");
+			stringBuilder.append("PREFIX " + Prefixes.FOAF.getPrefix() + "<" + Prefixes.FOAF.getUri() + ">\n");
 			stringBuilder.append("INSERT DATA { \n");
 			stringBuilder.append(subject + " a " + "<" + applicationClass.getUri() + "> ; \n");
 			while (iterator.hasNext()) {
@@ -257,8 +258,8 @@ public class ApplicationDao {
 		// applicationDAO.insertApplication(htblPropValue, "Test App");
 
 		// Testing select query of an application
-		System.out.println("Application Found :" + applicationDAO.checkIfApplicationModelExsist("Test App"));
-		Hashtable<String, Object> res = applicationDAO.getApplication("Test App");
-		System.out.println(res.toString());
+//		System.out.println("Application Found :" + applicationDAO.checkIfApplicationModelExsist("Test App"));
+//		Hashtable<String, Object> res = applicationDAO.getApplication("Test App");
+//		System.out.println(res.toString());
 	}
 }

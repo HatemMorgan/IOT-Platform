@@ -14,6 +14,7 @@ import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataProperty;
 import com.iotplatform.ontology.ObjectProperty;
+import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 
@@ -85,6 +86,49 @@ public class RequestValidationService {
 		}
 
 		return isValid;
+	}
+
+	/*
+	 * getPrefixedProperties method is used to return a prefixed properties to
+	 * the service to be used by the data access object (dao)
+	 * 
+	 */
+	public Hashtable<String, Object> getPrefixedProperties(Hashtable<String, Object> htblPropValue, Class targetClass) {
+		Iterator<String> iterator = htblPropValue.keySet().iterator();
+		Hashtable<String, Property> targetClassProperty = targetClass.getProperties();
+		Hashtable<String, Object> returnedPrefixProperties = new Hashtable<>();
+		while (iterator.hasNext()) {
+			String propertyName = iterator.next();
+			Object value = htblPropValue.get(propertyName);
+			Property property = targetClassProperty.get(propertyName);
+			Prefixes prefix = property.getPrefix();
+			String alias;
+
+			/*
+			 * iot-lite and iot-platform prefixes does not have the alias that
+			 * is correct so I must change _ to - in order to have a correct
+			 * auto query construction
+			 */
+			switch (prefix) {
+			case IOT_LITE:
+				alias = "iot-lite:";
+				break;
+			case IOT_PLATFORM:
+				alias = "iot-platform:";
+				break;
+			default:
+				alias = prefix.getPrefix().toLowerCase();
+			}
+			if(property instanceof DataProperty){
+				XSDDataTypes xsdDataType = ((DataProperty) property).getDataType();
+				value = "\""+value.toString()+"\""+ xsdDataType.getXsdType();
+			}
+			
+			
+			returnedPrefixProperties.put(alias+ propertyName, value);
+		}
+
+		return returnedPrefixProperties;
 	}
 
 	/*

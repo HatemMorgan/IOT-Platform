@@ -86,7 +86,8 @@ public class ApplicationService {
 		if (isValid) {
 
 			try {
-				applicationDao.insertApplication(htblPropValue, applicationName);
+				Hashtable<String, Object> htblPrefixedPropertyValue = requestValidationService.getPrefixedProperties(htblPropValue, applicationClass);
+				applicationDao.insertApplication(htblPrefixedPropertyValue, applicationName);
 				SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application");
 				return successModel.getResponseJson();
 			} catch (DatabaseException ex) {
@@ -116,11 +117,14 @@ public class ApplicationService {
 		htblPropValue.put("name", "Test Application");
 		htblPropValue.put("description", "Test App Description");
 		
-		long startTime = System.currentTimeMillis();
-		System.out.println("Started at : " + startTime / 1000);
-		applicationService.insertApplication(htblPropValue);
-		System.out.println(
-				"test inserting: elapsed time (sec): " + ((System.currentTimeMillis() - startTime) / 1000));
+		applicationDao.dropApplicationModel("Test Application");
+		
+//		long startTime = System.currentTimeMillis();
+//		System.out.println("Started at : " + startTime / 1000);
+//		Hashtable<String,Object> res =  applicationService.insertApplication(htblPropValue);
+//		System.out.println(
+//				"test inserting: elapsed time (sec): " + ((System.currentTimeMillis() - startTime) / 1000));
+//		System.out.println(res.toString());
 
 	}
 }
