@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DynamicConceptModel {
 
-	private String application_model;
+	private String application_name;
 	private String class_name;
 	private String class_uri;
 	private String class_prefix_uri;
@@ -20,7 +20,7 @@ public class DynamicConceptModel {
 	private String property_object_type;
 
 	@JsonCreator
-	public DynamicConceptModel(@JsonProperty("applicationName") String application_model,
+	public DynamicConceptModel(@JsonProperty("applicationName") String application_name,
 			@JsonProperty("className") String class_name, @JsonProperty("classURI") String class_uri,
 			@JsonProperty("classPrefixURI") String class_prefix_uri,
 			@JsonProperty("classPrefixAlias") String class_prefix_alias,
@@ -30,7 +30,7 @@ public class DynamicConceptModel {
 			@JsonProperty("propertyType") String property_type,
 			@JsonProperty("propertyObjectType") String property_object_type) {
 
-		this.application_model = application_model;
+		this.application_name = application_name;
 		this.class_name = class_name;
 		this.class_uri = class_uri;
 		this.class_prefix_uri = class_prefix_uri;
@@ -47,8 +47,8 @@ public class DynamicConceptModel {
 
 	}
 
-	public String getApplication_model() {
-		return application_model;
+	public String getApplication_name() {
+		return application_name;
 	}
 
 	public String getClass_name() {
@@ -91,8 +91,8 @@ public class DynamicConceptModel {
 		return property_object_type;
 	}
 
-	public void setApplication_model(String application_model) {
-		this.application_model = application_model;
+	public void setApplication_name(String application_name) {
+		this.application_name = application_name;
 	}
 
 	public void setClass_name(String class_name) {
@@ -137,7 +137,7 @@ public class DynamicConceptModel {
 
 	@Override
 	public String toString() {
-		return "DynamicConceptModel [application_name=" + application_model + ", class_name=" + class_name
+		return "DynamicConceptModel [application_name=" + application_name + ", class_name=" + class_name
 				+ ", class_uri=" + class_uri + ", class_prefix_uri=" + class_prefix_uri + ", class_prefix_alias="
 				+ class_prefix_alias + ", property_name=" + property_name + ", property_uri=" + property_uri
 				+ ", property_prefix_uri=" + property_prefix_uri + ", property_prefix_alias=" + property_prefix_alias
