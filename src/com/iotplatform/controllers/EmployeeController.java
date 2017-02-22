@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iotplatform.daos.ApplicationDao;
-import com.iotplatform.models.ApplicationModel;
 import com.iotplatform.models.Employee;
 import com.iotplatform.services.EmployeeService;
 
