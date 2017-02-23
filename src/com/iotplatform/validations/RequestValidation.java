@@ -13,13 +13,20 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.DatabaseException;
+import com.iotplatform.exceptions.InvalidPropertyValuesException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.DynamicConceptColumns;
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
+import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.classes.Admin;
+import com.iotplatform.ontology.classes.Application;
+import com.iotplatform.ontology.classes.Developer;
+import com.iotplatform.ontology.classes.NormalUser;
 import com.iotplatform.ontology.classes.Person;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -43,12 +50,12 @@ public class RequestValidation {
 	 * which contains the hashtable of dynamic properties and the other
 	 * hashtable for static properties
 	 */
-	private Hashtable<String, Object>[] isFieldsValid(String applicationName, Class subjectClass,
+	private Hashtable<Object, Object>[] isFieldsValid(String applicationName, Class subjectClass,
 			Hashtable<String, Object> htblPropertyValue) {
 
-		Hashtable<String, Object>[] returnedArray = (Hashtable<String, Object>[]) new Hashtable<?, ?>[2];
-		Hashtable<String, Object> htblstaticProperties = new Hashtable<>();
-		Hashtable<String, Object> htbldynamicProperties = new Hashtable<>();
+		Hashtable<Object, Object>[] returnedArray = (Hashtable<Object, Object>[]) new Hashtable<?, ?>[2];
+		Hashtable<Object, Object> htblstaticProperties = new Hashtable<>();
+		Hashtable<Object, Object> htbldynamicProperties = new Hashtable<>();
 
 		Hashtable<String, DynamicConceptModel> dynamicProperties = null;
 
@@ -57,6 +64,7 @@ public class RequestValidation {
 
 		while (iterator.hasNext()) {
 			String field = iterator.next();
+			Object value = htblPropertyValue.get(field);
 
 			/*
 			 * if not a static property go and get dynamic properties of that
@@ -100,7 +108,7 @@ public class RequestValidation {
 					 * passed field is a static property so add it to
 					 * htblDynamicProperties
 					 */
-					htbldynamicProperties.put(field, dynamicProperties.get(field));
+					htbldynamicProperties.put(dynamicProperties.get(field), value);
 				}
 
 			} else {
@@ -109,7 +117,7 @@ public class RequestValidation {
 				 * htblStaticProperty
 				 */
 
-				htblstaticProperties.put(field, htblProperties.get(field));
+				htblstaticProperties.put(htblProperties.get(field), value);
 			}
 		}
 
@@ -119,10 +127,12 @@ public class RequestValidation {
 	}
 
 	/*
-	 * checkIfDatatypesValid checks that the datatype of the values passed with
-	 * the property are valid to maintain data integrity and consistency
+	 * isStaticDataValueValid checks that the datatype of the values passed with
+	 * the property are valid to maintain data integrity and consistency.
+	 * 
+	 * It is used with static dataProperty
 	 */
-	private boolean isDataValueValid(DataTypeProperty dataProperty, Object value) {
+	private boolean isStaticDataValueValid(DataTypeProperty dataProperty, Object value) {
 
 		XSDDataTypes xsdDataType = dataProperty.getDataType();
 		switch (xsdDataType) {
@@ -173,6 +183,51 @@ public class RequestValidation {
 		}
 
 	}
+	
+	
+	/*
+	 * isDynamicDataValueValid checks that the datatype of the values passed with
+	 * the property are valid to maintain data integrity and consistency.
+	 * 
+	 * It is used with Dynamic dataProperty
+	 */
+	private boolean isDynamicDataValueValid(String dataType, Object value) {
+
+		boolean checkFlag ;
+		
+		if(XSDDataTypes.boolean_type.getDataType().equals(dataType)){
+			return checkFlag = (value instanceof Boolean)? true : false;
+		}
+		
+		if(XSDDataTypes.decimal_typed.getDataType().equals(dataType)){
+			return checkFlag = (value instanceof Double)? true : false;
+		}
+		
+		if(XSDDataTypes.float_typed.getDataType().equals(dataType)){
+			return checkFlag = (value instanceof Float)? true : false;
+		}
+		
+		if(XSDDataTypes.integer_typed.getDataType().equals(dataType)){
+			return checkFlag = (value instanceof Integer)? true : false;
+		}
+		
+		if(XSDDataTypes.string_typed.getDataType().equals(dataType)){
+			return checkFlag = (value instanceof String)? true : false;
+		}
+		
+		if(XSDDataTypes.dateTime_typed.getDataType().equals(dataType)){
+			return checkFlag = (value instanceof XMLGregorianCalendar)? true : false;
+		}
+		
+		
+		if(XSDDataTypes.double_typed.getDataType().equals(dataType)){
+			return checkFlag = (value instanceof Double)? true : false;
+		}
+		
+		return false;
+
+	}
+	
 
 	/*
 	 * isObjectValuePropertyValid method calls the validation data access object
@@ -188,12 +243,99 @@ public class RequestValidation {
 
 	}
 
-	
-	private Class getClassByName(String name){
-		
+	private Class getClassByName(String name) {
+
+		switch (name) {
+		case "Application":
+			return new Application();
+		case "Person":
+			return new Person();
+		case "Admin":
+			return new Admin();
+		case "Developer":
+			return new Developer();
+		case "NormalUser":
+			return new NormalUser();
+		}
+
+		return null;
 	}
-	
-	
+
+	private Hashtable<String, Object> isProrpertyValueValid(
+			Hashtable<Object, DynamicConceptModel> htblDynamicProperties,
+			Hashtable<Object, Property> htblStaticProperties,Class subjectClass) {
+
+		Iterator<Object> staticProertyIterator = htblStaticProperties.keySet().iterator();
+		Iterator<Object> dynamicPropertyIterator = htblDynamicProperties.keySet().iterator();
+
+		Hashtable<Class, Object> htblClassValue = new Hashtable<>();
+		Hashtable<DataTypeProperty, Object> htblDataPropValue = new Hashtable<>();
+		
+		/*
+		 *  Static properties 
+		 */
+		
+		while (staticProertyIterator.hasNext()) {
+
+			Property staticProperty = (Property) staticProertyIterator.next();
+			Object value = htblStaticProperties.get(staticProperty);
+
+			/*
+			 * Object property so add it to htblClassValue to send it to
+			 * requestValidationDao
+			 */
+			if (staticProperty instanceof ObjectProperty) {
+
+				htblClassValue.put(((ObjectProperty) staticProperty).getObject(), value);
+			} else {
+
+				/*
+				 * check if the datatype is correct or not fir static dataProperty
+				 */
+				
+				if(! isStaticDataValueValid((DataTypeProperty)staticProperty, value)){
+					
+					throw new InvalidPropertyValuesException(subjectClass.getName());
+				}
+				
+			}
+
+		}
+
+		/*
+		 *  Dynamic Properties
+		 */
+		while (dynamicPropertyIterator.hasNext()) {
+
+			DynamicConceptModel dynamicProperty = (DynamicConceptModel) dynamicPropertyIterator.next();
+			Object value = htblDynamicProperties.get(dynamicProperty);
+
+			/*
+			 * Object property so add it to htblClassValue to send it to
+			 * requestValidationDao
+			 */
+			if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
+
+				htblClassValue.put(getClassByName(dynamicProperty.getClass_name()), value);
+			} else {
+
+				/*
+				 * check if the datatype is correct or not fir dynamic dataProperty
+				 */
+				
+				if(! isDynamicDataValueValid(dynamicProperty.getProperty_object_type(),value)){
+					throw new InvalidPropertyValuesException(subjectClass.getName());
+				}
+				
+			}
+
+		}
+
+		
+		return null;
+
+	}
+
 	public static void main(String[] args) {
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
 		String szUser = "rdfusr";
@@ -216,7 +358,7 @@ public class RequestValidation {
 		htblPropValues.put("job", "Engineer");
 
 		long startTime = System.currentTimeMillis();
-		Hashtable<String, Object>[] res = requestValidation.isFieldsValid("test Application", new Person(),
+		Hashtable<Object, Object>[] res = requestValidation.isFieldsValid("test Application", new Person(),
 				htblPropValues);
 		System.out.println(res[0].size());
 		System.out.println(res[0].toString());
