@@ -20,6 +20,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.DynamicConceptColumns;
 import com.iotplatform.ontology.ObjectProperty;
+import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.ontology.XSDDataTypes;
@@ -183,51 +184,85 @@ public class RequestValidation {
 		}
 
 	}
-	
-	
+
 	/*
-	 * isDynamicDataValueValid checks that the datatype of the values passed with
-	 * the property are valid to maintain data integrity and consistency.
+	 * isDynamicDataValueValid checks that the datatype of the values passed
+	 * with the property are valid to maintain data integrity and consistency.
 	 * 
 	 * It is used with Dynamic dataProperty
 	 */
 	private boolean isDynamicDataValueValid(String dataType, Object value) {
 
-		boolean checkFlag ;
-		
-		if(XSDDataTypes.boolean_type.getDataType().equals(dataType)){
-			return checkFlag = (value instanceof Boolean)? true : false;
+		boolean checkFlag;
+
+		if (XSDDataTypes.boolean_type.getDataType().equals(dataType)) {
+			return checkFlag = (value instanceof Boolean) ? true : false;
 		}
-		
-		if(XSDDataTypes.decimal_typed.getDataType().equals(dataType)){
-			return checkFlag = (value instanceof Double)? true : false;
+
+		if (XSDDataTypes.decimal_typed.getDataType().equals(dataType)) {
+			return checkFlag = (value instanceof Double) ? true : false;
 		}
-		
-		if(XSDDataTypes.float_typed.getDataType().equals(dataType)){
-			return checkFlag = (value instanceof Float)? true : false;
+
+		if (XSDDataTypes.float_typed.getDataType().equals(dataType)) {
+			return checkFlag = (value instanceof Float) ? true : false;
 		}
-		
-		if(XSDDataTypes.integer_typed.getDataType().equals(dataType)){
-			return checkFlag = (value instanceof Integer)? true : false;
+
+		if (XSDDataTypes.integer_typed.getDataType().equals(dataType)) {
+			return checkFlag = (value instanceof Integer) ? true : false;
 		}
-		
-		if(XSDDataTypes.string_typed.getDataType().equals(dataType)){
-			return checkFlag = (value instanceof String)? true : false;
+
+		if (XSDDataTypes.string_typed.getDataType().equals(dataType)) {
+			return checkFlag = (value instanceof String) ? true : false;
 		}
-		
-		if(XSDDataTypes.dateTime_typed.getDataType().equals(dataType)){
-			return checkFlag = (value instanceof XMLGregorianCalendar)? true : false;
+
+		if (XSDDataTypes.dateTime_typed.getDataType().equals(dataType)) {
+			return checkFlag = (value instanceof XMLGregorianCalendar) ? true : false;
 		}
-		
-		
-		if(XSDDataTypes.double_typed.getDataType().equals(dataType)){
-			return checkFlag = (value instanceof Double)? true : false;
+
+		if (XSDDataTypes.double_typed.getDataType().equals(dataType)) {
+			return checkFlag = (value instanceof Double) ? true : false;
 		}
-		
+
 		return false;
 
 	}
-	
+
+	/*
+	 * getXSDDataType method returns the xsd datatype
+	 */
+
+	private String getXSDDataType(String dataType) {
+
+		if (XSDDataTypes.boolean_type.getDataType().equals(dataType)) {
+			return XSDDataTypes.boolean_type.getXsdType();
+		}
+
+		if (XSDDataTypes.decimal_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.decimal_typed.getXsdType();
+		}
+
+		if (XSDDataTypes.float_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.float_typed.getXsdType();
+		}
+
+		if (XSDDataTypes.integer_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.integer_typed.getXsdType();
+		}
+
+		if (XSDDataTypes.string_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.string_typed.getXsdType();
+		}
+
+		if (XSDDataTypes.dateTime_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.dateTime_typed.getXsdType();
+		}
+
+		if (XSDDataTypes.double_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.double_typed.getXsdType();
+		}
+
+		return null;
+	}
 
 	/*
 	 * isObjectValuePropertyValid method calls the validation data access object
@@ -261,20 +296,56 @@ public class RequestValidation {
 		return null;
 	}
 
+	private String getPropertyPrefixAlias(Property property) {
+
+		Prefixes prefix = property.getPrefix();
+		String alias;
+
+		/*
+		 * iot-lite and iot-platform prefixes does not have the alias that is
+		 * correct so I must change _ to - in order to have a correct auto query
+		 * construction
+		 */
+		switch (prefix) {
+		case IOT_LITE:
+			alias = "iot-lite:";
+			break;
+		case IOT_PLATFORM:
+			alias = "iot-platform:";
+			break;
+		default:
+			alias = prefix.getPrefix().toLowerCase();
+		}
+
+		return alias;
+	}
+
+	private Object getValue(Property property, Object value) {
+
+		if (property instanceof DataTypeProperty) {
+			XSDDataTypes xsdDataType = ((DataTypeProperty) property).getDataType();
+			value = "\"" + value.toString() + "\"" + xsdDataType.getXsdType();
+			return value;
+		} else {
+			Class objectClassType = ((ObjectProperty) property).getObject();
+			return objectClassType.getPrefix().getPrefix() + value;
+		}
+	}
+
 	private Hashtable<String, Object> isProrpertyValueValid(
 			Hashtable<Object, DynamicConceptModel> htblDynamicProperties,
-			Hashtable<Object, Property> htblStaticProperties,Class subjectClass) {
+			Hashtable<Object, Property> htblStaticProperties, Class subjectClass, String applicationName) {
 
 		Iterator<Object> staticProertyIterator = htblStaticProperties.keySet().iterator();
 		Iterator<Object> dynamicPropertyIterator = htblDynamicProperties.keySet().iterator();
 
 		Hashtable<Class, Object> htblClassValue = new Hashtable<>();
-		Hashtable<DataTypeProperty, Object> htblDataPropValue = new Hashtable<>();
-		
+		Hashtable<String, Object> htblPrefixedPropertyValues = new Hashtable<>();
+
 		/*
-		 *  Static properties 
+		 * Static properties
 		 */
-		
+
 		while (staticProertyIterator.hasNext()) {
 
 			Property staticProperty = (Property) staticProertyIterator.next();
@@ -287,23 +358,27 @@ public class RequestValidation {
 			if (staticProperty instanceof ObjectProperty) {
 
 				htblClassValue.put(((ObjectProperty) staticProperty).getObject(), value);
+
 			} else {
 
 				/*
-				 * check if the datatype is correct or not fir static dataProperty
+				 * check if the datatype is correct or not fir static
+				 * dataProperty
 				 */
-				
-				if(! isStaticDataValueValid((DataTypeProperty)staticProperty, value)){
-					
+
+				if (!isStaticDataValueValid((DataTypeProperty) staticProperty, value)) {
+
 					throw new InvalidPropertyValuesException(subjectClass.getName());
 				}
-				
+
 			}
+
+			htblPrefixedPropertyValues.put(getPropertyPrefixAlias(staticProperty), getValue(staticProperty, value));
 
 		}
 
 		/*
-		 *  Dynamic Properties
+		 * Dynamic Properties
 		 */
 		while (dynamicPropertyIterator.hasNext()) {
 
@@ -316,23 +391,41 @@ public class RequestValidation {
 			 */
 			if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
 
-				htblClassValue.put(getClassByName(dynamicProperty.getClass_name()), value);
+				Class objectClassType = getClassByName(dynamicProperty.getClass_name());
+				htblClassValue.put(objectClassType, value);
+				value = objectClassType.getPrefix().getPrefix() + value;
 			} else {
 
 				/*
-				 * check if the datatype is correct or not fir dynamic dataProperty
+				 * check if the datatype is correct or not fir dynamic
+				 * dataProperty
 				 */
-				
-				if(! isDynamicDataValueValid(dynamicProperty.getProperty_object_type(),value)){
+
+				if (!isDynamicDataValueValid(dynamicProperty.getProperty_object_type(), value)) {
 					throw new InvalidPropertyValuesException(subjectClass.getName());
 				}
-				
+
+			}
+			value = "\"" + value.toString() + "\"" + getXSDDataType(dynamicProperty.getProperty_object_type());
+			htblPrefixedPropertyValues
+					.put(dynamicProperty.getProperty_prefix_alias() + dynamicProperty.getProperty_name(), value);
+
+		}
+
+		/*
+		 * check for property value type of objectProperties
+		 */
+
+		if (htblClassValue.size() > 0) {
+			boolean isValid = isObjectValuePropertyValid(applicationName, htblClassValue);
+
+			if (!isValid) {
+				throw new InvalidPropertyValuesException(subjectClass.getName());
 			}
 
 		}
 
-		
-		return null;
+		return htblPrefixedPropertyValues;
 
 	}
 
