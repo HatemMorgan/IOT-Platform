@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.DatabaseException;
+import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidPropertyValuesException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.models.DynamicConceptModel;
@@ -101,7 +102,7 @@ public class RequestValidation {
 
 				if (!dynamicProperties.containsKey(field)) {
 
-					throw new InvalidRequestFieldsException(subjectClass.getName());
+					throw new InvalidRequestFieldsException(subjectClass.getName(),field);
 
 				} else {
 
@@ -333,8 +334,8 @@ public class RequestValidation {
 	}
 
 	private Hashtable<String, Object> isProrpertyValueValid(
-			Hashtable<Object, DynamicConceptModel> htblDynamicProperties,
-			Hashtable<Object, Property> htblStaticProperties, Class subjectClass, String applicationName) {
+			Hashtable<Object, Object> htblDynamicProperties,
+			Hashtable<Object, Object> htblStaticProperties, Class subjectClass, String applicationName) {
 
 		Iterator<Object> staticProertyIterator = htblStaticProperties.keySet().iterator();
 		Iterator<Object> dynamicPropertyIterator = htblDynamicProperties.keySet().iterator();
@@ -368,12 +369,12 @@ public class RequestValidation {
 
 				if (!isStaticDataValueValid((DataTypeProperty) staticProperty, value)) {
 
-					throw new InvalidPropertyValuesException(subjectClass.getName());
+					throw new InvalidPropertyValuesException(subjectClass.getName(),staticProperty.getName());
 				}
 
 			}
 
-			htblPrefixedPropertyValues.put(getPropertyPrefixAlias(staticProperty), getValue(staticProperty, value));
+			htblPrefixedPropertyValues.put(getPropertyPrefixAlias(staticProperty)+staticProperty.getName(), getValue(staticProperty, value));
 
 		}
 
@@ -402,7 +403,7 @@ public class RequestValidation {
 				 */
 
 				if (!isDynamicDataValueValid(dynamicProperty.getProperty_object_type(), value)) {
-					throw new InvalidPropertyValuesException(subjectClass.getName());
+					throw new InvalidPropertyValuesException(subjectClass.getName(),dynamicProperty.getProperty_name());
 				}
 
 			}
@@ -428,6 +429,15 @@ public class RequestValidation {
 		return htblPrefixedPropertyValues;
 
 	}
+	
+	
+	public Hashtable<String, Object> isRequestValid (String applicationName, Class subjectClass,
+			Hashtable<String, Object> htblPropertyValue ){
+		
+		Hashtable<Object, Object>[] results = isFieldsValid(applicationName, subjectClass, htblPropertyValue);
+		return isProrpertyValueValid(results[1], results[0], subjectClass, applicationName);
+		
+	}
 
 	public static void main(String[] args) {
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
@@ -443,21 +453,33 @@ public class RequestValidation {
 
 		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
 		ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL, szUser, szPasswd));
-
+		
+		System.out.println("Connected to Database");
+		
 		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
 
 		Hashtable<String, Object> htblPropValues = new Hashtable<>();
 		htblPropValues.put("firstName", "Hatem");
-		htblPropValues.put("job", "Engineer");
+		htblPropValues.put("knows", "Hatem");
+		htblPropValues.put("hates", "Hatem");
 
 		long startTime = System.currentTimeMillis();
-		Hashtable<Object, Object>[] res = requestValidation.isFieldsValid("test Application", new Person(),
-				htblPropValues);
-		System.out.println(res[0].size());
-		System.out.println(res[0].toString());
-		System.out.println(res[1].size());
-		System.out.println(res[1].toString());
-
+		
+		//testing isValidFields method
+//		Hashtable<Object, Object>[] res = requestValidation.isFieldsValid("test Application", new Person(),
+//				htblPropValues);
+//		System.out.println(res[0].size());
+//		System.out.println(res[0].toString());
+//		System.out.println(res[1].size());
+//		System.out.println(res[1].toString());
+		
+		//testing isValidRequest
+		try{
+		Hashtable<String, Object> htblPrefixedPropValue = requestValidation.isRequestValid("test Application", new Person(), htblPropValues);
+		System.out.println(htblPrefixedPropValue.toString());
+		}catch(ErrorObjException ex){
+			System.out.println(((Hashtable<Object, Object>[])ex.getExceptionHashTable().get("errors"))[0].toString());
+		}
 		double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 		System.out.println("Time taken : " + timeTaken + " sec ");
 	}
