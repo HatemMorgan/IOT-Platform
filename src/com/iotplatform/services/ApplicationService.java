@@ -17,7 +17,6 @@ import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.validations.RequestValidation;
-import com.iotplatform.validations.RequestValidationService;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -120,7 +119,7 @@ public class ApplicationService {
 		htblPropValue.put("name", "Test Application");
 		htblPropValue.put("description", "Test App Description");
 
-		 applicationDao.dropApplicationModel("Test Application");
+		applicationDao.dropApplicationModel("Test Application");
 
 		Hashtable<String, Object> res = applicationService.insertApplication(htblPropValue);
 		System.out.println(res.toString());
