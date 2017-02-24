@@ -2,17 +2,21 @@ package com.iotplatform.services;
 
 import java.util.Hashtable;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
+import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.CannotCreateApplicationModelException;
 import com.iotplatform.exceptions.DatabaseException;
+import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidPropertyValuesException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.classes.Application;
+import com.iotplatform.validations.RequestValidation;
 import com.iotplatform.validations.RequestValidationService;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -21,14 +25,14 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class ApplicationService {
 
 	private ApplicationDao applicationDao;
-	private RequestValidationService requestValidationService;
+	private RequestValidation requestValidation;
 	private Application applicationClass;
 
 	@Autowired
-	public ApplicationService(ApplicationDao applicationDao, RequestValidationService requestValidationService,
+	public ApplicationService(ApplicationDao applicationDao, RequestValidation requestValidation,
 			Application applicationClass) {
 		this.applicationDao = applicationDao;
-		this.requestValidationService = requestValidationService;
+		this.requestValidation = requestValidation;
 		this.applicationClass = applicationClass;
 	}
 
@@ -41,7 +45,7 @@ public class ApplicationService {
 	public Hashtable<String, Object> insertApplication(Hashtable<String, Object> htblPropValue) {
 		long startTime = System.currentTimeMillis();
 		String applicationName = "";
-		
+
 		/*
 		 * check if the model exist or not . it pass the application name after
 		 * checking that the passed request has property name and its value is a
@@ -65,41 +69,30 @@ public class ApplicationService {
 		}
 
 		/*
-		 * Check if the fields are valid
+		 * Check if the request is valid or not
 		 */
 
-		boolean isValid = requestValidationService.isFieldsValid(applicationClass, htblPropValue);
+		try {
 
-		/*
-		 * if all the fields passed by the request valid check properties'
-		 * values (object value or data type value) are valid
-		 */
-		if (isValid) {
-			isValid = requestValidationService.isPropertiesValid(applicationName, applicationClass, htblPropValue);
-		} else {
-			InvalidRequestFieldsException err = new InvalidRequestFieldsException("Application");
-			return err.getExceptionHashTable();
-		}
-
-		/*
-		 * if the request fields are valid and objects of the properties valid
-		 * then we are able to insert data to the application's model
-		 */
-		if (isValid) {
-
+			Hashtable<String, Object> htblPrefixedPropertyValue = requestValidation.isRequestValid(applicationName,
+					applicationClass, htblPropValue);
 			try {
-				Hashtable<String, Object> htblPrefixedPropertyValue = requestValidationService.getPrefixedProperties(htblPropValue, applicationClass);
+
 				applicationDao.insertApplication(htblPrefixedPropertyValue, applicationName);
 				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-				SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application",timeTaken);
+				SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application", timeTaken);
 				return successModel.getResponseJson();
+
 			} catch (DatabaseException ex) {
+
 				return ex.getExceptionHashTable();
+
 			}
 
-		} else {
-			InvalidPropertyValuesException err = new InvalidPropertyValuesException("Application");
-			return err.getExceptionHashTable();
+		} catch (ErrorObjException ex) {
+
+			return ex.getExceptionHashTable();
+
 		}
 
 	}
@@ -108,26 +101,29 @@ public class ApplicationService {
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
 		String szUser = "rdfusr";
 		String szPasswd = "rdfusr";
+		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(szJdbcDriver);
+		dataSource.setUrl(szJdbcURL);
+		dataSource.setUsername(szUser);
+		dataSource.setPassword(szPasswd);
 
 		Application application = new Application();
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
 		ApplicationDao applicationDao = new ApplicationDao(oracle, application);
 		ApplicationService applicationService = new ApplicationService(applicationDao,
-				new RequestValidationService(new ValidationDao(oracle)), application);
+				new RequestValidation(new ValidationDao(oracle), new DynamicConceptDao(dataSource)), application);
 
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		htblPropValue.put("name", "Test Application");
 		htblPropValue.put("description", "Test App Description");
-		
-		applicationDao.dropApplicationModel("Test Application");
-		
-//		long startTime = System.currentTimeMillis();
-//		System.out.println("Started at : " + startTime / 1000);
-//		Hashtable<String,Object> res =  applicationService.insertApplication(htblPropValue);
-//		System.out.println(
-//				"test inserting: elapsed time (sec): " + ((System.currentTimeMillis() - startTime) / 1000));
-//		System.out.println(res.toString());
+
+		 applicationDao.dropApplicationModel("Test Application");
+
+		Hashtable<String, Object> res = applicationService.insertApplication(htblPropValue);
+		System.out.println(res.toString());
 
 	}
 }
