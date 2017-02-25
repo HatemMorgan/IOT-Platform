@@ -17,7 +17,9 @@ public class Person extends Class {
 
 	public Person() {
 		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF);
+		
 
+		
 		if (this.getProperties().size() == 0) {
 			init();
 		}
@@ -37,6 +39,9 @@ public class Person extends Class {
 	}
 
 	private void init() {
+		
+		applicationClass = new Application();
+		
 		this.getProperties().put("age", new DataTypeProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed));
 		this.getProperties().put("birthday",new DataTypeProperty("birthday", Prefixes.FOAF, XSDDataTypes.string_typed));
 		this.getProperties().put("familyName",new DataTypeProperty("familyName", Prefixes.FOAF, XSDDataTypes.string_typed));
@@ -48,6 +53,18 @@ public class Person extends Class {
 		this.getProperties().put("userName",new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed));
 		this.getProperties().put("knows", new ObjectProperty("knows", Prefixes.FOAF, this));
 		this.getProperties().put("mbox", new DataTypeProperty("mbox", Prefixes.FOAF, XSDDataTypes.string_typed));
+		
+		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "age", "age");
+		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "birthday", "birthday");
+		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "familyName", "familyName");
+		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "firstName", "firstName");
+		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "lastName", "lastName");
+		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "gender", "gender");
+		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "title", "title");
+		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "userName", "userName");
+		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "knows", "knows");
+		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "mbox", "mbox");
 	}
 
 }

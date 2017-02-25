@@ -17,6 +17,9 @@ public class Application extends Class {
 				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed));
 		this.getProperties().put("name", new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed));
 
+		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
+		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
+
 		System.out.println("Applicatoin Bean Created");
 		System.out.println("propertes size = " + this.getProperties().size());
 		System.out.println(this.getProperties().toString());

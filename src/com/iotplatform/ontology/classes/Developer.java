@@ -13,6 +13,9 @@ public class Developer extends Person {
 		System.out.println(super.getProperties());
 		super.getProperties().put("developedApplication",
 				new ObjectProperty("developedApplication", Prefixes.IOT_PLATFORM, this.getApplicationClass()));
+		
+		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "developedApplication", "developedApplication");
+		
 		System.out.println("Developer Bean Created");
 		System.out.println("propertes size = " + super.getProperties().size());
 		System.out.println(super.getProperties().toString());

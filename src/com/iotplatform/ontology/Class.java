@@ -10,11 +10,12 @@ public class Class {
 	private String uri;
 	private Prefixes prefix;
 	private Hashtable<String, Property> properties;
-
+	private Hashtable<String,String> htblPropUriName;
 	public Class(String name, String uri, Prefixes prefix) {
 		this.name = name;
 		this.uri = uri;
 		this.prefix = prefix;
+		this.htblPropUriName = new Hashtable<>();
 		properties = new Hashtable<>();
 	}
 
@@ -34,4 +35,10 @@ public class Class {
 		return properties;
 	}
 
+	public Hashtable<String, String> getHtblPropUriName() {
+		return htblPropUriName;
+	}
+
+	
+	
 }

@@ -25,10 +25,10 @@ public class DeveloperController {
 		return responseJSON;
 	}
 
-	@RequestMapping(value = "/developer/{applicationCode}", method = RequestMethod.GET, produces = "application/json")
-	public SuccessfullSelectAllJsonModel getDevelopers(
+	@RequestMapping(value = "/developer/{applicationNameCode}", method = RequestMethod.GET, produces = "application/json")
+	public Hashtable<String, Object> getDevelopers(
 			@PathVariable("applicationNameCode") String applicationNameCode) {
 		
-		return developerService.getDevelopers(applicationNameCode);
+		return developerService.getDevelopers(applicationNameCode).getJson();
 	}
 }

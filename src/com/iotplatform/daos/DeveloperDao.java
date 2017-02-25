@@ -14,6 +14,7 @@ import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.Developer;
+import com.iotplatform.utilities.QueryResultUtility;
 import com.iotplatform.utilities.QueryUtility;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
@@ -36,9 +37,8 @@ public class DeveloperDao {
 
 		String userName = htblPropValue.get("foaf:userName").toString()
 				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
-		String insertQuery = QueryUtility.constructInsertQuery(Prefixes.FOAF.getPrefix() + userName,
-				developerClass, htblPropValue);
-
+		String insertQuery = QueryUtility.constructInsertQuery(Prefixes.FOAF.getPrefix() + userName, developerClass,
+				htblPropValue);
 
 		try {
 
@@ -54,7 +54,6 @@ public class DeveloperDao {
 	}
 
 	public List<Hashtable<String, Object>> getDevelopers(String applicationModelName) {
-
 
 		String queryString = QueryUtility.constructSelectAllQueryNoFilters(developerClass, applicationModelName);
 
@@ -82,38 +81,43 @@ public class DeveloperDao {
 				 * hold it data
 				 */
 
+				// skip rdf:type property
+				if (res.getString(2).equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
+					continue;
+				}
+				Object[] preparedPropVal = QueryResultUtility.constructQueryResult(res.getString(2), res.getString(3),
+						new Developer());
+				String propertyName = preparedPropVal[0].toString();
+				Object value = preparedPropVal[1];
+
 				if (currentSubject.equals(subject)) {
-					htblDeveloperPropVal.put(res.getString(2), res.getObject(3));
+					htblDeveloperPropVal.put(propertyName, value);
 				} else {
 					developersList.add(htblDeveloperPropVal);
 					htblDeveloperPropVal = new Hashtable<>();
-					htblDeveloperPropVal.put(res.getString(2), res.getObject(3));
+					htblDeveloperPropVal.put(propertyName, value);
 				}
 
 			}
-			
+
 			/*
 			 * Add the last htblDeveloperPropVal to the list because it will not
 			 * enter the else part as the loop will terminate
 			 */
-			
+
 			developersList.add(htblDeveloperPropVal);
 
 			System.out.println(
 					"test selecting: elapsed time (sec): " + ((System.currentTimeMillis() - startTime) / 1000.0));
 		} catch (SQLException e) {
-			throw new DatabaseException(e.getMessage(),"Developer");
+			e.printStackTrace();
+			throw new DatabaseException(e.getMessage(), "Developer");
 		}
 
 		return developersList;
 	}
 
 	public static void main(String[] args) {
-		ArrayList<Prefixes> prefixesList = new ArrayList<>();
-		prefixesList.add(Prefixes.FOAF);
-		prefixesList.add(Prefixes.IOT_LITE);
-		prefixesList.add(Prefixes.IOT_PLATFORM);
-		prefixesList.add(Prefixes.XSD);
 
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		htblPropValue.put("foaf:age", "\"20\"" + XSDDataTypes.integer_typed.getXsdType());
@@ -135,9 +139,8 @@ public class DeveloperDao {
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
 		DeveloperDao developerDao = new DeveloperDao(oracle, new Developer());
-		// developerDao.InsertDeveloper(htblPropValue, "test application",
-		// prefixesList);
-		System.out.println(developerDao.getDevelopers("Test Application"));
+		// developerDao.InsertDeveloper(htblPropValue, "TESTAPPLICATION_MODEL");
+		System.out.println(developerDao.getDevelopers("TESTAPPLICATION_MODEL"));
 	}
 
 }

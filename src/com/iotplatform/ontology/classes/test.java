@@ -1,6 +1,7 @@
 package com.iotplatform.ontology.classes;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -14,6 +15,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.utilities.QueryResultUtility;
+
+import oracle.spatial.rdf.client.jena.Oracle;
+import oracle.spatial.rdf.client.jena.OracleUtils;
 
 public class test {
 
@@ -28,15 +34,13 @@ public class test {
 			this.last_name = value;
 		}
 
-	
-
 	}
 
 	public class onto {
 		@JsonView(View.Summary.class)
 		List<prop> list;
 
-//		@JsonCreator
+		// @JsonCreator
 		public onto(List<prop> list) {
 			super();
 			this.list = list;
@@ -51,20 +55,19 @@ public class test {
 
 	public class onto2 {
 		@JsonView(View.Summary.class)
-		Hashtable<String,Object> list;
+		Hashtable<String, Object> list;
 
 		@JsonCreator
-		public onto2(Hashtable<String, Object>list) {
+		public onto2(Hashtable<String, Object> list) {
 			this.list = list;
 		}
 
-
 	}
-	
+
 	private void run() {
 		ObjectMapper mapper = new ObjectMapper();
 
-//		onto staff = createDummyObject();
+		// onto staff = createDummyObject();
 		onto2 staff2 = createDummyObject2();
 		try {
 
@@ -86,14 +89,14 @@ public class test {
 		}
 	}
 
-//	private void run2() {
-//		onto staff = createDummyObject();
-//		StringBuffer stringBuffer = new StringBuffer();
-//		for (int i = 0; i < staff.list.size(); i++) {
-//			String
-//		}
-//
-//	}
+	// private void run2() {
+	// onto staff = createDummyObject();
+	// StringBuffer stringBuffer = new StringBuffer();
+	// for (int i = 0; i < staff.list.size(); i++) {
+	// String
+	// }
+	//
+	// }
 
 	private onto createDummyObject() {
 		List<prop> list = new ArrayList<>();
@@ -110,23 +113,30 @@ public class test {
 	}
 
 	private onto2 createDummyObject2() {
-	Hashtable<String, Object> list = new Hashtable<>();
+		Hashtable<String, Object> list = new Hashtable<>();
 		list.put("firstName", "Hatem");
 		list.put("last_name", "Morgan");
 		list.put("age", 22);
 		list.put("marry", false);
 		list.put("salary", 1600.23);
-		list.put("knows", new prop[]{new prop("Hatem", "Morgan"),new prop("Mohamed", "Kaml")});
+		list.put("knows", new prop[] { new prop("Hatem", "Morgan"), new prop("Mohamed", "Kaml") });
 
 		onto2 staff = new onto2(list);
 
 		return staff;
 
 	}
-	
-	public static void main(String[] args) {
-		test t = new test();
-		t.run();
+
+	public static void main(String[] args) throws SQLException {
+		// String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		// String szUser = "rdfusr";
+		// String szPasswd = "rdfusr";
+		// Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+		// OracleUtils.dropSemanticModel(oracle, "TESTAPPLICATION_MODEL");
+
+		System.out.println(QueryResultUtility.constructQueryResult(Prefixes.IOT_PLATFORM.getUri() + "developedApplication",
+				"http://iot-platform#TESTAPPLICATION", new Developer())[1]);
+
 	}
 
 }

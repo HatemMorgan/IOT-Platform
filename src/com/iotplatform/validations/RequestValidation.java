@@ -88,9 +88,31 @@ public class RequestValidation {
 					 * performance when searching many times because using list
 					 * will let me loop on the list each time the field passed
 					 * is not a static property
+					 * 
+					 * Also add dynamic property to property list of the subject
+					 * class in order to improve performance by caching the
+					 * dynamic properties
 					 */
 					dynamicProperties = new Hashtable<>();
 					for (DynamicConceptModel dynamicProperty : res) {
+						subjectClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
+								dynamicProperty.getProperty_name());
+
+						if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty)) {
+
+							subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
+									new DataTypeProperty(dynamicProperty.getProperty_name(),
+											getPrefix(dynamicProperty.getProperty_prefix_alias()),
+											getXSDDataTypeEnum(dynamicProperty.getProperty_object_type())));
+						} else {
+							if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty)) {
+								subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
+										new ObjectProperty(dynamicProperty.getProperty_name(),
+												getPrefix(dynamicProperty.getProperty_prefix_alias()),
+												getClassByName(dynamicProperty.getProperty_object_type())));
+							}
+						}
+
 						dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
 					}
 
@@ -102,7 +124,7 @@ public class RequestValidation {
 
 				if (!dynamicProperties.containsKey(field)) {
 
-					throw new InvalidRequestFieldsException(subjectClass.getName(),field);
+					throw new InvalidRequestFieldsException(subjectClass.getName(), field);
 
 				} else {
 
@@ -126,6 +148,47 @@ public class RequestValidation {
 		returnedArray[0] = htblstaticProperties;
 		returnedArray[1] = htbldynamicProperties;
 		return returnedArray;
+	}
+
+	private Prefixes getPrefix(String prefixAlias) {
+
+		if (Prefixes.FOAF.getPrefix().equals(prefixAlias)) {
+			return Prefixes.FOAF;
+		}
+
+		if (Prefixes.SSN.getPrefix().equals(prefixAlias)) {
+			return Prefixes.SSN;
+		}
+
+		if (Prefixes.IOT_LITE.getPrefix().equals(prefixAlias)) {
+			return Prefixes.IOT_LITE;
+		}
+
+		if (Prefixes.IOT_PLATFORM.getPrefix().equals(prefixAlias)) {
+			return Prefixes.IOT_PLATFORM;
+		}
+
+		if (Prefixes.GEO.getPrefix().equals(prefixAlias)) {
+			return Prefixes.GEO;
+		}
+
+		if (Prefixes.XSD.getPrefix().equals(prefixAlias)) {
+			return Prefixes.XSD;
+		}
+
+		if (Prefixes.OWL.getPrefix().equals(prefixAlias)) {
+			return Prefixes.OWL;
+		}
+
+		if (Prefixes.RDFS.getPrefix().equals(prefixAlias)) {
+			return Prefixes.RDFS;
+		}
+
+		if (Prefixes.RDF.getPrefix().equals(prefixAlias)) {
+			return Prefixes.RDF;
+		}
+
+		return null;
 	}
 
 	/*
@@ -229,10 +292,10 @@ public class RequestValidation {
 	}
 
 	/*
-	 * getXSDDataType method returns the xsd datatype
+	 * getXSDDataTypeString method returns the xsd datatype string
 	 */
 
-	private String getXSDDataType(String dataType) {
+	private String getXSDDataTypeString(String dataType) {
 
 		if (XSDDataTypes.boolean_type.getDataType().equals(dataType)) {
 			return XSDDataTypes.boolean_type.getXsdType();
@@ -260,6 +323,42 @@ public class RequestValidation {
 
 		if (XSDDataTypes.double_typed.getDataType().equals(dataType)) {
 			return XSDDataTypes.double_typed.getXsdType();
+		}
+
+		return null;
+	}
+
+	/*
+	 * getXSDDataTypeEnum return XsdDataType enum instance
+	 */
+	private XSDDataTypes getXSDDataTypeEnum(String dataType) {
+
+		if (XSDDataTypes.boolean_type.getDataType().equals(dataType)) {
+			return XSDDataTypes.boolean_type;
+		}
+
+		if (XSDDataTypes.decimal_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.decimal_typed;
+		}
+
+		if (XSDDataTypes.float_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.float_typed;
+		}
+
+		if (XSDDataTypes.integer_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.integer_typed;
+		}
+
+		if (XSDDataTypes.string_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.string_typed;
+		}
+
+		if (XSDDataTypes.dateTime_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.dateTime_typed;
+		}
+
+		if (XSDDataTypes.double_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.double_typed;
 		}
 
 		return null;
@@ -333,8 +432,7 @@ public class RequestValidation {
 		}
 	}
 
-	private Hashtable<String, Object> isProrpertyValueValid(
-			Hashtable<Object, Object> htblDynamicProperties,
+	private Hashtable<String, Object> isProrpertyValueValid(Hashtable<Object, Object> htblDynamicProperties,
 			Hashtable<Object, Object> htblStaticProperties, Class subjectClass, String applicationName) {
 
 		Iterator<Object> staticProertyIterator = htblStaticProperties.keySet().iterator();
@@ -369,12 +467,13 @@ public class RequestValidation {
 
 				if (!isStaticDataValueValid((DataTypeProperty) staticProperty, value)) {
 
-					throw new InvalidPropertyValuesException(subjectClass.getName(),staticProperty.getName());
+					throw new InvalidPropertyValuesException(subjectClass.getName(), staticProperty.getName());
 				}
 
 			}
 
-			htblPrefixedPropertyValues.put(getPropertyPrefixAlias(staticProperty)+staticProperty.getName(), getValue(staticProperty, value));
+			htblPrefixedPropertyValues.put(getPropertyPrefixAlias(staticProperty) + staticProperty.getName(),
+					getValue(staticProperty, value));
 
 		}
 
@@ -403,11 +502,12 @@ public class RequestValidation {
 				 */
 
 				if (!isDynamicDataValueValid(dynamicProperty.getProperty_object_type(), value)) {
-					throw new InvalidPropertyValuesException(subjectClass.getName(),dynamicProperty.getProperty_name());
+					throw new InvalidPropertyValuesException(subjectClass.getName(),
+							dynamicProperty.getProperty_name());
 				}
 
 			}
-			value = "\"" + value.toString() + "\"" + getXSDDataType(dynamicProperty.getProperty_object_type());
+			value = "\"" + value.toString() + "\"" + getXSDDataTypeString(dynamicProperty.getProperty_object_type());
 			htblPrefixedPropertyValues
 					.put(dynamicProperty.getProperty_prefix_alias() + dynamicProperty.getProperty_name(), value);
 
@@ -429,14 +529,13 @@ public class RequestValidation {
 		return htblPrefixedPropertyValues;
 
 	}
-	
-	
-	public Hashtable<String, Object> isRequestValid (String applicationName, Class subjectClass,
-			Hashtable<String, Object> htblPropertyValue ){
-		
+
+	public Hashtable<String, Object> isRequestValid(String applicationName, Class subjectClass,
+			Hashtable<String, Object> htblPropertyValue) {
+
 		Hashtable<Object, Object>[] results = isFieldsValid(applicationName, subjectClass, htblPropertyValue);
 		return isProrpertyValueValid(results[1], results[0], subjectClass, applicationName);
-		
+
 	}
 
 	// public static void main(String[] args) {

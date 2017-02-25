@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.DeveloperDao;
-import com.iotplatform.exceptions.CannotCreateApplicationModelException;
-import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
@@ -45,12 +43,12 @@ public class DeveloperService {
 			String applicationNameCode) {
 
 		long startTime = System.currentTimeMillis();
-		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
 
 		/*
 		 * check if the model exist or not .
 		 */
 
+		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
 		if (!exist) {
 			NoApplicationModelException exception = new NoApplicationModelException(applicationNameCode, "Developer");
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
@@ -67,7 +65,7 @@ public class DeveloperService {
 					developerClass, htblPropValue);
 
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
-			developerDao.InsertDeveloper(htblPropValue, applicationModelName);
+			developerDao.InsertDeveloper(htblPrefixedPropertyValue, applicationModelName);
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application", timeTaken);
 			return successModel.getResponseJson();
@@ -98,7 +96,8 @@ public class DeveloperService {
 
 			List<Hashtable<String, Object>> htblPropValue = developerDao
 					.getDevelopers(applicationDao.getHtblApplicationNameModelName().get(applicationNameCode));
-			return new SuccessfullSelectAllJsonModel(htblPropValue);
+			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+			return new SuccessfullSelectAllJsonModel(htblPropValue, timeTaken);
 
 		} catch (ErrorObjException e) {
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
