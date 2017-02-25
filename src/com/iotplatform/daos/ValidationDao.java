@@ -36,6 +36,7 @@ public class ValidationDao {
 
 	public int checkIfInstanceExsist(String applicationName, Hashtable<Class, Object> htblClassValue) {
 		String queryString = constructQuery(applicationName, htblClassValue);
+		System.out.println(queryString);
 		try {
 			ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
 			resultSet.next();
@@ -75,7 +76,7 @@ public class ValidationDao {
 
 			Class valueClassType = iterator.next();
 			Object value = htblClassValue.get(valueClassType);
-			String subject = valueClassType.getPrefix().getPrefix() + value.toString();
+			String subject = valueClassType.getPrefix().getPrefix() + value.toString().toLowerCase();
 			String object = valueClassType.getPrefix().getPrefix() + valueClassType.getName();
 			Prefixes prefix = valueClassType.getPrefix();
 			String alias;

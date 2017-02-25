@@ -37,7 +37,7 @@ public class DeveloperDao {
 
 		String userName = htblPropValue.get("foaf:userName").toString()
 				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
-		String insertQuery = QueryUtility.constructInsertQuery(Prefixes.FOAF.getPrefix() + userName, developerClass,
+		String insertQuery = QueryUtility.constructInsertQuery(Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), developerClass,
 				htblPropValue);
 
 		try {
@@ -139,7 +139,7 @@ public class DeveloperDao {
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
 		DeveloperDao developerDao = new DeveloperDao(oracle, new Developer());
-		// developerDao.InsertDeveloper(htblPropValue, "TESTAPPLICATION_MODEL");
+		 developerDao.InsertDeveloper(htblPropValue, "TESTAPPLICATION_MODEL");
 		System.out.println(developerDao.getDevelopers("TESTAPPLICATION_MODEL"));
 	}
 
