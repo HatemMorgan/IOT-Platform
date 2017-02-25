@@ -16,7 +16,7 @@ public class ApplicationController {
 	ApplicationService applicationService;
 
 	@RequestMapping(value = "/application", method = RequestMethod.POST)
-	public Hashtable<String, Object> update(@RequestBody Hashtable<String, Object> htblPropValue) {
+	public Hashtable<String, Object> insertNewApplication(@RequestBody Hashtable<String, Object> htblPropValue) {
 		Hashtable<String, Object> responseJSON = applicationService.insertApplication(htblPropValue);
 		return responseJSON;
 	}
