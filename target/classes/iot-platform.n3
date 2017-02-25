@@ -664,9 +664,9 @@ geo:long a owl:DatatypeProperty ;
 	rdfs:label "lastName" ;
 	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "testing" .
 # 
-# http://xmlns.com/foaf/0.1/mbox_sha1sum
+# http://xmlns.com/foaf/0.1/mbox
 
-<http://xmlns.com/foaf/0.1/mbox_sha1sum> a owl:DatatypeProperty ;
+<http://xmlns.com/foaf/0.1/mbox> a owl:DatatypeProperty ;
 	rdfs:domain <http://xmlns.com/foaf/0.1/Agent> ;
 	rdfs:range xsd:string .
 # 

@@ -31,16 +31,24 @@ public class ApplicationDao {
 	private final String suffix = "_MODEL";
 	private Application applicationClass;
 
+	private Hashtable<String, String> htblApplicationNameModelName;
+
 	@Autowired
 	public ApplicationDao(Oracle oracle, Application applicationClass) {
 		System.out.println("ApplicationDAO Created");
 		this.oracle = oracle;
 		this.applicationClass = applicationClass;
+		this.htblApplicationNameModelName = new Hashtable<>();
 	}
 
 	public boolean checkIfApplicationModelExsist(String applicationName) {
 
 		try {
+
+			if (htblApplicationNameModelName.containsKey(applicationName)) {
+				return true;
+			}
+
 			String modelConventionName = applicationName.replaceAll(" ", "").toUpperCase() + suffix;
 			String queryString = "SELECT COUNT(*) FROM  MDSYS.SEM_MODEL$ WHERE MODEL_NAME= ? ";
 
@@ -50,6 +58,7 @@ public class ApplicationDao {
 			resultSet.next();
 			int result = resultSet.getInt(1);
 			if (result == 1) {
+				htblApplicationNameModelName.put(applicationName, modelConventionName);
 				return true;
 			} else {
 				return false;
@@ -214,6 +223,10 @@ public class ApplicationDao {
 		return null;
 	}
 
+	public Hashtable<String, String> getHtblApplicationNameModelName() {
+		return htblApplicationNameModelName;
+	}
+
 	public static void main(String[] args) {
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
 		String szUser = "rdfusr";
@@ -258,8 +271,10 @@ public class ApplicationDao {
 		// applicationDAO.insertApplication(htblPropValue, "Test App");
 
 		// Testing select query of an application
-//		System.out.println("Application Found :" + applicationDAO.checkIfApplicationModelExsist("Test App"));
-//		Hashtable<String, Object> res = applicationDAO.getApplication("Test App");
-//		System.out.println(res.toString());
+		// System.out.println("Application Found :" +
+		// applicationDAO.checkIfApplicationModelExsist("Test App"));
+		// Hashtable<String, Object> res = applicationDAO.getApplication("Test
+		// App");
+		// System.out.println(res.toString());
 	}
 }
