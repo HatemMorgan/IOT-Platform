@@ -31,7 +31,7 @@ public class ErrorObjException extends RuntimeException {
 		return exceptionMessage;
 	}
 
-	public Hashtable<String, Object> getExceptionHashTable() {
+	public Hashtable<String, Object> getExceptionHashTable(double timeTaken) {
 		Hashtable<String, Object> htblException = new Hashtable<>();
 		htblException.put("code", code);
 		htblException.put("message", message);
@@ -44,6 +44,7 @@ public class ErrorObjException extends RuntimeException {
 		errorsArr[0] = error;
 
 		htblException.put("errors", errorsArr);
+		htblException.put("time",timeTaken+" sec");
 		return htblException;
 	}
 

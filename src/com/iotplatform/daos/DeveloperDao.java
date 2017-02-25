@@ -23,7 +23,6 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class DeveloperDao {
 
 	private Oracle oracle;
-	private final String suffix = "_MODEL";
 	private Developer developerClass;
 
 	@Autowired
@@ -33,12 +32,11 @@ public class DeveloperDao {
 		this.developerClass = developerClass;
 	}
 
-	public void InsertDeveloper(Hashtable<String, Object> htblPropValue, String applicationModelName,
-			ArrayList<Prefixes> prefixes) {
+	public void InsertDeveloper(Hashtable<String, Object> htblPropValue, String applicationModelName) {
 
 		String userName = htblPropValue.get("foaf:userName").toString()
 				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
-		String insertQuery = QueryUtility.constructInsertQuery(prefixes, Prefixes.FOAF.getPrefix() + userName,
+		String insertQuery = QueryUtility.constructInsertQuery(Prefixes.FOAF.getPrefix() + userName,
 				developerClass, htblPropValue);
 
 

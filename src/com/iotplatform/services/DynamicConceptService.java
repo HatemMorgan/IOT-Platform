@@ -27,6 +27,7 @@ public class DynamicConceptService {
 	 * return a json object
 	 */
 	public Hashtable<String, Object> insertNewConcept(String applicationName, DynamicConceptModel newConcept) {
+		long startTime = System.currentTimeMillis();
 		try {
 
 			/*
@@ -39,26 +40,29 @@ public class DynamicConceptService {
 				
 				ErrorObjException err = new ErrorObjException(HttpStatus.BAD_REQUEST.name(),
 						HttpStatus.BAD_REQUEST.value(), "Wrong Application name ", "Ontology");
-				return err.getExceptionHashTable();
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return err.getExceptionHashTable(timeTaken);
 			}
 
 			dynamicConceptDao.insertNewConcept(newConcept);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("New Ontology Concept");
 			return successModel.getResponseJson();
 		} catch (ErrorObjException e) {
-			return e.getExceptionHashTable();
+			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+			return e.getExceptionHashTable(timeTaken);
 		}
 	}
 
 	public Hashtable<String, Object> getApplicationDynamicConcepts(String applicationName) {
-
+		long startTime = System.currentTimeMillis();
 		try {
 			List<DynamicConceptModel> concepts = dynamicConceptDao.getConceptsOfApplication(applicationName);
 			Hashtable<String, Object> json = new Hashtable<>();
 			json.put("dynamicAddedConcepts", concepts);
 			return json;
 		} catch (ErrorObjException e) {
-			return e.getExceptionHashTable();
+			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+			return e.getExceptionHashTable(timeTaken);
 		}
 
 	}

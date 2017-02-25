@@ -12,8 +12,6 @@ import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.CannotCreateApplicationModelException;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.exceptions.ErrorObjException;
-import com.iotplatform.exceptions.InvalidPropertyValuesException;
-import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.validations.RequestValidation;
@@ -62,7 +60,8 @@ public class ApplicationService {
 					CannotCreateApplicationModelException err = new CannotCreateApplicationModelException(
 							"There is an application exist with this name . application name has to be unique",
 							"Application");
-					return err.getExceptionHashTable();
+					double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+					return err.getExceptionHashTable(timeTaken);
 				}
 			}
 		}
@@ -83,14 +82,14 @@ public class ApplicationService {
 				return successModel.getResponseJson();
 
 			} catch (DatabaseException ex) {
-
-				return ex.getExceptionHashTable();
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return ex.getExceptionHashTable(timeTaken);
 
 			}
 
 		} catch (ErrorObjException ex) {
-
-			return ex.getExceptionHashTable();
+			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+			return ex.getExceptionHashTable(timeTaken);
 
 		}
 

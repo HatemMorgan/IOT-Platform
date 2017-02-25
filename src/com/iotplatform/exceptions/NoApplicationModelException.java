@@ -1,6 +1,5 @@
 package com.iotplatform.exceptions;
 
-import java.util.Hashtable;
 
 import org.springframework.http.HttpStatus;
 

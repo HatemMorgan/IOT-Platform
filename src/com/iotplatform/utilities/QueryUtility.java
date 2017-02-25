@@ -9,19 +9,27 @@ import com.iotplatform.ontology.Prefixes;
 
 public class QueryUtility {
 
+	static String prefixesString = null;
+
 	/*
 	 * constructInsertQuery method construct an insert query and return it as a
 	 * string
 	 */
 
-	public static String constructInsertQuery(ArrayList<Prefixes> prefixes, String subject, Class SubjectClass,
+	public static String constructInsertQuery( String subject, Class SubjectClass,
 			Hashtable<String, Object> htblPropValue) {
 		StringBuilder stringBuilder = new StringBuilder();
 
-		for (Prefixes prefix : prefixes) {
-			stringBuilder.append("PREFIX	" + prefix.getPrefix() + "	<" + prefix.getUri() + ">\n");
+		if (prefixesString == null) {
+			StringBuilder prefixStringBuilder = new StringBuilder();
+			for (Prefixes prefix : Prefixes.values()) {
+				prefixStringBuilder.append("PREFIX	" + prefix.getPrefix() + "	<" + prefix.getUri() + ">\n");
+			}
+			
+			prefixesString = prefixStringBuilder.toString();
 		}
 
+		stringBuilder.append(prefixesString);
 		stringBuilder.append("INSERT DATA { \n");
 		stringBuilder.append(subject + "	a	" + "<" + SubjectClass.getUri() + "> ; \n");
 
@@ -62,7 +70,8 @@ public class QueryUtility {
 			counter++;
 		}
 
-		stringBuilder.append("SELECT developer, property,value FROM TABLE(SEM_MATCH('SELECT ?developer ?property ?value WHERE { \n");
+		stringBuilder.append(
+				"SELECT developer, property,value FROM TABLE(SEM_MATCH('SELECT ?developer ?property ?value WHERE { \n");
 		stringBuilder.append("?developer	a	" + "<" + SubjectClass.getUri() + "> ; \n");
 		stringBuilder.append("?property ?value . }'\n , sem_models('" + modelName + "'),null,");
 		stringBuilder.append("SEM_ALIASES(" + prefixStringBuilder.toString() + "),null))");

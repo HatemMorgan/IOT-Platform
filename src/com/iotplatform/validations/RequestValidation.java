@@ -439,48 +439,54 @@ public class RequestValidation {
 		
 	}
 
-	public static void main(String[] args) {
-		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
-		String szUser = "rdfusr";
-		String szPasswd = "rdfusr";
-		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
-
-		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName(szJdbcDriver);
-		dataSource.setUrl(szJdbcURL);
-		dataSource.setUsername(szUser);
-		dataSource.setPassword(szPasswd);
-
-		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
-		ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL, szUser, szPasswd));
-		
-		System.out.println("Connected to Database");
-		
-		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
-
-		Hashtable<String, Object> htblPropValues = new Hashtable<>();
-		htblPropValues.put("firstName", "Hatem");
-		htblPropValues.put("knows", "Hatem");
-		htblPropValues.put("hates", "Hatem");
-
-		long startTime = System.currentTimeMillis();
-		
-		//testing isValidFields method
-//		Hashtable<Object, Object>[] res = requestValidation.isFieldsValid("test Application", new Person(),
-//				htblPropValues);
-//		System.out.println(res[0].size());
-//		System.out.println(res[0].toString());
-//		System.out.println(res[1].size());
-//		System.out.println(res[1].toString());
-		
-		//testing isValidRequest
-		try{
-		Hashtable<String, Object> htblPrefixedPropValue = requestValidation.isRequestValid("test Application", new Person(), htblPropValues);
-		System.out.println(htblPrefixedPropValue.toString());
-		}catch(ErrorObjException ex){
-			System.out.println(((Hashtable<Object, Object>[])ex.getExceptionHashTable().get("errors"))[0].toString());
-		}
-		double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-		System.out.println("Time taken : " + timeTaken + " sec ");
-	}
+	// public static void main(String[] args) {
+	// String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+	// String szUser = "rdfusr";
+	// String szPasswd = "rdfusr";
+	// String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+	//
+	// BasicDataSource dataSource = new BasicDataSource();
+	// dataSource.setDriverClassName(szJdbcDriver);
+	// dataSource.setUrl(szJdbcURL);
+	// dataSource.setUsername(szUser);
+	// dataSource.setPassword(szPasswd);
+	//
+	// DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+	// ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL,
+	// szUser, szPasswd));
+	//
+	// System.out.println("Connected to Database");
+	//
+	// RequestValidation requestValidation = new
+	// RequestValidation(validationDao, dynamicConceptDao);
+	//
+	// Hashtable<String, Object> htblPropValues = new Hashtable<>();
+	// htblPropValues.put("firstName", "Hatem");
+	// htblPropValues.put("knows", "Hatem");
+	// htblPropValues.put("hates", "Hatem");
+	//
+	// long startTime = System.currentTimeMillis();
+	//
+	// //testing isValidFields method
+	// Hashtable<Object, Object>[] res = requestValidation.isFieldsValid("test
+	// Application", new Person(),
+	// htblPropValues);
+	// System.out.println(res[0].size());
+	// System.out.println(res[0].toString());
+	// System.out.println(res[1].size());
+	// System.out.println(res[1].toString());
+	//
+	// //testing isValidRequest
+	// try{
+	// Hashtable<String, Object> htblPrefixedPropValue =
+	// requestValidation.isRequestValid("test Application", new Person(),
+	// htblPropValues);
+	// System.out.println(htblPrefixedPropValue.toString());
+	// }catch(ErrorObjException ex){
+	// System.out.println(((Hashtable<Object,
+	// Object>[])ex.getExceptionHashTable().get("errors"))[0].toString());
+	// }
+	// double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+	// System.out.println("Time taken : " + timeTaken + " sec ");
+	// }
 }
