@@ -102,8 +102,7 @@ public class DeveloperDao {
 			System.out.println(
 					"test selecting: elapsed time (sec): " + ((System.currentTimeMillis() - startTime) / 1000.0));
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new DatabaseException(e.getMessage(),"Developer");
 		}
 
 		return developersList;
