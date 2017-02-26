@@ -12,6 +12,11 @@ public class ObjectProperty extends Property {
 		this.object = object;
 	}
 
+	public ObjectProperty(String name, Prefixes prefix, Class object,String applicationName) {
+		super(name, prefix,applicationName);
+		this.object = object;
+	}
+	
 	public Class getObject() {
 		return object;
 	}

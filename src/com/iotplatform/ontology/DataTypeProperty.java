@@ -15,6 +15,11 @@ public class DataTypeProperty extends Property {
 		this.dataType = dataType;
 	}
 
+	public DataTypeProperty(String name, Prefixes prefix, XSDDataTypes dataType,String applicationName) {
+		super(name, prefix,applicationName);
+		this.dataType = dataType;
+	}
+	
 	public XSDDataTypes getDataType() {
 		return dataType;
 	}

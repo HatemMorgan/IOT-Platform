@@ -25,20 +25,23 @@ public class DeveloperDao {
 
 	private Oracle oracle;
 	private Developer developerClass;
+	private QueryResultUtility queryResultUtility;
+	private final String suffix = "_MODEL";
 
 	@Autowired
-	public DeveloperDao(Oracle oracle, Developer developerClass) {
+	public DeveloperDao(Oracle oracle, Developer developerClass, QueryResultUtility queryResultUtility) {
 		System.out.println("ApplicationDAO Created");
 		this.oracle = oracle;
 		this.developerClass = developerClass;
+		this.queryResultUtility = queryResultUtility;
 	}
 
 	public void InsertDeveloper(Hashtable<String, Object> htblPropValue, String applicationModelName) {
 
 		String userName = htblPropValue.get("foaf:userName").toString()
 				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
-		String insertQuery = QueryUtility.constructInsertQuery(Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), developerClass,
-				htblPropValue);
+		String insertQuery = QueryUtility.constructInsertQuery(
+				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), developerClass, htblPropValue);
 
 		try {
 
@@ -55,22 +58,23 @@ public class DeveloperDao {
 
 	public List<Hashtable<String, Object>> getDevelopers(String applicationModelName) {
 
+		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,applicationModelName.length()- 6);
+		
 		String queryString = QueryUtility.constructSelectAllQueryNoFilters(developerClass, applicationModelName);
 
-		System.out.println(queryString);
-		Hashtable<String, Object> htblDeveloperPropVal = null;
 		List<Hashtable<String, Object>> developersList = new ArrayList<>();
 		long startTime = System.currentTimeMillis();
 
 		try {
 			ResultSet res = oracle.executeQuery(queryString, 0, 1);
-			Object currentSubject = null;
+			Hashtable<Object, Hashtable<String, Object>> temp = new Hashtable<>();
 			while (res.next()) {
 
 				Object subject = res.getObject(1);
-				if (htblDeveloperPropVal == null) {
-					currentSubject = subject;
-					htblDeveloperPropVal = new Hashtable<>();
+				if (temp.size() == 0) {
+					Hashtable<String, Object> htblDeveloperPropVal = new Hashtable<>();
+					temp.put(subject, htblDeveloperPropVal);
+					developersList.add(htblDeveloperPropVal);
 				}
 
 				/*
@@ -85,17 +89,19 @@ public class DeveloperDao {
 				if (res.getString(2).equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
 					continue;
 				}
-				Object[] preparedPropVal = QueryResultUtility.constructQueryResult(res.getString(2), res.getString(3),
-						new Developer());
+				Object[] preparedPropVal = queryResultUtility.constructQueryResult(applicationName, res.getString(2),
+						res.getString(3), new Developer());
 				String propertyName = preparedPropVal[0].toString();
 				Object value = preparedPropVal[1];
 
-				if (currentSubject.equals(subject)) {
-					htblDeveloperPropVal.put(propertyName, value);
+				if (temp.containsKey(subject)) {
+					temp.get(subject).put(propertyName, value);
 				} else {
+
+					Hashtable<String, Object> htblDeveloperPropVal = new Hashtable<>();
+					temp.put(subject, htblDeveloperPropVal);
 					developersList.add(htblDeveloperPropVal);
-					htblDeveloperPropVal = new Hashtable<>();
-					htblDeveloperPropVal.put(propertyName, value);
+
 				}
 
 			}
@@ -104,8 +110,6 @@ public class DeveloperDao {
 			 * Add the last htblDeveloperPropVal to the list because it will not
 			 * enter the else part as the loop will terminate
 			 */
-
-			developersList.add(htblDeveloperPropVal);
 
 			System.out.println(
 					"test selecting: elapsed time (sec): " + ((System.currentTimeMillis() - startTime) / 1000.0));
@@ -138,9 +142,9 @@ public class DeveloperDao {
 
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
-		DeveloperDao developerDao = new DeveloperDao(oracle, new Developer());
-		 developerDao.InsertDeveloper(htblPropValue, "TESTAPPLICATION_MODEL");
-		System.out.println(developerDao.getDevelopers("TESTAPPLICATION_MODEL"));
+//		DeveloperDao developerDao = new DeveloperDao(oracle, new Developer(),new QueryResultUtility());
+		// developerDao.InsertDeveloper(htblPropValue, "TESTAPPLICATION_MODEL");
+//		System.out.println(developerDao.getDevelopers("TESTAPPLICATION_MODEL"));
 	}
 
 }

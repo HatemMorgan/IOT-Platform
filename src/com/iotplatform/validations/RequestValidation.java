@@ -47,19 +47,82 @@ public class RequestValidation {
 	}
 
 	/*
+	 * it loads dynamic properties of the given class in the passed application
+	 * domain and also caches the dynamic properties to improve performance
+	 */
+	public Hashtable<String, DynamicConceptModel> getDynamicProperties(String applicationName, Class subjectClass) {
+
+		/*
+		 * to get the dynamic properties only one time
+		 */
+
+		Hashtable<String, String> htblFilter = new Hashtable<>();
+		htblFilter.put(DynamicConceptColumns.CLASS_URI.toString(), subjectClass.getUri());
+
+		List<DynamicConceptModel> res;
+		try {
+			res = dynamicConceptDao.getConceptsOfApplicationByFilters(applicationName, htblFilter);
+		} catch (ErrorObjException ex) {
+			throw ex;
+		}
+
+		/*
+		 * populate dynamicProperties hashtable to enhance performance when
+		 * having alot of dynamic properties not cached so to avoid going to the
+		 * database more than one time. I load all the dynamic properties of the
+		 * specified subject and then cache results
+		 * 
+		 * I used hashtable to hold dynamic properties to enhance performance
+		 * when checking for valid property in the loading dynamic properties. I
+		 * did not check in the loop to allow caching all new properties that
+		 * were not cached before without terminating the loop when finding the
+		 * property needed in the dynamicProperties
+		 * 
+		 * Also add dynamic property to property list of the subject class in
+		 * order to improve performance by caching the dynamic properties
+		 */
+		Hashtable<String, DynamicConceptModel> dynamicProperties = new Hashtable<>();
+		for (DynamicConceptModel dynamicProperty : res) {
+
+			// skip if the property was cached before
+			if (subjectClass.getProperties().contains(dynamicProperty.getProperty_name())) {
+				continue;
+			}
+			System.out.println("---->"+dynamicProperty.getProperty_uri());
+			subjectClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
+					dynamicProperty.getProperty_name());
+
+			if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty.toString())) {
+				subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
+						new DataTypeProperty(dynamicProperty.getProperty_name(),
+								getPrefix(dynamicProperty.getProperty_prefix_alias()),
+								getXSDDataTypeEnum(dynamicProperty.getProperty_object_type()), applicationName));
+			} else {
+				if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
+					subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
+							new ObjectProperty(dynamicProperty.getProperty_name(),
+									getPrefix(dynamicProperty.getProperty_prefix_alias()),
+									getClassByName(dynamicProperty.getProperty_object_type()), applicationName));
+				}
+			}
+			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
+		}
+
+		return dynamicProperties;
+	}
+
+	/*
 	 * checkIfFieldsValid checks if the fields passed by the http request are
 	 * valid or not and it return an array of hashtables if the fields are valid
 	 * which contains the hashtable of dynamic properties and the other
 	 * hashtable for static properties
 	 */
-	private Hashtable<Object, Object>[] isFieldsValid(String applicationName, Class subjectClass,
+	private Hashtable<Object, Object> isFieldsValid(String applicationName, Class subjectClass,
 			Hashtable<String, Object> htblPropertyValue) {
 
-		Hashtable<Object, Object>[] returnedArray = (Hashtable<Object, Object>[]) new Hashtable<?, ?>[2];
-		Hashtable<Object, Object> htblstaticProperties = new Hashtable<>();
-		Hashtable<Object, Object> htbldynamicProperties = new Hashtable<>();
+		Hashtable<Object, Object> htblFieldPropValue = new Hashtable<>();
 
-		Hashtable<String, DynamicConceptModel> dynamicProperties = null;
+		Hashtable<String, DynamicConceptModel> dynamicProperties;
 
 		Hashtable<String, Property> htblProperties = subjectClass.getProperties();
 		Iterator<String> iterator = htblPropertyValue.keySet().iterator();
@@ -75,48 +138,11 @@ public class RequestValidation {
 			if (!htblProperties.containsKey(field)) {
 
 				/*
-				 * to get the dynamic properties only one time
+				 * get Dynamic properties of given subject class in the passed
+				 * application domain
 				 */
-				if (dynamicProperties == null) {
-					Hashtable<String, String> htblFilter = new Hashtable<>();
-					htblFilter.put(DynamicConceptColumns.CLASS_URI.toString(), subjectClass.getUri());
-					List<DynamicConceptModel> res = dynamicConceptDao.getConceptsOfApplicationByFilters(applicationName,
-							htblFilter);
 
-					/*
-					 * populate dynamicProperties hashtable to enhance
-					 * performance when searching many times because using list
-					 * will let me loop on the list each time the field passed
-					 * is not a static property
-					 * 
-					 * Also add dynamic property to property list of the subject
-					 * class in order to improve performance by caching the
-					 * dynamic properties
-					 */
-					dynamicProperties = new Hashtable<>();
-					for (DynamicConceptModel dynamicProperty : res) {
-						subjectClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
-								dynamicProperty.getProperty_name());
-
-						if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty)) {
-
-							subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
-									new DataTypeProperty(dynamicProperty.getProperty_name(),
-											getPrefix(dynamicProperty.getProperty_prefix_alias()),
-											getXSDDataTypeEnum(dynamicProperty.getProperty_object_type())));
-						} else {
-							if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty)) {
-								subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
-										new ObjectProperty(dynamicProperty.getProperty_name(),
-												getPrefix(dynamicProperty.getProperty_prefix_alias()),
-												getClassByName(dynamicProperty.getProperty_object_type())));
-							}
-						}
-
-						dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
-					}
-
-				}
+				dynamicProperties = getDynamicProperties(applicationName, subjectClass);
 
 				/*
 				 * check if the field passed is a dynamic property
@@ -132,22 +158,34 @@ public class RequestValidation {
 					 * passed field is a static property so add it to
 					 * htblDynamicProperties
 					 */
-					htbldynamicProperties.put(dynamicProperties.get(field), value);
+					htblFieldPropValue.put(htblProperties.get(field), value);
 				}
 
 			} else {
+
 				/*
 				 * passed field is a static property so add it to
 				 * htblStaticProperty
 				 */
 
-				htblstaticProperties.put(htblProperties.get(field), value);
+				if (htblProperties.get(field).getApplicationName() == null
+						|| htblProperties.get(field).getApplicationName().equals(applicationName)) {
+					htblFieldPropValue.put(htblProperties.get(field), value);
+
+				} else {
+
+					/*
+					 * this means that this class has a property with the same
+					 * name but it is not for the specified application domain
+					 */
+					throw new InvalidRequestFieldsException(subjectClass.getName(), field);
+
+				}
+
 			}
 		}
 
-		returnedArray[0] = htblstaticProperties;
-		returnedArray[1] = htbldynamicProperties;
-		return returnedArray;
+		return htblFieldPropValue;
 	}
 
 	private Prefixes getPrefix(String prefixAlias) {
@@ -247,85 +285,6 @@ public class RequestValidation {
 			return false;
 		}
 
-	}
-
-	/*
-	 * isDynamicDataValueValid checks that the datatype of the values passed
-	 * with the property are valid to maintain data integrity and consistency.
-	 * 
-	 * It is used with Dynamic dataProperty
-	 */
-	private boolean isDynamicDataValueValid(String dataType, Object value) {
-
-		boolean checkFlag;
-
-		if (XSDDataTypes.boolean_type.getDataType().equals(dataType)) {
-			return checkFlag = (value instanceof Boolean) ? true : false;
-		}
-
-		if (XSDDataTypes.decimal_typed.getDataType().equals(dataType)) {
-			return checkFlag = (value instanceof Double) ? true : false;
-		}
-
-		if (XSDDataTypes.float_typed.getDataType().equals(dataType)) {
-			return checkFlag = (value instanceof Float) ? true : false;
-		}
-
-		if (XSDDataTypes.integer_typed.getDataType().equals(dataType)) {
-			return checkFlag = (value instanceof Integer) ? true : false;
-		}
-
-		if (XSDDataTypes.string_typed.getDataType().equals(dataType)) {
-			return checkFlag = (value instanceof String) ? true : false;
-		}
-
-		if (XSDDataTypes.dateTime_typed.getDataType().equals(dataType)) {
-			return checkFlag = (value instanceof XMLGregorianCalendar) ? true : false;
-		}
-
-		if (XSDDataTypes.double_typed.getDataType().equals(dataType)) {
-			return checkFlag = (value instanceof Double) ? true : false;
-		}
-
-		return false;
-
-	}
-
-	/*
-	 * getXSDDataTypeString method returns the xsd datatype string
-	 */
-
-	private String getXSDDataTypeString(String dataType) {
-
-		if (XSDDataTypes.boolean_type.getDataType().equals(dataType)) {
-			return XSDDataTypes.boolean_type.getXsdType();
-		}
-
-		if (XSDDataTypes.decimal_typed.getDataType().equals(dataType)) {
-			return XSDDataTypes.decimal_typed.getXsdType();
-		}
-
-		if (XSDDataTypes.float_typed.getDataType().equals(dataType)) {
-			return XSDDataTypes.float_typed.getXsdType();
-		}
-
-		if (XSDDataTypes.integer_typed.getDataType().equals(dataType)) {
-			return XSDDataTypes.integer_typed.getXsdType();
-		}
-
-		if (XSDDataTypes.string_typed.getDataType().equals(dataType)) {
-			return XSDDataTypes.string_typed.getXsdType();
-		}
-
-		if (XSDDataTypes.dateTime_typed.getDataType().equals(dataType)) {
-			return XSDDataTypes.dateTime_typed.getXsdType();
-		}
-
-		if (XSDDataTypes.double_typed.getDataType().equals(dataType)) {
-			return XSDDataTypes.double_typed.getXsdType();
-		}
-
-		return null;
 	}
 
 	/*
@@ -432,23 +391,18 @@ public class RequestValidation {
 		}
 	}
 
-	private Hashtable<String, Object> isProrpertyValueValid(Hashtable<Object, Object> htblDynamicProperties,
-			Hashtable<Object, Object> htblStaticProperties, Class subjectClass, String applicationName) {
+	private Hashtable<String, Object> isProrpertyValueValid(Hashtable<Object, Object> htblPropValue, Class subjectClass,
+			String applicationName) {
 
-		Iterator<Object> staticProertyIterator = htblStaticProperties.keySet().iterator();
-		Iterator<Object> dynamicPropertyIterator = htblDynamicProperties.keySet().iterator();
+		Iterator<Object> PropValueIterator = htblPropValue.keySet().iterator();
 
 		Hashtable<Class, Object> htblClassValue = new Hashtable<>();
 		Hashtable<String, Object> htblPrefixedPropertyValues = new Hashtable<>();
 
-		/*
-		 * Static properties
-		 */
+		while (PropValueIterator.hasNext()) {
 
-		while (staticProertyIterator.hasNext()) {
-
-			Property staticProperty = (Property) staticProertyIterator.next();
-			Object value = htblStaticProperties.get(staticProperty);
+			Property staticProperty = (Property) PropValueIterator.next();
+			Object value = htblPropValue.get(staticProperty);
 
 			/*
 			 * Object property so add it to htblClassValue to send it to
@@ -461,8 +415,7 @@ public class RequestValidation {
 			} else {
 
 				/*
-				 * check if the datatype is correct or not fir static
-				 * dataProperty
+				 * check if the datatype is correct or not
 				 */
 
 				if (!isStaticDataValueValid((DataTypeProperty) staticProperty, value)) {
@@ -477,43 +430,6 @@ public class RequestValidation {
 
 		}
 
-		/*
-		 * Dynamic Properties
-		 */
-		while (dynamicPropertyIterator.hasNext()) {
-
-			DynamicConceptModel dynamicProperty = (DynamicConceptModel) dynamicPropertyIterator.next();
-			Object value = htblDynamicProperties.get(dynamicProperty);
-
-			/*
-			 * Object property so add it to htblClassValue to send it to
-			 * requestValidationDao
-			 */
-			if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
-
-				Class objectClassType = getClassByName(dynamicProperty.getClass_name());
-				htblClassValue.put(objectClassType, value);
-				value = objectClassType.getPrefix().getPrefix() + value;
-			} else {
-
-				/*
-				 * check if the datatype is correct or not fir dynamic
-				 * dataProperty
-				 */
-
-				if (!isDynamicDataValueValid(dynamicProperty.getProperty_object_type(), value)) {
-					throw new InvalidPropertyValuesException(subjectClass.getName(),
-							dynamicProperty.getProperty_name());
-				}
-
-			}
-			value = "\"" + value.toString() + "\"" + getXSDDataTypeString(dynamicProperty.getProperty_object_type());
-			htblPrefixedPropertyValues
-					.put(dynamicProperty.getProperty_prefix_alias() + dynamicProperty.getProperty_name(), value);
-
-		}
-
-		
 		/*
 		 * check for property value type of objectProperties
 		 */
@@ -534,59 +450,50 @@ public class RequestValidation {
 	public Hashtable<String, Object> isRequestValid(String applicationName, Class subjectClass,
 			Hashtable<String, Object> htblPropertyValue) {
 
-		Hashtable<Object, Object>[] results = isFieldsValid(applicationName, subjectClass, htblPropertyValue);
-		return isProrpertyValueValid(results[1], results[0], subjectClass, applicationName);
+		Hashtable<Object, Object> htblPropValue = isFieldsValid(applicationName, subjectClass, htblPropertyValue);
+		return isProrpertyValueValid(htblPropValue, subjectClass, applicationName);
 
 	}
 
-	// public static void main(String[] args) {
-	// String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
-	// String szUser = "rdfusr";
-	// String szPasswd = "rdfusr";
-	// String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
-	//
-	// BasicDataSource dataSource = new BasicDataSource();
-	// dataSource.setDriverClassName(szJdbcDriver);
-	// dataSource.setUrl(szJdbcURL);
-	// dataSource.setUsername(szUser);
-	// dataSource.setPassword(szPasswd);
-	//
-	// DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
-	// ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL,
-	// szUser, szPasswd));
-	//
-	// System.out.println("Connected to Database");
-	//
-	// RequestValidation requestValidation = new
-	// RequestValidation(validationDao, dynamicConceptDao);
-	//
-	// Hashtable<String, Object> htblPropValues = new Hashtable<>();
-	// htblPropValues.put("firstName", "Hatem");
-	// htblPropValues.put("knows", "Hatem");
-	// htblPropValues.put("hates", "Hatem");
-	//
-	// long startTime = System.currentTimeMillis();
-	//
-	// //testing isValidFields method
-	// Hashtable<Object, Object>[] res = requestValidation.isFieldsValid("test
-	// Application", new Person(),
-	// htblPropValues);
-	// System.out.println(res[0].size());
-	// System.out.println(res[0].toString());
-	// System.out.println(res[1].size());
-	// System.out.println(res[1].toString());
-	//
-	// //testing isValidRequest
-	// try{
-	// Hashtable<String, Object> htblPrefixedPropValue =
-	// requestValidation.isRequestValid("test Application", new Person(),
-	// htblPropValues);
-	// System.out.println(htblPrefixedPropValue.toString());
-	// }catch(ErrorObjException ex){
-	// System.out.println(((Hashtable<Object,
-	// Object>[])ex.getExceptionHashTable().get("errors"))[0].toString());
-	// }
-	// double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-	// System.out.println("Time taken : " + timeTaken + " sec ");
-	// }
+	public static void main(String[] args) {
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(szJdbcDriver);
+		dataSource.setUrl(szJdbcURL);
+		dataSource.setUsername(szUser);
+		dataSource.setPassword(szPasswd);
+
+		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+		ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL, szUser, szPasswd));
+
+		System.out.println("Connected to Database");
+
+		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
+
+		Hashtable<String, Object> htblPropValues = new Hashtable<>();
+		htblPropValues.put("firstName", "Hatem");
+		htblPropValues.put("knows", "HatemMorgan");
+		htblPropValues.put("hates", "HatemMorgan");
+
+		long startTime = System.currentTimeMillis();
+
+		// testing isValidFields method
+		Hashtable<Object, Object> res = requestValidation.isFieldsValid("test Application", new Developer(),
+				htblPropValues);
+
+		System.out.println(res.toString());
+
+		// testing isValidRequest
+
+		Hashtable<String, Object> htblPrefixedPropValue = requestValidation.isRequestValid("test Application",
+				new Developer(), htblPropValues);
+		System.out.println(htblPrefixedPropValue.toString());
+
+		double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+		System.out.println("Time taken : " + timeTaken + " sec ");
+	}
 }

@@ -134,9 +134,8 @@ public class test {
 		// Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 		// OracleUtils.dropSemanticModel(oracle, "TESTAPPLICATION_MODEL");
 
-		System.out.println(QueryResultUtility.constructQueryResult(Prefixes.IOT_PLATFORM.getUri() + "developedApplication",
-				"http://iot-platform#TESTAPPLICATION", new Developer())[1]);
-
+		String x = "Hatem Morgan";
+		System.out.println(x.substring(0,x.length()-2));
 	}
 
 }

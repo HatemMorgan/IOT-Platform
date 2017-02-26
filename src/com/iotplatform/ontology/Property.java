@@ -7,11 +7,20 @@ package com.iotplatform.ontology;
 public abstract class Property {
 	private String name;
 	private Prefixes prefix;
+	private String applicationName;
 
 	public Property(String name, Prefixes prefix) {
 
 		this.name = name;
 		this.prefix = prefix;
+		applicationName = null;
+	}
+
+	public Property(String name, Prefixes prefix, String applicationName) {
+
+		this.name = name;
+		this.prefix = prefix;
+		this.applicationName = applicationName;
 	}
 
 	public String getName() {
@@ -20,6 +29,10 @@ public abstract class Property {
 
 	public Prefixes getPrefix() {
 		return prefix;
+	}
+
+	public String getApplicationName() {
+		return applicationName;
 	}
 
 }

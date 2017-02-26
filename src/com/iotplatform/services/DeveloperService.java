@@ -18,6 +18,7 @@ import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Developer;
+import com.iotplatform.utilities.QueryResultUtility;
 import com.iotplatform.validations.RequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -103,6 +104,7 @@ public class DeveloperService {
 
 			List<Hashtable<String, Object>> htblPropValue = developerDao
 					.getDevelopers(applicationDao.getHtblApplicationNameModelName().get(applicationNameCode));
+			
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			return new SuccessfullSelectAllJsonModel(htblPropValue, timeTaken);
 
@@ -125,9 +127,17 @@ public class DeveloperService {
 		dataSource.setUsername(szUser);
 		dataSource.setPassword(szPasswd);
 
+		
+		
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+		
+		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+		
+		ValidationDao validationDao = new ValidationDao(oracle);
+		
+
 		Developer developerClass = new Developer();
-		DeveloperDao developerDao = new DeveloperDao(oracle, developerClass);
+		DeveloperDao developerDao = new DeveloperDao(oracle, developerClass,new QueryResultUtility(new RequestValidation(validationDao, dynamicConceptDao)));
 		RequestValidation requestValidation = new RequestValidation(new ValidationDao(oracle),
 				new DynamicConceptDao(dataSource));
 
@@ -149,13 +159,19 @@ public class DeveloperService {
 		htblPropValue.put("mbox", "omartagguv@gmail.com" );
 		htblPropValue.put("developedApplication", "TESTAPPLICATION");
 		htblPropValue.put("knows", "HatemMorgan");
+		htblPropValue.put("hates", "HatemMorgan");
+
 		
-		Hashtable<String, Object> res =  developerService.insertDeveloper(htblPropValue, "test Application");
-//		
+//		Hashtable<String, Object> res =  developerService.insertDeveloper(htblPropValue, "test Application");
+		
+		System.out.println("heree");
+		Hashtable<String, Object> res = developerService.getDevelopers("test Application").getJson();
+		System.out.println(res.get("results"));
+		
 //		Hashtable<String, Object>[] json = (Hashtable<String, Object>[])res.get("errors");
 //		System.out.println(json[0].toString());
 		
-		System.out.println(res.toString());
+//		System.out.println(res.toString());
 
 		
 		

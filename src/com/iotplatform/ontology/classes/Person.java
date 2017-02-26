@@ -46,7 +46,7 @@ public class Person extends Class {
 		this.getProperties().put("birthday",new DataTypeProperty("birthday", Prefixes.FOAF, XSDDataTypes.string_typed));
 		this.getProperties().put("familyName",new DataTypeProperty("familyName", Prefixes.FOAF, XSDDataTypes.string_typed));
 		this.getProperties().put("firstName",new DataTypeProperty("firstName", Prefixes.FOAF, XSDDataTypes.string_typed));
-		this.getProperties().put("lastName",new DataTypeProperty("lastName", Prefixes.FOAF, XSDDataTypes.string_typed));
+		this.getProperties().put("middleName",new DataTypeProperty("middleName", Prefixes.FOAF, XSDDataTypes.string_typed));
 		this.getProperties().put("gender", new DataTypeProperty("gender", Prefixes.FOAF, XSDDataTypes.string_typed));
 		this.getProperties().put("id", new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed));
 		this.getProperties().put("title", new DataTypeProperty("title", Prefixes.FOAF, XSDDataTypes.string_typed));

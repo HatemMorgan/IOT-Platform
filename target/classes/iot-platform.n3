@@ -654,14 +654,14 @@ geo:long a owl:DatatypeProperty ;
 	rdfs:label "gender" ;
 	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "testing" .
 # 
-# http://xmlns.com/foaf/0.1/lastName
+# http://xmlns.com/foaf/0.1/middleName
 
-<http://xmlns.com/foaf/0.1/lastName> a owl:DatatypeProperty ;
+<http://xmlns.com/foaf/0.1/middleName> a owl:DatatypeProperty ;
 	rdfs:domain <http://xmlns.com/foaf/0.1/Person> ;
 	rdfs:range xsd:string ;
 	rdfs:comment "The last name of a person." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
-	rdfs:label "lastName" ;
+	rdfs:label "middleName" ;
 	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "testing" .
 # 
 # http://xmlns.com/foaf/0.1/mbox
