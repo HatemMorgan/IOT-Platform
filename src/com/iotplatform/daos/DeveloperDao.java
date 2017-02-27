@@ -45,7 +45,6 @@ public class DeveloperDao {
 		try {
 
 			ModelOracleSem model = ModelOracleSem.createOracleSemModel(oracle, applicationModelName);
-			System.out.println(insertQuery);
 			UpdateAction.parseExecute(insertQuery, model);
 			model.close();
 
@@ -60,7 +59,6 @@ public class DeveloperDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,applicationModelName.length()- 6);
 		
 		String queryString = QueryUtility.constructSelectAllQueryNoFilters(developerClass, applicationModelName);
-		System.out.println(queryString);
 		List<Hashtable<String, Object>> developersList = new ArrayList<>();
 		long startTime = System.currentTimeMillis();
 
