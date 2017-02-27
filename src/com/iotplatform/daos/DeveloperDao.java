@@ -61,7 +61,7 @@ public class DeveloperDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,applicationModelName.length()- 6);
 		
 		String queryString = QueryUtility.constructSelectAllQueryNoFilters(developerClass, applicationModelName);
-
+		System.out.println(queryString);
 		List<Hashtable<String, Object>> developersList = new ArrayList<>();
 		long startTime = System.currentTimeMillis();
 
@@ -90,7 +90,7 @@ public class DeveloperDao {
 					continue;
 				}
 				Object[] preparedPropVal = queryResultUtility.constructQueryResult(applicationName, res.getString(2),
-						res.getString(3), new Developer());
+						res.getString(3), developerClass);
 				String propertyName = preparedPropVal[0].toString();
 				Object value = preparedPropVal[1];
 

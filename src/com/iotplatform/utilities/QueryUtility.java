@@ -71,9 +71,9 @@ public class QueryUtility {
 		}
 
 		stringBuilder.append(
-				"SELECT developer, property,value FROM TABLE(SEM_MATCH('SELECT ?developer ?property ?value WHERE { \n");
-		stringBuilder.append("?developer	a	" + "<" + SubjectClass.getUri() + "> ; \n");
-		stringBuilder.append("?property ?value . }'\n , sem_models('" + modelName + "'),null,");
+				"SELECT developer, property,value FROM TABLE(SEM_MATCH('SELECT ?developer ?property ?value WHERE { ");
+		stringBuilder.append("?developer	a	" + "<" + SubjectClass.getUri() + "> ; ");
+		stringBuilder.append("?property ?value . }'  , sem_models('" + modelName + "'),null,");
 		stringBuilder.append("SEM_ALIASES(" + prefixStringBuilder.toString() + "),null))");
 
 		return stringBuilder.toString();

@@ -149,7 +149,7 @@ public class DeveloperService {
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		htblPropValue.put("age", 20);
 		htblPropValue.put("firstName", "Omar");
-		htblPropValue.put("lastName", "Hassan" );
+		htblPropValue.put("middleName", "Hassan" );
 		htblPropValue.put("familyName", "Tag" );
 		htblPropValue.put("birthday", "27/2/1995" );
 		htblPropValue.put("gender", "Male" );
@@ -164,7 +164,6 @@ public class DeveloperService {
 		
 //		Hashtable<String, Object> res =  developerService.insertDeveloper(htblPropValue, "test Application");
 		
-		System.out.println("heree");
 		Hashtable<String, Object> res = developerService.getDevelopers("test Application").getJson();
 		System.out.println(res.get("results"));
 		

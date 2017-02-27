@@ -58,7 +58,7 @@ public class Person extends Class {
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "birthday", "birthday");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "familyName", "familyName");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "firstName", "firstName");
-		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "lastName", "lastName");
+		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "middleName", "middleName");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "gender", "gender");
 		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "title", "title");
