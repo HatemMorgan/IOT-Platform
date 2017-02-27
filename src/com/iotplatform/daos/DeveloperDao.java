@@ -26,7 +26,6 @@ public class DeveloperDao {
 	private Oracle oracle;
 	private Developer developerClass;
 	private QueryResultUtility queryResultUtility;
-	private final String suffix = "_MODEL";
 
 	@Autowired
 	public DeveloperDao(Oracle oracle, Developer developerClass, QueryResultUtility queryResultUtility) {
