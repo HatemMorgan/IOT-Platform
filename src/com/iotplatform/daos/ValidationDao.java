@@ -43,7 +43,7 @@ public class ValidationDao {
 			return resultSet.getInt(1);
 
 		} catch (SQLException e) {
-			throw new DatabaseException(e.getMessage(),"Application");
+			throw new DatabaseException(e.getMessage(), "Application");
 
 		}
 	}
@@ -76,7 +76,24 @@ public class ValidationDao {
 
 			Class valueClassType = iterator.next();
 			Object value = htblClassValue.get(valueClassType);
-			String subject = valueClassType.getPrefix().getPrefix() + value.toString().toLowerCase();
+
+			/*
+			 * (iot-plaform:developer,iot-platform:Admin,iot-platform:
+			 * NormalUser) are subclasses of foaf:Person so any instance of it
+			 * must have a prefix of iot-platform: so to check if an instance of
+			 * Developer is a Person we have to do the following
+			 * 
+			 * iot-platform:hatemmorgan a foaf:Person
+			 */
+
+			String subject;
+			if (valueClassType instanceof Person) {
+				
+				subject = Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase();
+			} else {
+				subject = valueClassType.getPrefix().getPrefix() + value.toString().toLowerCase();
+			}
+
 			String object = valueClassType.getPrefix().getPrefix() + valueClassType.getName();
 			Prefixes prefix = valueClassType.getPrefix();
 			String alias;
@@ -119,26 +136,26 @@ public class ValidationDao {
 		return stringBuilder.toString();
 	}
 
-//	 public static void main(String[] args) {
-//	 String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
-//	 String szUser = "rdfusr";
-//	 String szPasswd = "rdfusr";
-//	
-//	 ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL,
-//	 szUser, szPasswd));
-//	 // System.out.println(Prefixes.SSN.toString().toLowerCase());
-//	 Hashtable<Class, Object> htblClassValue = new Hashtable<>();
-//	 htblClassValue.put(new Application(), "testapplication");
-//	 // this will fail the check
-//	  htblClassValue.put(new Person(), "Hatem");
-//	 try {
-//	 System.out.println(validationDao.checkIfInstanceExsist("testApplication",
-//	 htblClassValue));
-//	 } catch (DatabaseException e) {
-//	 System.out.println(e.getCode());
-//	 System.out.println(e.getMessage());
-//	 System.out.println(e.getExceptionMessage());
-//	 }
-//	
-//	 }
+	// public static void main(String[] args) {
+	// String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+	// String szUser = "rdfusr";
+	// String szPasswd = "rdfusr";
+	//
+	// ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL,
+	// szUser, szPasswd));
+	// // System.out.println(Prefixes.SSN.toString().toLowerCase());
+	// Hashtable<Class, Object> htblClassValue = new Hashtable<>();
+	// htblClassValue.put(new Application(), "testapplication");
+	// // this will fail the check
+	// htblClassValue.put(new Person(), "Hatem");
+	// try {
+	// System.out.println(validationDao.checkIfInstanceExsist("testApplication",
+	// htblClassValue));
+	// } catch (DatabaseException e) {
+	// System.out.println(e.getCode());
+	// System.out.println(e.getMessage());
+	// System.out.println(e.getExceptionMessage());
+	// }
+	//
+	// }
 }

@@ -39,9 +39,15 @@ public class DeveloperDao {
 
 		String userName = htblPropValue.get("foaf:userName").toString()
 				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
+		
+		/*
+		 * Identifying that the developer instance is also a person instance 
+		 */
+		htblPropValue.put("a", "foaf:Person");
+		
 		String insertQuery = QueryUtility.constructInsertQuery(
 				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), developerClass, htblPropValue);
-
+		System.out.println(insertQuery);
 		try {
 
 			ModelOracleSem model = ModelOracleSem.createOracleSemModel(oracle, applicationModelName);
@@ -123,7 +129,7 @@ public class DeveloperDao {
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		htblPropValue.put("foaf:age", "\"20\"" + XSDDataTypes.integer_typed.getXsdType());
 		htblPropValue.put("foaf:firstName", "\"Hatem\"" + XSDDataTypes.string_typed.getXsdType());
-		htblPropValue.put("foaf:lastName", "\"Elsayed\"" + XSDDataTypes.string_typed.getXsdType());
+		htblPropValue.put("foaf:middleName", "\"Elsayed\"" + XSDDataTypes.string_typed.getXsdType());
 		htblPropValue.put("foaf:familyName", "\"Morgan\"" + XSDDataTypes.string_typed.getXsdType());
 		htblPropValue.put("foaf:birthday", "\"27/7/1995\"" + XSDDataTypes.string_typed.getXsdType());
 		htblPropValue.put("foaf:gender", "\"Male\"" + XSDDataTypes.string_typed.getXsdType());

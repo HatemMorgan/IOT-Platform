@@ -38,13 +38,18 @@ public class AdminDao {
 
 		String userName = htblPropValue.get("foaf:userName").toString()
 				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
+		
+		/*
+		 * Identifying that the admin instance is also a person instance 
+		 */
+		htblPropValue.put("a", "foaf:Person");
+		
 		String insertQuery = QueryUtility.constructInsertQuery(
 				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), adminClass, htblPropValue);
 
 		try {
 
 			ModelOracleSem model = ModelOracleSem.createOracleSemModel(oracle, applicationModelName);
-			System.out.println(insertQuery);
 			UpdateAction.parseExecute(insertQuery, model);
 			model.close();
 

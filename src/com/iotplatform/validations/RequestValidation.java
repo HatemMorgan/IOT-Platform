@@ -409,7 +409,6 @@ public class RequestValidation {
 			 * requestValidationDao
 			 */
 			if (staticProperty instanceof ObjectProperty) {
-
 				htblClassValue.put(((ObjectProperty) staticProperty).getObject(), value);
 
 			} else {

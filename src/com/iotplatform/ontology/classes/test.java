@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.utilities.QueryResultUtility;
 
@@ -134,8 +135,8 @@ public class test {
 		// Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 		// OracleUtils.dropSemanticModel(oracle, "TESTAPPLICATION_MODEL");
 
-		String x = "Hatem Morgan";
-		System.out.println(x.substring(0,x.length()-2));
+		Developer developer = new Developer();
+		System.out.println((ObjectProperty)developer.getProperties().get("knows"));
 	}
 
 }

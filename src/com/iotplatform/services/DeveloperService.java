@@ -15,7 +15,6 @@ import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
-import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Developer;
 import com.iotplatform.utilities.QueryResultUtility;
@@ -163,19 +162,19 @@ public class DeveloperService {
 		htblPropValue.put("userName", "OmarTag" );
 		htblPropValue.put("mbox", "omartagguv@gmail.com" );
 		htblPropValue.put("developedApplication", "TESTAPPLICATION");
-		htblPropValue.put("knows", "HatemMorgan");
-		htblPropValue.put("hates", "HatemMorgan");
+		htblPropValue.put("knows", "OmarTag");
+//		htblPropValue.put("hates", "RanaSaed");
 
 		
-//		Hashtable<String, Object> res =  developerService.insertDeveloper(htblPropValue, "test Application");
+		Hashtable<String, Object> res =  developerService.insertDeveloper(htblPropValue, "test Application");
 		
-		Hashtable<String, Object> res = developerService.getDevelopers("test Application").getJson();
-		System.out.println(res.get("results"));
+//		Hashtable<String, Object> res = developerService.getDevelopers("test Application").getJson();
+//		System.out.println(res.get("results"));
 		
 //		Hashtable<String, Object>[] json = (Hashtable<String, Object>[])res.get("errors");
 //		System.out.println(json[0].toString());
 		
-//		System.out.println(res.toString());
+		System.out.println(res.toString());
 
 		
 		
