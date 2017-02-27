@@ -34,7 +34,7 @@ public class AdminDao {
 		this.adminClass = adminClass;
 	}
 
-	public void InsertAdmin(Hashtable<String, Object> htblPropValue, String applicationModelName) {
+	public void insertAdmin(Hashtable<String, Object> htblPropValue, String applicationModelName) {
 
 		String userName = htblPropValue.get("foaf:userName").toString()
 				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
@@ -79,8 +79,8 @@ public class AdminDao {
 				 * as long as the current subject equal to subject got from the
 				 * results then add the property and value to the admin's
 				 * hashtable . If they are not the same this means that this is
-				 * a new admin so we have to construct a new hashtable to
-				 * hold it data
+				 * a new admin so we have to construct a new hashtable to hold
+				 * it data
 				 */
 
 				// skip rdf:type property

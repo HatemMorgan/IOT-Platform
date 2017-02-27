@@ -35,7 +35,7 @@ public class DeveloperDao {
 		this.queryResultUtility = queryResultUtility;
 	}
 
-	public void InsertDeveloper(Hashtable<String, Object> htblPropValue, String applicationModelName) {
+	public void insertDeveloper(Hashtable<String, Object> htblPropValue, String applicationModelName) {
 
 		String userName = htblPropValue.get("foaf:userName").toString()
 				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");

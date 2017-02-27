@@ -73,7 +73,7 @@ public class DeveloperService {
 					developerClass, htblPropValue);
 
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
-			developerDao.InsertDeveloper(htblPrefixedPropertyValue, applicationModelName);
+			developerDao.insertDeveloper(htblPrefixedPropertyValue, applicationModelName);
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application", timeTaken);
 			return successModel.getResponseJson();
@@ -85,6 +85,11 @@ public class DeveloperService {
 		}
 	}
 
+	/*
+	 * getDevelopers method check if the application model is correct then it calls
+	 * developerDao to get all developers  of this application
+	 */
+	
 	public SuccessfullSelectAllJsonModel getDevelopers(String applicationNameCode) {
 
 		long startTime = System.currentTimeMillis();
