@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
+import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.validations.RequestValidation;
@@ -40,14 +41,12 @@ public class QueryResultUtility {
 
 			requestValidation.getDynamicProperties(applicationName, subjectClass);
 			propertyName = subjectClass.getHtblPropUriName().get(propertyURI);
-
 		}
-
 		Property property = subjectClass.getProperties().get(propertyName);
 
 		if (property instanceof ObjectProperty) {
 			Class objectClassType = ((ObjectProperty) property).getObject();
-			value = value.toString().substring(objectClassType.getPrefix().getUri().length(),
+			value = value.toString().substring(Prefixes.IOT_PLATFORM.getUri().length(),
 					value.toString().length());
 		} else {
 			/*

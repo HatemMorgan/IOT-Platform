@@ -41,7 +41,7 @@ public class DynamicConceptService {
 			boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
 			if (!exist) {
 				NoApplicationModelException exception = new NoApplicationModelException(applicationNameCode,
-						"Developer");
+						"Ontology");
 				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 				return exception.getExceptionHashTable(timeTaken);
 			}

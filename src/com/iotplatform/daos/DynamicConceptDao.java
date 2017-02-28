@@ -242,29 +242,29 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 
 		DynamicConceptDao dao = new DynamicConceptDao(dataSource);
 
-		// DynamicConceptModel newConcept = new
-		// DynamicConceptModel("TestApplication", "Person",
-		// "http://xmlns.com/foaf/0.1/Person", "http://xmlns.com/foaf/0.1/",
-		// "foaf:",
-		// "hates", "http://xmlns.com/foaf/0.1/Person/hates",
-		// "http://xmlns.com/foaf/0.1/", "foaf:",
-		// PropertyType.ObjectProperty.toString(), "Person");
+//		 DynamicConceptModel newConcept = new
+//		 DynamicConceptModel("TestApplication", "Person",
+//		 "http://xmlns.com/foaf/0.1/Person", "http://xmlns.com/foaf/0.1/",
+//		 "foaf:",
+//		 "hates", "http://xmlns.com/foaf/0.1/hates",
+//		 "http://xmlns.com/foaf/0.1/", "foaf:",
+//		 PropertyType.ObjectProperty.toString(), "Person");
 
-		// DynamicConceptModel newConcept = new
-		// DynamicConceptModel("TestApplication", "Developer",
-		// "http://iot-platform#Developer", "http://iot-platform#",
-		// "iot-platform:",
-		// "love", "http://iot-platform#love",
-		// "http://iot-platform#", "iot-platform:",
-		// PropertyType.ObjectProperty.toString(), "Person");
-		//
-		// System.out.println(dao.insertNewConcept(newConcept));
+//		 DynamicConceptModel newConcept = new
+//		 DynamicConceptModel("TestApplication", "Developer",
+//		 "http://iot-platform#Developer", "http://iot-platform#",
+//		 "iot-platform:",
+//		 "love", "http://iot-platform#love",
+//		 "http://iot-platform#", "iot-platform:",
+//		 PropertyType.ObjectProperty.toString(), "Person");
+		
+//		 System.out.println(dao.insertNewConcept(newConcept));
 		// System.out.println(dao.getConceptsOfApplication("testapplication").toString());
 
 		ArrayList<SqlCondition> orConditionList = new ArrayList<>();
 
 		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Person"));
-//		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString() , "Developer"));
+		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString() , "Developer"));
 
 		System.out.println(dao.getConceptsOfApplicationByFilters("TESTAPPLICATION", null, orConditionList).toString());
 	}

@@ -60,7 +60,6 @@ public class RequestValidation {
 
 		ArrayList<SqlCondition> orCondtionsFilterList = new ArrayList<>();
 		orCondtionsFilterList.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), subjectClass.getUri()));
-
 		for (Class superClass : subjectClass.getSuperClassesList()) {
 			orCondtionsFilterList
 					.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), superClass.getUri()));
@@ -96,6 +95,7 @@ public class RequestValidation {
 			if (subjectClass.getProperties().contains(dynamicProperty.getProperty_name())) {
 				continue;
 			}
+			System.out.println(dynamicProperty.getProperty_uri());
 			subjectClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
 					dynamicProperty.getProperty_name());
 

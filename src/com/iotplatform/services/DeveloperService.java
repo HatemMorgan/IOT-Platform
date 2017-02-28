@@ -162,20 +162,22 @@ public class DeveloperService {
 		htblPropValue.put("userName", "OmarTag" );
 		htblPropValue.put("mbox", "omartagguv@gmail.com" );
 		htblPropValue.put("developedApplication", "TESTAPPLICATION");
-		htblPropValue.put("knows", "OmarTag");
-		htblPropValue.put("hates", "RanaSaed");
+		htblPropValue.put("knows", "HatemMorgan");
+		htblPropValue.put("hates", "HatemMorgan");
 		htblPropValue.put("job","Engineeer");
 
+		Hashtable<String, Object> res = developerService.getDevelopers("test Application").getJson();
+		System.out.println(res.get("results"));
 		
-		Hashtable<String, Object> res =  developerService.insertDeveloper(htblPropValue, "test Application");
 		
-//		Hashtable<String, Object> res = developerService.getDevelopers("test Application").getJson();
-//		System.out.println(res.get("results"));
+//		Hashtable<String, Object> res =  developerService.insertDeveloper(htblPropValue, "test Application");
+		
+		
 		
 //		Hashtable<String, Object>[] json = (Hashtable<String, Object>[])res.get("errors");
 //		System.out.println(json[0].toString());
 		
-		System.out.println(res.toString());
+//		System.out.println(res.toString());
 
 		
 		

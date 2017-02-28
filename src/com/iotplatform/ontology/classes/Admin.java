@@ -11,7 +11,6 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class Admin extends Person {
 
-	private ArrayList<Class> superClassesList;
 
 	public Admin() {
 		super("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM);
@@ -24,8 +23,5 @@ public class Admin extends Person {
 		super.getSuperClassesList().add(Person.getPersonInstance());
 	}
 
-	public ArrayList<Class> getSuperClassesList() {
-		return superClassesList;
-	}
 
 }
