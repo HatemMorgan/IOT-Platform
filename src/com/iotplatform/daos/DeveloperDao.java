@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.iotplatform.exceptions.DatabaseException;
+import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.Developer;
@@ -29,7 +30,6 @@ public class DeveloperDao {
 
 	@Autowired
 	public DeveloperDao(Oracle oracle, Developer developerClass, QueryResultUtility queryResultUtility) {
-		System.out.println("ApplicationDAO Created");
 		this.oracle = oracle;
 		this.developerClass = developerClass;
 		this.queryResultUtility = queryResultUtility;
@@ -43,7 +43,11 @@ public class DeveloperDao {
 		/*
 		 * Identifying that the developer instance is also a person instance 
 		 */
-		htblPropValue.put("a", "foaf:Person");
+		
+		for (Class superClass : developerClass.getSuperClassesList()) {
+			htblPropValue.put("a", superClass.getPrefix().getPrefix()+superClass.getName());
+		}
+		
 		
 		String insertQuery = QueryUtility.constructInsertQuery(
 				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), developerClass, htblPropValue);

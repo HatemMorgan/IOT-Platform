@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.iotplatform.exceptions.DatabaseException;
+import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.Admin;
@@ -38,12 +39,14 @@ public class AdminDao {
 
 		String userName = htblPropValue.get("foaf:userName").toString()
 				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
-		
+
 		/*
-		 * Identifying that the admin instance is also a person instance 
+		 * Identifying that the admin instance is also a person instance
 		 */
-		htblPropValue.put("a", "foaf:Person");
-		
+		for (Class superClass : adminClass.getSuperClassesList()) {
+			htblPropValue.put("a", superClass.getPrefix().getPrefix() + superClass.getName());
+		}
+
 		String insertQuery = QueryUtility.constructInsertQuery(
 				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), adminClass, htblPropValue);
 

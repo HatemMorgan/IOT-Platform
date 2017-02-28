@@ -86,7 +86,6 @@ public class Person extends Class {
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "knows", "knows");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "mbox", "mbox");
 
-		System.out.println("--------------------> " + ((ObjectProperty) this.getProperties().get("knows")).getObject());
 	}
 
 }

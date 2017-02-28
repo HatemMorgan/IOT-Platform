@@ -60,13 +60,16 @@ public class RequestValidation {
 
 		ArrayList<SqlCondition> orCondtionsFilterList = new ArrayList<>();
 		orCondtionsFilterList.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), subjectClass.getUri()));
-		
-		
-	
-		
+
+		for (Class superClass : subjectClass.getSuperClassesList()) {
+			orCondtionsFilterList
+					.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), superClass.getUri()));
+
+		}
+
 		List<DynamicConceptModel> res;
 		try {
-			res = dynamicConceptDao.getConceptsOfApplicationByFilters(applicationName, null,orCondtionsFilterList);
+			res = dynamicConceptDao.getConceptsOfApplicationByFilters(applicationName, null, orCondtionsFilterList);
 		} catch (ErrorObjException ex) {
 			throw ex;
 		}
@@ -93,7 +96,6 @@ public class RequestValidation {
 			if (subjectClass.getProperties().contains(dynamicProperty.getProperty_name())) {
 				continue;
 			}
-			System.out.println("-------->"+dynamicProperty.getProperty_uri());
 			subjectClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
 					dynamicProperty.getProperty_name());
 
@@ -112,9 +114,6 @@ public class RequestValidation {
 			}
 			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
 		}
-		System.out.println("===========================================");
-		System.out.println(subjectClass.getProperties().toString());
-		System.out.println("===========================================");
 
 		return dynamicProperties;
 	}
@@ -151,7 +150,7 @@ public class RequestValidation {
 				 */
 
 				dynamicProperties = getDynamicProperties(applicationName, subjectClass);
-				
+
 				/*
 				 * check if the field passed is a dynamic property
 				 */
@@ -395,7 +394,7 @@ public class RequestValidation {
 			return value;
 		} else {
 			Class objectClassType = ((ObjectProperty) property).getObject();
-			return objectClassType.getPrefix().getPrefix() + value;
+			return Prefixes.IOT_PLATFORM.getPrefix() + value;
 		}
 	}
 
@@ -494,12 +493,13 @@ public class RequestValidation {
 
 		System.out.println(res.toString());
 
-		// testing isValidRequest
-
-		Hashtable<String, Object> htblPrefixedPropValue = requestValidation.isRequestValid("test Application",
-				new Developer(), htblPropValues);
-		System.out.println(htblPrefixedPropValue.toString());
-
+		// // testing isValidRequest
+		//
+		// Hashtable<String, Object> htblPrefixedPropValue =
+		// requestValidation.isRequestValid("test Application",
+		// new Developer(), htblPropValues);
+		// System.out.println(htblPrefixedPropValue.toString());
+		//
 		double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 		System.out.println("Time taken : " + timeTaken + " sec ");
 	}
