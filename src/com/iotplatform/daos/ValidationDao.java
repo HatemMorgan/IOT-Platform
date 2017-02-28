@@ -11,8 +11,6 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.ontology.classes.Application;
-import com.iotplatform.ontology.classes.Person;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -86,13 +84,7 @@ public class ValidationDao {
 			 * iot-platform:hatemmorgan a foaf:Person
 			 */
 
-			String subject;
-			if (valueClassType instanceof Person) {
-				
-				subject = Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase();
-			} else {
-				subject = valueClassType.getPrefix().getPrefix() + value.toString().toLowerCase();
-			}
+			String subject = Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase();
 
 			String object = valueClassType.getPrefix().getPrefix() + valueClassType.getName();
 			Prefixes prefix = valueClassType.getPrefix();

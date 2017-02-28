@@ -124,30 +124,30 @@ public class DeveloperDao {
 		return developersList;
 	}
 
-	public static void main(String[] args) {
-
-		Hashtable<String, Object> htblPropValue = new Hashtable<>();
-		htblPropValue.put("foaf:age", "\"20\"" + XSDDataTypes.integer_typed.getXsdType());
-		htblPropValue.put("foaf:firstName", "\"Hatem\"" + XSDDataTypes.string_typed.getXsdType());
-		htblPropValue.put("foaf:middleName", "\"Elsayed\"" + XSDDataTypes.string_typed.getXsdType());
-		htblPropValue.put("foaf:familyName", "\"Morgan\"" + XSDDataTypes.string_typed.getXsdType());
-		htblPropValue.put("foaf:birthday", "\"27/7/1995\"" + XSDDataTypes.string_typed.getXsdType());
-		htblPropValue.put("foaf:gender", "\"Male\"" + XSDDataTypes.string_typed.getXsdType());
-		htblPropValue.put("iot-lite:id", "\"1\"" + XSDDataTypes.string_typed.getXsdType());
-		htblPropValue.put("foaf:title", "\"Engineer\"" + XSDDataTypes.string_typed.getXsdType());
-		htblPropValue.put("foaf:userName", "\"HatemMorgan\"" + XSDDataTypes.string_typed.getXsdType());
-		htblPropValue.put("foaf:mbox", "\"hatemmorgan17@gmail.com\"" + XSDDataTypes.string_typed.getXsdType());
-		htblPropValue.put("iot-platform:developedApplication", "iot-platform:TESTAPPLICATION");
-
-		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
-		String szUser = "rdfusr";
-		String szPasswd = "rdfusr";
-
-		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
-
-//		DeveloperDao developerDao = new DeveloperDao(oracle, new Developer(),new QueryResultUtility());
-		// developerDao.InsertDeveloper(htblPropValue, "TESTAPPLICATION_MODEL");
-//		System.out.println(developerDao.getDevelopers("TESTAPPLICATION_MODEL"));
-	}
+//	public static void main(String[] args) {
+//
+//		Hashtable<String, Object> htblPropValue = new Hashtable<>();
+//		htblPropValue.put("foaf:age", "\"20\"" + XSDDataTypes.integer_typed.getXsdType());
+//		htblPropValue.put("foaf:firstName", "\"Hatem\"" + XSDDataTypes.string_typed.getXsdType());
+//		htblPropValue.put("foaf:middleName", "\"Elsayed\"" + XSDDataTypes.string_typed.getXsdType());
+//		htblPropValue.put("foaf:familyName", "\"Morgan\"" + XSDDataTypes.string_typed.getXsdType());
+//		htblPropValue.put("foaf:birthday", "\"27/7/1995\"" + XSDDataTypes.string_typed.getXsdType());
+//		htblPropValue.put("foaf:gender", "\"Male\"" + XSDDataTypes.string_typed.getXsdType());
+//		htblPropValue.put("iot-lite:id", "\"1\"" + XSDDataTypes.string_typed.getXsdType());
+//		htblPropValue.put("foaf:title", "\"Engineer\"" + XSDDataTypes.string_typed.getXsdType());
+//		htblPropValue.put("foaf:userName", "\"HatemMorgan\"" + XSDDataTypes.string_typed.getXsdType());
+//		htblPropValue.put("foaf:mbox", "\"hatemmorgan17@gmail.com\"" + XSDDataTypes.string_typed.getXsdType());
+//		htblPropValue.put("iot-platform:developedApplication", "iot-platform:TESTAPPLICATION");
+//
+//		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+//		String szUser = "rdfusr";
+//		String szPasswd = "rdfusr";
+//
+//		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+//
+////		DeveloperDao developerDao = new DeveloperDao(oracle, new Developer(),new QueryResultUtility());
+//		// developerDao.InsertDeveloper(htblPropValue, "TESTAPPLICATION_MODEL");
+////		System.out.println(developerDao.getDevelopers("TESTAPPLICATION_MODEL"));
+//	}
 
 }
