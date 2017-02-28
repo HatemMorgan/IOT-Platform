@@ -1,11 +1,13 @@
 package com.iotplatform.daos;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
@@ -18,6 +20,9 @@ import org.springframework.stereotype.Repository;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.models.DynamicConceptModel;
+import com.iotplatform.ontology.DynamicConceptColumns;
+import com.iotplatform.ontology.PropertyType;
+import com.iotplatform.utilities.SqlCondition;
 
 @Repository("dynamicConceptsDao")
 public class DynamicConceptDao extends JdbcDaoSupport {
@@ -129,74 +134,139 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 	 */
 
 	public List<DynamicConceptModel> getConceptsOfApplicationByFilters(String applicationName,
-			Hashtable<String, String> htblColNameValue) {
+			ArrayList<SqlCondition> andOpColNameValueList, ArrayList<SqlCondition> orOpColNameValueList) {
+
 		List<DynamicConceptModel> concepts = null;
+		int andOpColNameValueListSize = 0;
+		int orOpColNameValueListSize = 0;
+
+		if (andOpColNameValueList != null) {
+			andOpColNameValueListSize = andOpColNameValueList.size();
+		}
+
+		if (orOpColNameValueList != null) {
+			orOpColNameValueListSize = orOpColNameValueList.size();
+		}
 
 		/*
 		 * Create dynamic filer query
 		 */
 		String modelConventionName = applicationName.replaceAll(" ", "").toUpperCase();
-		Object[] params = new Object[htblColNameValue.size() + 1];
+		Object[] params = new Object[andOpColNameValueListSize + 1 + orOpColNameValueListSize];
+
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("SELECT * FROM DYNAMIC_CONCEPTS WHERE ");
 		int count = 0;
-		Iterator<String> iterator = htblColNameValue.keySet().iterator();
 
-		while (iterator.hasNext()) {
-			String colName = iterator.next();
-			String value = htblColNameValue.get(colName);
-			stringBuilder.append(colName + " = ? AND ");
-			params[count] = value;
-			count++;
+		/*
+		 * Add conditions seperated by AND operator
+		 */
+
+		if (andOpColNameValueListSize > 0) {
+
+			for (SqlCondition andCondtion : andOpColNameValueList) {
+				String colName = andCondtion.getColName();
+				String value = andCondtion.getColValue();
+				stringBuilder.append(colName + " = ? AND ");
+				params[count] = value;
+				count++;
+			}
+
 		}
+		/*
+		 * add application name condition to make sure that we are only querying
+		 * dynamic concepts of the specified application domain
+		 */
 		stringBuilder.append("application_name = ? ");
 		params[count] = modelConventionName;
+		count++;
+		/*
+		 * Add conditions seperated by Or operator
+		 */
+		if (orOpColNameValueListSize > 0) {
+
+			stringBuilder.append("AND ( ");
+
+			int c = 0;
+
+			for (SqlCondition orCondition : orOpColNameValueList) {
+				String colName = orCondition.getColName();
+				String value = orCondition.getColValue();
+
+				if (c < orOpColNameValueListSize - 1) {
+					stringBuilder.append(colName + " = ? OR ");
+					
+				} else {
+					stringBuilder.append(colName + " = ?  ");
+
+				}
+				c++;
+				params[count] = value;
+				count++;
+			}
+
+			stringBuilder.append(" )");
+		}
+
+		
+		System.out.println(stringBuilder.toString());
 
 		try {
 			concepts = jdbcTemplate.query(stringBuilder.toString(), params,
 					new BeanPropertyRowMapper<DynamicConceptModel>(DynamicConceptModel.class));
 			return concepts;
 		} catch (BadSqlGrammarException ex) {
+			ex.printStackTrace();
 			throw new InvalidRequestFieldsException("Ontology");
 		}
 
 		catch (DataAccessException e) {
-			
+			e.printStackTrace();
 			throw new DatabaseException(e.getMessage(), "Ontology");
 
 		}
 
 	}
 
-//	public static void main(String[] args) {
-//		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
-//		String szUser = "rdfusr";
-//		String szPasswd = "rdfusr";
-//
-//		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
-//		BasicDataSource dataSource = new BasicDataSource();
-//		dataSource.setDriverClassName(szJdbcDriver);
-//		dataSource.setUrl(szJdbcURL);
-//		dataSource.setUsername(szUser);
-//		dataSource.setPassword(szPasswd);
-//
-//		DynamicConceptDao dao = new DynamicConceptDao(dataSource);
-//
-//		 DynamicConceptModel newConcept = new DynamicConceptModel("Test Application", "Person",
-//		 "http://xmlns.com/foaf/0.1/Person", "http://xmlns.com/foaf/0.1/",
-//		 "foaf:",
-//		 "hates", "http://xmlns.com/foaf/0.1/Person/hates",
-//		 "http://xmlns.com/foaf/0.1/", "foaf:",
-//		 PropertyType.ObjectProperty.toString(), "Person");
-//		
-//		 System.out.println(dao.insertNewConcept(newConcept));
-//		 System.out.println(dao.getConceptsOfApplication("test application").toString());
-//		Hashtable<String, String> h = new Hashtable<>();
-//		h.put("class_name", "Person");
-//		h.put("property_name", "hates");
-//
-//		System.out.println(dao.getConceptsOfApplicationByFilters("test application", h).toString());
-//
-//	}
+	public static void main(String[] args) {
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+
+		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(szJdbcDriver);
+		dataSource.setUrl(szJdbcURL);
+		dataSource.setUsername(szUser);
+		dataSource.setPassword(szPasswd);
+
+		DynamicConceptDao dao = new DynamicConceptDao(dataSource);
+
+		// DynamicConceptModel newConcept = new
+		// DynamicConceptModel("TestApplication", "Person",
+		// "http://xmlns.com/foaf/0.1/Person", "http://xmlns.com/foaf/0.1/",
+		// "foaf:",
+		// "hates", "http://xmlns.com/foaf/0.1/Person/hates",
+		// "http://xmlns.com/foaf/0.1/", "foaf:",
+		// PropertyType.ObjectProperty.toString(), "Person");
+
+		// DynamicConceptModel newConcept = new
+		// DynamicConceptModel("TestApplication", "Developer",
+		// "http://iot-platform#Developer", "http://iot-platform#",
+		// "iot-platform:",
+		// "love", "http://iot-platform#love",
+		// "http://iot-platform#", "iot-platform:",
+		// PropertyType.ObjectProperty.toString(), "Person");
+		//
+		// System.out.println(dao.insertNewConcept(newConcept));
+		// System.out.println(dao.getConceptsOfApplication("testapplication").toString());
+
+		ArrayList<SqlCondition> orConditionList = new ArrayList<>();
+
+		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Person"));
+//		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString() , "Developer"));
+
+		System.out.println(dao.getConceptsOfApplicationByFilters("TESTAPPLICATION", null, orConditionList).toString());
+	}
 
 }

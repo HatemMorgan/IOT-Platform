@@ -1,5 +1,6 @@
 package com.iotplatform.validations;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +31,7 @@ import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Developer;
 import com.iotplatform.ontology.classes.NormalUser;
 import com.iotplatform.ontology.classes.Person;
+import com.iotplatform.utilities.SqlCondition;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -56,12 +58,15 @@ public class RequestValidation {
 		 * to get the dynamic properties only one time
 		 */
 
-		Hashtable<String, String> htblFilter = new Hashtable<>();
-		htblFilter.put(DynamicConceptColumns.CLASS_URI.toString(), subjectClass.getUri());
-
+		ArrayList<SqlCondition> orCondtionsFilterList = new ArrayList<>();
+		orCondtionsFilterList.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), subjectClass.getUri()));
+		
+		
+	
+		
 		List<DynamicConceptModel> res;
 		try {
-			res = dynamicConceptDao.getConceptsOfApplicationByFilters(applicationName, htblFilter);
+			res = dynamicConceptDao.getConceptsOfApplicationByFilters(applicationName, null,orCondtionsFilterList);
 		} catch (ErrorObjException ex) {
 			throw ex;
 		}
