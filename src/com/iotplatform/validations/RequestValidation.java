@@ -88,7 +88,7 @@ public class RequestValidation {
 			if (subjectClass.getProperties().contains(dynamicProperty.getProperty_name())) {
 				continue;
 			}
-			System.out.println("---->"+dynamicProperty.getProperty_uri());
+			System.out.println("-------->"+dynamicProperty.getProperty_uri());
 			subjectClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
 					dynamicProperty.getProperty_name());
 
@@ -107,6 +107,9 @@ public class RequestValidation {
 			}
 			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
 		}
+		System.out.println("===========================================");
+		System.out.println(subjectClass.getProperties().toString());
+		System.out.println("===========================================");
 
 		return dynamicProperties;
 	}
@@ -143,7 +146,7 @@ public class RequestValidation {
 				 */
 
 				dynamicProperties = getDynamicProperties(applicationName, subjectClass);
-
+				
 				/*
 				 * check if the field passed is a dynamic property
 				 */

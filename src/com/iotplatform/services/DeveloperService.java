@@ -163,7 +163,8 @@ public class DeveloperService {
 		htblPropValue.put("mbox", "omartagguv@gmail.com" );
 		htblPropValue.put("developedApplication", "TESTAPPLICATION");
 		htblPropValue.put("knows", "OmarTag");
-//		htblPropValue.put("hates", "RanaSaed");
+		htblPropValue.put("hates", "RanaSaed");
+		htblPropValue.put("job","Engineeer");
 
 		
 		Hashtable<String, Object> res =  developerService.insertDeveloper(htblPropValue, "test Application");
