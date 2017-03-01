@@ -28,6 +28,6 @@ public class DeveloperController {
 	public Hashtable<String, Object> getDevelopers(
 			@PathVariable("applicationNameCode") String applicationNameCode) {
 		
-		return developerService.getDevelopers(applicationNameCode).getJson();
+		return developerService.getDevelopers(applicationNameCode);
 	}
 }

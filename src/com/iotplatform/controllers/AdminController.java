@@ -28,7 +28,7 @@ public class AdminController {
 	public Hashtable<String, Object> getAdmins(
 			@PathVariable("applicationNameCode") String applicationNameCode) {
 		
-		return adminService.getAdmins(applicationNameCode).getJson();
+		return adminService.getAdmins(applicationNameCode);
 	}
 	
 }
