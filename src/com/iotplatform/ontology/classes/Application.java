@@ -4,11 +4,14 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 
 @Component
 public class Application extends Class {
+
+	private static Application applicationInstance;
 
 	public Application() {
 		super("Application", "http://iot-platform#Application", Prefixes.IOT_PLATFORM);
@@ -17,12 +20,35 @@ public class Application extends Class {
 				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed));
 		this.getProperties().put("name", new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed));
 
+		this.getProperties().put("fundedBy",
+				new ObjectProperty("fundedBy", Prefixes.FOAF, Organization.getOrganizationInstance()));
+
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
 		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
 
 		System.out.println("Applicatoin Bean Created");
 		System.out.println("propertes size = " + this.getProperties().size());
 		System.out.println(this.getProperties().toString());
+	}
+
+	/*
+	 * this constructor is used only to construct an instance of class
+	 * application that will be used as the class type of an object so it does
+	 * not need to has the associated properties of class application . the
+	 * nothing parameter that it takes will be passed as null because it is only
+	 * used to allow overloading constructor technique
+	 */
+	public Application(String nothing) {
+		super("Application", "http://iot-platform#Application", Prefixes.IOT_PLATFORM);
+	}
+
+	public synchronized static Application getApplicationInstance() {
+
+		if (applicationInstance == null) {
+			applicationInstance = new Application(null);
+
+		}
+		return applicationInstance;
 	}
 
 }

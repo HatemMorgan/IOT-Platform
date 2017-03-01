@@ -16,12 +16,13 @@ public class Admin extends Person {
 		super("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM);
 
 		this.getProperties().put("adminOf",
-				new ObjectProperty("adminOf", Prefixes.IOT_PLATFORM, this.getApplicationClass()));
+				new ObjectProperty("adminOf", Prefixes.IOT_PLATFORM, Application.getApplicationInstance()));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "adminOf", "adminOf");
 
 		super.getSuperClassesList().add(Person.getPersonInstance());
 	}
 
+	
 
 }

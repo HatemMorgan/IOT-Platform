@@ -9,15 +9,13 @@ import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 
-@Component
 public class Person extends Class {
 
-	private Application applicationClass;
 
 	private static Person personInstance;
 
-	@Autowired
-	public Person(Application applicationClass) {
+
+	public Person() {
 		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF);
 
 		if (this.getProperties().size() == 0) {
@@ -25,8 +23,16 @@ public class Person extends Class {
 		}
 
 	}
+	
+	/*
+	 * this constructor is used only to construct an instance of class
+	 * Person that will be used as the class type of an object so it does
+	 * not need to has the associated properties of class Person . the
+	 * nothing parameter that it takes will be passed as null because it is only
+	 * used to allow overloading constructor technique
+	 */
 
-	public Person() {
+	public Person(String nothing) {
 
 		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF);
 	}
@@ -49,13 +55,8 @@ public class Person extends Class {
 		return personInstance;
 	}
 
-	public Application getApplicationClass() {
-		return applicationClass;
-	}
-
+	
 	private void init() {
-
-		applicationClass = new Application();
 
 		this.getProperties().put("age", new DataTypeProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed));
 		this.getProperties().put("birthday",
@@ -67,7 +68,6 @@ public class Person extends Class {
 		this.getProperties().put("middleName",
 				new DataTypeProperty("middleName", Prefixes.FOAF, XSDDataTypes.string_typed));
 		this.getProperties().put("gender", new DataTypeProperty("gender", Prefixes.FOAF, XSDDataTypes.string_typed));
-		this.getProperties().put("id", new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed));
 		this.getProperties().put("title", new DataTypeProperty("title", Prefixes.FOAF, XSDDataTypes.string_typed));
 		this.getProperties().put("userName",
 				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed));

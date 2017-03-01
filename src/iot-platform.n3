@@ -377,6 +377,15 @@ DUL:includesEvent a owl:ObjectProperty ;
 geo:hasLocation a owl:ObjectProperty ;
 	rdfs:range geo:Point .
 # 
+# http://xmlns.com/foaf/0.1/fundedBy
+
+<http://xmlns.com/foaf/0.1/fundedBy> a owl:ObjectProperty ;
+	rdfs:domain :Application ;
+	rdfs:range <http://xmlns.com/foaf/0.1/Organization> ;
+	rdfs:comment "An organization funding a project or person." ;
+	rdfs:isDefinedBy "http://xmlns.com/foaf/0.1/" ;
+	rdfs:label "funded by" .
+# 
 # http://xmlns.com/foaf/0.1/knows
 
 <http://xmlns.com/foaf/0.1/knows> a owl:ObjectProperty ;
@@ -607,7 +616,7 @@ geo:long a owl:DatatypeProperty ;
 # http://xmlns.com/foaf/0.1/age
 
 <http://xmlns.com/foaf/0.1/age> a owl:DatatypeProperty , owl:FunctionalProperty ;
-	rdfs:domain <http://xmlns.com/foaf/0.1/Agent> ;
+	rdfs:domain <http://xmlns.com/foaf/0.1/Person> ;
 	rdfs:range rdfs:Literal ;
 	rdfs:comment "The age in years of some agent." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
@@ -654,6 +663,12 @@ geo:long a owl:DatatypeProperty ;
 	rdfs:label "gender" ;
 	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "testing" .
 # 
+# http://xmlns.com/foaf/0.1/mbox
+
+<http://xmlns.com/foaf/0.1/mbox> a owl:DatatypeProperty ;
+	rdfs:domain <http://xmlns.com/foaf/0.1/Agent> ;
+	rdfs:range xsd:string .
+# 
 # http://xmlns.com/foaf/0.1/middleName
 
 <http://xmlns.com/foaf/0.1/middleName> a owl:DatatypeProperty ;
@@ -663,12 +678,6 @@ geo:long a owl:DatatypeProperty ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
 	rdfs:label "middleName" ;
 	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "testing" .
-# 
-# http://xmlns.com/foaf/0.1/mbox
-
-<http://xmlns.com/foaf/0.1/mbox> a owl:DatatypeProperty ;
-	rdfs:domain <http://xmlns.com/foaf/0.1/Agent> ;
-	rdfs:range xsd:string .
 # 
 # http://xmlns.com/foaf/0.1/name
 

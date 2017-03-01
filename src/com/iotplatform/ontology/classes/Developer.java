@@ -13,7 +13,7 @@ public class Developer extends Person {
 	public Developer() {
 		super("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM);
 		super.getProperties().put("developedApplication",
-				new ObjectProperty("developedApplication", Prefixes.IOT_PLATFORM, this.getApplicationClass()));
+				new ObjectProperty("developedApplication", Prefixes.IOT_PLATFORM, Application.getApplicationInstance()));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "developedApplication", "developedApplication");
 
