@@ -53,8 +53,6 @@ public class AdminService {
 		/*
 		 * check if the model exist or not .
 		 */
-		
-		
 
 		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
 		if (!exist) {
@@ -76,7 +74,7 @@ public class AdminService {
 
 			adminDao.insertAdmin(htblPrefixedPropertyValue, applicationModelName);
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application", timeTaken);
+			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Admin", timeTaken);
 			return successModel.getResponseJson();
 
 		} catch (ErrorObjException ex) {
@@ -90,7 +88,7 @@ public class AdminService {
 	 * getAdmins method check if the application model is correct then it calls
 	 * adminDao to get all admins of this application
 	 */
-	public SuccessfullSelectAllJsonModel getAdmins(String applicationNameCode) {
+	public Hashtable<String, Object> getAdmins(String applicationNameCode) {
 
 		long startTime = System.currentTimeMillis();
 		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
@@ -102,7 +100,7 @@ public class AdminService {
 		if (!exist) {
 			NoApplicationModelException exception = new NoApplicationModelException(applicationNameCode, "Admin");
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-			return new SuccessfullSelectAllJsonModel(exception.getExceptionHashTable(timeTaken));
+			return new SuccessfullSelectAllJsonModel(exception.getExceptionHashTable(timeTaken)).getJson();
 		}
 
 		try {
@@ -111,17 +109,17 @@ public class AdminService {
 					.getAdmins(applicationDao.getHtblApplicationNameModelName().get(applicationNameCode));
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-			return new SuccessfullSelectAllJsonModel(htblPropValue, timeTaken);
+			return new SuccessfullSelectAllJsonModel(htblPropValue, timeTaken).getJson();
 
 		} catch (ErrorObjException e) {
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-			return new SuccessfullSelectAllJsonModel(e.getExceptionHashTable(timeTaken));
+			return new SuccessfullSelectAllJsonModel(e.getExceptionHashTable(timeTaken)).getJson();
 
 		}
 	}
 
 	public static void main(String[] args) {
-		
+
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
 		String szUser = "rdfusr";
 		String szPasswd = "rdfusr";
@@ -138,35 +136,37 @@ public class AdminService {
 		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
 
 		ValidationDao validationDao = new ValidationDao(oracle);
-		
+
 		Admin adminClass = new Admin();
-		
+
 		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
-		
+
 		AdminDao adminDao = new AdminDao(oracle, new QueryResultUtility(requestValidation), adminClass);
-	
+
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		htblPropValue.put("age", 20);
 		htblPropValue.put("firstName", "Omar");
-		htblPropValue.put("middleName", "Hassan" );
-		htblPropValue.put("familyName", "Tag" );
-		htblPropValue.put("birthday", "27/2/1995" );
-		htblPropValue.put("gender", "Male" );
-		htblPropValue.put("id", "1" );
-		htblPropValue.put("title", "Engineer" );
-		htblPropValue.put("userName", "OmarTag" );
-		htblPropValue.put("mbox", "omartagguv@gmail.com" );
+		htblPropValue.put("middleName", "Hassan");
+		htblPropValue.put("familyName", "Tag");
+		htblPropValue.put("birthday", "27/2/1995");
+		htblPropValue.put("gender", "Male");
+		htblPropValue.put("id", "1");
+		htblPropValue.put("title", "Engineer");
+		htblPropValue.put("userName", "OmarTag");
+		htblPropValue.put("mbox", "omartagguv@gmail.com");
 		htblPropValue.put("adminOf", "TESTAPPLICATION");
 		htblPropValue.put("knows", "HatemMorgan");
 		htblPropValue.put("hates", "HatemMorgan");
 
-		AdminService adminService = new AdminService(requestValidation, new ApplicationDao(oracle, new Application()), adminDao, adminClass);
-		
+		AdminService adminService = new AdminService(requestValidation, new ApplicationDao(oracle, new Application()),
+				adminDao, adminClass);
+
 		Hashtable<String, Object> res = adminService.insertAdmin(htblPropValue, "TESTAPPLICATION");
-		
-//		Hashtable<String, Object>[] json = (Hashtable<String, Object>[])res.get("errors");
-//		System.out.println(json[0].toString());	
-		
+
+		// Hashtable<String, Object>[] json = (Hashtable<String,
+		// Object>[])res.get("errors");
+		// System.out.println(json[0].toString());
+
 		System.out.println(res.toString());
 	}
 }

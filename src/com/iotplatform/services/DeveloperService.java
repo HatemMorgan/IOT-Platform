@@ -74,7 +74,7 @@ public class DeveloperService {
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 			developerDao.insertDeveloper(htblPrefixedPropertyValue, applicationModelName);
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application", timeTaken);
+			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Developer", timeTaken);
 			return successModel.getResponseJson();
 
 		} catch (ErrorObjException ex) {
@@ -89,7 +89,7 @@ public class DeveloperService {
 	 * developerDao to get all developers  of this application
 	 */
 	
-	public SuccessfullSelectAllJsonModel getDevelopers(String applicationNameCode) {
+	public Hashtable<String, Object> getDevelopers(String applicationNameCode) {
 
 		long startTime = System.currentTimeMillis();
 		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
@@ -101,7 +101,7 @@ public class DeveloperService {
 		if (!exist) {
 			NoApplicationModelException exception = new NoApplicationModelException(applicationNameCode, "Developer");
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-			return new SuccessfullSelectAllJsonModel(exception.getExceptionHashTable(timeTaken));
+			return new SuccessfullSelectAllJsonModel(exception.getExceptionHashTable(timeTaken)).getJson();
 		}
 
 		try {
@@ -110,11 +110,11 @@ public class DeveloperService {
 					.getDevelopers(applicationDao.getHtblApplicationNameModelName().get(applicationNameCode));
 			
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-			return new SuccessfullSelectAllJsonModel(htblPropValue, timeTaken);
+			return new SuccessfullSelectAllJsonModel(htblPropValue, timeTaken).getJson();
 
 		} catch (ErrorObjException e) {
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-			return new SuccessfullSelectAllJsonModel(e.getExceptionHashTable(timeTaken));
+			return new SuccessfullSelectAllJsonModel(e.getExceptionHashTable(timeTaken)).getJson();
 
 		}
 	}
@@ -166,7 +166,7 @@ public class DeveloperService {
 		htblPropValue.put("hates", "HatemMorgan");
 		htblPropValue.put("job","Engineeer");
 
-		Hashtable<String, Object> res = developerService.getDevelopers("test Application").getJson();
+		Hashtable<String, Object> res = developerService.getDevelopers("test Application");
 		System.out.println(res.get("results"));
 		
 		

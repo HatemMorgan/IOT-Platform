@@ -34,9 +34,10 @@ public class NormalUserDao {
 		this.queryResultUtility = queryResultUtility;
 		this.normalUserClass = normalUserClass;
 	}
-	
+
 	/*
-	 *  insertNormalUser method inserts a new normal user to the passed application model
+	 * insertNormalUser method inserts a new normal user to the passed
+	 * application model
 	 */
 	public void insertNormalUser(Hashtable<String, Object> htblPropValue, String applicationModelName) {
 
@@ -60,13 +61,14 @@ public class NormalUserDao {
 			model.close();
 
 		} catch (SQLException e) {
-			throw new DatabaseException(e.getMessage(), "NormalUser");
+			throw new DatabaseException(e.getMessage(), "Normal User");
 		}
 
 	}
 
 	/*
-	 * getNormalUsers method returns all the normal users in the passed application model
+	 * getNormalUsers method returns all the normal users in the passed
+	 * application model
 	 */
 	public List<Hashtable<String, Object>> getNormalUsers(String applicationModelName) {
 
@@ -93,15 +95,15 @@ public class NormalUserDao {
 				 * as long as the current subject equal to subject got from the
 				 * results then add the property and value to the admin's
 				 * hashtable . If they are not the same this means that this is
-				 * a new normal user so we have to construct a new hashtable to hold
-				 * it data
+				 * a new normal user so we have to construct a new hashtable to
+				 * hold it data
 				 */
 
 				// skip rdf:type property
 				if (res.getString(2).equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
 					continue;
 				}
-				
+
 				Object[] preparedPropVal = queryResultUtility.constructQueryResult(applicationName, res.getString(2),
 						res.getString(3), normalUserClass);
 				String propertyName = preparedPropVal[0].toString();
@@ -127,5 +129,4 @@ public class NormalUserDao {
 		return normalUsersList;
 	}
 
-	
 }
