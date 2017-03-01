@@ -53,6 +53,8 @@ public class AdminService {
 		/*
 		 * check if the model exist or not .
 		 */
+		
+		
 
 		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
 		if (!exist) {

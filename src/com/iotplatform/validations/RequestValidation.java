@@ -156,7 +156,7 @@ public class RequestValidation {
 				 */
 
 				if (!dynamicProperties.containsKey(field)) {
-
+						
 					throw new InvalidRequestFieldsException(subjectClass.getName(), field);
 
 				} else {
@@ -174,17 +174,18 @@ public class RequestValidation {
 				 * passed field is a static property so add it to
 				 * htblStaticProperty
 				 */
-
+				
 				if (htblProperties.get(field).getApplicationName() == null
-						|| htblProperties.get(field).getApplicationName().equals(applicationName)) {
+						|| htblProperties.get(field).getApplicationName().equals(applicationName.replace(" ", "").toUpperCase())) {
 					htblFieldPropValue.put(htblProperties.get(field), value);
 
 				} else {
-
+			
 					/*
 					 * this means that this class has a property with the same
 					 * name but it is not for the specified application domain
 					 */
+					
 					throw new InvalidRequestFieldsException(subjectClass.getName(), field);
 
 				}
