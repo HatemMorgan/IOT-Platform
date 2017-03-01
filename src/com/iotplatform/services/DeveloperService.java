@@ -174,12 +174,12 @@ public class DeveloperService {
 		System.out.println(developerClass.getProperties().toString());
 		System.out.println("===================================");
 		
-		Hashtable<String, Object> resInsertion =  developerService.insertDeveloper(htblPropValue, "test Application");
+//		Hashtable<String, Object> resInsertion =  developerService.insertDeveloper(htblPropValue, "test Application");
 		
 		
-		
-		Hashtable<String, Object>[] json = (Hashtable<String, Object>[])resInsertion.get("errors");
-		System.out.println(json[0].toString());
+//		
+//		Hashtable<String, Object>[] json = (Hashtable<String, Object>[])resInsertion.get("errors");
+//		System.out.println(json[0].toString());
 		
 //		System.out.println(resInsertion.toString());
 

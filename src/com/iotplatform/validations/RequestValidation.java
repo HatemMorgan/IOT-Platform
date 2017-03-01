@@ -89,13 +89,17 @@ public class RequestValidation {
 		 * order to improve performance by caching the dynamic properties
 		 */
 		Hashtable<String, DynamicConceptModel> dynamicProperties = new Hashtable<>();
+		
+		applicationName = applicationName.replaceAll(" ", "").toUpperCase();
+		
 		for (DynamicConceptModel dynamicProperty : res) {
 
 			// skip if the property was cached before
 			if (subjectClass.getProperties().contains(dynamicProperty.getProperty_name())) {
 				continue;
 			}
-			System.out.println(dynamicProperty.getProperty_uri());
+//			System.out.println(dynamicProperty.getProperty_uri());
+			
 			subjectClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
 					dynamicProperty.getProperty_name());
 

@@ -51,7 +51,7 @@ public class DeveloperDao {
 		
 		String insertQuery = QueryUtility.constructInsertQuery(
 				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), developerClass, htblPropValue);
-		System.out.println(insertQuery);
+//		System.out.println(insertQuery);
 		try {
 
 			ModelOracleSem model = ModelOracleSem.createOracleSemModel(oracle, applicationModelName);
