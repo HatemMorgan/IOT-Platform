@@ -14,32 +14,31 @@ import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
-import com.iotplatform.ontology.classes.Admin;
+import com.iotplatform.ontology.classes.NormalUser;
 import com.iotplatform.utilities.QueryResultUtility;
 import com.iotplatform.utilities.QueryUtility;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
 import oracle.spatial.rdf.client.jena.Oracle;
 
-@Repository("adminDao")
-public class AdminDao {
+@Repository("normalUserDao")
+public class NormalUserDao {
 
 	private Oracle oracle;
 	private QueryResultUtility queryResultUtility;
-	private Admin adminClass;
+	private NormalUser normalUserClass;
 
 	@Autowired
-	public AdminDao(Oracle oracle, QueryResultUtility queryResultUtility, Admin adminClass) {
+	public NormalUserDao(Oracle oracle, QueryResultUtility queryResultUtility, NormalUser normalUserClass) {
 		this.oracle = oracle;
 		this.queryResultUtility = queryResultUtility;
-		this.adminClass = adminClass;
+		this.normalUserClass = normalUserClass;
 	}
-
-	/*
-	 *  insertAdmin method inserts a new admin to the passed application model
-	 */
 	
-	public void insertAdmin(Hashtable<String, Object> htblPropValue, String applicationModelName) {
+	/*
+	 *  insertNormalUser method inserts a new normal user to the passed application model
+	 */
+	public void insertNormalUser(Hashtable<String, Object> htblPropValue, String applicationModelName) {
 
 		String userName = htblPropValue.get("foaf:userName").toString()
 				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
@@ -47,12 +46,12 @@ public class AdminDao {
 		/*
 		 * Identifying that the admin instance is also a person instance
 		 */
-		for (Class superClass : adminClass.getSuperClassesList()) {
+		for (Class superClass : normalUserClass.getSuperClassesList()) {
 			htblPropValue.put("a", superClass.getPrefix().getPrefix() + superClass.getName());
 		}
 
 		String insertQuery = QueryUtility.constructInsertQuery(
-				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), adminClass, htblPropValue);
+				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), normalUserClass, htblPropValue);
 
 		try {
 
@@ -61,22 +60,21 @@ public class AdminDao {
 			model.close();
 
 		} catch (SQLException e) {
-			throw new DatabaseException(e.getMessage(), "Admin");
+			throw new DatabaseException(e.getMessage(), "NormalUser");
 		}
 
 	}
-	
-	/*
-	 * getAdmins method returns all the admins in the passed application model
-	 */
 
-	public List<Hashtable<String, Object>> getAdmins(String applicationModelName) {
+	/*
+	 * getNormalUsers method returns all the normal users in the passed application model
+	 */
+	public List<Hashtable<String, Object>> getNormalUsers(String applicationModelName) {
 
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(adminClass, applicationModelName);
-		List<Hashtable<String, Object>> adminsList = new ArrayList<>();
+		String queryString = QueryUtility.constructSelectAllQueryNoFilters(normalUserClass, applicationModelName);
+		List<Hashtable<String, Object>> normalUsersList = new ArrayList<>();
 		long startTime = System.currentTimeMillis();
 
 		try {
@@ -86,16 +84,16 @@ public class AdminDao {
 
 				Object subject = res.getObject(1);
 				if (temp.size() == 0) {
-					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
-					temp.put(subject, htblAdminPropVal);
-					adminsList.add(htblAdminPropVal);
+					Hashtable<String, Object> htblNormalUserPropVal = new Hashtable<>();
+					temp.put(subject, htblNormalUserPropVal);
+					normalUsersList.add(htblNormalUserPropVal);
 				}
 
 				/*
 				 * as long as the current subject equal to subject got from the
 				 * results then add the property and value to the admin's
 				 * hashtable . If they are not the same this means that this is
-				 * a new admin so we have to construct a new hashtable to hold
+				 * a new normal user so we have to construct a new hashtable to hold
 				 * it data
 				 */
 
@@ -103,8 +101,9 @@ public class AdminDao {
 				if (res.getString(2).equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
 					continue;
 				}
+				
 				Object[] preparedPropVal = queryResultUtility.constructQueryResult(applicationName, res.getString(2),
-						res.getString(3), adminClass);
+						res.getString(3), normalUserClass);
 				String propertyName = preparedPropVal[0].toString();
 				Object value = preparedPropVal[1];
 
@@ -114,7 +113,7 @@ public class AdminDao {
 
 					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
 					temp.put(subject, htblAdminPropVal);
-					adminsList.add(htblAdminPropVal);
+					normalUsersList.add(htblAdminPropVal);
 
 				}
 
@@ -122,10 +121,11 @@ public class AdminDao {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new DatabaseException(e.getMessage(), "Admin");
+			throw new DatabaseException(e.getMessage(), "Normal User");
 		}
 
-		return adminsList;
+		return normalUsersList;
 	}
 
+	
 }
