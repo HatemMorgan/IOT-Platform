@@ -77,6 +77,7 @@ public class DeveloperDao {
 				applicationModelName.length() - 6);
 
 		String queryString = QueryUtility.constructSelectAllQueryNoFilters(developerClass, applicationModelName);
+		System.out.println(queryString);
 		List<Hashtable<String, Object>> developersList = new ArrayList<>();
 		long startTime = System.currentTimeMillis();
 

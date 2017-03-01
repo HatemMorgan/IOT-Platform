@@ -6,6 +6,11 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 
+/*
+ *  This class maps the NormalUser class in the ontology
+ */
+
+
 @Component
 public class NormalUser extends Person {
 

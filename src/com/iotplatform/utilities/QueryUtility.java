@@ -68,7 +68,7 @@ public class QueryUtility {
 
 			counter++;
 		}
-
+		System.out.println(SubjectClass.getUri());
 		stringBuilder.append(
 				"SELECT subject, property,value FROM TABLE(SEM_MATCH('SELECT ?subject ?property ?value WHERE { ");
 		stringBuilder.append("?subject	a	" + "<" + SubjectClass.getUri() + "> ; ");

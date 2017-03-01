@@ -1,15 +1,16 @@
 package com.iotplatform.ontology.classes;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 
-public class Person extends Class {
+/*
+ *  this class maps the Person Class in the ontology 
+ */
+
+public class Person extends Agent {
 
 
 	private static Person personInstance;
@@ -18,9 +19,8 @@ public class Person extends Class {
 	public Person() {
 		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF);
 
-		if (this.getProperties().size() == 0) {
 			init();
-		}
+		
 
 	}
 	
@@ -39,17 +39,15 @@ public class Person extends Class {
 
 	public Person(String name, String uri, Prefixes prefix) {
 		super(name, uri, prefix);
-
-		if (this.getProperties().size() == 0) {
 			init();
-		}
+		super.getSuperClassesList().add(Agent.getAgentInstance());
 
 	}
 
 	public synchronized static Person getPersonInstance() {
 
 		if (personInstance == null) {
-			personInstance = new Person();
+			personInstance = new Person(null);
 
 		}
 		return personInstance;
@@ -72,7 +70,6 @@ public class Person extends Class {
 		this.getProperties().put("userName",
 				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed));
 		this.getProperties().put("knows", new ObjectProperty("knows", Prefixes.FOAF, Person.getPersonInstance()));
-		this.getProperties().put("mbox", new DataTypeProperty("mbox", Prefixes.FOAF, XSDDataTypes.string_typed));
 
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "age", "age");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "birthday", "birthday");
@@ -80,11 +77,9 @@ public class Person extends Class {
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "firstName", "firstName");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "middleName", "middleName");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "gender", "gender");
-		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "title", "title");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "userName", "userName");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "knows", "knows");
-		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "mbox", "mbox");
 
 	}
 

@@ -8,6 +8,11 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 
+/*
+ *  This class maps the Admin class in the ontology
+ */
+
+
 @Component
 public class Admin extends Person {
 

@@ -6,6 +6,10 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 
+/*
+ *  This class maps the Developer class in the ontology
+ */
+
 @Component
 public class Developer extends Person {
 
@@ -20,6 +24,9 @@ public class Developer extends Person {
 		super.getSuperClassesList().add(Person.getPersonInstance());
 	}
 
-	
+public static void main(String[] args) {
+	Developer developer = new Developer();
+
+}	
 
 }

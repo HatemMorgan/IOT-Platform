@@ -157,7 +157,6 @@ public class DeveloperService {
 		htblPropValue.put("familyName", "Tag" );
 		htblPropValue.put("birthday", "27/2/1995" );
 		htblPropValue.put("gender", "Male" );
-		htblPropValue.put("id", "1" );
 		htblPropValue.put("title", "Engineer" );
 		htblPropValue.put("userName", "OmarTag" );
 		htblPropValue.put("mbox", "omartagguv@gmail.com" );
@@ -174,14 +173,14 @@ public class DeveloperService {
 		System.out.println(developerClass.getProperties().toString());
 		System.out.println("===================================");
 		
-//		Hashtable<String, Object> resInsertion =  developerService.insertDeveloper(htblPropValue, "test Application");
+		Hashtable<String, Object> resInsertion =  developerService.insertDeveloper(htblPropValue, "test Application");
 		
 		
 //		
 //		Hashtable<String, Object>[] json = (Hashtable<String, Object>[])resInsertion.get("errors");
 //		System.out.println(json[0].toString());
 		
-//		System.out.println(resInsertion.toString());
+		System.out.println(resInsertion.toString());
 
 		
 		
