@@ -400,16 +400,16 @@ public class RequestValidation {
 			value = "\"" + value.toString() + "\"" + xsdDataType.getXsdType();
 			return value;
 		} else {
-			Class objectClassType = ((ObjectProperty) property).getObject();
 			return Prefixes.IOT_PLATFORM.getPrefix() + value;
 		}
 	}
 
-	private Hashtable<String, Object> isProrpertyValueValid(ArrayList<PropertyValue> propertyValueList,
+	private ArrayList<PropertyValue> isProrpertyValueValid(ArrayList<PropertyValue> propertyValueList,
 			Class subjectClass, String applicationName) {
 
 		Hashtable<Class, Object> htblClassValue = new Hashtable<>();
-		Hashtable<String, Object> htblPrefixedPropertyValues = new Hashtable<>();
+		
+		ArrayList<PropertyValue> prefixedPropertyValueList = new ArrayList<>();
 
 		Hashtable<String, Property> htbProperties = subjectClass.getProperties();
 
@@ -437,9 +437,11 @@ public class RequestValidation {
 				}
 
 			}
-
-			htblPrefixedPropertyValues.put(getPropertyPrefixAlias(property) + property.getName(),
-					getValue(property, value));
+			
+			propertyValue.setPropertyName(getPropertyPrefixAlias(property) + property.getName());
+			propertyValue.setValue(getValue(property, value));
+			
+			prefixedPropertyValueList.add(propertyValue);
 		}
 
 		/*
@@ -455,16 +457,15 @@ public class RequestValidation {
 
 		}
 
-		return htblPrefixedPropertyValues;
+		return prefixedPropertyValueList;
 
 	}
 
-	public Hashtable<String, Object> isRequestValid(String applicationName, Class subjectClass,
+	public ArrayList<PropertyValue> isRequestValid(String applicationName, Class subjectClass,
 			Hashtable<String, Object> htblPropertyValue) {
 
 		Hashtable<Object, Object> htblPropValue = isFieldsValid(applicationName, subjectClass, htblPropertyValue);
 		ArrayList<PropertyValue> propertyValueList = InsertionUtility.constructPropValueList(htblPropValue);
-
 		return isProrpertyValueValid(propertyValueList, subjectClass, applicationName);
 
 	}

@@ -1,5 +1,6 @@
 package com.iotplatform.utilities;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 
@@ -15,8 +16,9 @@ public class QueryUtility {
 	 * string
 	 */
 
-	public static String constructInsertQuery( String subject, Class SubjectClass,
-			Hashtable<String, Object> htblPropValue) {
+	public static String constructInsertQuery(String subject, Class SubjectClass,
+			ArrayList<PropertyValue> propValueList) {
+
 		StringBuilder stringBuilder = new StringBuilder();
 
 		if (prefixesString == null) {
@@ -24,7 +26,7 @@ public class QueryUtility {
 			for (Prefixes prefix : Prefixes.values()) {
 				prefixStringBuilder.append("PREFIX	" + prefix.getPrefix() + "	<" + prefix.getUri() + ">\n");
 			}
-			
+
 			prefixesString = prefixStringBuilder.toString();
 		}
 
@@ -32,21 +34,24 @@ public class QueryUtility {
 		stringBuilder.append("INSERT DATA { \n");
 		stringBuilder.append(subject + "	a	" + "<" + SubjectClass.getUri() + "> ; \n");
 
-		Iterator<String> htblPropValueIterator = htblPropValue.keySet().iterator();
+		int counter = 0;
+		int size = propValueList.size();
+		
+		for (PropertyValue propertyValue : propValueList) {
 
-		while (htblPropValueIterator.hasNext()) {
-			String prefixedPropStr = htblPropValueIterator.next();
-			Object value = htblPropValue.get(prefixedPropStr);
+			String prefixedPropStr = propertyValue.getPropertyName();
+			Object value = propertyValue.getValue();
 
 			/*
 			 * check if it is the last property value to end the query
 			 */
-			if (htblPropValueIterator.hasNext()) {
+			if (counter < size-1 ) {
 				stringBuilder.append(prefixedPropStr + "	" + value + " ;\n");
 			} else {
 				stringBuilder.append(prefixedPropStr + "	" + value + " . \n }");
 			}
 
+			counter++;
 		}
 
 		return stringBuilder.toString();

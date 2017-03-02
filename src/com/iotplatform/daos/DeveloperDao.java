@@ -15,6 +15,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.Developer;
+import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.QueryResultUtility;
 import com.iotplatform.utilities.QueryUtility;
 
@@ -39,10 +40,10 @@ public class DeveloperDao {
 	 * insertDeveloper method inserts a new Developer to the passed application
 	 * model
 	 */
-	public void insertDeveloper(Hashtable<String, Object> htblPropValue, String applicationModelName) {
+	public void insertDeveloper(ArrayList<PropertyValue> prefixedPropertyValue, String applicationModelName,
+			String userName) {
 
-		String userName = htblPropValue.get("foaf:userName").toString()
-				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
+		userName = userName.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
 
 		/*
 		 * get all superClasses of developer class to identify that the new
@@ -50,12 +51,13 @@ public class DeveloperDao {
 		 */
 
 		for (Class superClass : developerClass.getSuperClassesList()) {
-			htblPropValue.put("a", superClass.getPrefix().getPrefix() + superClass.getName());
+			prefixedPropertyValue
+					.add(new PropertyValue("a", superClass.getPrefix().getPrefix() + superClass.getName()));
 		}
 
 		String insertQuery = QueryUtility.constructInsertQuery(
-				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), developerClass, htblPropValue);
-		// System.out.println(insertQuery);
+				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), developerClass, prefixedPropertyValue);
+
 		try {
 
 			ModelOracleSem model = ModelOracleSem.createOracleSemModel(oracle, applicationModelName);

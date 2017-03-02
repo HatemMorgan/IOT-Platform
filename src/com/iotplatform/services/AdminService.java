@@ -1,5 +1,6 @@
 package com.iotplatform.services;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.classes.Admin;
 import com.iotplatform.ontology.classes.Application;
+import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.QueryResultUtility;
 import com.iotplatform.validations.RequestValidation;
 
@@ -67,12 +69,14 @@ public class AdminService {
 
 		try {
 
-			Hashtable<String, Object> htblPrefixedPropertyValue = requestValidation.isRequestValid(applicationNameCode,
+			ArrayList<PropertyValue> prefixedPropertyValue = requestValidation.isRequestValid(applicationNameCode,
 					adminClass, htblPropValue);
 
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-			adminDao.insertAdmin(htblPrefixedPropertyValue, applicationModelName);
+			String userName = htblPropValue.get("userName").toString();
+			
+			adminDao.insertAdmin(prefixedPropertyValue, applicationModelName,userName);
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Admin", timeTaken);
 			return successModel.getResponseJson();
@@ -150,10 +154,12 @@ public class AdminService {
 		htblPropValue.put("familyName", "Tag");
 		htblPropValue.put("birthday", "27/2/1995");
 		htblPropValue.put("gender", "Male");
-		htblPropValue.put("id", "1");
 		htblPropValue.put("title", "Engineer");
 		htblPropValue.put("userName", "OmarTag");
-		htblPropValue.put("mbox", "omartagguv@gmail.com");
+		
+		Object[] emails = { "omartagguv@gmail.com", "omar.tag@student.guc.edu.eg" };
+		htblPropValue.put("mbox", emails);
+		
 		htblPropValue.put("adminOf", "TESTAPPLICATION");
 		htblPropValue.put("knows", "HatemMorgan");
 		htblPropValue.put("hates", "HatemMorgan");
@@ -163,9 +169,9 @@ public class AdminService {
 
 		Hashtable<String, Object> res = adminService.insertAdmin(htblPropValue, "TESTAPPLICATION");
 
-		// Hashtable<String, Object>[] json = (Hashtable<String,
-		// Object>[])res.get("errors");
-		// System.out.println(json[0].toString());
+//		 Hashtable<String, Object>[] json = (Hashtable<String,
+//		 Object>[])res.get("errors");
+//		 System.out.println(json[0].toString());
 
 		System.out.println(res.toString());
 	}

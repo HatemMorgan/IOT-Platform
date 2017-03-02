@@ -15,6 +15,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.Admin;
+import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.QueryResultUtility;
 import com.iotplatform.utilities.QueryUtility;
 
@@ -36,26 +37,28 @@ public class AdminDao {
 	}
 
 	/*
-	 *  insertAdmin method inserts a new admin to the passed application model
+	 * insertAdmin method inserts a new admin to the passed application model
 	 */
-	
-	public void insertAdmin(Hashtable<String, Object> htblPropValue, String applicationModelName) {
 
-		String userName = htblPropValue.get("foaf:userName").toString()
-				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
+	public void insertAdmin(ArrayList<PropertyValue> prefixedPropertyValue, String applicationModelName,
+			String userName) {
+
+		 userName = userName.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
 
 		/*
 		 * get all superClasses of admin class to identify that the new instance
 		 * is also an instance of all super classes of adminClass
 		 */
-		
+
 		for (Class superClass : adminClass.getSuperClassesList()) {
-			htblPropValue.put("a", superClass.getPrefix().getPrefix() + superClass.getName());
+			prefixedPropertyValue
+					.add(new PropertyValue("a", superClass.getPrefix().getPrefix() + superClass.getName()));
 		}
 
 		String insertQuery = QueryUtility.constructInsertQuery(
-				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), adminClass, htblPropValue);
-
+				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), adminClass, prefixedPropertyValue);
+		
+		
 		try {
 
 			ModelOracleSem model = ModelOracleSem.createOracleSemModel(oracle, applicationModelName);
@@ -67,7 +70,7 @@ public class AdminDao {
 		}
 
 	}
-	
+
 	/*
 	 * getAdmins method returns all the admins in the passed application model
 	 */
@@ -79,7 +82,6 @@ public class AdminDao {
 
 		String queryString = QueryUtility.constructSelectAllQueryNoFilters(adminClass, applicationModelName);
 		List<Hashtable<String, Object>> adminsList = new ArrayList<>();
-		long startTime = System.currentTimeMillis();
 
 		try {
 			ResultSet res = oracle.executeQuery(queryString, 0, 1);

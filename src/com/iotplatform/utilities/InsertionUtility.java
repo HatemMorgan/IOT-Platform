@@ -29,13 +29,13 @@ public class InsertionUtility {
 
 		ArrayList<PropertyValue> propValueList = new ArrayList<>();
 		Iterator<Object> htblPropValueIterator = htblPropValue.keySet().iterator();
-
+	
 		while (htblPropValueIterator.hasNext()) {
 
 			Property property = (Property) htblPropValueIterator.next();
 			String propertyName = property.getName();
-
-			Object value = htblPropValue.get(propertyName);
+			
+			Object value = htblPropValue.get(property);
 
 			/*
 			 * multiple value and the value passed is instance of of array so It
@@ -57,7 +57,7 @@ public class InsertionUtility {
 				 * propertyValue object to hold them and add the object to
 				 * propValueList
 				 */
-
+				
 				PropertyValue propertyValue = new PropertyValue(propertyName, value);
 				propValueList.add(propertyValue);
 

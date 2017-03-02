@@ -13,19 +13,11 @@ public class Agent extends Class {
 
 	private static Agent agentInstance;
 
-	public Agent() {
-		super("Agent", "http://xmlns.com/foaf/0.1/Agent", Prefixes.FOAF);
-
-		super.getProperties().put("mbox", new DataTypeProperty("mbox", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
-
-		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "mbox", "mbox");
-
-	}
-
 	public Agent(String name, String uri, Prefixes prefix) {
 		super(name, uri, prefix);
 
-		super.getProperties().put("mbox", new DataTypeProperty("mbox", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
+		super.getProperties().put("mbox",
+				new DataTypeProperty("mbox", Prefixes.FOAF, XSDDataTypes.string_typed, true, false));
 
 		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "mbox", "mbox");
 	}

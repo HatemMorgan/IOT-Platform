@@ -21,4 +21,19 @@ public class PropertyValue {
 		return value;
 	}
 
+	
+	
+	public void setPropertyName(String propertyName) {
+		this.propertyName = propertyName;
+	}
+
+	public void setValue(Object value) {
+		this.value = value;
+	}
+
+	@Override
+	public String toString() {
+		return "PropertyValue [propertyName=" + propertyName + ", value=" + value + "]";
+	}
+
 }
