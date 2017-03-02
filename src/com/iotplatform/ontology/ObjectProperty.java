@@ -7,8 +7,8 @@ package com.iotplatform.ontology;
 public class ObjectProperty extends Property {
 	private Class object;
 
-	public ObjectProperty(String name, Prefixes prefix, Class object) {
-		super(name, prefix);
+	public ObjectProperty(String name, Prefixes prefix, Class object,boolean mulitpleValues,boolean unique) {
+		super(name, prefix,mulitpleValues,unique);
 		this.object = object;
 	}
 

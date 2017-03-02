@@ -21,11 +21,11 @@ public class Application extends Class {
 		super("Application", "http://iot-platform#Application", Prefixes.IOT_PLATFORM);
 
 		super.getProperties().put("description",
-				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed));
-		super.getProperties().put("name", new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed));
+				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed,false,false));
+		super.getProperties().put("name", new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed,false,true));
 
 		super.getProperties().put("fundedBy",
-				new ObjectProperty("fundedBy", Prefixes.FOAF, Organization.getOrganizationInstance()));
+				new ObjectProperty("fundedBy", Prefixes.FOAF, Organization.getOrganizationInstance(),true,false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
 		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");

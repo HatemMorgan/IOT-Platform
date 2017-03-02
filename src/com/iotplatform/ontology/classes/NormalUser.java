@@ -19,7 +19,7 @@ public class NormalUser extends Person {
 		super("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM);
 
 		super.getProperties().put("usesApplication",
-				new ObjectProperty("usesApplication", Prefixes.IOT_PLATFORM, Application.getApplicationInstance()));
+				new ObjectProperty("usesApplication", Prefixes.IOT_PLATFORM, Application.getApplicationInstance(),false,false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "usesApplication", "usesApplication");
 

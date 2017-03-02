@@ -56,20 +56,20 @@ public class Person extends Agent {
 	
 	private void init() {
 
-		this.getProperties().put("age", new DataTypeProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed));
+		this.getProperties().put("age", new DataTypeProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed,false,false));
 		this.getProperties().put("birthday",
-				new DataTypeProperty("birthday", Prefixes.FOAF, XSDDataTypes.string_typed));
+				new DataTypeProperty("birthday", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
 		this.getProperties().put("familyName",
-				new DataTypeProperty("familyName", Prefixes.FOAF, XSDDataTypes.string_typed));
+				new DataTypeProperty("familyName", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
 		this.getProperties().put("firstName",
-				new DataTypeProperty("firstName", Prefixes.FOAF, XSDDataTypes.string_typed));
+				new DataTypeProperty("firstName", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
 		this.getProperties().put("middleName",
-				new DataTypeProperty("middleName", Prefixes.FOAF, XSDDataTypes.string_typed));
-		this.getProperties().put("gender", new DataTypeProperty("gender", Prefixes.FOAF, XSDDataTypes.string_typed));
-		this.getProperties().put("title", new DataTypeProperty("title", Prefixes.FOAF, XSDDataTypes.string_typed));
+				new DataTypeProperty("middleName", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
+		this.getProperties().put("gender", new DataTypeProperty("gender", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
+		this.getProperties().put("title", new DataTypeProperty("title", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
 		this.getProperties().put("userName",
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed));
-		this.getProperties().put("knows", new ObjectProperty("knows", Prefixes.FOAF, Person.getPersonInstance()));
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed,false,true));
+		this.getProperties().put("knows", new ObjectProperty("knows", Prefixes.FOAF, Person.getPersonInstance(),false,false));
 
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "age", "age");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "birthday", "birthday");

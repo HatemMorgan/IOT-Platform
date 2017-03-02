@@ -6,18 +6,13 @@ import java.io.InputStreamReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.sql.DataSource;
-
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
+
 import org.springframework.stereotype.Component;
 
 import org.apache.jena.graph.*;
-import org.apache.jena.rdf.model.*;
 import org.apache.jena.util.*;
 import oracle.spatial.rdf.client.jena.*;
 
@@ -153,13 +148,13 @@ public class MainOntology {
 
 	}
 
-//	public static void main(String[] args) throws SQLException {
-//
-//		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
-//		String szUser = "rdfusr";
-//		String szPasswd = "rdfusr";
-//		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
-//		MainOntology main = new MainOntology(oracle);
-//		OracleUtils.dropSemanticModel(oracle, "MAIN_ONTOLOGY_MODEL");
-//	}
+	// public static void main(String[] args) throws SQLException {
+	//
+	// String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+	// String szUser = "rdfusr";
+	// String szPasswd = "rdfusr";
+	// Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+	// MainOntology main = new MainOntology(oracle);
+	// OracleUtils.dropSemanticModel(oracle, "MAIN_ONTOLOGY_MODEL");
+	// }
 }

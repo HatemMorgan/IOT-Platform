@@ -8,12 +8,16 @@ public abstract class Property {
 	private String name;
 	private Prefixes prefix;
 	private String applicationName;
+	private boolean mulitpleValues;
+	private boolean unique;
 
-	public Property(String name, Prefixes prefix) {
+	public Property(String name, Prefixes prefix, boolean mulitpleValues,boolean unique ) {
 
 		this.name = name;
 		this.prefix = prefix;
-		applicationName = null;
+		this.applicationName = null;
+		this.mulitpleValues = mulitpleValues;
+		this.unique = unique;
 	}
 
 	public Property(String name, Prefixes prefix, String applicationName) {
@@ -33,6 +37,10 @@ public abstract class Property {
 
 	public String getApplicationName() {
 		return applicationName;
+	}
+
+	public boolean isMulitpleValues() {
+		return mulitpleValues;
 	}
 
 }
