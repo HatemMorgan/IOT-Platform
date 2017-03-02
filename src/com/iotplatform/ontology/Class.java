@@ -6,7 +6,7 @@ import java.util.Hashtable;
 /*
  * It defines Classes in ontologies which is one of the main requirements for a semantic ontology
  */
-public class Class {
+public abstract class Class {
 	private String name;
 	private String uri;
 	private Prefixes prefix;

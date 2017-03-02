@@ -135,8 +135,9 @@ public class test {
 		// Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 		// OracleUtils.dropSemanticModel(oracle, "TESTAPPLICATION_MODEL");
 
-		Developer developer = new Developer();
-		System.out.println((ObjectProperty)developer.getProperties().get("knows"));
+		Object [] arr = {"object1","object2"};
+		
+		System.out.println(arr instanceof Object[]);
 	}
 
 }

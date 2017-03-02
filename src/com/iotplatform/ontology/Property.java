@@ -11,7 +11,7 @@ public abstract class Property {
 	private boolean mulitpleValues;
 	private boolean unique;
 
-	public Property(String name, Prefixes prefix, boolean mulitpleValues,boolean unique ) {
+	public Property(String name, Prefixes prefix, boolean mulitpleValues, boolean unique) {
 
 		this.name = name;
 		this.prefix = prefix;
@@ -41,6 +41,10 @@ public abstract class Property {
 
 	public boolean isMulitpleValues() {
 		return mulitpleValues;
+	}
+
+	public boolean isUnique() {
+		return unique;
 	}
 
 }
