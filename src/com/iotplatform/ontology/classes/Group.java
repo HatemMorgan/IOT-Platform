@@ -8,7 +8,8 @@ import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
- *  This class maps the group class in the ontology
+ *  This class maps the group class in the ontology 
+ *  A group can contains another group or persons or organizations (any agent)
  */
 
 @Component

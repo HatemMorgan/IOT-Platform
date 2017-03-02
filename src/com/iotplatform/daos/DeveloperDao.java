@@ -45,7 +45,8 @@ public class DeveloperDao {
 				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
 
 		/*
-		 * Identifying that the developer instance is also a person instance
+		 * get all superClasses of developer class to identify that the new
+		 * instance is also an instance of all super classes of developerClass
 		 */
 
 		for (Class superClass : developerClass.getSuperClassesList()) {
@@ -68,9 +69,10 @@ public class DeveloperDao {
 	}
 
 	/*
-	 * getDevelopers method returns all the developers in the passed application model
+	 * getDevelopers method returns all the developers in the passed application
+	 * model
 	 */
-	
+
 	public List<Hashtable<String, Object>> getDevelopers(String applicationModelName) {
 
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,

@@ -45,8 +45,10 @@ public class AdminDao {
 				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
 
 		/*
-		 * Identifying that the admin instance is also a person instance
+		 * get all superClasses of admin class to identify that the new instance
+		 * is also an instance of all super classes of adminClass
 		 */
+		
 		for (Class superClass : adminClass.getSuperClassesList()) {
 			htblPropValue.put("a", superClass.getPrefix().getPrefix() + superClass.getName());
 		}

@@ -46,8 +46,10 @@ public class OrganizationDao {
 				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "").replaceAll(" ", "");
 
 		/*
-		 * Identifying that the admin instance is also a person instance
+		 * get all superClasses of organization class to identify that the new instance
+		 * is also an instance of all super classes of organizationClass
 		 */
+		
 		for (Class superClass : organizationClass.getSuperClassesList()) {
 			htblPropValue.put("a", superClass.getPrefix().getPrefix() + superClass.getName());
 		}
@@ -78,7 +80,7 @@ public class OrganizationDao {
 				applicationModelName.length() - 6);
 
 		String queryString = QueryUtility.constructSelectAllQueryNoFilters(organizationClass, applicationModelName);
-		List<Hashtable<String, Object>> adminsList = new ArrayList<>();
+		List<Hashtable<String, Object>> organizationsList = new ArrayList<>();
 
 		try {
 			ResultSet res = oracle.executeQuery(queryString, 0, 1);
@@ -87,16 +89,16 @@ public class OrganizationDao {
 
 				Object subject = res.getObject(1);
 				if (temp.size() == 0) {
-					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
-					temp.put(subject, htblAdminPropVal);
-					adminsList.add(htblAdminPropVal);
+					Hashtable<String, Object> htblOrganizationPropVal = new Hashtable<>();
+					temp.put(subject, htblOrganizationPropVal);
+					organizationsList.add(htblOrganizationPropVal);
 				}
 
 				/*
 				 * as long as the current subject equal to subject got from the
-				 * results then add the property and value to the admin's
+				 * results then add the property and value to the organization's
 				 * hashtable . If they are not the same this means that this is
-				 * a new admin so we have to construct a new hashtable to hold
+				 * a new organization so we have to construct a new hashtable to hold
 				 * it data
 				 */
 
@@ -114,12 +116,12 @@ public class OrganizationDao {
 					temp.get(subject).put(propertyName, value);
 				} else {
 
-					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
-					temp.put(subject, htblAdminPropVal);
+					Hashtable<String, Object> htblOrganizationPropVal = new Hashtable<>();
+					temp.put(subject, htblOrganizationPropVal);
 
 					temp.get(subject).put(propertyName, value);
 
-					adminsList.add(htblAdminPropVal);
+					organizationsList.add(htblOrganizationPropVal);
 
 				}
 
@@ -127,10 +129,10 @@ public class OrganizationDao {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new DatabaseException(e.getMessage(), "Admin");
+			throw new DatabaseException(e.getMessage(), "Organization");
 		}
 
-		return adminsList;
+		return organizationsList;
 	}
 
 }

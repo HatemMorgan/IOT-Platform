@@ -14,47 +14,46 @@ import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
-import com.iotplatform.ontology.classes.NormalUser;
+import com.iotplatform.ontology.classes.Group;
 import com.iotplatform.utilities.QueryResultUtility;
 import com.iotplatform.utilities.QueryUtility;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
 import oracle.spatial.rdf.client.jena.Oracle;
 
-@Repository("normalUserDao")
-public class NormalUserDao {
+@Repository("groupDao")
+public class GroupDao {
 
 	private Oracle oracle;
 	private QueryResultUtility queryResultUtility;
-	private NormalUser normalUserClass;
+	private Group groupClass;
 
 	@Autowired
-	public NormalUserDao(Oracle oracle, QueryResultUtility queryResultUtility, NormalUser normalUserClass) {
+	public GroupDao(Oracle oracle, QueryResultUtility queryResultUtility, Group groupClass) {
 		this.oracle = oracle;
 		this.queryResultUtility = queryResultUtility;
-		this.normalUserClass = normalUserClass;
+		this.groupClass = groupClass;
 	}
 
 	/*
-	 * insertNormalUser method inserts a new normal user to the passed
-	 * application model
+	 * insertGroup method inserts a new group to the passed application model
 	 */
-	public void insertNormalUser(Hashtable<String, Object> htblPropValue, String applicationModelName) {
 
-		String userName = htblPropValue.get("foaf:userName").toString()
-				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
+	public void insertGroup(Hashtable<String, Object> htblPropValue, String applicationModelName) {
+
+		String groupName = htblPropValue.get("foaf:name").toString().replace(XSDDataTypes.string_typed.getXsdType(), "")
+				.replaceAll("\"", "").replaceAll(" ", "");
 
 		/*
-		 * get all superClasses of normalUser class to identify that the new instance
-		 * is also an instance of all super classes of normalUserClass
+		 * get all superClasses of group class to identify that the new instance
+		 * is also an instance of all super classes of groupClass
 		 */
-		
-		for (Class superClass : normalUserClass.getSuperClassesList()) {
+		for (Class superClass : groupClass.getSuperClassesList()) {
 			htblPropValue.put("a", superClass.getPrefix().getPrefix() + superClass.getName());
 		}
 
 		String insertQuery = QueryUtility.constructInsertQuery(
-				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), normalUserClass, htblPropValue);
+				Prefixes.IOT_PLATFORM.getPrefix() + groupName.toLowerCase(), groupClass, htblPropValue);
 
 		try {
 
@@ -63,23 +62,22 @@ public class NormalUserDao {
 			model.close();
 
 		} catch (SQLException e) {
-			throw new DatabaseException(e.getMessage(), "Normal User");
+			throw new DatabaseException(e.getMessage(), "Group");
 		}
 
 	}
 
 	/*
-	 * getNormalUsers method returns all the normal users in the passed
-	 * application model
+	 * getGroups method returns all the groups in the passed application model
 	 */
-	public List<Hashtable<String, Object>> getNormalUsers(String applicationModelName) {
+
+	public List<Hashtable<String, Object>> getGroups(String applicationModelName) {
 
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(normalUserClass, applicationModelName);
-		List<Hashtable<String, Object>> normalUsersList = new ArrayList<>();
-		long startTime = System.currentTimeMillis();
+		String queryString = QueryUtility.constructSelectAllQueryNoFilters(groupClass, applicationModelName);
+		List<Hashtable<String, Object>> groupsList = new ArrayList<>();
 
 		try {
 			ResultSet res = oracle.executeQuery(queryString, 0, 1);
@@ -88,26 +86,26 @@ public class NormalUserDao {
 
 				Object subject = res.getObject(1);
 				if (temp.size() == 0) {
-					Hashtable<String, Object> htblNormalUserPropVal = new Hashtable<>();
-					temp.put(subject, htblNormalUserPropVal);
-					normalUsersList.add(htblNormalUserPropVal);
+					Hashtable<String, Object> htblGroupPropVal = new Hashtable<>();
+					temp.put(subject, htblGroupPropVal);
+					groupsList.add(htblGroupPropVal);
 				}
 
 				/*
 				 * as long as the current subject equal to subject got from the
-				 * results then add the property and value to the admin's
+				 * results then add the property and value to the groups's
 				 * hashtable . If they are not the same this means that this is
-				 * a new normal user so we have to construct a new hashtable to
-				 * hold it data
+				 * a new group so we have to construct a new hashtable to hold
+				 * it data
 				 */
 
 				// skip rdf:type property
 				if (res.getString(2).equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
 					continue;
 				}
-
 				Object[] preparedPropVal = queryResultUtility.constructQueryResult(applicationName, res.getString(2),
-						res.getString(3), normalUserClass);
+						res.getString(3), groupClass);
+
 				String propertyName = preparedPropVal[0].toString();
 				Object value = preparedPropVal[1];
 
@@ -115,10 +113,12 @@ public class NormalUserDao {
 					temp.get(subject).put(propertyName, value);
 				} else {
 
-					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
-					temp.put(subject, htblAdminPropVal);
+					Hashtable<String, Object> htblGroupPropVal = new Hashtable<>();
+					temp.put(subject, htblGroupPropVal);
+
 					temp.get(subject).put(propertyName, value);
-					normalUsersList.add(htblAdminPropVal);
+
+					groupsList.add(htblGroupPropVal);
 
 				}
 
@@ -126,10 +126,10 @@ public class NormalUserDao {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new DatabaseException(e.getMessage(), "Normal User");
+			throw new DatabaseException(e.getMessage(), "Group");
 		}
 
-		return normalUsersList;
+		return groupsList;
 	}
 
 }
