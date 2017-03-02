@@ -35,7 +35,6 @@ public class ApplicationDao {
 
 	@Autowired
 	public ApplicationDao(Oracle oracle, Application applicationClass) {
-		System.out.println("ApplicationDAO Created");
 		this.oracle = oracle;
 		this.applicationClass = applicationClass;
 		this.htblApplicationNameModelName = new Hashtable<>();
