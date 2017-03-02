@@ -31,6 +31,8 @@ import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Developer;
 import com.iotplatform.ontology.classes.NormalUser;
 import com.iotplatform.ontology.classes.Person;
+import com.iotplatform.utilities.InsertionUtility;
+import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SqlCondition;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -89,17 +91,17 @@ public class RequestValidation {
 		 * order to improve performance by caching the dynamic properties
 		 */
 		Hashtable<String, DynamicConceptModel> dynamicProperties = new Hashtable<>();
-		
+
 		applicationName = applicationName.replaceAll(" ", "").toUpperCase();
-		
+
 		for (DynamicConceptModel dynamicProperty : res) {
 
 			// skip if the property was cached before
 			if (subjectClass.getProperties().contains(dynamicProperty.getProperty_name())) {
 				continue;
 			}
-//			System.out.println(dynamicProperty.getProperty_uri());
-			
+			// System.out.println(dynamicProperty.getProperty_uri());
+
 			subjectClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
 					dynamicProperty.getProperty_name());
 
@@ -160,7 +162,7 @@ public class RequestValidation {
 				 */
 
 				if (!dynamicProperties.containsKey(field)) {
-						
+
 					throw new InvalidRequestFieldsException(subjectClass.getName(), field);
 
 				} else {
@@ -178,18 +180,18 @@ public class RequestValidation {
 				 * passed field is a static property so add it to
 				 * htblStaticProperty
 				 */
-				
-				if (htblProperties.get(field).getApplicationName() == null
-						|| htblProperties.get(field).getApplicationName().equals(applicationName.replace(" ", "").toUpperCase())) {
+
+				if (htblProperties.get(field).getApplicationName() == null || htblProperties.get(field)
+						.getApplicationName().equals(applicationName.replace(" ", "").toUpperCase())) {
 					htblFieldPropValue.put(htblProperties.get(field), value);
 
 				} else {
-			
+
 					/*
 					 * this means that this class has a property with the same
 					 * name but it is not for the specified application domain
 					 */
-					
+
 					throw new InvalidRequestFieldsException(subjectClass.getName(), field);
 
 				}
@@ -403,25 +405,25 @@ public class RequestValidation {
 		}
 	}
 
-	private Hashtable<String, Object> isProrpertyValueValid(Hashtable<Object, Object> htblPropValue, Class subjectClass,
-			String applicationName) {
-
-		Iterator<Object> PropValueIterator = htblPropValue.keySet().iterator();
+	private Hashtable<String, Object> isProrpertyValueValid(ArrayList<PropertyValue> propertyValueList,
+			Class subjectClass, String applicationName) {
 
 		Hashtable<Class, Object> htblClassValue = new Hashtable<>();
 		Hashtable<String, Object> htblPrefixedPropertyValues = new Hashtable<>();
 
-		while (PropValueIterator.hasNext()) {
+		Hashtable<String, Property> htbProperties = subjectClass.getProperties();
 
-			Property staticProperty = (Property) PropValueIterator.next();
-			Object value = htblPropValue.get(staticProperty);
+		for (PropertyValue propertyValue : propertyValueList) {
+
+			Property property = htbProperties.get(propertyValue.getPropertyName());
+			Object value = propertyValue.getValue();
 
 			/*
 			 * Object property so add it to htblClassValue to send it to
 			 * requestValidationDao
 			 */
-			if (staticProperty instanceof ObjectProperty) {
-				htblClassValue.put(((ObjectProperty) staticProperty).getObject(), value);
+			if (property instanceof ObjectProperty) {
+				htblClassValue.put(((ObjectProperty) property).getObject(), value);
 
 			} else {
 
@@ -429,16 +431,15 @@ public class RequestValidation {
 				 * check if the datatype is correct or not
 				 */
 
-				if (!isStaticDataValueValid((DataTypeProperty) staticProperty, value)) {
+				if (!isStaticDataValueValid((DataTypeProperty) property, value)) {
 
-					throw new InvalidPropertyValuesException(subjectClass.getName(), staticProperty.getName());
+					throw new InvalidPropertyValuesException(subjectClass.getName(), property.getName());
 				}
 
 			}
 
-			htblPrefixedPropertyValues.put(getPropertyPrefixAlias(staticProperty) + staticProperty.getName(),
-					getValue(staticProperty, value));
-
+			htblPrefixedPropertyValues.put(getPropertyPrefixAlias(property) + property.getName(),
+					getValue(property, value));
 		}
 
 		/*
@@ -462,7 +463,9 @@ public class RequestValidation {
 			Hashtable<String, Object> htblPropertyValue) {
 
 		Hashtable<Object, Object> htblPropValue = isFieldsValid(applicationName, subjectClass, htblPropertyValue);
-		return isProrpertyValueValid(htblPropValue, subjectClass, applicationName);
+		ArrayList<PropertyValue> propertyValueList = InsertionUtility.constructPropValueList(htblPropValue);
+
+		return isProrpertyValueValid(propertyValueList, subjectClass, applicationName);
 
 	}
 

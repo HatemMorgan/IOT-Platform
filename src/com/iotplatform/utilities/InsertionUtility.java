@@ -17,18 +17,23 @@ public class InsertionUtility {
 	 * constructPropValueList method is used to construct a proper propertyValue
 	 * list by removing arrays of values for a given property and change it to
 	 * multiple propertyValue objects to be able to insert it using sparql
+	 * 
+	 * The input to this method is a hashTable of property key and propertyValue
+	 * as the value of the key
+	 * 
+	 * This method is called by requestValidation class (isRequestValid method)
+	 * 
 	 */
-	public static ArrayList<PropertyValue> constructPropValueList(Hashtable<String, Object> htblPropValue,
-			Class subjectClass) {
+
+	public static ArrayList<PropertyValue> constructPropValueList(Hashtable<Object, Object> htblPropValue) {
 
 		ArrayList<PropertyValue> propValueList = new ArrayList<>();
-		Iterator<String> htblPropValueIterator = htblPropValue.keySet().iterator();
+		Iterator<Object> htblPropValueIterator = htblPropValue.keySet().iterator();
 
 		while (htblPropValueIterator.hasNext()) {
 
-			String propertyName = htblPropValueIterator.next();
-
-			Property property = subjectClass.getProperties().get(propertyName);
+			Property property = (Property) htblPropValueIterator.next();
+			String propertyName = property.getName();
 
 			Object value = htblPropValue.get(propertyName);
 
@@ -46,16 +51,16 @@ public class InsertionUtility {
 					propValueList.add(propertyValue);
 				}
 			} else {
-				
+
 				/*
 				 * Its a normal property value pair so I will only create a
 				 * propertyValue object to hold them and add the object to
 				 * propValueList
 				 */
-				
+
 				PropertyValue propertyValue = new PropertyValue(propertyName, value);
 				propValueList.add(propertyValue);
-				
+
 			}
 
 		}
