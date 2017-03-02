@@ -68,18 +68,18 @@ public class OrganizationDao {
 	}
 
 	/*
-	 * getOrganizations method returns all the organizations in the passed application model
+	 * getOrganizations method returns all the organizations in the passed
+	 * application model
 	 */
 
 	public List<Hashtable<String, Object>> getOrganizations(String applicationModelName) {
 
-			
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
-			applicationModelName.length() - 6);
-		
+				applicationModelName.length() - 6);
+
 		String queryString = QueryUtility.constructSelectAllQueryNoFilters(organizationClass, applicationModelName);
 		List<Hashtable<String, Object>> adminsList = new ArrayList<>();
-		
+
 		try {
 			ResultSet res = oracle.executeQuery(queryString, 0, 1);
 			Hashtable<Object, Hashtable<String, Object>> temp = new Hashtable<>();
@@ -106,7 +106,7 @@ public class OrganizationDao {
 				}
 				Object[] preparedPropVal = queryResultUtility.constructQueryResult(applicationName, res.getString(2),
 						res.getString(3), organizationClass);
-				
+
 				String propertyName = preparedPropVal[0].toString();
 				Object value = preparedPropVal[1];
 
@@ -116,6 +116,9 @@ public class OrganizationDao {
 
 					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
 					temp.put(subject, htblAdminPropVal);
+
+					temp.get(subject).put(propertyName, value);
+
 					adminsList.add(htblAdminPropVal);
 
 				}

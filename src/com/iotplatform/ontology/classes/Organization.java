@@ -23,6 +23,7 @@ public class Organization extends Agent {
 
 		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
+
 		super.getSuperClassesList().add(Agent.getAgentInstance());
 
 	}

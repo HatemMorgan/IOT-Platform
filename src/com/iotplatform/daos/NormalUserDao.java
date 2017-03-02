@@ -115,6 +115,7 @@ public class NormalUserDao {
 
 					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
 					temp.put(subject, htblAdminPropVal);
+					temp.get(subject).put(propertyName, value);
 					normalUsersList.add(htblAdminPropVal);
 
 				}

@@ -116,6 +116,7 @@ public class DeveloperDao {
 
 					Hashtable<String, Object> htblDeveloperPropVal = new Hashtable<>();
 					temp.put(subject, htblDeveloperPropVal);
+					temp.get(subject).put(propertyName, value);
 					developersList.add(htblDeveloperPropVal);
 
 				}

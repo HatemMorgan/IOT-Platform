@@ -114,6 +114,7 @@ public class AdminDao {
 
 					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
 					temp.put(subject, htblAdminPropVal);
+					temp.get(subject).put(propertyName, value);
 					adminsList.add(htblAdminPropVal);
 
 				}
