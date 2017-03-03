@@ -19,7 +19,7 @@ import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Developer;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.utilities.QueryResultUtility;
+import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.RequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -144,7 +144,7 @@ public class DeveloperService {
 
 		Developer developerClass = new Developer();
 		DeveloperDao developerDao = new DeveloperDao(oracle, developerClass,
-				new QueryResultUtility(new RequestValidation(validationDao, dynamicConceptDao)));
+				new SelectionUtility(new RequestValidation(validationDao, dynamicConceptDao)));
 		RequestValidation requestValidation = new RequestValidation(new ValidationDao(oracle),
 				new DynamicConceptDao(dataSource));
 
@@ -167,9 +167,9 @@ public class DeveloperService {
 		htblPropValue.put("mbox", emails);
 
 		htblPropValue.put("developedApplication", "TESTAPPLICATION");
-		htblPropValue.put("knows", "HatemMorgan");
-		htblPropValue.put("hates", "HatemMorgan");
-		htblPropValue.put("job", "Engineeer");
+//		htblPropValue.put("knows", "HatemMorgan");
+//		htblPropValue.put("hates", "HatemMorgan");
+//		htblPropValue.put("job", "Engineeer");
 
 		// Hashtable<String, Object> res = developerService.getDevelopers("test
 		// Application");
@@ -181,11 +181,11 @@ public class DeveloperService {
 
 		Hashtable<String, Object> resInsertion = developerService.insertDeveloper(htblPropValue, "test Application");
 
-		//
-//		Hashtable<String, Object>[] json = (Hashtable<String, Object>[]) resInsertion.get("errors");
-//		System.out.println(json[0].toString());
+		
+		Hashtable<String, Object>[] json = (Hashtable<String, Object>[]) resInsertion.get("errors");
+		System.out.println(json[0].toString());
 
-		 System.out.println(resInsertion.toString());
+//		 System.out.println(resInsertion.toString());
 
 	}
 }

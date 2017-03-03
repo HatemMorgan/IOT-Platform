@@ -1,5 +1,6 @@
 package com.iotplatform.services;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -19,7 +20,8 @@ import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.classes.Admin;
 import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Organization;
-import com.iotplatform.utilities.QueryResultUtility;
+import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.RequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -71,12 +73,15 @@ public class OrganizationService {
 
 		try {
 
-			Hashtable<String, Object> htblPrefixedPropertyValue = requestValidation.isRequestValid(applicationNameCode,
+			ArrayList<PropertyValue> prefixedPropertyValue = requestValidation.isRequestValid(applicationNameCode,
 					organizationClass, htblPropValue);
 
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-			organizationDao.insertOrganization(htblPrefixedPropertyValue, applicationModelName);
+			String organizationName = htblPropValue.get("name").toString();
+
+			organizationDao.insertOrganization(prefixedPropertyValue, applicationModelName, organizationName);
+
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Organization", timeTaken);
 			return successModel.getResponseJson();
@@ -145,7 +150,7 @@ public class OrganizationService {
 
 		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
 
-		OrganizationDao organizationDao = new OrganizationDao(oracle, new QueryResultUtility(requestValidation),
+		OrganizationDao organizationDao = new OrganizationDao(oracle, new SelectionUtility(requestValidation),
 				organizationClass);
 
 		// Hashtable<String, Object> htblPropValue = new Hashtable<>();
@@ -163,9 +168,9 @@ public class OrganizationService {
 
 		Hashtable<String, Object> res = organizationService.getOrganizations("test application");
 
-//		 Hashtable<String, Object> res =
-//		 organizationService.insertOrganization(htblPropValue,
-//		 "TESTAPPLICATION");
+		// Hashtable<String, Object> res =
+		// organizationService.insertOrganization(htblPropValue,
+		// "TESTAPPLICATION");
 
 		// Hashtable<String, Object>[] json = (Hashtable<String,
 		// Object>[])res.get("errors");

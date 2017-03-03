@@ -16,7 +16,7 @@ import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.Developer;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.utilities.QueryResultUtility;
+import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.utilities.QueryUtility;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
@@ -27,10 +27,10 @@ public class DeveloperDao {
 
 	private Oracle oracle;
 	private Developer developerClass;
-	private QueryResultUtility queryResultUtility;
+	private SelectionUtility queryResultUtility;
 
 	@Autowired
-	public DeveloperDao(Oracle oracle, Developer developerClass, QueryResultUtility queryResultUtility) {
+	public DeveloperDao(Oracle oracle, Developer developerClass, SelectionUtility queryResultUtility) {
 		this.oracle = oracle;
 		this.developerClass = developerClass;
 		this.queryResultUtility = queryResultUtility;

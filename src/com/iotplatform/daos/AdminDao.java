@@ -16,7 +16,7 @@ import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.Admin;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.utilities.QueryResultUtility;
+import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.utilities.QueryUtility;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
@@ -26,11 +26,11 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class AdminDao {
 
 	private Oracle oracle;
-	private QueryResultUtility queryResultUtility;
+	private SelectionUtility queryResultUtility;
 	private Admin adminClass;
 
 	@Autowired
-	public AdminDao(Oracle oracle, QueryResultUtility queryResultUtility, Admin adminClass) {
+	public AdminDao(Oracle oracle, SelectionUtility queryResultUtility, Admin adminClass) {
 		this.oracle = oracle;
 		this.queryResultUtility = queryResultUtility;
 		this.adminClass = adminClass;

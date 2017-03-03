@@ -43,11 +43,12 @@ public class InsertionUtility {
 			 * the values are valid in case the property is an objectProperty
 			 * and to allow inserting values as triples
 			 */
+			
 
-			if (property.isMulitpleValues() && value instanceof Object[]) {
-				Object[] valueArr = (Object[]) value;
-				for (int i = 0; i < valueArr.length; i++) {
-					PropertyValue propertyValue = new PropertyValue(propertyName, valueArr[i]);
+			if (property.isMulitpleValues() && value instanceof java.util.ArrayList ) {
+				ArrayList<Object> valueList =  (ArrayList<Object>) value;
+				for (int i = 0; i < valueList.size(); i++) {
+					PropertyValue propertyValue = new PropertyValue(propertyName, valueList.get(i));
 					propValueList.add(propertyValue);
 				}
 			} else {

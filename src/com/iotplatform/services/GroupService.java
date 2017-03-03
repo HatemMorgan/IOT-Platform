@@ -1,5 +1,6 @@
 package com.iotplatform.services;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.classes.Group;
+import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.validations.RequestValidation;
 
 @Service("GroupService")
@@ -61,12 +63,14 @@ public class GroupService {
 
 		try {
 
-			Hashtable<String, Object> htblPrefixedPropertyValue = requestValidation.isRequestValid(applicationNameCode,
+			ArrayList<PropertyValue> prefixedPropertyValue = requestValidation.isRequestValid(applicationNameCode,
 					groupClass, htblPropValue);
 
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-			groupDao.insertGroup(htblPrefixedPropertyValue, applicationModelName);
+			String groupName = htblPropValue.get("name").toString();
+			
+			groupDao.insertGroup(prefixedPropertyValue, applicationModelName,groupName);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Group", timeTaken);

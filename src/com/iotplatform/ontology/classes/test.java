@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.utilities.QueryResultUtility;
+import com.iotplatform.utilities.SelectionUtility;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 import oracle.spatial.rdf.client.jena.OracleUtils;

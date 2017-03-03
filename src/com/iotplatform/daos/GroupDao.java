@@ -15,7 +15,8 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.Group;
-import com.iotplatform.utilities.QueryResultUtility;
+import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.utilities.QueryUtility;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
@@ -25,11 +26,11 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class GroupDao {
 
 	private Oracle oracle;
-	private QueryResultUtility queryResultUtility;
+	private SelectionUtility queryResultUtility;
 	private Group groupClass;
 
 	@Autowired
-	public GroupDao(Oracle oracle, QueryResultUtility queryResultUtility, Group groupClass) {
+	public GroupDao(Oracle oracle, SelectionUtility queryResultUtility, Group groupClass) {
 		this.oracle = oracle;
 		this.queryResultUtility = queryResultUtility;
 		this.groupClass = groupClass;
@@ -39,21 +40,22 @@ public class GroupDao {
 	 * insertGroup method inserts a new group to the passed application model
 	 */
 
-	public void insertGroup(Hashtable<String, Object> htblPropValue, String applicationModelName) {
+	public void insertGroup(ArrayList<PropertyValue> prefixedPropertyValue, String applicationModelName,String groupName) {
 
-		String groupName = htblPropValue.get("foaf:name").toString().replace(XSDDataTypes.string_typed.getXsdType(), "")
+		 groupName = groupName.replace(XSDDataTypes.string_typed.getXsdType(), "")
 				.replaceAll("\"", "").replaceAll(" ", "");
 
 		/*
 		 * get all superClasses of group class to identify that the new instance
 		 * is also an instance of all super classes of groupClass
 		 */
-		for (Class superClass : groupClass.getSuperClassesList()) {
-			htblPropValue.put("a", superClass.getPrefix().getPrefix() + superClass.getName());
-		}
+		 for (Class superClass : groupClass.getSuperClassesList()) {
+				prefixedPropertyValue
+						.add(new PropertyValue("a", superClass.getPrefix().getPrefix() + superClass.getName()));
+			}
 
 		String insertQuery = QueryUtility.constructInsertQuery(
-				Prefixes.IOT_PLATFORM.getPrefix() + groupName.toLowerCase(), groupClass, htblPropValue);
+				Prefixes.IOT_PLATFORM.getPrefix() + groupName.toLowerCase(), groupClass, prefixedPropertyValue);
 
 		try {
 

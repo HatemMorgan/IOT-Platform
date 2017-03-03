@@ -20,6 +20,7 @@ public class DeveloperController {
 	@RequestMapping(value = "/developer/{applicationNameCode}", method = RequestMethod.POST)
 	public Hashtable<String, Object> insertNewDeveloper(@PathVariable("applicationNameCode") String applicationNameCode,
 			@RequestBody Hashtable<String, Object> htblPropValue) {
+		System.out.println(htblPropValue);
 		Hashtable<String, Object> responseJSON = developerService.insertDeveloper(htblPropValue, applicationNameCode);
 		return responseJSON;
 	}

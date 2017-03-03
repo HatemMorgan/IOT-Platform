@@ -15,7 +15,8 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.Organization;
-import com.iotplatform.utilities.QueryResultUtility;
+import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.utilities.QueryUtility;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
@@ -25,11 +26,11 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class OrganizationDao {
 
 	private Oracle oracle;
-	private QueryResultUtility queryResultUtility;
+	private SelectionUtility queryResultUtility;
 	private Organization organizationClass;
 
 	@Autowired
-	public OrganizationDao(Oracle oracle, QueryResultUtility queryResultUtility, Organization organizationClass) {
+	public OrganizationDao(Oracle oracle, SelectionUtility queryResultUtility, Organization organizationClass) {
 		this.oracle = oracle;
 		this.queryResultUtility = queryResultUtility;
 		this.organizationClass = organizationClass;
@@ -40,22 +41,25 @@ public class OrganizationDao {
 	 * application model
 	 */
 
-	public void insertOrganization(Hashtable<String, Object> htblPropValue, String applicationModelName) {
+	public void insertOrganization(ArrayList<PropertyValue> prefixedPropertyValue, String applicationModelName,
+			String organizationName) {
 
-		String organizationName = htblPropValue.get("foaf:name").toString()
-				.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "").replaceAll(" ", "");
+		organizationName = organizationName.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "")
+				.replaceAll(" ", "");
 
 		/*
-		 * get all superClasses of organization class to identify that the new instance
-		 * is also an instance of all super classes of organizationClass
+		 * get all superClasses of organization class to identify that the new
+		 * instance is also an instance of all super classes of
+		 * organizationClass
 		 */
-		
+
 		for (Class superClass : organizationClass.getSuperClassesList()) {
-			htblPropValue.put("a", superClass.getPrefix().getPrefix() + superClass.getName());
+			prefixedPropertyValue
+					.add(new PropertyValue("a", superClass.getPrefix().getPrefix() + superClass.getName()));
 		}
 
 		String insertQuery = QueryUtility.constructInsertQuery(
-				Prefixes.IOT_PLATFORM.getPrefix() + organizationName.toLowerCase(), organizationClass, htblPropValue);
+				Prefixes.IOT_PLATFORM.getPrefix() + organizationName.toLowerCase(), organizationClass, prefixedPropertyValue);
 
 		try {
 
@@ -98,8 +102,8 @@ public class OrganizationDao {
 				 * as long as the current subject equal to subject got from the
 				 * results then add the property and value to the organization's
 				 * hashtable . If they are not the same this means that this is
-				 * a new organization so we have to construct a new hashtable to hold
-				 * it data
+				 * a new organization so we have to construct a new hashtable to
+				 * hold it data
 				 */
 
 				// skip rdf:type property

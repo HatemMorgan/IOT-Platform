@@ -14,12 +14,12 @@ import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.validations.RequestValidation;
 
 @Component
-public class QueryResultUtility {
+public class SelectionUtility {
 
 	RequestValidation requestValidation;
 
 	@Autowired
-	public QueryResultUtility(RequestValidation requestValidation) {
+	public SelectionUtility(RequestValidation requestValidation) {
 		this.requestValidation = requestValidation;
 	}
 

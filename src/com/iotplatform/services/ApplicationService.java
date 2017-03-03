@@ -1,5 +1,6 @@
 package com.iotplatform.services;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -14,6 +15,7 @@ import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.classes.Application;
+import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.validations.RequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -72,11 +74,11 @@ public class ApplicationService {
 
 		try {
 
-			Hashtable<String, Object> htblPrefixedPropertyValue = requestValidation.isRequestValid(applicationName,
+			ArrayList<PropertyValue> prefixedPropertyValue  = requestValidation.isRequestValid(applicationName,
 					applicationClass, htblPropValue);
 			try {
 
-				applicationDao.insertApplication(htblPrefixedPropertyValue, applicationName);
+				applicationDao.insertApplication(prefixedPropertyValue, applicationName);
 				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 				SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application", timeTaken);
 				return successModel.getResponseJson();
@@ -118,7 +120,7 @@ public class ApplicationService {
 		htblPropValue.put("name", "Test Application");
 		htblPropValue.put("description", "Test App Description");
 
-		applicationDao.dropApplicationModel("Test Application");
+//		applicationDao.dropApplicationModel("Test Application");
 
 		Hashtable<String, Object> res = applicationService.insertApplication(htblPropValue);
 		System.out.println(res.toString());

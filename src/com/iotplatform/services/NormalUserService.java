@@ -1,19 +1,30 @@
 package com.iotplatform.services;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.iotplatform.daos.AdminDao;
 import com.iotplatform.daos.ApplicationDao;
+import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.NormalUserDao;
+import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
+import com.iotplatform.ontology.classes.Admin;
+import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.NormalUser;
+import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.RequestValidation;
+
+import oracle.spatial.rdf.client.jena.Oracle;
 
 @Service("normalUserService")
 public class NormalUserService {
@@ -61,12 +72,15 @@ public class NormalUserService {
 
 		try {
 
-			Hashtable<String, Object> htblPrefixedPropertyValue = requestValidation.isRequestValid(applicationNameCode,
+			ArrayList<PropertyValue> prefixedPropertyValue = requestValidation.isRequestValid(applicationNameCode,
 					normalUserClass, htblPropValue);
 
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-			normalUserDao.insertNormalUser(htblPrefixedPropertyValue, applicationModelName);
+			String userName = htblPropValue.get("userName").toString();
+
+			normalUserDao.insertNormalUser(prefixedPropertyValue, applicationModelName, userName);
+
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Normal User", timeTaken);
 			return successModel.getResponseJson();
@@ -79,10 +93,10 @@ public class NormalUserService {
 	}
 
 	/*
-	 * getNormalUsers method check if the application model is correct then it calls
-	 * normalUserDao to get all normalUsers of this application
+	 * getNormalUsers method check if the application model is correct then it
+	 * calls normalUserDao to get all normalUsers of this application
 	 */
-	public Hashtable<String, Object> getNormalUsers (String applicationNameCode) {
+	public Hashtable<String, Object> getNormalUsers(String applicationNameCode) {
 
 		long startTime = System.currentTimeMillis();
 		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
@@ -110,6 +124,59 @@ public class NormalUserService {
 			return new SuccessfullSelectAllJsonModel(e.getExceptionHashTable(timeTaken)).getJson();
 
 		}
+	}
+	
+	public static void main(String[] args) {
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(szJdbcDriver);
+		dataSource.setUrl(szJdbcURL);
+		dataSource.setUsername(szUser);
+		dataSource.setPassword(szPasswd);
+
+		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+
+		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+
+		ValidationDao validationDao = new ValidationDao(oracle);
+
+		NormalUser normalUserClass = new NormalUser();
+
+		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
+
+		NormalUserDao normalUserDao = new NormalUserDao(oracle, new SelectionUtility(requestValidation), normalUserClass);
+
+		Hashtable<String, Object> htblPropValue = new Hashtable<>();
+		htblPropValue.put("age", 20);
+		htblPropValue.put("firstName", "Omar");
+		htblPropValue.put("middleName", "Hassan");
+		htblPropValue.put("familyName", "Tag");
+		htblPropValue.put("birthday", "27/2/1995");
+		htblPropValue.put("gender", "Male");
+		htblPropValue.put("title", "Engineer");
+		htblPropValue.put("userName", "OmarTag");
+		
+		Object[] emails = { "omartagguv@gmail.com", "omar.tag@student.guc.edu.eg" };
+		htblPropValue.put("mbox", emails);
+		
+		htblPropValue.put("usesApplication", "TESTAPPLICATION");
+		htblPropValue.put("knows", "HatemMorgan");
+		htblPropValue.put("hates", "HatemMorgan");
+
+		NormalUserService normalUserService = new NormalUserService(requestValidation, new ApplicationDao(oracle, new Application()),
+				normalUserDao, normalUserClass);
+
+		Hashtable<String, Object> res = normalUserService.insertNormalUser(htblPropValue, "TESTAPPLICATION");
+
+//		 Hashtable<String, Object>[] json = (Hashtable<String,
+//		 Object>[])res.get("errors");
+//		 System.out.println(json[0].toString());
+
+		System.out.println(res.toString());
 	}
 
 }

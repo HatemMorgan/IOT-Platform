@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Repository;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.classes.Application;
+import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.QueryUtility;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -110,45 +113,21 @@ public class ApplicationDao {
 	 * (eg:iot-plaform:applicationDescription) and the object of the property as
 	 * the value
 	 */
-	public void insertApplication(Hashtable<String, Object> htblPropValue, String applicationName) {
+	public void insertApplication(ArrayList<PropertyValue> prefixedPropertyValue, String applicationName) {
 		String applicationModelName = applicationName.replaceAll(" ", "").toUpperCase() + suffix;
 
-		ModelOracleSem model;
+		String subject = applicationName.replaceAll(" ", "").toLowerCase();
+
+		String insertQuery = QueryUtility.constructInsertQuery(Prefixes.IOT_PLATFORM.getPrefix() + subject,
+				applicationClass, prefixedPropertyValue);
 		try {
-			model = ModelOracleSem.createOracleSemModel(oracle, applicationModelName);
-			Set<String> propertyNameList = htblPropValue.keySet();
-			Iterator<String> iterator = propertyNameList.iterator();
 
-			String subject = Prefixes.IOT_PLATFORM.getPrefix() + applicationName.replaceAll(" ", "").toLowerCase();
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append(
-					"PREFIX " + Prefixes.IOT_PLATFORM.getPrefix() + "<" + Prefixes.IOT_PLATFORM.getUri() + ">\n");
-			stringBuilder.append("PREFIX " + Prefixes.XSD.getPrefix() + "<" + Prefixes.XSD.getUri() + ">\n");
-			stringBuilder.append("PREFIX " + Prefixes.FOAF.getPrefix() + "<" + Prefixes.FOAF.getUri() + ">\n");
-			stringBuilder.append("INSERT DATA { \n");
-			stringBuilder.append(subject + " a " + "<" + applicationClass.getUri() + "> ; \n");
-			while (iterator.hasNext()) {
-				String property = iterator.next();
-				Object value = htblPropValue.get(property);
-
-				/*
-				 * check if it is the last propertyValue to be inserted inorder
-				 * to end the query
-				 */
-
-				if (iterator.hasNext()) {
-					stringBuilder.append(property + " " + value + " ; \n");
-				} else {
-					stringBuilder.append(property + " " + value + " . \n }");
-				}
-
-			}
-			System.out.println(stringBuilder.toString());
-			UpdateAction.parseExecute(stringBuilder.toString(), model);
+			ModelOracleSem model = ModelOracleSem.createOracleSemModel(oracle, applicationModelName);
+			UpdateAction.parseExecute(insertQuery, model);
 			model.close();
 
-		} catch (SQLException e1) {
-			throw new DatabaseException(e1.getMessage(), "Application");
+		} catch (SQLException e) {
+			throw new DatabaseException(e.getMessage(), "Application");
 		}
 
 	}
