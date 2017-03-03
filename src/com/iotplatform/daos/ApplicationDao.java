@@ -6,8 +6,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Set;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.update.UpdateAction;

@@ -26,13 +26,13 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class AdminDao {
 
 	private Oracle oracle;
-	private SelectionUtility queryResultUtility;
+	private SelectionUtility selectionUtility;
 	private Admin adminClass;
 
 	@Autowired
-	public AdminDao(Oracle oracle, SelectionUtility queryResultUtility, Admin adminClass) {
+	public AdminDao(Oracle oracle, SelectionUtility selectionUtility, Admin adminClass) {
 		this.oracle = oracle;
-		this.queryResultUtility = queryResultUtility;
+		this.selectionUtility = selectionUtility;
 		this.adminClass = adminClass;
 	}
 
@@ -43,7 +43,7 @@ public class AdminDao {
 	public void insertAdmin(ArrayList<PropertyValue> prefixedPropertyValue, String applicationModelName,
 			String userName) {
 
-		 userName = userName.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
+		userName = userName.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
 
 		/*
 		 * get all superClasses of admin class to identify that the new instance
@@ -57,8 +57,7 @@ public class AdminDao {
 
 		String insertQuery = QueryUtility.constructInsertQuery(
 				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), adminClass, prefixedPropertyValue);
-		
-		
+
 		try {
 
 			ModelOracleSem model = ModelOracleSem.createOracleSemModel(oracle, applicationModelName);
@@ -84,49 +83,17 @@ public class AdminDao {
 		List<Hashtable<String, Object>> adminsList = new ArrayList<>();
 
 		try {
-			ResultSet res = oracle.executeQuery(queryString, 0, 1);
-			Hashtable<Object, Hashtable<String, Object>> temp = new Hashtable<>();
-			while (res.next()) {
+			ResultSet results = oracle.executeQuery(queryString, 0, 1);
 
-				Object subject = res.getObject(1);
-				if (temp.size() == 0) {
-					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
-					temp.put(subject, htblAdminPropVal);
-					adminsList.add(htblAdminPropVal);
-				}
-
-				/*
-				 * as long as the current subject equal to subject got from the
-				 * results then add the property and value to the admin's
-				 * hashtable . If they are not the same this means that this is
-				 * a new admin so we have to construct a new hashtable to hold
-				 * it data
-				 */
-
-				// skip rdf:type property
-				if (res.getString(2).equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
-					continue;
-				}
-				Object[] preparedPropVal = queryResultUtility.constructQueryResult(applicationName, res.getString(2),
-						res.getString(3), adminClass);
-				String propertyName = preparedPropVal[0].toString();
-				Object value = preparedPropVal[1];
-
-				if (temp.containsKey(subject)) {
-					temp.get(subject).put(propertyName, value);
-				} else {
-
-					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
-					temp.put(subject, htblAdminPropVal);
-					temp.get(subject).put(propertyName, value);
-					adminsList.add(htblAdminPropVal);
-
-				}
-
-			}
+			/*
+			 * call constractResponeJsonObjectForListSelection method in
+			 * selectionUtility class to construct the response json
+			 */
+			
+			adminsList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
+					adminClass);
 
 		} catch (SQLException e) {
-			e.printStackTrace();
 			throw new DatabaseException(e.getMessage(), "Admin");
 		}
 

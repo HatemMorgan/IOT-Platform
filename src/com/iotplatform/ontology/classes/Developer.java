@@ -23,9 +23,9 @@ public class Developer extends Person {
 		super.getSuperClassesList().add(Person.getPersonInstance());
 	}
 
-	public static void main(String[] args) {
-		Developer developer = new Developer();
-
-	}
+//	public static void main(String[] args) {
+//		Developer developer = new Developer();
+//
+//	}
 
 }

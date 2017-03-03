@@ -26,13 +26,13 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class NormalUserDao {
 
 	private Oracle oracle;
-	private SelectionUtility queryResultUtility;
+	private SelectionUtility selectionUtility;
 	private NormalUser normalUserClass;
 
 	@Autowired
-	public NormalUserDao(Oracle oracle, SelectionUtility queryResultUtility, NormalUser normalUserClass) {
+	public NormalUserDao(Oracle oracle, SelectionUtility selectionUtility, NormalUser normalUserClass) {
 		this.oracle = oracle;
-		this.queryResultUtility = queryResultUtility;
+		this.selectionUtility = selectionUtility;
 		this.normalUserClass = normalUserClass;
 	}
 
@@ -43,18 +43,17 @@ public class NormalUserDao {
 	public void insertNormalUser(ArrayList<PropertyValue> prefixedPropertyValue, String applicationModelName,
 			String userName) {
 
-		 userName = userName.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
-
+		userName = userName.replace(XSDDataTypes.string_typed.getXsdType(), "").replaceAll("\"", "");
 
 		/*
 		 * get all superClasses of normalUser class to identify that the new
 		 * instance is also an instance of all super classes of normalUserClass
 		 */
 
-		 for (Class superClass : normalUserClass.getSuperClassesList()) {
-				prefixedPropertyValue
-						.add(new PropertyValue("a", superClass.getPrefix().getPrefix() + superClass.getName()));
-			}
+		for (Class superClass : normalUserClass.getSuperClassesList()) {
+			prefixedPropertyValue
+					.add(new PropertyValue("a", superClass.getPrefix().getPrefix() + superClass.getName()));
+		}
 
 		String insertQuery = QueryUtility.constructInsertQuery(
 				Prefixes.IOT_PLATFORM.getPrefix() + userName.toLowerCase(), normalUserClass, prefixedPropertyValue);
@@ -82,50 +81,16 @@ public class NormalUserDao {
 
 		String queryString = QueryUtility.constructSelectAllQueryNoFilters(normalUserClass, applicationModelName);
 		List<Hashtable<String, Object>> normalUsersList = new ArrayList<>();
-		long startTime = System.currentTimeMillis();
 
 		try {
-			ResultSet res = oracle.executeQuery(queryString, 0, 1);
-			Hashtable<Object, Hashtable<String, Object>> temp = new Hashtable<>();
-			while (res.next()) {
+			ResultSet results = oracle.executeQuery(queryString, 0, 1);
+			/*
+			 * call constractResponeJsonObjectForListSelection method in
+			 * selectionUtility class to construct the response json
+			 */
 
-				Object subject = res.getObject(1);
-				if (temp.size() == 0) {
-					Hashtable<String, Object> htblNormalUserPropVal = new Hashtable<>();
-					temp.put(subject, htblNormalUserPropVal);
-					normalUsersList.add(htblNormalUserPropVal);
-				}
-
-				/*
-				 * as long as the current subject equal to subject got from the
-				 * results then add the property and value to the admin's
-				 * hashtable . If they are not the same this means that this is
-				 * a new normal user so we have to construct a new hashtable to
-				 * hold it data
-				 */
-
-				// skip rdf:type property
-				if (res.getString(2).equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
-					continue;
-				}
-
-				Object[] preparedPropVal = queryResultUtility.constructQueryResult(applicationName, res.getString(2),
-						res.getString(3), normalUserClass);
-				String propertyName = preparedPropVal[0].toString();
-				Object value = preparedPropVal[1];
-
-				if (temp.containsKey(subject)) {
-					temp.get(subject).put(propertyName, value);
-				} else {
-
-					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
-					temp.put(subject, htblAdminPropVal);
-					temp.get(subject).put(propertyName, value);
-					normalUsersList.add(htblAdminPropVal);
-
-				}
-
-			}
+			normalUsersList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
+					normalUserClass);
 
 		} catch (SQLException e) {
 			e.printStackTrace();

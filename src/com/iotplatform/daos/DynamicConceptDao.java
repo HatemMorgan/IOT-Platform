@@ -1,8 +1,6 @@
 package com.iotplatform.daos;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -21,7 +19,6 @@ import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.DynamicConceptColumns;
-import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.utilities.SqlCondition;
 
 @Repository("dynamicConceptsDao")
@@ -195,7 +192,7 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 
 				if (c < orOpColNameValueListSize - 1) {
 					stringBuilder.append(colName + " = ? OR ");
-					
+
 				} else {
 					stringBuilder.append(colName + " = ?  ");
 
@@ -208,7 +205,6 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 			stringBuilder.append(" )");
 		}
 
-		
 		System.out.println(stringBuilder.toString());
 
 		try {
@@ -242,29 +238,29 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 
 		DynamicConceptDao dao = new DynamicConceptDao(dataSource);
 
-//		 DynamicConceptModel newConcept = new
-//		 DynamicConceptModel("TestApplication", "Person",
-//		 "http://xmlns.com/foaf/0.1/Person", "http://xmlns.com/foaf/0.1/",
-//		 "foaf:",
-//		 "hates", "http://xmlns.com/foaf/0.1/hates",
-//		 "http://xmlns.com/foaf/0.1/", "foaf:",
-//		 PropertyType.ObjectProperty.toString(), "Person");
+		// DynamicConceptModel newConcept = new
+		// DynamicConceptModel("TestApplication", "Person",
+		// "http://xmlns.com/foaf/0.1/Person", "http://xmlns.com/foaf/0.1/",
+		// "foaf:",
+		// "hates", "http://xmlns.com/foaf/0.1/hates",
+		// "http://xmlns.com/foaf/0.1/", "foaf:",
+		// PropertyType.ObjectProperty.toString(), "Person");
 
-//		 DynamicConceptModel newConcept = new
-//		 DynamicConceptModel("TestApplication", "Developer",
-//		 "http://iot-platform#Developer", "http://iot-platform#",
-//		 "iot-platform:",
-//		 "love", "http://iot-platform#love",
-//		 "http://iot-platform#", "iot-platform:",
-//		 PropertyType.ObjectProperty.toString(), "Person");
-		
-//		 System.out.println(dao.insertNewConcept(newConcept));
+		// DynamicConceptModel newConcept = new
+		// DynamicConceptModel("TestApplication", "Developer",
+		// "http://iot-platform#Developer", "http://iot-platform#",
+		// "iot-platform:",
+		// "love", "http://iot-platform#love",
+		// "http://iot-platform#", "iot-platform:",
+		// PropertyType.ObjectProperty.toString(), "Person");
+
+		// System.out.println(dao.insertNewConcept(newConcept));
 		// System.out.println(dao.getConceptsOfApplication("testapplication").toString());
 
 		ArrayList<SqlCondition> orConditionList = new ArrayList<>();
 
 		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Person"));
-		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString() , "Developer"));
+		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Developer"));
 
 		System.out.println(dao.getConceptsOfApplicationByFilters("TESTAPPLICATION", null, orConditionList).toString());
 	}

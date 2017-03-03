@@ -27,13 +27,13 @@ public class DeveloperDao {
 
 	private Oracle oracle;
 	private Developer developerClass;
-	private SelectionUtility queryResultUtility;
+	private SelectionUtility selectionUtility;
 
 	@Autowired
-	public DeveloperDao(Oracle oracle, Developer developerClass, SelectionUtility queryResultUtility) {
+	public DeveloperDao(Oracle oracle, Developer developerClass, SelectionUtility selectionUtility) {
 		this.oracle = oracle;
 		this.developerClass = developerClass;
-		this.queryResultUtility = queryResultUtility;
+		this.selectionUtility = selectionUtility;
 	}
 
 	/*
@@ -83,57 +83,18 @@ public class DeveloperDao {
 		String queryString = QueryUtility.constructSelectAllQueryNoFilters(developerClass, applicationModelName);
 		System.out.println(queryString);
 		List<Hashtable<String, Object>> developersList = new ArrayList<>();
-		long startTime = System.currentTimeMillis();
 
 		try {
-			ResultSet res = oracle.executeQuery(queryString, 0, 1);
-			Hashtable<Object, Hashtable<String, Object>> temp = new Hashtable<>();
-			while (res.next()) {
-
-				Object subject = res.getObject(1);
-				if (temp.size() == 0) {
-					Hashtable<String, Object> htblDeveloperPropVal = new Hashtable<>();
-					temp.put(subject, htblDeveloperPropVal);
-					developersList.add(htblDeveloperPropVal);
-				}
-
-				/*
-				 * as long as the current subject equal to subject got from the
-				 * results then add the property and value to the developer's
-				 * hashtable . If they are not the same this means that this is
-				 * a new developer so we have to construct a new hashtable to
-				 * hold it data
-				 */
-
-				// skip rdf:type property
-				if (res.getString(2).equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
-					continue;
-				}
-				Object[] preparedPropVal = queryResultUtility.constructQueryResult(applicationName, res.getString(2),
-						res.getString(3), developerClass);
-				String propertyName = preparedPropVal[0].toString();
-				Object value = preparedPropVal[1];
-
-				if (temp.containsKey(subject)) {
-					temp.get(subject).put(propertyName, value);
-				} else {
-
-					Hashtable<String, Object> htblDeveloperPropVal = new Hashtable<>();
-					temp.put(subject, htblDeveloperPropVal);
-					temp.get(subject).put(propertyName, value);
-					developersList.add(htblDeveloperPropVal);
-
-				}
-
-			}
+			ResultSet results = oracle.executeQuery(queryString, 0, 1);
 
 			/*
-			 * Add the last htblDeveloperPropVal to the list because it will not
-			 * enter the else part as the loop will terminate
+			 * call constractResponeJsonObjectForListSelection method in
+			 * selectionUtility class to construct the response json
 			 */
 
-			System.out.println(
-					"test selecting: elapsed time (sec): " + ((System.currentTimeMillis() - startTime) / 1000.0));
+			developersList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
+					developerClass);
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new DatabaseException(e.getMessage(), "Developer");
