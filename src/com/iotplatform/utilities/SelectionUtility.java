@@ -49,9 +49,11 @@ public class SelectionUtility {
 			requestValidation.getDynamicProperties(applicationName, subjectClass);
 			propertyName = subjectClass.getHtblPropUriName().get(propertyURI);
 
-			// System.out.println(propertyName);
-			// System.out.println(propertyURI);
+			
 		}
+		
+		System.out.println(propertyName);
+		System.out.println(propertyURI);
 		Property property = subjectClass.getProperties().get(propertyName);
 
 		if (property instanceof ObjectProperty) {
@@ -160,50 +162,66 @@ public class SelectionUtility {
 				 * created value array
 				 */
 
-				if (multipleValuePropNameValueArr.containsKey(propertyName)) {
+				if (temp.containsKey(subject)) {
 
-					multipleValuePropNameValueArr.get(propertyName).add(value);
+					if (temp.get(subject).containsKey(propertyName)) {
+
+						((ArrayList) temp.get(subject).get(propertyName)).add(value);
+					} else {
+
+						/*
+						 * property was not added before so create a new
+						 * arraylist of objects to hold values and add it to
+						 * multipleValuePropNameValueArr hashtable
+						 */
+
+						ArrayList<Object> valueList = new ArrayList<>();
+						valueList.add(value);
+						temp.get(subject).put(propertyName, valueList);
+					}
 				} else {
+					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
+					temp.put(subject, htblAdminPropVal);
 
-					/*
-					 * property was not added before so create a new arraylist
-					 * of objects to hold values and add it to
-					 * multipleValuePropNameValueArr hashtable
-					 */
+					if (temp.get(subject).containsKey(propertyName)) {
 
-					ArrayList<Object> valueList = new ArrayList<>();
-					valueList.add(value);
-					multipleValuePropNameValueArr.put(propertyName, valueList);
+						((ArrayList) temp.get(subject).get(propertyName)).add(value);
+					} else {
 
+						/*
+						 * property was not added before so create a new
+						 * arraylist of objects to hold values and add it to
+						 * multipleValuePropNameValueArr hashtable
+						 */
+
+						ArrayList<Object> valueList = new ArrayList<>();
+						valueList.add(value);
+						temp.get(subject).put(propertyName, valueList);
+					}
+					responseJson.add(htblAdminPropVal);
 				}
 
-				/*
-				 * set value Object to arraylist of property values
-				 */
-
-				value = multipleValuePropNameValueArr.get(propertyName);
-			}
-
-			/*
-			 * as long as the current subject equal to subject got from the
-			 * results then add the property and value to the hashtable . If
-			 * they are not the same this means that this is a new subject so we
-			 * have to construct a new hashtable to hold its data
-			 */
-
-			if (temp.containsKey(subject)) {
-				temp.get(subject).put(propertyName, value);
 			} else {
 
-				Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
-				temp.put(subject, htblAdminPropVal);
-				temp.get(subject).put(propertyName, value);
-				responseJson.add(htblAdminPropVal);
+				/*
+				 * as long as the current subject equal to subject got from the
+				 * results then add the property and value to the hashtable . If
+				 * they are not the same this means that this is a new subject
+				 * so we have to construct a new hashtable to hold its data
+				 */
 
+				if (temp.containsKey(subject)) {
+					temp.get(subject).put(propertyName, value);
+				} else {
+
+					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
+					temp.put(subject, htblAdminPropVal);
+					temp.get(subject).put(propertyName, value);
+					responseJson.add(htblAdminPropVal);
+
+				}
 			}
-
 		}
-		System.out.println(responseJson.get(0).toString());
 		return responseJson;
 	}
 

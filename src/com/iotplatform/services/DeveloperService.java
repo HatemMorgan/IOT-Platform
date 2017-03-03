@@ -76,8 +76,8 @@ public class DeveloperService {
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
 			String userName = htblPropValue.get("userName").toString();
-			
-			developerDao.insertDeveloper(prefixedPropertyValue, applicationModelName,userName);
+
+			developerDao.insertDeveloper(prefixedPropertyValue, applicationModelName, userName);
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Developer", timeTaken);
 			return successModel.getResponseJson();
@@ -155,37 +155,40 @@ public class DeveloperService {
 
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		htblPropValue.put("age", 20);
-		htblPropValue.put("firstName", "Omar");
-		htblPropValue.put("middleName", "Hassan");
-		htblPropValue.put("familyName", "Tag");
-		htblPropValue.put("birthday", "27/2/1995");
+		htblPropValue.put("firstName", "Hatem");
+		htblPropValue.put("middleName", "ELsayed");
+		htblPropValue.put("familyName", "Morgan");
+		htblPropValue.put("birthday", "27/7/1995");
 		htblPropValue.put("gender", "Male");
 		htblPropValue.put("title", "Engineer");
-		htblPropValue.put("userName", "OmarTag");
+		htblPropValue.put("userName", "HatemMorgan");
 
-		Object[] emails = { "omartagguv@gmail.com", "omar.tag@student.guc.edu.eg" };
-		htblPropValue.put("mbox", emails);
+		ArrayList<Object> emailList = new ArrayList<>();
+		emailList.add("hatemmorgan17@gmail.com");
+		emailList.add("hatem.el-sayed@student.guc.edu.eg");
+
+		htblPropValue.put("mbox", emailList);
 
 		htblPropValue.put("developedApplication", "TESTAPPLICATION");
-//		htblPropValue.put("knows", "HatemMorgan");
-//		htblPropValue.put("hates", "HatemMorgan");
-//		htblPropValue.put("job", "Engineeer");
+		// htblPropValue.put("knows", "HatemMorgan");
+		// htblPropValue.put("hates", "HatemMorgan");
+		// htblPropValue.put("job", "Engineeer");
 
-		// Hashtable<String, Object> res = developerService.getDevelopers("test
-		// Application");
-		// System.out.println(res.get("results"));
+		Hashtable<String, Object> res = developerService.getDevelopers("testApplication");
+		System.out.println(res.get("results"));
 
 		// System.out.println("===================================");
 		// System.out.println(developerClass.getProperties().toString());
 		// System.out.println("===================================");
 
-		Hashtable<String, Object> resInsertion = developerService.insertDeveloper(htblPropValue, "test Application");
+		// Hashtable<String, Object> resInsertion =
+		// developerService.insertDeveloper(htblPropValue, "test Application");
 
-		
-		Hashtable<String, Object>[] json = (Hashtable<String, Object>[]) resInsertion.get("errors");
-		System.out.println(json[0].toString());
+		// Hashtable<String, Object>[] json = (Hashtable<String, Object>[])
+		// resInsertion.get("errors");
+		// System.out.println(json[0].toString());
 
-//		 System.out.println(resInsertion.toString());
+		// System.out.println(resInsertion.toString());
 
 	}
 }

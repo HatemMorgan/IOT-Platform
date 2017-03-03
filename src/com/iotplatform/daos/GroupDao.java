@@ -57,7 +57,7 @@ public class GroupDao {
 
 		String insertQuery = QueryUtility.constructInsertQuery(
 				Prefixes.IOT_PLATFORM.getPrefix() + groupName.toLowerCase(), groupClass, prefixedPropertyValue);
-
+		System.out.println(insertQuery);
 		try {
 
 			ModelOracleSem model = ModelOracleSem.createOracleSemModel(oracle, applicationModelName);

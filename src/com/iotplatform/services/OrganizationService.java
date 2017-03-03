@@ -166,11 +166,11 @@ public class OrganizationService {
 		OrganizationService organizationService = new OrganizationService(requestValidation,
 				new ApplicationDao(oracle, new Application()), organizationDao, organizationClass);
 
-		Hashtable<String, Object> res = organizationService.getOrganizations("test application");
+//		Hashtable<String, Object> res = organizationService.getOrganizations("test application");
 
-		// Hashtable<String, Object> res =
-		// organizationService.insertOrganization(htblPropValue,
-		// "TESTAPPLICATION");
+		 Hashtable<String, Object> res =
+		 organizationService.insertOrganization(htblPropValue,
+		 "TESTAPPLICATION");
 
 		// Hashtable<String, Object>[] json = (Hashtable<String,
 		// Object>[])res.get("errors");

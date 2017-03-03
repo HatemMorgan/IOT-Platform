@@ -34,6 +34,7 @@ import com.iotplatform.ontology.classes.Person;
 import com.iotplatform.utilities.InsertionUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SqlCondition;
+import com.iotplatform.utilities.ValueOfTypeClass;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -342,10 +343,10 @@ public class RequestValidation {
 	 * that has the responsibility to query application model and check if there
 	 * is an instance with the specified name and type
 	 */
-	private boolean isObjectValuePropertyValid(String applicationName, Hashtable<Class, Object> htblClassValue)
+	private boolean isObjectValuePropertyValid(String applicationName, ArrayList<ValueOfTypeClass> classValueList)
 			throws DatabaseException {
 
-		int result = validationDao.checkIfInstanceExsist(applicationName, htblClassValue);
+		int result = validationDao.checkIfInstanceExsist(applicationName, classValueList);
 		boolean found = (result == 1) ? true : false;
 		return found;
 
@@ -407,7 +408,7 @@ public class RequestValidation {
 	private ArrayList<PropertyValue> isProrpertyValueValid(ArrayList<PropertyValue> propertyValueList,
 			Class subjectClass, String applicationName) {
 
-		Hashtable<Class, Object> htblClassValue = new Hashtable<>();
+		ArrayList<ValueOfTypeClass> classValueList = new ArrayList<>();
 		
 		ArrayList<PropertyValue> prefixedPropertyValueList = new ArrayList<>();
 
@@ -423,7 +424,7 @@ public class RequestValidation {
 			 * requestValidationDao
 			 */
 			if (property instanceof ObjectProperty) {
-				htblClassValue.put(((ObjectProperty) property).getObject(), value);
+				classValueList.add(new ValueOfTypeClass(((ObjectProperty) property).getObject(), value));
 
 			} else {
 
@@ -448,8 +449,8 @@ public class RequestValidation {
 		 * check for property value type of objectProperties
 		 */
 
-		if (htblClassValue.size() > 0) {
-			boolean isValid = isObjectValuePropertyValid(applicationName, htblClassValue);
+		if (classValueList.size() > 0) {
+			boolean isValid = isObjectValuePropertyValid(applicationName, classValueList);
 
 			if (!isValid) {
 				throw new InvalidPropertyValuesException(subjectClass.getName());

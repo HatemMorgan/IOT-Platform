@@ -160,8 +160,11 @@ public class NormalUserService {
 		htblPropValue.put("title", "Engineer");
 		htblPropValue.put("userName", "OmarTag");
 		
-		Object[] emails = { "omartagguv@gmail.com", "omar.tag@student.guc.edu.eg" };
-		htblPropValue.put("mbox", emails);
+		ArrayList<Object> emailList = new ArrayList<>();
+		emailList.add("omartagguv@gmail.com");
+		emailList.add("omar.tag@student.guc.edu.eg" );
+		
+		htblPropValue.put("mbox", emailList);
 		
 		htblPropValue.put("usesApplication", "TESTAPPLICATION");
 		htblPropValue.put("knows", "HatemMorgan");

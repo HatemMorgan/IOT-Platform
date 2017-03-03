@@ -155,7 +155,7 @@ public class GroupService {
 		htblPropValue.put("description", "Developers Group is a group for all developers in the application");
 
 		ArrayList<Object> members = new ArrayList<>();
-		members.add("KhaledElzeeny");
+		members.add("OmarTag");
 		members.add("HatemMorgan");
 
 		htblPropValue.put("member", members);
@@ -163,16 +163,15 @@ public class GroupService {
 		GroupService groupService = new GroupService(requestValidation, new ApplicationDao(oracle, new Application()),
 				groupDao, groupClass);
 
-		// Hashtable<String, Object> Admins =
-		// groupService.getGroups("TESTAPPLICATION");
-		// System.out.println(Admins);
+		Hashtable<String, Object> groups = groupService.getGroups("TESTAPPLICATION");
+		System.out.println(groups);
 
-		Hashtable<String, Object> res = groupService.insertGroup(htblPropValue, "TESTAPPLICATION");
+//		Hashtable<String, Object> res = groupService.insertGroup(htblPropValue, "TESTAPPLICATION");
 
 //		Hashtable<String, Object>[] json = (Hashtable<String, Object>[]) res.get("errors");
 //		System.out.println(json[0].toString());
 
-		 System.out.println(res.toString());
+//		 System.out.println(res.toString());
 	}
 
 }
