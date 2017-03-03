@@ -18,6 +18,8 @@ public class DynamicConceptModel {
 	private String property_prefix_alias;
 	private String property_type;
 	private String property_object_type;
+	private int isUnique;
+	private int hasMultipleValues;
 
 	@JsonCreator
 	public DynamicConceptModel(@JsonProperty("applicationName") String application_name,
@@ -28,7 +30,8 @@ public class DynamicConceptModel {
 			@JsonProperty("propertyPrefixURI") String property_prefix_uri,
 			@JsonProperty("propertyPrefixAlias") String property_prefix_alias,
 			@JsonProperty("propertyType") String property_type,
-			@JsonProperty("propertyObjectType") String property_object_type) {
+			@JsonProperty("propertyObjectType") String property_object_type, @JsonProperty("isUnique") int isUnique,
+			@JsonProperty("hasMultipleValues") int hasMultipleValues) {
 
 		this.application_name = application_name;
 		this.class_name = class_name;
@@ -41,6 +44,8 @@ public class DynamicConceptModel {
 		this.property_prefix_alias = property_prefix_alias;
 		this.property_type = property_type;
 		this.property_object_type = property_object_type;
+		this.hasMultipleValues = hasMultipleValues;
+		this.isUnique = isUnique;
 	}
 
 	public DynamicConceptModel() {
@@ -135,13 +140,30 @@ public class DynamicConceptModel {
 		this.property_object_type = property_object_type;
 	}
 
+	public int getIsUnique() {
+		return isUnique;
+	}
+
+	public void setIsUnique(int isUnique) {
+		this.isUnique = isUnique;
+	}
+
+	public int getHasMultipleValues() {
+		return hasMultipleValues;
+	}
+
+	public void setHasMultipleValues(int hasMultipleValues) {
+		this.hasMultipleValues = hasMultipleValues;
+	}
+
 	@Override
 	public String toString() {
 		return "DynamicConceptModel [application_name=" + application_name + ", class_name=" + class_name
 				+ ", class_uri=" + class_uri + ", class_prefix_uri=" + class_prefix_uri + ", class_prefix_alias="
 				+ class_prefix_alias + ", property_name=" + property_name + ", property_uri=" + property_uri
 				+ ", property_prefix_uri=" + property_prefix_uri + ", property_prefix_alias=" + property_prefix_alias
-				+ ", property_type=" + property_type + ", property_object_type=" + property_object_type + "]";
+				+ ", property_type=" + property_type + ", property_object_type=" + property_object_type + ", isUnique="
+				+ isUnique + ", hasMultipleValues=" + hasMultipleValues + "]";
 	}
 
 }

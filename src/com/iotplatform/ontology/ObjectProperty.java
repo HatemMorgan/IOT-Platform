@@ -7,16 +7,17 @@ package com.iotplatform.ontology;
 public class ObjectProperty extends Property {
 	private Class object;
 
-	public ObjectProperty(String name, Prefixes prefix, Class object,boolean mulitpleValues,boolean unique) {
-		super(name, prefix,mulitpleValues,unique);
+	public ObjectProperty(String name, Prefixes prefix, Class object, boolean mulitpleValues, boolean unique) {
+		super(name, prefix, mulitpleValues, unique);
 		this.object = object;
 	}
 
-	public ObjectProperty(String name, Prefixes prefix, Class object,String applicationName) {
-		super(name, prefix,applicationName);
+	public ObjectProperty(String name, Prefixes prefix, Class object, String applicationName, int mulitpleValues,
+			int unique) {
+		super(name, prefix, applicationName, mulitpleValues, unique);
 		this.object = object;
 	}
-	
+
 	public Class getObject() {
 		return object;
 	}
@@ -26,5 +27,4 @@ public class ObjectProperty extends Property {
 		return "ObjectProperty [object=" + object + "]";
 	}
 
-	
 }

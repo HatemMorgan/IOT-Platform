@@ -19,6 +19,7 @@ import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.DynamicConceptColumns;
+import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.utilities.SqlCondition;
 
 @Repository("dynamicConceptsDao")
@@ -67,14 +68,13 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 				+ "class_name VARCHAR(50), class_uri VARCHAR(150), class_prefix_uri VARCHAR(150),"
 				+ "class_prefix_alias VARCHAR(20), property_name VARCHAR(50), property_uri VARCHAR(150),"
 				+ "property_prefix_uri VARCHAR(150), property_prefix_alias VARCHAR(50),"
-				+ "property_type VARCHAR(20), property_object_type VARCHAR(20),"
+				+ "property_type VARCHAR(20), property_object_type VARCHAR(20),isUnique NUMBER(1,0) ,"
+				+ " hasMultipleValues NUMBER(1,0),"
 				+ "CONSTRAINT dynamic_concept_table_uk PRIMARY KEY(application_name,class_uri,property_uri) )";
 		try {
 			jdbcTemplate.execute(queryString);
 		} catch (DataAccessException e) {
-			System.out.println(e.getMessage());
-			System.out.println(e.getClass());
-			System.out.println(e.getStackTrace());
+			throw new DatabaseException(e.getMessage(), "Ontology");
 		}
 
 	}
@@ -86,7 +86,7 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 	 */
 	public int insertNewConcept(DynamicConceptModel newDynamicConcept) {
 
-		String queryString = "INSERT INTO DYNAMIC_CONCEPTS VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+		String queryString = "INSERT INTO DYNAMIC_CONCEPTS VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		String modelConventionName = newDynamicConcept.getApplication_name().replaceAll(" ", "").toUpperCase();
 		try {
 			int count = jdbcTemplate.update(queryString,
@@ -95,7 +95,8 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 							newDynamicConcept.getClass_prefix_alias(), newDynamicConcept.getProperty_name(),
 							newDynamicConcept.getProperty_uri(), newDynamicConcept.getProperty_prefix_uri(),
 							newDynamicConcept.getProperty_prefix_alias(), newDynamicConcept.getProperty_type(),
-							newDynamicConcept.getProperty_object_type() });
+							newDynamicConcept.getProperty_object_type(), newDynamicConcept.getIsUnique(),
+							newDynamicConcept.getHasMultipleValues() });
 			return count;
 		} catch (DuplicateKeyException duplicateKeyException) {
 			throw new DatabaseException(
@@ -238,24 +239,24 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 
 		DynamicConceptDao dao = new DynamicConceptDao(dataSource);
 
-		// DynamicConceptModel newConcept = new
-		// DynamicConceptModel("TestApplication", "Person",
-		// "http://xmlns.com/foaf/0.1/Person", "http://xmlns.com/foaf/0.1/",
-		// "foaf:",
-		// "hates", "http://xmlns.com/foaf/0.1/hates",
-		// "http://xmlns.com/foaf/0.1/", "foaf:",
-		// PropertyType.ObjectProperty.toString(), "Person");
+//		 DynamicConceptModel newConcept = new
+//		 DynamicConceptModel("TestApplication", "Person",
+//		 "http://xmlns.com/foaf/0.1/Person", "http://xmlns.com/foaf/0.1/",
+//		 "foaf:",
+//		 "hates", "http://xmlns.com/foaf/0.1/hates",
+//		 "http://xmlns.com/foaf/0.1/", "foaf:",
+//		 PropertyType.ObjectProperty.toString(), "Person",0,1);
 
-		// DynamicConceptModel newConcept = new
-		// DynamicConceptModel("TestApplication", "Developer",
-		// "http://iot-platform#Developer", "http://iot-platform#",
-		// "iot-platform:",
-		// "love", "http://iot-platform#love",
-		// "http://iot-platform#", "iot-platform:",
-		// PropertyType.ObjectProperty.toString(), "Person");
-
-		// System.out.println(dao.insertNewConcept(newConcept));
-		// System.out.println(dao.getConceptsOfApplication("testapplication").toString());
+//		 DynamicConceptModel newConcept = new
+//		 DynamicConceptModel("TestApplication", "Developer",
+//		 "http://iot-platform#Developer", "http://iot-platform#",
+//		 "iot-platform:",
+//		 "love", "http://iot-platform#love",
+//		 "http://iot-platform#", "iot-platform:",
+//		 PropertyType.ObjectProperty.toString(), "Person",0,1);
+//
+//		 System.out.println(dao.insertNewConcept(newConcept));
+//		 System.out.println(dao.getConceptsOfApplication("testapplication").toString());
 
 		ArrayList<SqlCondition> orConditionList = new ArrayList<>();
 

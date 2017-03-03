@@ -20,11 +20,23 @@ public abstract class Property {
 		this.unique = unique;
 	}
 
-	public Property(String name, Prefixes prefix, String applicationName) {
+	public Property(String name, Prefixes prefix, String applicationName, int mulitpleValues, int unique) {
 
 		this.name = name;
 		this.prefix = prefix;
 		this.applicationName = applicationName;
+
+		if (mulitpleValues == 1) {
+			this.mulitpleValues = true;
+		} else {
+			this.mulitpleValues = false;
+		}
+
+		if (unique == 1) {
+			this.unique = true;
+		} else {
+			this.unique = false;
+		}
 	}
 
 	public String getName() {

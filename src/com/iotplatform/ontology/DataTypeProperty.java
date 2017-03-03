@@ -6,20 +6,20 @@ package com.iotplatform.ontology;
  */
 public class DataTypeProperty extends Property {
 
-	
-
 	private XSDDataTypes dataType;
 
-	public DataTypeProperty(String name, Prefixes prefix, XSDDataTypes dataType,boolean mulitpleValues,boolean unique) {
-		super(name, prefix,mulitpleValues,unique);
+	public DataTypeProperty(String name, Prefixes prefix, XSDDataTypes dataType, boolean mulitpleValues,
+			boolean unique) {
+		super(name, prefix, mulitpleValues, unique);
 		this.dataType = dataType;
 	}
 
-	public DataTypeProperty(String name, Prefixes prefix, XSDDataTypes dataType,String applicationName) {
-		super(name, prefix,applicationName);
+	public DataTypeProperty(String name, Prefixes prefix, XSDDataTypes dataType, String applicationName,
+			int mulitpleValues, int unique) {
+		super(name, prefix, applicationName, mulitpleValues, unique);
 		this.dataType = dataType;
 	}
-	
+
 	public XSDDataTypes getDataType() {
 		return dataType;
 	}

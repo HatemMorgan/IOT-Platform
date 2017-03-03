@@ -49,11 +49,8 @@ public class SelectionUtility {
 			requestValidation.getDynamicProperties(applicationName, subjectClass);
 			propertyName = subjectClass.getHtblPropUriName().get(propertyURI);
 
-			
 		}
-		
-		System.out.println(propertyName);
-		System.out.println(propertyURI);
+
 		Property property = subjectClass.getProperties().get(propertyName);
 
 		if (property instanceof ObjectProperty) {
