@@ -2,6 +2,7 @@ package com.iotplatform.daos;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.utilities.ValueOfTypeClass;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -32,8 +34,8 @@ public class ValidationDao {
 	 * is not available to maintain the consistency and integrity of the data
 	 */
 
-	public int checkIfInstanceExsist(String applicationName, Hashtable<Class, Object> htblClassValue) {
-		String queryString = constructQuery(applicationName, htblClassValue);
+	public int checkIfInstanceExsist(String applicationName, ArrayList<ValueOfTypeClass> classValueList) {
+		String queryString = constructQuery(applicationName, classValueList);
 		System.out.println(queryString);
 		try {
 			ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
@@ -62,46 +64,43 @@ public class ValidationDao {
 	 * ,'http://iot-platform#')),null));
 	 */
 
-	private String constructQuery(String applicationName, Hashtable<Class, Object> htblClassValue) {
+	private String constructQuery(String applicationName, ArrayList<ValueOfTypeClass> classValueList) {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("select found from table(sem_match('select (count(*) as ?found) where{");
 		StringBuilder prefixStringBuilder = new StringBuilder();
-		Iterator<Class> iterator = htblClassValue.keySet().iterator();
 
-		while (iterator.hasNext()) {
-
-			Class valueClassType = iterator.next();
-			Object value = htblClassValue.get(valueClassType);
+		for (ValueOfTypeClass valueOfTypeClass : classValueList) {
+			Class valueClassType = valueOfTypeClass.getTypeClass();
+			Object value = valueOfTypeClass.getValue();
 
 			/*
-			 * (iot-plaform:developer,iot-platform:Admin,iot-platform:
-			 * NormalUser) are subclasses of foaf:Person so any instance of it
-			 * must have a prefix of iot-platform: so to check if an instance of
-			 * Developer is a Person we have to do the following
-			 * 
-			 * iot-platform:hatemmorgan a foaf:Person
+			 * any instance created has the prefix of iot-platform so the
+			 * subject will have the iot-platform prefix
 			 */
 
 			String subject = Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase();
-
 			String object = valueClassType.getPrefix().getPrefix() + valueClassType.getName();
-
-			int counter = 0;
-
-			for (Prefixes prefix : Prefixes.values()) {
-				if (counter == 8) {
-					prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "')");
-				} else {
-					prefixStringBuilder
-							.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "'),");
-				}
-
-				counter++;
-			}
 
 			stringBuilder.append(subject + " a " + object + " . \n");
 
 		}
+
+		int counter = 0;
+
+		for (Prefixes prefix : Prefixes.values()) {
+			/*
+			 * 8 because there are only 9 prefixes and the counter started from
+			 * 0
+			 */
+			if (counter == 8) {
+				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "')");
+			} else {
+				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "'),");
+			}
+
+			counter++;
+		}
+
 		String modelName = applicationName.replaceAll(" ", "").toUpperCase() + suffix;
 		stringBuilder.append("}',sem_models('" + modelName + "'),null,");
 		stringBuilder.append("SEM_ALIASES(" + prefixStringBuilder.toString() + "),null))");
