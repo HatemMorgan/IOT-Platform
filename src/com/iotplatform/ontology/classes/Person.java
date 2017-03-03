@@ -69,7 +69,7 @@ public class Person extends Agent {
 		this.getProperties().put("title", new DataTypeProperty("title", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
 		this.getProperties().put("userName",
 				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed,false,true));
-		this.getProperties().put("knows", new ObjectProperty("knows", Prefixes.FOAF, Person.getPersonInstance(),false,false));
+		this.getProperties().put("knows", new ObjectProperty("knows", Prefixes.FOAF, Person.getPersonInstance(),true,false));
 
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "age", "age");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "birthday", "birthday");
