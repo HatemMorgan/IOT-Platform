@@ -4,18 +4,27 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.iotplatform.daos.AdminDao;
 import com.iotplatform.daos.ApplicationDao;
+import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.GroupDao;
+import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
+import com.iotplatform.ontology.classes.Admin;
+import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Group;
 import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.RequestValidation;
+
+import oracle.spatial.rdf.client.jena.Oracle;
 
 @Service("GroupService")
 public class GroupService {
@@ -69,8 +78,8 @@ public class GroupService {
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
 			String groupName = htblPropValue.get("name").toString();
-			
-			groupDao.insertGroup(prefixedPropertyValue, applicationModelName,groupName);
+
+			groupDao.insertGroup(prefixedPropertyValue, applicationModelName, groupName);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Group", timeTaken);
@@ -115,6 +124,55 @@ public class GroupService {
 			return new SuccessfullSelectAllJsonModel(e.getExceptionHashTable(timeTaken)).getJson();
 
 		}
+	}
+
+	public static void main(String[] args) {
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(szJdbcDriver);
+		dataSource.setUrl(szJdbcURL);
+		dataSource.setUsername(szUser);
+		dataSource.setPassword(szPasswd);
+
+		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+
+		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+
+		ValidationDao validationDao = new ValidationDao(oracle);
+
+		Group groupClass = new Group();
+
+		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
+
+		GroupDao groupDao = new GroupDao(oracle, new SelectionUtility(requestValidation), groupClass);
+
+		Hashtable<String, Object> htblPropValue = new Hashtable<>();
+		htblPropValue.put("name", "Developers Group");
+		htblPropValue.put("description", "Developers Group is a group for all developers in the application");
+
+		ArrayList<Object> members = new ArrayList<>();
+		members.add("KhaledElzeeny");
+		members.add("HatemMorgan");
+
+		htblPropValue.put("member", members);
+
+		GroupService groupService = new GroupService(requestValidation, new ApplicationDao(oracle, new Application()),
+				groupDao, groupClass);
+
+		// Hashtable<String, Object> Admins =
+		// groupService.getGroups("TESTAPPLICATION");
+		// System.out.println(Admins);
+
+		Hashtable<String, Object> res = groupService.insertGroup(htblPropValue, "TESTAPPLICATION");
+
+//		Hashtable<String, Object>[] json = (Hashtable<String, Object>[]) res.get("errors");
+//		System.out.println(json[0].toString());
+
+		 System.out.println(res.toString());
 	}
 
 }

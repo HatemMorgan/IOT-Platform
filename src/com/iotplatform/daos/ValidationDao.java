@@ -68,8 +68,6 @@ public class ValidationDao {
 		StringBuilder prefixStringBuilder = new StringBuilder();
 		Iterator<Class> iterator = htblClassValue.keySet().iterator();
 
-		Hashtable<String, String> htblPrefixes = new Hashtable<>();
-
 		while (iterator.hasNext()) {
 
 			Class valueClassType = iterator.next();
@@ -87,35 +85,18 @@ public class ValidationDao {
 			String subject = Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase();
 
 			String object = valueClassType.getPrefix().getPrefix() + valueClassType.getName();
-			Prefixes prefix = valueClassType.getPrefix();
-			String alias;
 
-			/*
-			 * iot-lite and iot-platform prefixes does not have the alias that
-			 * is correct so I must change _ to - in order to have a correct
-			 * auto query construction
-			 */
-			switch (prefix) {
-			case IOT_LITE:
-				alias = "iot-lite";
-				break;
-			case IOT_PLATFORM:
-				alias = "iot-platform";
-				break;
-			default:
-				alias = prefix.toString().toLowerCase();
-			}
+			int counter = 0;
 
-			String uri = valueClassType.getPrefix().getUri();
-
-			if (!htblPrefixes.containsKey(prefix)) {
-				htblPrefixes.put(alias, uri);
-
-				if (iterator.hasNext()) {
-					prefixStringBuilder.append("SEM_ALIAS('" + alias + "','" + uri + "'),");
+			for (Prefixes prefix : Prefixes.values()) {
+				if (counter == 8) {
+					prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "')");
 				} else {
-					prefixStringBuilder.append("SEM_ALIAS('" + alias + "','" + uri + "')");
+					prefixStringBuilder
+							.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "'),");
 				}
+
+				counter++;
 			}
 
 			stringBuilder.append(subject + " a " + object + " . \n");

@@ -1,8 +1,6 @@
 package com.iotplatform.utilities;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
@@ -36,7 +34,7 @@ public class QueryUtility {
 
 		int counter = 0;
 		int size = propValueList.size();
-		
+
 		for (PropertyValue propertyValue : propValueList) {
 
 			String prefixedPropStr = propertyValue.getPropertyName();
@@ -45,7 +43,7 @@ public class QueryUtility {
 			/*
 			 * check if it is the last property value to end the query
 			 */
-			if (counter < size-1 ) {
+			if (counter < size - 1) {
 				stringBuilder.append(prefixedPropStr + "	" + value + " ;\n");
 			} else {
 				stringBuilder.append(prefixedPropStr + "	" + value + " . \n }");
@@ -66,9 +64,9 @@ public class QueryUtility {
 
 		for (Prefixes prefix : Prefixes.values()) {
 			if (counter == 8) {
-				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefix() + "','" + prefix.getUri() + "')");
+				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "')");
 			} else {
-				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefix() + "','" + prefix.getUri() + "'),");
+				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "'),");
 			}
 
 			counter++;
