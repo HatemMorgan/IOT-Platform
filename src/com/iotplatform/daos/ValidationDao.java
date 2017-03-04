@@ -36,16 +36,35 @@ public class ValidationDao {
 	 * is not available to maintain the consistency and integrity of the data.
 	 * 
 	 * It also check if there is no unique constraint violation
+	 * 
+	 * The query will return two variables isUnique and isFound
+	 * 
+	 * isUnique returns the number of statements that match the graph patterns
+	 * and filter conditions added to the subquery so if isUnique variable
+	 * greater than zero then there is a unique constraint violation
+	 * 
+	 * isFound return the number of statements that match the graph patterns
+	 * added to the subquery . if isFound variable is 0 then there is some or
+	 * all objectValues does not exist so it violates the data integrity
+	 * constraint
 	 */
 
-	public int checkIfInstanceExsist(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
-			ArrayList<PropertyValue> uniquePropValueList) {
-		String queryString = constructQuery(applicationName, classValueList, uniquePropValueList);
+	public boolean hasConstraintViolations(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
+			ArrayList<PropertyValue> uniquePropValueList, Class subjectClass) {
+		String queryString = constructViolationsCheckQueryStr(applicationName, classValueList, uniquePropValueList,
+				subjectClass);
 		System.out.println(queryString);
 		try {
 			ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
 			resultSet.next();
-			return resultSet.getInt(1);
+			int integrityCheck = resultSet.getInt(1);
+			int uniquenessCheck = resultSet.getInt(2);
+
+			if (integrityCheck == 0 || uniquenessCheck != 0) {
+				return false;
+			} else {
+				return true;
+			}
 
 		} catch (SQLException e) {
 			throw new DatabaseException(e.getMessage(), "Application");
@@ -72,28 +91,20 @@ public class ValidationDao {
 	 * ,'http://iot-platform#')),null));
 	 */
 
-	private String constructQuery(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
-			ArrayList<PropertyValue> uniquePropValueList) {
+	private String constructViolationsCheckQueryStr(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
+			ArrayList<PropertyValue> uniquePropValueList, Class subjectClass) {
 
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("select found from table(sem_match('select (count(*) as ?found) where{");
+		stringBuilder.append("select isFound,isUnique from table(sem_match('select ?isFound ?isUnique where{ ");
 		StringBuilder prefixStringBuilder = new StringBuilder();
 
-		for (ValueOfTypeClass valueOfTypeClass : classValueList) {
-			Class valueClassType = valueOfTypeClass.getTypeClass();
-			Object value = valueOfTypeClass.getValue();
+		String dataIntegrityConstraintVoilationCheckSubQueryStr = constructIntegrityConstraintCheckSubQuery(
+				classValueList);
+		String datauniqueConstraintViolationCheckSubQueryStr = constructUniqueContstraintCheckSubQueryStr(
+				uniquePropValueList, subjectClass);
 
-			/*
-			 * any instance created has the prefix of iot-platform so the
-			 * subject will have the iot-platform prefix
-			 */
-
-			String subject = Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase();
-			String object = valueClassType.getPrefix().getPrefix() + valueClassType.getName();
-
-			stringBuilder.append(subject + " a " + object + " . \n");
-
-		}
+		stringBuilder.append(dataIntegrityConstraintVoilationCheckSubQueryStr + "  "
+				+ datauniqueConstraintViolationCheckSubQueryStr);
 
 		int counter = 0;
 
@@ -127,13 +138,13 @@ public class ValidationDao {
 	private String constructIntegrityConstraintCheckSubQuery(ArrayList<ValueOfTypeClass> classValueList) {
 
 		StringBuilder stringBuilder = new StringBuilder();
-		
+
 		/*
 		 * start of the subQuery
 		 */
 
 		stringBuilder.append("{ SELECT (COUNT(*) as ?isFound ) WHERE { ");
-		
+
 		for (ValueOfTypeClass valueOfTypeClass : classValueList) {
 			Class valueClassType = valueOfTypeClass.getTypeClass();
 			Object value = valueOfTypeClass.getValue();
@@ -146,10 +157,10 @@ public class ValidationDao {
 			String subject = Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase();
 			String object = valueClassType.getPrefix().getPrefix() + valueClassType.getName();
 
-			stringBuilder.append(subject + " a " + object + " . \n");
+			stringBuilder.append(subject + " a " + object + " . ");
 
 		}
-		
+
 		/*
 		 * complete end of the subquery structure
 		 */
@@ -179,7 +190,7 @@ public class ValidationDao {
 		 */
 
 		stringBuilder.append("{ SELECT (COUNT(*) as ?isUnique ) WHERE { ");
-		stringBuilder.append("?subject a " + subjectClass.getUri() + " ; ");
+		stringBuilder.append("?subject a <" + subjectClass.getUri() + "> ; ");
 
 		/*
 		 * start of filter part
@@ -267,20 +278,32 @@ public class ValidationDao {
 		ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL, szUser, szPasswd));
 
 		ArrayList<PropertyValue> uniquePropValueList = new ArrayList<>();
-		uniquePropValueList.add(new PropertyValue("foaf:userName", "HatemMorgan"));
-		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatemmorgan17@gmail.com"));
-		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatem.el-sayed@student.guc.edu.eg"));
+		
+		// those will not voilate any constraints
+		uniquePropValueList.add(new PropertyValue("foaf:userName", "HatemMorgans"));
+		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatemmorgan17s@gmail.com"));
+		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatem.el-sayedl@student.guc.edu.eg"));
+		
+		// those will violate uniqueness constraint
+//		uniquePropValueList.add(new PropertyValue("foaf:userName", "HatemMorgan"));
+//		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatemmorgan17@gmail.com"));
+//		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatem.el-sayed@student.guc.edu.eg"));
+		
 
 		ArrayList<ValueOfTypeClass> classValueList = new ArrayList<>();
 		classValueList.add(new ValueOfTypeClass(new Application(), "testapplication"));
-		// // this will fail the check
 		classValueList.add(new ValueOfTypeClass(new Person(), "hatemmorgan"));
+		
+		 // this will fail the check
+//		classValueList.add(new ValueOfTypeClass(new Person(), "hatem"));
 		try {
-			System.out.println(validationDao.constructIntegrityConstraintCheckSubQuery(classValueList));
-			// System.out.println(validationDao.constructUniqueContstraintCheckSubQueryStr(uniquePropValueList,
+			// System.out.println(validationDao.constructIntegrityConstraintCheckSubQuery(classValueList));
+			// System.out.println(
+			// validationDao.constructUniqueContstraintCheckSubQueryStr(uniquePropValueList,
 			// new Person()));
-			// System.out.println(validationDao.checkIfInstanceExsist("testApplication",
-			// htblClassValue));
+//			System.out.println(validationDao.constructViolationsCheckQueryStr("test application", classValueList,
+//					uniquePropValueList, new Person()));
+			 System.out.println(validationDao.hasConstraintViolations("testApplication", classValueList, uniquePropValueList, new Person()));
 		} catch (DatabaseException e) {
 			System.out.println(e.getCode());
 			System.out.println(e.getMessage());
