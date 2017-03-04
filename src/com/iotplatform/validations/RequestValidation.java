@@ -460,7 +460,7 @@ public class RequestValidation {
 			 */
 
 			propertyValue.setPropertyName(getPropertyPrefixAlias(property) + property.getName());
-			propertyValue.setValue(getValue(property, value));
+			propertyValue.setValue(getValue(property, value.toString().replaceAll(" ", "").toLowerCase()));
 
 			prefixedPropertyValueList.add(propertyValue);
 		}

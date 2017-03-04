@@ -152,17 +152,17 @@ public class NormalUserService {
 
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		htblPropValue.put("age", 20);
-		htblPropValue.put("firstName", "Omar");
-		htblPropValue.put("middleName", "Hassan");
-		htblPropValue.put("familyName", "Tag");
+		htblPropValue.put("firstName", "Mohamed");
+		htblPropValue.put("middleName", "Ebrahim");
+		htblPropValue.put("familyName", "Gomaa");
 		htblPropValue.put("birthday", "27/2/1995");
 		htblPropValue.put("gender", "Male");
 		htblPropValue.put("title", "Engineer");
-		htblPropValue.put("userName", "OmarTag");
+		htblPropValue.put("userName", "MohamedIbrahim");
 		
 		ArrayList<Object> emailList = new ArrayList<>();
-		emailList.add("omartagguv@gmail.com");
-		emailList.add("omar.tag@student.guc.edu.eg" );
+		emailList.add("hima@gmail.com");
+		emailList.add("mohamed.ibrahim@student.guc.edu.eg" );
 		
 		htblPropValue.put("mbox", emailList);
 		

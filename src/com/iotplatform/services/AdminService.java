@@ -164,21 +164,21 @@ public class AdminService {
 		htblPropValue.put("mbox", emailList);
 		
 		htblPropValue.put("adminOf", "TESTAPPLICATION");
-//		htblPropValue.put("knows", "HatemMorgan");
-//		htblPropValue.put("hates", "HatemMorgan");
+		htblPropValue.put("knows", "HatemMorgan");
+		htblPropValue.put("hates", "HatemMorgan");
 
 		AdminService adminService = new AdminService(requestValidation, new ApplicationDao(oracle, new Application()),
 				adminDao, adminClass);
 
-		Hashtable<String, Object> Admins = adminService.getAdmins("TESTAPPLICATION");
-		System.out.println(Admins);
+//		Hashtable<String, Object> Admins = adminService.getAdmins("TESTAPPLICATION");
+//		System.out.println(Admins);
 		
-//		Hashtable<String, Object> res = adminService.insertAdmin(htblPropValue, "TESTAPPLICATION");
+		Hashtable<String, Object> res = adminService.insertAdmin(htblPropValue, "TESTAPPLICATION");
 
 //		 Hashtable<String, Object>[] json = (Hashtable<String,
 //		 Object>[])res.get("errors");
 //		 System.out.println(json[0].toString());
 
-//		System.out.println(res.toString());
+		System.out.println(res.toString());
 	}
 }
