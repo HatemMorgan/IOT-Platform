@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Person;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.ValueOfTypeClass;
@@ -127,6 +128,12 @@ public class ValidationDao {
 
 		StringBuilder stringBuilder = new StringBuilder();
 		
+		/*
+		 * start of the subQuery
+		 */
+
+		stringBuilder.append("{ SELECT (COUNT(*) as ?isFound ) WHERE { ");
+		
 		for (ValueOfTypeClass valueOfTypeClass : classValueList) {
 			Class valueClassType = valueOfTypeClass.getTypeClass();
 			Object value = valueOfTypeClass.getValue();
@@ -142,6 +149,12 @@ public class ValidationDao {
 			stringBuilder.append(subject + " a " + object + " . \n");
 
 		}
+		
+		/*
+		 * complete end of the subquery structure
+		 */
+
+		stringBuilder.append(" }} ");
 
 		return stringBuilder.toString();
 	}
@@ -258,12 +271,12 @@ public class ValidationDao {
 		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatemmorgan17@gmail.com"));
 		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatem.el-sayed@student.guc.edu.eg"));
 
-		// System.out.println(Prefixes.SSN.toString().toLowerCase());
-		// Hashtable<Class, Object> htblClassValue = new Hashtable<>();
-		// htblClassValue.put(new Application(), "testapplication");
+		ArrayList<ValueOfTypeClass> classValueList = new ArrayList<>();
+		classValueList.add(new ValueOfTypeClass(new Application(), "testapplication"));
 		// // this will fail the check
-		// htblClassValue.put(new Person(), "Hatem");
+		classValueList.add(new ValueOfTypeClass(new Person(), "hatemmorgan"));
 		try {
+			System.out.println(validationDao.constructIntegrityConstraintCheckSubQuery(classValueList));
 			// System.out.println(validationDao.constructUniqueContstraintCheckSubQueryStr(uniquePropValueList,
 			// new Person()));
 			// System.out.println(validationDao.checkIfInstanceExsist("testApplication",
