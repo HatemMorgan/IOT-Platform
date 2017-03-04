@@ -61,15 +61,15 @@ public class ValidationDao {
 			resultSet.next();
 			int integrityCheck = resultSet.getInt(1);
 			int uniquenessCheck = resultSet.getInt(2);
-			
-			if(integrityCheck == 0){
+
+			if (integrityCheck == 0) {
 				throw new InvalidPropertyValuesException(subjectClass.getName());
 			}
-			
-			if(uniquenessCheck != 0){
+
+			if (uniquenessCheck != 0) {
 				throw new UniqueConstraintViolationException(subjectClass.getName());
 			}
-			
+
 			return true;
 
 		} catch (SQLException e) {
@@ -104,13 +104,16 @@ public class ValidationDao {
 		stringBuilder.append("select isFound,isUnique from table(sem_match('select ?isFound ?isUnique where{ ");
 		StringBuilder prefixStringBuilder = new StringBuilder();
 
-		if(classValueList.size() > 0)
-		String dataIntegrityConstraintVoilationCheckSubQueryStr = constructIntegrityConstraintCheckSubQuery(
-				classValueList);
-		
-		if(uniquePropValueList.size() >0)
-		String datauniqueConstraintViolationCheckSubQueryStr = constructUniqueContstraintCheckSubQueryStr(
-				uniquePropValueList, subjectClass);
+		String dataIntegrityConstraintVoilationCheckSubQueryStr = "";
+		String datauniqueConstraintViolationCheckSubQueryStr = "";
+
+		if (classValueList.size() > 0)
+			dataIntegrityConstraintVoilationCheckSubQueryStr = constructIntegrityConstraintCheckSubQuery(
+					classValueList);
+
+		if (uniquePropValueList.size() > 0)
+			datauniqueConstraintViolationCheckSubQueryStr = constructUniqueContstraintCheckSubQueryStr(
+					uniquePropValueList, subjectClass);
 
 		stringBuilder.append(dataIntegrityConstraintVoilationCheckSubQueryStr + "  "
 				+ datauniqueConstraintViolationCheckSubQueryStr);
@@ -287,32 +290,36 @@ public class ValidationDao {
 		ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL, szUser, szPasswd));
 
 		ArrayList<PropertyValue> uniquePropValueList = new ArrayList<>();
-		
+
 		// those will not voilate any constraints
 		uniquePropValueList.add(new PropertyValue("foaf:userName", "HatemMorgans"));
 		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatemmorgan17s@gmail.com"));
 		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatem.el-sayedl@student.guc.edu.eg"));
-		
+
 		// those will violate uniqueness constraint
-//		uniquePropValueList.add(new PropertyValue("foaf:userName", "HatemMorgan"));
-//		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatemmorgan17@gmail.com"));
-//		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatem.el-sayed--@student.guc.edu.eg"));
-		
+		// uniquePropValueList.add(new PropertyValue("foaf:userName",
+		// "HatemMorgan"));
+		// uniquePropValueList.add(new PropertyValue("foaf:mbox",
+		// "hatemmorgan17@gmail.com"));
+		// uniquePropValueList.add(new PropertyValue("foaf:mbox",
+		// "hatem.el-sayed--@student.guc.edu.eg"));
 
 		ArrayList<ValueOfTypeClass> classValueList = new ArrayList<>();
 		classValueList.add(new ValueOfTypeClass(new Application(), "testapplication"));
 		classValueList.add(new ValueOfTypeClass(new Person(), "hatemmorgan"));
-		
-		 // this will fail the check
-//		classValueList.add(new ValueOfTypeClass(new Person(), "hatem"));
+
+		// this will fail the check
+		// classValueList.add(new ValueOfTypeClass(new Person(), "hatem"));
 		try {
 			// System.out.println(validationDao.constructIntegrityConstraintCheckSubQuery(classValueList));
 			// System.out.println(
 			// validationDao.constructUniqueContstraintCheckSubQueryStr(uniquePropValueList,
 			// new Person()));
-//			System.out.println(validationDao.constructViolationsCheckQueryStr("test application", classValueList,
-//					uniquePropValueList, new Person()));
-			 System.out.println(validationDao.hasConstraintViolations("testApplication", classValueList, uniquePropValueList, new Person()));
+			// System.out.println(validationDao.constructViolationsCheckQueryStr("test
+			// application", classValueList,
+			// uniquePropValueList, new Person()));
+			System.out.println(validationDao.hasConstraintViolations("testApplication", classValueList,
+					uniquePropValueList, new Person()));
 		} catch (DatabaseException e) {
 			System.out.println(e.getCode());
 			System.out.println(e.getMessage());
