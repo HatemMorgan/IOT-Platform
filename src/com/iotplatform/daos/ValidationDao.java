@@ -118,6 +118,35 @@ public class ValidationDao {
 	}
 
 	/*
+	 * constructIntegrityConstraintCheckSubQuery method takes a list of
+	 * objectProperties values and construct a subquery that checks that the
+	 * object are valid (the passed objectValue exist in the applicationModel)
+	 */
+
+	private String constructIntegrityConstraintCheckSubQuery(ArrayList<ValueOfTypeClass> classValueList) {
+
+		StringBuilder stringBuilder = new StringBuilder();
+		
+		for (ValueOfTypeClass valueOfTypeClass : classValueList) {
+			Class valueClassType = valueOfTypeClass.getTypeClass();
+			Object value = valueOfTypeClass.getValue();
+
+			/*
+			 * any instance created has the prefix of iot-platform so the
+			 * subject will have the iot-platform prefix
+			 */
+
+			String subject = Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase();
+			String object = valueClassType.getPrefix().getPrefix() + valueClassType.getName();
+
+			stringBuilder.append(subject + " a " + object + " . \n");
+
+		}
+
+		return stringBuilder.toString();
+	}
+
+	/*
 	 * constructUniqueContstraintCheckSubQueryStr method takes a list of
 	 * properties that must have unique value and the value inserted to check if
 	 * there is a similar value that will violate unique constraint
