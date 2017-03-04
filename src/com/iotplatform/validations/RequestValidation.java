@@ -469,7 +469,7 @@ public class RequestValidation {
 		 * check for property value type of objectProperties
 		 */
 
-		if (classValueList.size() > 0) {
+		if (classValueList.size() > 0 || uniquePropValueList.size() > 0) {
 
 			/*
 			 * check if there are any constraints violations if there are any
@@ -487,7 +487,7 @@ public class RequestValidation {
 
 		}
 
-		return null;
+		return prefixedPropertyValueList;
 
 	}
 

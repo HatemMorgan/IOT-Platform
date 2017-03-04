@@ -59,15 +59,21 @@ public class ValidationDao {
 		try {
 			ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
 			resultSet.next();
-			int integrityCheck = resultSet.getInt(1);
-			int uniquenessCheck = resultSet.getInt(2);
 
-			if (integrityCheck == 0) {
-				throw new InvalidPropertyValuesException(subjectClass.getName());
+			Object integrityCheck = resultSet.getObject("isFound");
+			Object uniquenessCheck = resultSet.getObject("isUnique");
+
+			if (integrityCheck != null) {
+				if (Integer.parseInt(integrityCheck.toString()) == 0) {
+					throw new InvalidPropertyValuesException(subjectClass.getName());
+				}
+
 			}
 
-			if (uniquenessCheck != 0) {
-				throw new UniqueConstraintViolationException(subjectClass.getName());
+			if (uniquenessCheck != null) {
+				if (Integer.parseInt(uniquenessCheck.toString()) != 0) {
+					throw new UniqueConstraintViolationException(subjectClass.getName());
+				}
 			}
 
 			return true;

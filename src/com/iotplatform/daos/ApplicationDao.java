@@ -115,7 +115,6 @@ public class ApplicationDao {
 		String applicationModelName = applicationName.replaceAll(" ", "").toUpperCase() + suffix;
 
 		String subject = applicationName.replaceAll(" ", "").toLowerCase();
-
 		String insertQuery = QueryUtility.constructInsertQuery(Prefixes.IOT_PLATFORM.getPrefix() + subject,
 				applicationClass, prefixedPropertyValue);
 		try {

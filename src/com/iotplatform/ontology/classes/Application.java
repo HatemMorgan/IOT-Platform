@@ -22,7 +22,7 @@ public class Application extends Class {
 
 		super.getProperties().put("description",
 				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed,false,false));
-		super.getProperties().put("name", new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed,false,true));
+		super.getProperties().put("name", new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
 
 		super.getProperties().put("fundedBy",
 				new ObjectProperty("fundedBy", Prefixes.FOAF, Organization.getOrganizationInstance(),true,false));

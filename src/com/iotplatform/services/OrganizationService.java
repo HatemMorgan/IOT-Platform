@@ -172,9 +172,9 @@ public class OrganizationService {
 		 organizationService.insertOrganization(htblPropValue,
 		 "TESTAPPLICATION");
 
-		// Hashtable<String, Object>[] json = (Hashtable<String,
-		// Object>[])res.get("errors");
-		// System.out.println(json[0].toString());
+//		 Hashtable<String, Object>[] json = (Hashtable<String,
+//		 Object>[])res.get("errors");
+//		 System.out.println(json[0].toString());
 
 		System.out.println(res.toString());
 	}

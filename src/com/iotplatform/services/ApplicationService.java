@@ -123,6 +123,8 @@ public class ApplicationService {
 //		applicationDao.dropApplicationModel("Test Application");
 
 		Hashtable<String, Object> res = applicationService.insertApplication(htblPropValue);
+//		 Hashtable<String, Object>[] json = (Hashtable<String, Object>[])res.get("errors");
+//		System.out.println(json[0].toString());
 		System.out.println(res.toString());
 
 	}
