@@ -17,7 +17,7 @@ public class Agent extends Class {
 		super(name, uri, prefix);
 
 		super.getProperties().put("mbox",
-				new DataTypeProperty("mbox", Prefixes.FOAF, XSDDataTypes.string_typed, true, false));
+				new DataTypeProperty("mbox", Prefixes.FOAF, XSDDataTypes.string_typed, true, true));
 
 		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "mbox", "mbox");
 	}

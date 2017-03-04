@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.ValidationDao;
-import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidPropertyValuesException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
@@ -485,7 +484,6 @@ public class RequestValidation {
 					subjectClass)) {
 				return prefixedPropertyValueList;
 			}
-
 
 		}
 

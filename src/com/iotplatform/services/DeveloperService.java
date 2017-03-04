@@ -153,42 +153,63 @@ public class DeveloperService {
 		DeveloperService developerService = new DeveloperService(developerDao, requestValidation, developerClass,
 				applicationDao);
 
-		Hashtable<String, Object> htblPropValue = new Hashtable<>();
-		htblPropValue.put("age", 20);
-		htblPropValue.put("firstName", "Hatem");
-		htblPropValue.put("middleName", "ELsayed");
-		htblPropValue.put("familyName", "Morgan");
-		htblPropValue.put("birthday", "27/7/1995");
-		htblPropValue.put("gender", "Male");
-		htblPropValue.put("title", "Engineer");
-		htblPropValue.put("userName", "HatemMorgan");
+//		Hashtable<String, Object> htblPropValue = new Hashtable<>();
+//		htblPropValue.put("age", 20);
+//		htblPropValue.put("firstName", "Hatem");
+//		htblPropValue.put("middleName", "ELsayed");
+//		htblPropValue.put("familyName", "Morgan");
+//		htblPropValue.put("birthday", "27/7/1995");
+//		htblPropValue.put("gender", "Male");
+//		htblPropValue.put("title", "Engineer");
+//		htblPropValue.put("userName", "HatemMorgan");
+//
+//		ArrayList<Object> emailList = new ArrayList<>();
+//		emailList.add("hatemmorgan17@gmail.com");
+//		emailList.add("hatem.el-sayed@student.guc.edu.eg");
+//
+//		htblPropValue.put("mbox", emailList);
+//
+//		htblPropValue.put("developedApplication", "TESTAPPLICATION");
+//		 htblPropValue.put("knows", "HatemMorgan");
+//		 htblPropValue.put("hates", "HatemMorgan");
+//		 htblPropValue.put("job", "Engineeer");
+		 
+		 Hashtable<String, Object> htblPropValue = new Hashtable<>();
+			htblPropValue.put("age", 21);
+			htblPropValue.put("firstName", "Haytham");
+			htblPropValue.put("middleName", "Ismail");
+			htblPropValue.put("familyName", "Khalf");
+			htblPropValue.put("birthday", "27/7/1975");
+			htblPropValue.put("gender", "Male");
+			htblPropValue.put("title", "Professor");
+			htblPropValue.put("userName", "HaythamIsmail");
 
-		ArrayList<Object> emailList = new ArrayList<>();
-		emailList.add("hatemmorgan17@gmail.com");
-		emailList.add("hatem.el-sayed@student.guc.edu.eg");
+			ArrayList<Object> emailList = new ArrayList<>();
+			emailList.add("haytham.ismail@gmail.com");
+			emailList.add("haytham.ismail@student.guc.edu.eg");
 
-		htblPropValue.put("mbox", emailList);
+			htblPropValue.put("mbox", emailList);
 
-		htblPropValue.put("developedApplication", "TESTAPPLICATION");
-		// htblPropValue.put("knows", "HatemMorgan");
-		// htblPropValue.put("hates", "HatemMorgan");
-		// htblPropValue.put("job", "Engineeer");
+			htblPropValue.put("developedApplication", "TESTAPPLICATION");
+			 htblPropValue.put("knows", "HatemMorgan");
+			 htblPropValue.put("hates", "HatemMorgan");
+			 htblPropValue.put("job", "Engineeer");
 
-		Hashtable<String, Object> res = developerService.getDevelopers("testApplication");
-		System.out.println(res.get("results"));
+//		Hashtable<String, Object> res = developerService.getDevelopers("testApplication");
+//		System.out.println(res.get("results"));
 
 		// System.out.println("===================================");
 		// System.out.println(developerClass.getProperties().toString());
 		// System.out.println("===================================");
 
-		// Hashtable<String, Object> resInsertion =
-		// developerService.insertDeveloper(htblPropValue, "test Application");
+		 Hashtable<String, Object> resInsertion =
+		 developerService.insertDeveloper(htblPropValue, "test Application");
 
-		// Hashtable<String, Object>[] json = (Hashtable<String, Object>[])
-		// resInsertion.get("errors");
-		// System.out.println(json[0].toString());
+//		 Hashtable<String, Object>[] json = (Hashtable<String, Object>[])
+//		 resInsertion.get("errors");
+//		 System.out.println(json[0].toString());
 
-		// System.out.println(resInsertion.toString());
+		 System.out.println(resInsertion.toString());
 
 	}
 }
