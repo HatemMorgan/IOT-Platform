@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.exceptions.DatabaseException;
+import com.iotplatform.exceptions.InvalidPropertyValuesException;
+import com.iotplatform.exceptions.UniqueConstraintViolationException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.classes.Application;
@@ -59,12 +61,16 @@ public class ValidationDao {
 			resultSet.next();
 			int integrityCheck = resultSet.getInt(1);
 			int uniquenessCheck = resultSet.getInt(2);
-
-			if (integrityCheck == 0 || uniquenessCheck != 0) {
-				return false;
-			} else {
-				return true;
+			
+			if(integrityCheck == 0){
+				throw new InvalidPropertyValuesException(subjectClass.getName());
 			}
+			
+			if(uniquenessCheck != 0){
+				throw new UniqueConstraintViolationException(subjectClass.getName());
+			}
+			
+			return true;
 
 		} catch (SQLException e) {
 			throw new DatabaseException(e.getMessage(), "Application");
@@ -98,8 +104,11 @@ public class ValidationDao {
 		stringBuilder.append("select isFound,isUnique from table(sem_match('select ?isFound ?isUnique where{ ");
 		StringBuilder prefixStringBuilder = new StringBuilder();
 
+		if(classValueList.size() > 0)
 		String dataIntegrityConstraintVoilationCheckSubQueryStr = constructIntegrityConstraintCheckSubQuery(
 				classValueList);
+		
+		if(uniquePropValueList.size() >0)
 		String datauniqueConstraintViolationCheckSubQueryStr = constructUniqueContstraintCheckSubQueryStr(
 				uniquePropValueList, subjectClass);
 
@@ -287,7 +296,7 @@ public class ValidationDao {
 		// those will violate uniqueness constraint
 //		uniquePropValueList.add(new PropertyValue("foaf:userName", "HatemMorgan"));
 //		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatemmorgan17@gmail.com"));
-//		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatem.el-sayed@student.guc.edu.eg"));
+//		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatem.el-sayed--@student.guc.edu.eg"));
 		
 
 		ArrayList<ValueOfTypeClass> classValueList = new ArrayList<>();

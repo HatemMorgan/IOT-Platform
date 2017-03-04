@@ -343,16 +343,19 @@ public class RequestValidation {
 	/*
 	 * isObjectValuePropertyValid method calls the validation data access object
 	 * that has the responsibility to query application model and check if there
-	 * is an instance with the specified name and type
+	 * is an instance with the specified name and type and also it checks if the
+	 * values do not violate any unique constraints
 	 */
-	private boolean isObjectValuePropertyValid(String applicationName, ArrayList<ValueOfTypeClass> classValueList)
-			throws DatabaseException {
-
-		int result = validationDao.checkIfInstanceExsist(applicationName, classValueList);
-		boolean found = (result == 1) ? true : false;
-		return found;
-
-	}
+	// private boolean isObjectValuePropertyValid(String applicationName,
+	// ArrayList<ValueOfTypeClass> classValueList,)
+	// throws DatabaseException {
+	//
+	// int result = validationDao.checkIfInstanceExsist(applicationName,
+	// classValueList);
+	// boolean found = (result == 1) ? true : false;
+	// return found;
+	//
+	// }
 
 	private Class getClassByName(String name) {
 
@@ -408,9 +411,10 @@ public class RequestValidation {
 	}
 
 	private ArrayList<PropertyValue> isProrpertyValueValid(ArrayList<PropertyValue> propertyValueList,
-			Class subjectClass, String applicationName) {
+			Class subjectClass, String applicationName) throws ErrorObjException {
 
 		ArrayList<ValueOfTypeClass> classValueList = new ArrayList<>();
+		ArrayList<PropertyValue> uniquePropValueList = new ArrayList<>();
 
 		ArrayList<PropertyValue> prefixedPropertyValueList = new ArrayList<>();
 
@@ -441,6 +445,21 @@ public class RequestValidation {
 
 			}
 
+			/*
+			 * check if the property has unique constraint to add the value and
+			 * the property to uniquePropValueList to be passed to validationDao
+			 * to check the no unique constraint violation occured
+			 */
+
+			if (property.isUnique()) {
+				uniquePropValueList
+						.add(new PropertyValue(property.getPrefix().getPrefix() + property.getName(), value));
+			}
+
+			/*
+			 * add prefix to the property inOrder to pass it for quering
+			 */
+
 			propertyValue.setPropertyName(getPropertyPrefixAlias(property) + property.getName());
 			propertyValue.setValue(getValue(property, value));
 
@@ -452,15 +471,25 @@ public class RequestValidation {
 		 */
 
 		if (classValueList.size() > 0) {
-			boolean isValid = isObjectValuePropertyValid(applicationName, classValueList);
 
-			if (!isValid) {
-				throw new InvalidPropertyValuesException(subjectClass.getName());
+			/*
+			 * check if there are any constraints violations if there are any
+			 * violations hasConstraintViolations method will throw the
+			 * appropriate error that describes the type of the violation
+			 * 
+			 * if there is no constraints violations a boolean true will be
+			 * returned
+			 */
+
+			if (validationDao.hasConstraintViolations(applicationName, classValueList, uniquePropValueList,
+					subjectClass)) {
+				return prefixedPropertyValueList;
 			}
+
 
 		}
 
-		return prefixedPropertyValueList;
+		return null;
 
 	}
 
