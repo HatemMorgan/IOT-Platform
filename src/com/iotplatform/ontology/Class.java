@@ -6,15 +6,15 @@ import java.util.Hashtable;
 /*
  * It defines Classes in ontologies which is one of the main requirements for a semantic ontology
  */
-public abstract class Class {
+public class Class {
 	private String name;
 	private String uri;
 	private Prefixes prefix;
 	private Hashtable<String, Property> properties;
-	private Hashtable<String,String> htblPropUriName;
-	
-	private ArrayList<Class> superClassesList ;
-	
+	private Hashtable<String, String> htblPropUriName;
+
+	private ArrayList<Class> superClassesList;
+
 	public Class(String name, String uri, Prefixes prefix) {
 		this.name = name;
 		this.uri = uri;
@@ -48,6 +48,4 @@ public abstract class Class {
 		return superClassesList;
 	}
 
-	
-	
 }
