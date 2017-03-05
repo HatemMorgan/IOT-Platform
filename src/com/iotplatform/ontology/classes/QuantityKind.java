@@ -1,5 +1,7 @@
 package com.iotplatform.ontology.classes;
 
+import org.springframework.stereotype.Component;
+
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
 
@@ -14,9 +16,10 @@ import com.iotplatform.ontology.Prefixes;
  * 	
  */
 
+@Component
 public class QuantityKind extends Class {
 
-	public QuantityKind(String name, String uri, Prefixes prefix) {
+	public QuantityKind() {
 		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU);
 
 		init();
