@@ -82,5 +82,7 @@ public class Person extends Agent {
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "knows", "knows");
 
 	}
-
+public static void main(String[] args) {
+	SystemClass.out.println("heree");
+}
 }

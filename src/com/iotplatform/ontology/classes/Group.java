@@ -34,6 +34,5 @@ public class Group extends Agent {
 
 	public static void main(String[] args) {
 		Group group = new Group();
-
 	}
 }
