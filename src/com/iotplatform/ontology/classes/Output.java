@@ -14,7 +14,7 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class Output extends Class {
 
-	public Output(String name, String uri, Prefixes prefix) {
+	public Output() {
 		super("Output", "http://purl.oclc.org/NET/ssnx/ssn#Output", Prefixes.SSN);
 		init();
 	}

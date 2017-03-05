@@ -15,7 +15,7 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class ObservationValue extends Class {
 
-	public ObservationValue(String name, String uri, Prefixes prefix) {
+	public ObservationValue() {
 		super("ObservationValue", "http://purl.oclc.org/NET/ssnx/ssn#ObservationValue", Prefixes.SSN);
 		init();
 

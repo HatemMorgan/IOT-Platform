@@ -15,7 +15,7 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class Metadata extends Class {
 
-	public Metadata(String name, String uri, Prefixes prefix) {
+	public Metadata() {
 		super("Metadata", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefixes.IOT_LITE);
 		init();
 	}
