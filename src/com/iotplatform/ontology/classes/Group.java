@@ -23,9 +23,9 @@ public class Group extends Agent {
 				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed,false,false));
 		super.getProperties().put("member", new ObjectProperty("member", Prefixes.FOAF,Agent.getAgentInstance(),true,false));
 		
-		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
-		this.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri()+"description", "description");
-		this.getHtblPropUriName().put(Prefixes.FOAF.getUri()+"member", "member");
+		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
+		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri()+"description", "description");
+		super.getHtblPropUriName().put(Prefixes.FOAF.getUri()+"member", "member");
 		
 		super.getSuperClassesList().add(Agent.getAgentInstance());
 
