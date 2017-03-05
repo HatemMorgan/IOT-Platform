@@ -75,11 +75,11 @@ public class test {
 			// System.out.println(staff);
 			// Convert object to JSON string
 			String jsonInString = mapper.writeValueAsString(staff2);
-			System.out.println(jsonInString);
+//			System.out.println(jsonInString);
 
 			// Convert object to JSON string and pretty print
 			jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(staff2);
-			System.out.println(jsonInString);
+//			System.out.println(jsonInString);
 
 		} catch (JsonGenerationException e) {
 			e.printStackTrace();
@@ -137,7 +137,7 @@ public class test {
 
 		Object [] arr = {"object1","object2"};
 		
-		System.out.println(arr instanceof Object[]);
+//		System.out.println(arr instanceof Object[]);
 	}
 
 }
