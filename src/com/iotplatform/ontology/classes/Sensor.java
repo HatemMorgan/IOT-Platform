@@ -2,6 +2,7 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 
 /*
@@ -54,5 +55,31 @@ public class Sensor extends Device {
 
 		// Add properties of Sensor Class
 
+		this.getProperties().put("hasQuantityKind", new ObjectProperty("hasQuantityKind", Prefixes.IOT_LITE,
+				QuantityKind.getQuantityKindInstance(), false, false));
+
+		this.getProperties().put("implements",
+				new ObjectProperty("implements", Prefixes.SSN, Sensing.getSensingInstance(), false, false));
+
+		this.getProperties().put("hasCoverage",
+				new ObjectProperty("hasCoverage", Prefixes.IOT_LITE, Coverage.getCoverageInstance(), false, false));
+
+		this.getProperties().put("hasCoverage",
+				new ObjectProperty("hasCoverage", Prefixes.IOT_LITE, Coverage.getCoverageInstance(), false, false));
+
+		this.getProperties().put("hasCoverage",
+				new ObjectProperty("hasCoverage", Prefixes.IOT_LITE, Coverage.getCoverageInstance(), false, false));
+
+		this.getProperties().put("hasCoverage",
+				new ObjectProperty("hasCoverage", Prefixes.IOT_LITE, Coverage.getCoverageInstance(), false, false));
+
+		this.getProperties().put("hasCoverage",
+				new ObjectProperty("hasCoverage", Prefixes.IOT_LITE, Coverage.getCoverageInstance(), false, false));
+
+		this.getProperties().put("hasCoverage",
+				new ObjectProperty("hasCoverage", Prefixes.IOT_LITE, Coverage.getCoverageInstance(), false, false));
+
+		this.getProperties().put("hasCoverage",
+				new ObjectProperty("hasCoverage", Prefixes.IOT_LITE, Coverage.getCoverageInstance(), false, false));
 	}
 }
