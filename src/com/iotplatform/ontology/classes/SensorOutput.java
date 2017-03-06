@@ -22,6 +22,11 @@ public class SensorOutput extends Class {
 		init();
 	}
 
+	/*
+	 * String nothing parameter is added for overloading constructor technique
+	 * because I need to initialize an instance without having properties and it
+	 * will be always passed by null
+	 */
 	public SensorOutput(String nothing) {
 		super("SensorOutput", " http://purl.oclc.org/NET/ssnx/ssn#SensorOutput", Prefixes.SSN);
 	}

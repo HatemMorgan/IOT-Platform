@@ -16,6 +16,8 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class Property extends Class {
 
+	private static Property propertyInstance;
+
 	public Property(String name, String uri, Prefixes prefix) {
 		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN);
 		init();
@@ -24,6 +26,22 @@ public class Property extends Class {
 	public Property() {
 		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN);
 		init();
+	}
+
+	/*
+	 * String nothing parameter is added for overloading constructor technique
+	 * because I need to initialize an instance without having properties and it
+	 * will be always passed by null
+	 */
+	public Property(String nothing) {
+		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN);
+	}
+
+	public synchronized static Property getPropertyInstance() {
+		if (propertyInstance == null)
+			propertyInstance = new Property();
+
+		return propertyInstance;
 	}
 
 	private void init() {
