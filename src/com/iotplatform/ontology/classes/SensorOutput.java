@@ -15,9 +15,22 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class SensorOutput extends Class {
 
+	private static SensorOutput sensorOutputInstance;
+
 	public SensorOutput() {
 		super("SensorOutput", " http://purl.oclc.org/NET/ssnx/ssn#SensorOutput", Prefixes.SSN);
 		init();
+	}
+
+	public SensorOutput(String nothing) {
+		super("SensorOutput", " http://purl.oclc.org/NET/ssnx/ssn#SensorOutput", Prefixes.SSN);
+	}
+
+	public synchronized static SensorOutput getSensorOutputInstance() {
+		if (sensorOutputInstance == null)
+			sensorOutputInstance = new SensorOutput(null);
+
+		return sensorOutputInstance;
 	}
 
 	private void init() {
