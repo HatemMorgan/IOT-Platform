@@ -10,7 +10,8 @@ public enum Prefixes {
 	OWL("http://www.w3.org/2002/07/owl#","owl:","owl"),
 	RDFS("http://www.w3.org/2000/01/rdf-schema#","rdfs:","rdfs"),
 	RDF("http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdf:","rdf"),
-	QU("http://purl.org/NET/ssnx/qu/qu#","qu:","qu");
+	QU("http://purl.org/NET/ssnx/qu/qu#","qu:","qu"),
+	DUL("http://www.loa-cnr.it/ontologies/DUL.owl#","DUL:","DUL");
 
 	private final String uri ;
 	private final String prefix;
