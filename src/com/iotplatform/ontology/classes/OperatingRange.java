@@ -18,9 +18,27 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class OperatingRange extends Property {
 
+	private static OperatingRange operatingRangeInstance;
+
 	public OperatingRange() {
 		super("OperatingRange", "http://purl.oclc.org/NET/ssnx/ssn#OperatingRange", Prefixes.SSN);
 		init();
+	}
+
+	/*
+	 * String nothing parameter is added for overloading constructor technique
+	 * because I need to initialize an instance without having properties and it
+	 * will be always passed by null
+	 */
+	public OperatingRange(String nothing) {
+		super("OperatingRange", "http://purl.oclc.org/NET/ssnx/ssn#OperatingRange", Prefixes.SSN);
+	}
+
+	public synchronized static OperatingRange getOperatingRangeInstance() {
+		if (operatingRangeInstance == null)
+			operatingRangeInstance = new OperatingRange(null);
+
+		return operatingRangeInstance;
 	}
 
 	private void init() {

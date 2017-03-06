@@ -60,7 +60,7 @@ public class SystemClass extends Class {
 		/*
 		 * Deployment name which must be unique
 		 */
-		super.getProperties().put("name",
+		this.getProperties().put("name",
 				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
 
 		/*
@@ -68,7 +68,7 @@ public class SystemClass extends Class {
 		 * can have many subsystems so multipleValues is enabled (one to many
 		 * relation)
 		 */
-		super.getProperties().put("hasSubSystem",
+		this.getProperties().put("hasSubSystem",
 				new ObjectProperty("hasSubSystem", Prefixes.SSN, SystemClass.getSystemInstance(), true, false));
 
 		/*
@@ -78,7 +78,7 @@ public class SystemClass extends Class {
 		 * system cannot be deployed in two places
 		 */
 
-		super.getProperties().put("hasDeployment",
+		this.getProperties().put("hasDeployment",
 				new ObjectProperty("hasDeployment", Prefixes.SSN, Deployment.getDeploymentInstance(), false, false));
 
 		/*
@@ -89,19 +89,35 @@ public class SystemClass extends Class {
 		 * attached to another entity, or in 3D space) are made using DOLCE's
 		 * Regions (SpaceRegion). It is one to one relation
 		 */
-		super.getProperties().put("onPlatform",
+		this.getProperties().put("onPlatform",
 				new ObjectProperty("onPlatform", Prefixes.SSN, Platform.getPlatformInstance(), false, false));
 
-		super.getProperties().put("hasSubSystem",
-				new ObjectProperty("hasSubSystem", Prefixes.SSN, SystemClass.getSystemInstance(), true, false));
+		/*
+		 * A Relation from a System to a SurvivalRange. It is a one to one
+		 * relationShip because a system/device has only one survivalRange
+		 */
+		this.getProperties().put("hasSurvivalRange", new ObjectProperty("hasSurvivalRange", Prefixes.SSN,
+				SurvivalRange.getSurvivalRangeInstance(), false, false));
 
-		super.getProperties().put("hasSubSystem",
-				new ObjectProperty("hasSubSystem", Prefixes.SSN, SystemClass.getSystemInstance(), true, false));
+		/*
+		 * Relation from a System to an OperatingRange describing the normal
+		 * operating environment of the System. It is one to one relationShip
+		 * because a system/device has only one operatingRange
+		 */
+		this.getProperties().put("hasOperatingRange", new ObjectProperty("hasOperatingRange", Prefixes.SSN,
+				OperatingRange.getOperatingRangeInstance(), false, false));
+
+		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSubSystem", "hasSubSystem");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasDeployment", "hasDeployment");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "onPlatform", "onPlatform");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalRange", "hasSurvivalRange");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingRange", "hasOperatingRange");
 
 	}
 
-	public static void main(String[] args) {
-		Group group = new Group();
-		System.out.println("herees");
-	}
+	// public static void main(String[] args) {
+	// SystemClass system = new SystemClass();
+	// System.out.println(system.getProperties().toString());
+	// }
 }

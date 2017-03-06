@@ -24,6 +24,11 @@ public class Platform extends Class {
 		init();
 	}
 
+	/*
+	 * String nothing parameter is added for overloading constructor technique
+	 * because I need to initialize an instance without having properties and it
+	 * will be always passed by null
+	 */
 	public Platform(String nothing) {
 		super("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform", Prefixes.SSN);
 

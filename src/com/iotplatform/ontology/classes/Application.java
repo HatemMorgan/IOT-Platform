@@ -23,11 +23,9 @@ public class Application extends Class {
 	}
 
 	/*
-	 * this constructor is used only to construct an instance of class
-	 * application that will be used as the class type of an object so it does
-	 * not need to has the associated properties of class application . the
-	 * nothing parameter that it takes will be passed as null because it is only
-	 * used to allow overloading constructor technique
+	 * String nothing parameter is added for overloading constructor technique
+	 * because I need to initialize an instance without having properties and it
+	 * will be always passed by null
 	 */
 	public Application(String nothing) {
 		super("Application", "http://iot-platform#Application", Prefixes.IOT_PLATFORM);
