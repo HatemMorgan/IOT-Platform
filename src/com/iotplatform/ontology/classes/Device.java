@@ -2,6 +2,7 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 
 /*
@@ -38,14 +39,29 @@ public class Device extends SystemClass {
 	}
 
 	private void init() {
-		
+
 		/*
 		 * add ssn:System in the superClass list of ssn:Device class
 		 */
 		this.getSuperClassesList().add(SystemClass.getSystemInstance());
-		
-		
-		
+
+		// Adding Class properties
+
+		/*
+		 * Links the devices with their coverages. It is one to one relationShip
+		 * because a device can have only on coverage
+		 */
+		this.getProperties().put("hasCoverage",
+				new ObjectProperty("hasCoverage", Prefixes.IOT_LITE, Coverage.getCoverageInstance(), false, false));
+
+		/*
+		 * A device has a service.
+		 */
+		this.getProperties().put("hasService",
+				new ObjectProperty("hasService", Prefixes.IOT_PLATFORM, Service.getServiceInstance(), false, false));
+
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasCoverage", "hasCoverage");
+		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasService", "hasService");
 
 	}
 
