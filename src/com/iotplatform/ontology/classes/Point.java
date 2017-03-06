@@ -20,9 +20,28 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class Point extends Class {
 
+	private static Point pointInstance;
+
 	public Point() {
 		super("Point", "http://www.w3.org/2003/01/geo/wgs84_pos#Point", Prefixes.GEO);
 		init();
+	}
+
+	/*
+	 * String nothing parameter is added for overloading constructor technique
+	 * because I need to initialize an instance without having properties and it
+	 * will be always passed by null
+	 */
+	public Point(String nothing) {
+		super("Point", "http://www.w3.org/2003/01/geo/wgs84_pos#Point", Prefixes.GEO);
+
+	}
+
+	public synchronized static Point getPointInstacne() {
+		if (pointInstance == null)
+			pointInstance = new Point(null);
+
+		return pointInstance;
 	}
 
 	private void init() {

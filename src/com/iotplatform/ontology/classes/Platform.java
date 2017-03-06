@@ -3,6 +3,7 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 
 /*
@@ -42,6 +43,11 @@ public class Platform extends Class {
 	}
 
 	private void init() {
-
+		/*
+		 * Relation between Platform and its physical location described by
+		 * point class
+		 */
+		super.getProperties().put("hasLocation",
+				new ObjectProperty("hasLocation", Prefixes.GEO, Point.getPointInstacne(), false, false));
 	}
 }
