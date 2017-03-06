@@ -19,10 +19,29 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class QuantityKind extends Class {
 
+	private static QuantityKind quantityKindInstance;
+
 	public QuantityKind() {
 		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU);
 
 		init();
+	}
+
+	/*
+	 * String nothing parameter is added for overloading constructor technique
+	 * because I need to initialize an instance without having properties and it
+	 * will be always passed by null
+	 */
+	public QuantityKind(String nothing) {
+		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU);
+
+	}
+
+	public synchronized static QuantityKind getQuantityKindInstance() {
+		if (quantityKindInstance == null)
+			quantityKindInstance = new QuantityKind(null);
+
+		return quantityKindInstance;
 	}
 
 	private void init() {

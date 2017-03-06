@@ -16,6 +16,8 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class Sensor extends Device {
 
+	private static Sensor sensorInstance;
+
 	public Sensor() {
 		super("Sensor", "http://purl.oclc.org/NET/ssnx/ssn#Sensor", Prefixes.SSN);
 		init();
@@ -27,7 +29,30 @@ public class Sensor extends Device {
 
 	}
 
+	/*
+	 * String nothing parameter is added for overloading constructor technique
+	 * because I need to initialize an instance without having properties and it
+	 * will be always passed by null
+	 */
+	public Sensor(String nothing) {
+		super("Sensor", "http://purl.oclc.org/NET/ssnx/ssn#Sensor", Prefixes.SSN);
+	}
+
+	public synchronized static Sensor getSensorInstance() {
+		if (sensorInstance == null)
+			sensorInstance = new Sensor(null);
+
+		return sensorInstance;
+	}
+
 	private void init() {
+		/*
+		 * Add Device as superClass for sensor in superClassList
+		 */
+
+		this.getSuperClassesList().add(Device.getDeviceInstance());
+
+		// Add properties of Sensor Class
 
 	}
 }
