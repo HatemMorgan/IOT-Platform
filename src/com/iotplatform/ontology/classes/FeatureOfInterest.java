@@ -21,9 +21,27 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class FeatureOfInterest extends Class {
 
+	private static FeatureOfInterest featureOfInterestInstance;
+
 	public FeatureOfInterest() {
 		super("FeatureOfInterest", "http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN);
 		init();
+	}
+
+	/*
+	 * String nothing parameter is added for overloading constructor technique
+	 * because I need to initialize an instance without having properties and it
+	 * will be always passed by null
+	 */
+	public FeatureOfInterest(String nothing) {
+		super("FeatureOfInterest", "http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN);
+	}
+
+	public synchronized static FeatureOfInterest getFeatureOfInterestInstance() {
+		if (featureOfInterestInstance == null)
+			featureOfInterestInstance = new FeatureOfInterest(null);
+
+		return featureOfInterestInstance;
 	}
 
 	private void init() {

@@ -23,7 +23,7 @@ public class Observation extends Class {
 	}
 
 	private void init() {
-
+		
 	}
 
 }
