@@ -14,6 +14,8 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class Coverage extends Class {
 
+	private static Coverage coverageInstance;
+
 	public Coverage() {
 		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE);
 		init();
@@ -22,6 +24,23 @@ public class Coverage extends Class {
 	public Coverage(String name, String uri, Prefixes prefix) {
 		super(name, uri, prefix);
 		init();
+	}
+
+	/*
+	 * String nothing parameter is added for overloading constructor technique
+	 * because I need to initialize an instance without having properties and it
+	 * will be always passed by null
+	 */
+	public Coverage(String nothing) {
+		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE);
+
+	}
+
+	public synchronized static Coverage getCoverageInstance() {
+		if (coverageInstance == null)
+			coverageInstance = new Coverage(null);
+
+		return coverageInstance;
 	}
 
 	private void init() {

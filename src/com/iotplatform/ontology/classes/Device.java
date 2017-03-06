@@ -14,6 +14,8 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class Device extends SystemClass {
 
+	private static Device deviceInstance;
+
 	public Device() {
 		super("Device", "http://purl.oclc.org/NET/ssnx/ssn#Device", Prefixes.SSN);
 		init();
@@ -24,7 +26,26 @@ public class Device extends SystemClass {
 		init();
 	}
 
+	public Device(String nothing) {
+		super("Device", "http://purl.oclc.org/NET/ssnx/ssn#Device", Prefixes.SSN);
+	}
+
+	public synchronized static Device getDeviceInstance() {
+		if (deviceInstance == null)
+			deviceInstance = new Device(null);
+
+		return deviceInstance;
+	}
+
 	private void init() {
+		
+		/*
+		 * add ssn:System in the superClass list of ssn:Device class
+		 */
+		this.getSuperClassesList().add(SystemClass.getSystemInstance());
+		
+		
+		
 
 	}
 
