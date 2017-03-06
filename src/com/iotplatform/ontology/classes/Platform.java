@@ -17,9 +17,23 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class Platform extends Class {
 
+	private static Platform platformInstance;
+
 	public Platform() {
 		super("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform", Prefixes.SSN);
 		init();
+	}
+
+	public Platform(String nothing) {
+		super("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform", Prefixes.SSN);
+
+	}
+
+	public synchronized static Platform getPlatformInstance() {
+		if (platformInstance == null)
+			platformInstance = new Platform(null);
+
+		return platformInstance;
 	}
 
 	private void init() {

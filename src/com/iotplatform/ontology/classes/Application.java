@@ -19,18 +19,7 @@ public class Application extends Class {
 
 	public Application() {
 		super("Application", "http://iot-platform#Application", Prefixes.IOT_PLATFORM);
-
-		super.getProperties().put("description",
-				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed,false,false));
-		super.getProperties().put("name", new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
-
-		super.getProperties().put("fundedBy",
-				new ObjectProperty("fundedBy", Prefixes.FOAF, Organization.getOrganizationInstance(),true,false));
-
-		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
-		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
-
-		
+		init();
 	}
 
 	/*
@@ -51,6 +40,42 @@ public class Application extends Class {
 
 		}
 		return applicationInstance;
+	}
+
+	private void init() {
+
+		/*
+		 * Application Describtion
+		 */
+		super.getProperties().put("description",
+				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+
+		/*
+		 * Application name
+		 */
+		super.getProperties().put("name",
+				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+
+		/*
+		 * relation between an application and an organization the funds it . It
+		 * is one to many relation because an application can be funded by more
+		 * than one organization
+		 */
+		super.getProperties().put("fundedBy",
+				new ObjectProperty("fundedBy", Prefixes.FOAF, Organization.getOrganizationInstance(), true, false));
+
+		/*
+		 * It describes the relation that an IOT application uses a system
+		 * (smart campus). It is a one to many relationship because an
+		 * application can use more than one system
+		 */
+		super.getProperties().put("usesSystem",
+				new ObjectProperty("usesSystem", Prefixes.IOT_PLATFORM, SystemClass.getSystemInstance(), true, false));
+
+		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
+		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
+		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "usesSystem", "usesSystem");
+		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "fundedBy", "fundedBy");
 	}
 
 }

@@ -36,6 +36,11 @@ public class SystemClass extends Class {
 		init();
 	}
 
+	/*
+	 * String nothing parameter is added for overloading constructor technique
+	 * because I need to initialize an instance without having properties and it
+	 * will be always passed by null
+	 */
 	public SystemClass(String nothing) {
 
 		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN);
@@ -51,8 +56,48 @@ public class SystemClass extends Class {
 	}
 
 	private void init() {
+
+		/*
+		 * Deployment name which must be unique
+		 */
+		super.getProperties().put("name",
+				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+
+		/*
+		 * relation between a system and its parts. A system or its subclasses
+		 * can have many subsystems so multipleValues is enabled (one to many
+		 * relation)
+		 */
 		super.getProperties().put("hasSubSystem",
 				new ObjectProperty("hasSubSystem", Prefixes.SSN, SystemClass.getSystemInstance(), true, false));
+
+		/*
+		 * Relation between a System and a Deployment, recording that the
+		 * System/Sensor was deployed in that Deployment. A deployment will have
+		 * a name and it will be one to one relation because a senesor or a
+		 * system cannot be deployed in two places
+		 */
+
+		super.getProperties().put("hasDeployment",
+				new ObjectProperty("hasDeployment", Prefixes.SSN, Deployment.getDeploymentInstance(), false, false));
+
+		/*
+		 * Relation between a System (e.g., a Sensor) and a Platform. The
+		 * relation locates the sensor relative to other described entities
+		 * entities: i.e., the Sensor s1's location is Platform p1. More precise
+		 * locations for sensors in space (relative to other entities, where
+		 * attached to another entity, or in 3D space) are made using DOLCE's
+		 * Regions (SpaceRegion). It is one to one relation
+		 */
+		super.getProperties().put("onPlatform",
+				new ObjectProperty("onPlatform", Prefixes.SSN, Platform.getPlatformInstance(), false, false));
+
+		super.getProperties().put("hasSubSystem",
+				new ObjectProperty("hasSubSystem", Prefixes.SSN, SystemClass.getSystemInstance(), true, false));
+
+		super.getProperties().put("hasSubSystem",
+				new ObjectProperty("hasSubSystem", Prefixes.SSN, SystemClass.getSystemInstance(), true, false));
+
 	}
 
 	public static void main(String[] args) {
