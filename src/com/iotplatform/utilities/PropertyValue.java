@@ -1,7 +1,8 @@
 package com.iotplatform.utilities;
 
 /* 
- * PropertyValue class is used to create instances from it that describes a property value pair for a specific subject
+ * PropertyValue class is used to create instances from it that describes a property value pair 
+ * for a specific subject
  */
 public class PropertyValue {
 
@@ -21,8 +22,6 @@ public class PropertyValue {
 		return value;
 	}
 
-	
-	
 	public void setPropertyName(String propertyName) {
 		this.propertyName = propertyName;
 	}

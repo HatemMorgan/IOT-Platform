@@ -1,6 +1,5 @@
 package com.iotplatform.ontology.classes;
 
-
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
@@ -12,24 +11,21 @@ import com.iotplatform.ontology.XSDDataTypes;
 
 public class Person extends Agent {
 
-
 	private static Person personInstance;
-
 
 	public Person() {
 		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF);
 
-			init();
-		
+		init();
 
 	}
-	
+
 	/*
-	 * this constructor is used only to construct an instance of class
-	 * Person that will be used as the class type of an object so it does
-	 * not need to has the associated properties of class Person . the
-	 * nothing parameter that it takes will be passed as null because it is only
-	 * used to allow overloading constructor technique
+	 * this constructor is used only to construct an instance of class Person
+	 * that will be used as the class type of an object so it does not need to
+	 * has the associated properties of class Person . the nothing parameter
+	 * that it takes will be passed as null because it is only used to allow
+	 * overloading constructor technique
 	 */
 
 	public Person(String nothing) {
@@ -39,8 +35,7 @@ public class Person extends Agent {
 
 	public Person(String name, String uri, Prefixes prefix) {
 		super(name, uri, prefix);
-			init();
-		super.getSuperClassesList().add(Agent.getAgentInstance());
+		init();
 
 	}
 
@@ -53,23 +48,26 @@ public class Person extends Agent {
 		return personInstance;
 	}
 
-	
 	private void init() {
 
-		this.getProperties().put("age", new DataTypeProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed,false,false));
+		this.getProperties().put("age",
+				new DataTypeProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed, false, false));
 		this.getProperties().put("birthday",
-				new DataTypeProperty("birthday", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
+				new DataTypeProperty("birthday", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
 		this.getProperties().put("familyName",
-				new DataTypeProperty("familyName", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
+				new DataTypeProperty("familyName", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
 		this.getProperties().put("firstName",
-				new DataTypeProperty("firstName", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
+				new DataTypeProperty("firstName", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
 		this.getProperties().put("middleName",
-				new DataTypeProperty("middleName", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
-		this.getProperties().put("gender", new DataTypeProperty("gender", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
-		this.getProperties().put("title", new DataTypeProperty("title", Prefixes.FOAF, XSDDataTypes.string_typed,false,false));
+				new DataTypeProperty("middleName", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+		this.getProperties().put("gender",
+				new DataTypeProperty("gender", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+		this.getProperties().put("title",
+				new DataTypeProperty("title", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
 		this.getProperties().put("userName",
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed,false,true));
-		this.getProperties().put("knows", new ObjectProperty("knows", Prefixes.FOAF, Person.getPersonInstance(),true,false));
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		this.getProperties().put("knows",
+				new ObjectProperty("knows", Prefixes.FOAF, Person.getPersonInstance(), true, false));
 
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "age", "age");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "birthday", "birthday");
@@ -81,6 +79,7 @@ public class Person extends Agent {
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "userName", "userName");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "knows", "knows");
 
-	}
+		this.getSuperClassesList().add(Agent.getAgentInstance());
 
+	}
 }

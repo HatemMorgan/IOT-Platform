@@ -125,13 +125,13 @@ public class ValidationDao {
 				+ datauniqueConstraintViolationCheckSubQueryStr);
 
 		int counter = 0;
-
+		int stop = Prefixes.values().length - 1;
 		for (Prefixes prefix : Prefixes.values()) {
 			/*
 			 * 8 because there are only 9 prefixes and the counter started from
 			 * 0
 			 */
-			if (counter == 8) {
+			if (counter == stop) {
 				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "')");
 			} else {
 				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "'),");

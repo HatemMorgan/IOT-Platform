@@ -62,6 +62,7 @@ public class RequestValidation {
 
 		ArrayList<SqlCondition> orCondtionsFilterList = new ArrayList<>();
 		orCondtionsFilterList.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), subjectClass.getUri()));
+		
 		for (Class superClass : subjectClass.getSuperClassesList()) {
 			orCondtionsFilterList
 					.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), superClass.getUri()));

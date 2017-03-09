@@ -15,11 +15,7 @@ public class Agent extends Class {
 
 	public Agent(String name, String uri, Prefixes prefix) {
 		super(name, uri, prefix);
-
-		super.getProperties().put("mbox",
-				new DataTypeProperty("mbox", Prefixes.FOAF, XSDDataTypes.string_typed, true, true));
-
-		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "mbox", "mbox");
+		init();
 	}
 
 	/*
@@ -42,6 +38,23 @@ public class Agent extends Class {
 
 		}
 		return agentInstance;
+	}
+
+	private void init() {
+
+		super.getProperties().put("mbox",
+				new DataTypeProperty("mbox", Prefixes.FOAF, XSDDataTypes.string_typed, true, true));
+
+		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "mbox", "mbox");
+
+		/*
+		 * A thing of interest to this person.
+		 */
+
+		super.getProperties().put("topic_interest",
+				new DataTypeProperty("topic_interest", Prefixes.FOAF, XSDDataTypes.string_typed, true, false));
+
+		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "topic_interest", "topic_interest");
 	}
 
 }

@@ -4,7 +4,8 @@ package com.iotplatform.utilities;
  *   SqlCondition is used to create and sql condition that has column name and column value 
  *   eg: class_name = "Person" 
  *   
- *   the above condition example can be used in dynamic_concepts table
+ *   the above condition example can be used in dynamic_concepts table query method to construct a dynamic 
+ *   where clause
  */
 
 public class SqlCondition {

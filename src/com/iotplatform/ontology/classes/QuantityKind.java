@@ -1,0 +1,51 @@
+package com.iotplatform.ontology.classes;
+
+import org.springframework.stereotype.Component;
+
+import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.Prefixes;
+
+/*
+ * This class maps qu:QuantityKind Class in the ontology
+ * 
+ * A QuantityKind is an abstract classifier that represents the [VIM] concept of "kind of quantity" that is defined
+ *  as "aspect common to mutually comparable quantities." A QuantityKind represents the essence of a quantity without
+ *   any numerical value or unit.  
+ * 
+ * eg: Tempreture Sensor hasQuantityKind tempreture(instance from QuantityKind Class)
+ * 	
+ */
+
+@Component
+public class QuantityKind extends Class {
+
+	private static QuantityKind quantityKindInstance;
+
+	public QuantityKind() {
+		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU);
+
+		init();
+	}
+
+	/*
+	 * String nothing parameter is added for overloading constructor technique
+	 * because I need to initialize an instance without having properties and it
+	 * will be always passed by null
+	 */
+	public QuantityKind(String nothing) {
+		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU);
+
+	}
+
+	public synchronized static QuantityKind getQuantityKindInstance() {
+		if (quantityKindInstance == null)
+			quantityKindInstance = new QuantityKind(null);
+
+		return quantityKindInstance;
+	}
+
+	private void init() {
+
+	}
+
+}
