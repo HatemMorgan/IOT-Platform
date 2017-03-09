@@ -73,7 +73,9 @@ rdfs:seeAlso a owl:AnnotationProperty .
 
 :hasDevice a owl:ObjectProperty ;
 	rdfs:domain :DeviceModule ;
-	rdfs:range ssn:Device .
+	rdfs:range ssn:Device ;
+	rdfs:comment "Describes relation between Device module and its device Components(eg: communicatingDevice,Sensor etc.)" ;
+	rdfs:label "has Device" .
 # 
 # http://iot-platform#hasDeviceModule
 
@@ -435,6 +437,13 @@ foaf:member a owl:ObjectProperty ;
 	rdfs:range xsd:string ;
 	rdfs:comment "Describes the duty cycle of a communicating device." ;
 	rdfs:label "Duty Cycle" .
+# 
+# http://iot-platform#googleMapsUrl
+
+:googleMapsUrl a owl:DatatypeProperty ;
+	rdfs:domain geo:Point ;
+	rdfs:range xsd:string ;
+	rdfs:comment "Describe GPS Url given by google Maps" .
 # 
 # http://iot-platform#hasBandwidth
 

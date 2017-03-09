@@ -58,10 +58,10 @@ public class SystemClass extends Class {
 	private void init() {
 
 		/*
-		 * Deployment name which must be unique
+		 * id which must be unique
 		 */
-		this.getProperties().put("name",
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		super.getProperties().put("id",
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 
 		/*
 		 * relation between a system and its parts. A system or its subclasses
@@ -107,7 +107,7 @@ public class SystemClass extends Class {
 		this.getProperties().put("hasOperatingRange", new ObjectProperty("hasOperatingRange", Prefixes.SSN,
 				OperatingRange.getOperatingRangeInstance(), false, false));
 
-		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSubSystem", "hasSubSystem");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasDeployment", "hasDeployment");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "onPlatform", "onPlatform");
