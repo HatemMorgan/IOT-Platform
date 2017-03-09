@@ -43,7 +43,7 @@ public class Application extends Class {
 	private void init() {
 
 		/*
-		 * Application Describtion
+		 * Application Describption
 		 */
 		super.getProperties().put("description",
 				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
@@ -68,7 +68,7 @@ public class Application extends Class {
 		 * application can use more than one system
 		 */
 		super.getProperties().put("usesSystem",
-				new ObjectProperty("usesSystem", Prefixes.IOT_PLATFORM, SystemClass.getSystemInstance(), true, false));
+				new ObjectProperty("usesSystem", Prefixes.IOT_PLATFORM, IOTSystem.getIOTSystemInstance(), true, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
 		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
