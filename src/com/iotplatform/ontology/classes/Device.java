@@ -48,7 +48,7 @@ public class Device extends SystemClass {
 		/*
 		 * add ssn:System in the superClass list of ssn:Device class
 		 */
-		this.getSuperClassesList().add(SystemClass.getSystemInstance());
+		super.getSuperClassesList().add(SystemClass.getSystemInstance());
 
 		// Adding Class properties
 
@@ -56,17 +56,24 @@ public class Device extends SystemClass {
 		 * Links the devices with their coverages. It is one to one relationShip
 		 * because a device can have only on coverage
 		 */
-		this.getProperties().put("hasCoverage",
+		super.getProperties().put("hasCoverage",
 				new ObjectProperty("hasCoverage", Prefixes.IOT_LITE, Coverage.getCoverageInstance(), false, false));
 
 		/*
 		 * A device has a service.
 		 */
-		this.getProperties().put("hasService",
-				new ObjectProperty("hasService", Prefixes.IOT_PLATFORM, Service.getServiceInstance(), false, false));
+		super.getProperties().put("exposedBy",
+				new ObjectProperty("exposedBy", Prefixes.IOT_LITE, Service.getServiceInstance(), false, false));
+
+		/*
+		 * Links a Device with custom metadata about that device.
+		 */
+		super.getProperties().put("hasMetadata",
+				new ObjectProperty("hasMetadata", Prefixes.IOT_LITE, Metadata.getMetadataInstance(), true, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasCoverage", "hasCoverage");
-		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasService", "hasService");
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "exposedBy", "exposedBy");
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasMetadata", "hasMetadata");
 
 	}
 

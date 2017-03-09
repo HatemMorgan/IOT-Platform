@@ -17,9 +17,27 @@ import com.iotplatform.ontology.XSDDataTypes;
 @Component
 public class Metadata extends Class {
 
+	private static Metadata metadataInstance;
+
 	public Metadata() {
 		super("Metadata", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefixes.IOT_LITE);
 		init();
+	}
+
+	/*
+	 * String nothing parameter is added for overloading constructor technique
+	 * because I need to initialize an instance without having properties and it
+	 * will be always passed by null
+	 */
+	public Metadata(String nothing) {
+		super("Metadata", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefixes.IOT_LITE);
+	}
+
+	public synchronized static Metadata getMetadataInstance() {
+		if (metadataInstance == null)
+			metadataInstance = new Metadata(null);
+
+		return metadataInstance;
 	}
 
 	private void init() {
@@ -36,6 +54,9 @@ public class Metadata extends Class {
 		 */
 		super.getProperties().put("metadataValue",
 				new DataTypeProperty("metadataValue", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "metadataType", "metadataType");
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "metadataValue", "metadataValue");
 
 	}
 
