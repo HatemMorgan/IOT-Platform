@@ -69,12 +69,19 @@ rdfs:seeAlso a owl:AnnotationProperty .
 	rdfs:range :Application ;
 	rdfs:comment "It describes the relation between a developer and the application he/she is developing ." .
 # 
-# http://iot-platform#hasCommunicatingDevice
+# http://iot-platform#hasDevice
 
-:hasCommunicatingDevice a owl:ObjectProperty ;
-	rdfs:domain ssn:Sensor ;
-	rdfs:range :CommunicatingDevice ;
-	rdfs:comment "It describes the relation that a device can has attached communicating device . ie: A module (device) has communicating device BLE (communicating device) attached to it ." .
+:hasDevice a owl:ObjectProperty ;
+	rdfs:domain :DeviceModule ;
+	rdfs:range ssn:Device .
+# 
+# http://iot-platform#hasDeviceModule
+
+:hasDeviceModule a owl:ObjectProperty ;
+	rdfs:domain :IOTSystem ;
+	rdfs:range :DeviceModule ;
+	rdfs:comment "Describes the relation between an IOTSystem and DeviceModule." ;
+	rdfs:label "has Device Module" .
 # 
 # http://iot-platform#hasService
 
@@ -94,7 +101,7 @@ rdfs:seeAlso a owl:AnnotationProperty .
 
 :usesSystem a owl:ObjectProperty ;
 	rdfs:domain :Application ;
-	rdfs:range ssn:System ;
+	rdfs:range :IOTSystem ;
 	rdfs:comment "It describes the relation that an IOT application uses a system (smart campus)" .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#hasAttribute
