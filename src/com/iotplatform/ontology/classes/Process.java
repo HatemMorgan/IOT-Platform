@@ -16,7 +16,7 @@ import com.iotplatform.ontology.Prefixes;
 public class Process extends Class {
 
 	public Process(String name, String uri, Prefixes prefix) {
-		super("Process", "http://purl.oclc.org/NET/ssnx/ssn#Process", Prefixes.SSN);
+		super(name, uri, prefix);
 		init();
 	}
 

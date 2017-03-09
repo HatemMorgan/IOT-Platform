@@ -15,7 +15,7 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class Attribute extends Class {
 
-	public Attribute(String name, String uri, Prefixes prefix) {
+	public Attribute() {
 		super("Attribute", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", Prefixes.IOT_LITE);
 		init();
 	}

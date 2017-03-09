@@ -21,7 +21,7 @@ public class DeploymentRelatedProcess extends Class {
 	private static DeploymentRelatedProcess deploymentRelatedProcessInstance;
 
 	public DeploymentRelatedProcess(String name, String uri, Prefixes prefix) {
-		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN);
+		super(name, uri, prefix);
 		init();
 	}
 

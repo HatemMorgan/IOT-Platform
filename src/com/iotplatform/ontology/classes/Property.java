@@ -19,7 +19,7 @@ public class Property extends Class {
 	private static Property propertyInstance;
 
 	public Property(String name, String uri, Prefixes prefix) {
-		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN);
+		super(name, uri, prefix);
 		init();
 	}
 
