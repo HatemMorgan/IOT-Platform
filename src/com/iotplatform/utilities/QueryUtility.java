@@ -61,9 +61,9 @@ public class QueryUtility {
 
 		StringBuilder prefixStringBuilder = new StringBuilder();
 		int counter = 0;
-
+		int stop = Prefixes.values().length - 1;
 		for (Prefixes prefix : Prefixes.values()) {
-			if (counter == 8) {
+			if (counter == stop) {
 				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "')");
 			} else {
 				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "'),");
@@ -71,7 +71,6 @@ public class QueryUtility {
 
 			counter++;
 		}
-		System.out.println(SubjectClass.getUri());
 		stringBuilder.append(
 				"SELECT subject, property,value FROM TABLE(SEM_MATCH('SELECT ?subject ?property ?value WHERE { ");
 		stringBuilder.append("?subject	a	" + "<" + SubjectClass.getUri() + "> ; ");
@@ -80,6 +79,10 @@ public class QueryUtility {
 
 		return stringBuilder.toString();
 
+	}
+
+	public static void main(String[] args) {
+		System.out.println(Prefixes.values().length);
 	}
 
 }

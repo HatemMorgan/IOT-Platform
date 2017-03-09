@@ -118,8 +118,8 @@ public class Sensor extends Device {
 		 * device (sensor) . ie: A module (device) has sensing device Tempreture
 		 * sensor (sensing device )attached to it .
 		 */
-		this.getProperties().put("hasSensingDevice", new ObjectProperty("hasSensingDevice", Prefixes.IOT_LITE,
-				SensingDevice.getSensingDeviceInstance(), false, true));
+//		this.getProperties().put("hasSensingDevice", new ObjectProperty("hasSensingDevice", Prefixes.IOT_LITE,
+//				SensingDevice.getSensingDeviceInstance(), false, true));
 
 		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasQuantityKind", "hasQuantityKind");
 		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "implements", "implements");
