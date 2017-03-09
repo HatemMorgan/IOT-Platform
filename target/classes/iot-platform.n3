@@ -9,6 +9,7 @@
 @prefix ssn: <http://purl.oclc.org/NET/ssnx/ssn#> .
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix time: <http://www.w3.org/2006/time#> .
@@ -68,19 +69,19 @@ rdfs:seeAlso a owl:AnnotationProperty .
 	rdfs:range :Application ;
 	rdfs:comment "It describes the relation between a developer and the application he/she is developing ." .
 # 
-# http://iot-platform#hasCommunicatingDevice
+# http://iot-platform#hasDevice
 
-:hasCommunicatingDevice a owl:ObjectProperty ;
-	rdfs:domain ssn:Sensor ;
-	rdfs:range :CommunicatingDevice ;
-	rdfs:comment "It describes the relation that a device can has attached communicating device . ie: A module (device) has communicating device BLE (communicating device) attached to it ." .
+:hasDevice a owl:ObjectProperty ;
+	rdfs:domain :DeviceModule ;
+	rdfs:range ssn:Device .
 # 
-# http://iot-platform#hasService
+# http://iot-platform#hasDeviceModule
 
-:hasService a owl:ObjectProperty ;
-	rdfs:domain ssn:Device ;
-	rdfs:range iot-lite:Service ;
-	rdfs:comment "A device has a service." .
+:hasDeviceModule a owl:ObjectProperty ;
+	rdfs:domain :IOTSystem ;
+	rdfs:range :DeviceModule ;
+	rdfs:comment "Describes the relation between an IOTSystem and DeviceModule." ;
+	rdfs:label "has Device Module" .
 # 
 # http://iot-platform#usesApplication
 
@@ -93,8 +94,15 @@ rdfs:seeAlso a owl:AnnotationProperty .
 
 :usesSystem a owl:ObjectProperty ;
 	rdfs:domain :Application ;
-	rdfs:range ssn:System ;
+	rdfs:range :IOTSystem ;
 	rdfs:comment "It describes the relation that an IOT application uses a system (smart campus)" .
+# 
+# http://purl.oclc.org/NET/UNIS/fiware/iot-lite#exposedBy
+
+iot-lite:exposedBy a owl:ObjectProperty ;
+	rdfs:domain ssn:Device ;
+	rdfs:range iot-lite:Service ;
+	rdfs:comment "A device is exposed by a service." .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#hasAttribute
 
@@ -139,8 +147,8 @@ iot-lite:hasUnit a owl:ObjectProperty ;
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#isAssociatedWith
 
 iot-lite:isAssociatedWith a owl:ObjectProperty ;
-	rdfs:domain iot-lite:Attribute ;
-	rdfs:range ssn:SensingDevice ;
+	rdfs:domain iot-lite:Object ;
+	rdfs:range iot-lite:Service ;
 	rdfs:comment "Defines the associations between objects and sensors (e.g. A table (object) has an attribute (temperature at the table) which is associated with a sensor (the temperature sensor of the room). " .
 # 
 # http://purl.oclc.org/NET/ssnx/ssn#deployedOnPlatform
@@ -379,18 +387,18 @@ geo:hasLocation a owl:ObjectProperty ;
 # 
 # http://xmlns.com/foaf/0.1/fundedBy
 
-<http://xmlns.com/foaf/0.1/fundedBy> a owl:ObjectProperty ;
+foaf:fundedBy a owl:ObjectProperty ;
 	rdfs:domain :Application ;
-	rdfs:range <http://xmlns.com/foaf/0.1/Organization> ;
+	rdfs:range foaf:Organization ;
 	rdfs:comment "An organization funding a project or person." ;
 	rdfs:isDefinedBy "http://xmlns.com/foaf/0.1/" ;
 	rdfs:label "funded by" .
 # 
 # http://xmlns.com/foaf/0.1/knows
 
-<http://xmlns.com/foaf/0.1/knows> a owl:ObjectProperty ;
-	rdfs:domain <http://xmlns.com/foaf/0.1/Person> ;
-	rdfs:range <http://xmlns.com/foaf/0.1/Person> ;
+foaf:knows a owl:ObjectProperty ;
+	rdfs:domain foaf:Person ;
+	rdfs:range foaf:Person ;
 	rdfs:comment "A person known by this person (indicating some level of reciprocated interaction between the parties)." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
 	rdfs:label "knows" ;
@@ -398,23 +406,13 @@ geo:hasLocation a owl:ObjectProperty ;
 # 
 # http://xmlns.com/foaf/0.1/member
 
-<http://xmlns.com/foaf/0.1/member> a owl:ObjectProperty ;
-	rdfs:domain <http://xmlns.com/foaf/0.1/Group> ;
-	rdfs:range <http://xmlns.com/foaf/0.1/Agent> ;
+foaf:member a owl:ObjectProperty ;
+	rdfs:domain foaf:Group ;
+	rdfs:range foaf:Agent ;
 	rdfs:comment "Indicates a member of a Group" ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
 	rdfs:label "member" ;
 	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
-# 
-# http://xmlns.com/foaf/0.1/topic_interest
-
-<http://xmlns.com/foaf/0.1/topic_interest> a owl:ObjectProperty ;
-	rdfs:domain <http://xmlns.com/foaf/0.1/Agent> ;
-	rdfs:range owl:Thing ;
-	rdfs:comment "A thing of interest to this person." ;
-	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
-	rdfs:label "topic_interest" ;
-	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "testing" .
 # 
 # 
 # 
@@ -615,8 +613,8 @@ geo:long a owl:DatatypeProperty ;
 # 
 # http://xmlns.com/foaf/0.1/age
 
-<http://xmlns.com/foaf/0.1/age> a owl:DatatypeProperty , owl:FunctionalProperty ;
-	rdfs:domain <http://xmlns.com/foaf/0.1/Person> ;
+foaf:age a owl:DatatypeProperty , owl:FunctionalProperty ;
+	rdfs:domain foaf:Person ;
 	rdfs:range rdfs:Literal ;
 	rdfs:comment "The age in years of some agent." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
@@ -625,8 +623,8 @@ geo:long a owl:DatatypeProperty ;
 # 
 # http://xmlns.com/foaf/0.1/birthday
 
-<http://xmlns.com/foaf/0.1/birthday> a owl:DatatypeProperty , owl:FunctionalProperty ;
-	rdfs:domain <http://xmlns.com/foaf/0.1/Agent> ;
+foaf:birthday a owl:DatatypeProperty , owl:FunctionalProperty ;
+	rdfs:domain foaf:Agent ;
 	rdfs:range xsd:string ;
 	rdfs:comment "The birthday of this Agent, represented in mm-dd string form, eg. '12-31'." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
@@ -635,8 +633,8 @@ geo:long a owl:DatatypeProperty ;
 # 
 # http://xmlns.com/foaf/0.1/familyName
 
-<http://xmlns.com/foaf/0.1/familyName> a owl:DatatypeProperty ;
-	rdfs:domain <http://xmlns.com/foaf/0.1/Person> ;
+foaf:familyName a owl:DatatypeProperty ;
+	rdfs:domain foaf:Person ;
 	rdfs:range xsd:string ;
 	rdfs:comment "The family name of some person." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
@@ -645,8 +643,8 @@ geo:long a owl:DatatypeProperty ;
 # 
 # http://xmlns.com/foaf/0.1/firstName
 
-<http://xmlns.com/foaf/0.1/firstName> a owl:DatatypeProperty ;
-	rdfs:domain <http://xmlns.com/foaf/0.1/Person> ;
+foaf:firstName a owl:DatatypeProperty ;
+	rdfs:domain foaf:Person ;
 	rdfs:range xsd:string ;
 	rdfs:comment "The first name of a person." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
@@ -655,8 +653,8 @@ geo:long a owl:DatatypeProperty ;
 # 
 # http://xmlns.com/foaf/0.1/gender
 
-<http://xmlns.com/foaf/0.1/gender> a owl:DatatypeProperty , owl:FunctionalProperty ;
-	rdfs:domain <http://xmlns.com/foaf/0.1/Agent> ;
+foaf:gender a owl:DatatypeProperty , owl:FunctionalProperty ;
+	rdfs:domain foaf:Agent ;
 	rdfs:range xsd:string ;
 	rdfs:comment "The gender of this Agent (typically but not necessarily 'male' or 'female')." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
@@ -665,14 +663,14 @@ geo:long a owl:DatatypeProperty ;
 # 
 # http://xmlns.com/foaf/0.1/mbox
 
-<http://xmlns.com/foaf/0.1/mbox> a owl:DatatypeProperty ;
-	rdfs:domain <http://xmlns.com/foaf/0.1/Agent> ;
+foaf:mbox a owl:DatatypeProperty ;
+	rdfs:domain foaf:Agent ;
 	rdfs:range xsd:string .
 # 
 # http://xmlns.com/foaf/0.1/middleName
 
-<http://xmlns.com/foaf/0.1/middleName> a owl:DatatypeProperty ;
-	rdfs:domain <http://xmlns.com/foaf/0.1/Person> ;
+foaf:middleName a owl:DatatypeProperty ;
+	rdfs:domain foaf:Person ;
 	rdfs:range xsd:string ;
 	rdfs:comment "The last name of a person." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
@@ -681,7 +679,7 @@ geo:long a owl:DatatypeProperty ;
 # 
 # http://xmlns.com/foaf/0.1/name
 
-<http://xmlns.com/foaf/0.1/name> a owl:DatatypeProperty ;
+foaf:name a owl:DatatypeProperty ;
 	rdfs:domain owl:Thing ;
 	rdfs:range xsd:string ;
 	rdfs:comment "Describes the name of a thing. (eg: Application,Device)." ;
@@ -689,16 +687,25 @@ geo:long a owl:DatatypeProperty ;
 # 
 # http://xmlns.com/foaf/0.1/title
 
-<http://xmlns.com/foaf/0.1/title> a owl:DatatypeProperty ;
+foaf:title a owl:DatatypeProperty ;
 	rdfs:comment "Title (Mr, Mrs, Ms, Dr. etc)" ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
 	rdfs:label "title" ;
 	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "testing" .
 # 
+# http://xmlns.com/foaf/0.1/topic_interest
+
+foaf:topic_interest a owl:DatatypeProperty ;
+	rdfs:domain foaf:Agent ;
+	rdfs:range xsd:string ;
+	rdfs:comment "A thing of interest to this person." ;
+	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
+	rdfs:label "topic of interest" .
+# 
 # http://xmlns.com/foaf/0.1/userName
 
-<http://xmlns.com/foaf/0.1/userName> a owl:DatatypeProperty ;
-	rdfs:domain <http://xmlns.com/foaf/0.1/Person> ;
+foaf:userName a owl:DatatypeProperty ;
+	rdfs:domain foaf:Person ;
 	rdfs:range xsd:string ;
 	rdfs:comment "Describes a unique user name of a user." ;
 	rdfs:label "User Name" .
@@ -715,7 +722,7 @@ geo:long a owl:DatatypeProperty ;
 # http://iot-platform#Admin
 
 :Admin a owl:Class ;
-	rdfs:subClassOf <http://xmlns.com/foaf/0.1/Person> ;
+	rdfs:subClassOf foaf:Person ;
 	rdfs:comment "Describes the admin of a system . This allows to specify certin privilages to that type of user" .
 # 
 # http://iot-platform#Amount
@@ -737,13 +744,25 @@ geo:long a owl:DatatypeProperty ;
 # http://iot-platform#Developer
 
 :Developer a owl:Class ;
-	rdfs:subClassOf <http://xmlns.com/foaf/0.1/Person> ;
+	rdfs:subClassOf foaf:Person ;
 	rdfs:comment "It describes the developer of an application. This allows to specify certin privilages to that type of user" .
+# 
+# http://iot-platform#DeviceModule
+
+:DeviceModule a owl:Class ;
+	rdfs:comment "DeviceModule is a module that consists of one or mix of devices (communicating Device, Tag Device, ActuatingDevice, CommunicatingDevice)" ;
+	rdfs:label "Device Module" .
+# 
+# http://iot-platform#IOTSystem
+
+:IOTSystem a owl:Class ;
+	rdfs:comment "Describes an IOT system eg: Smart Campus, Smart City. The IOT System consists of one or more Device module." ;
+	rdfs:label "IOT System" .
 # 
 # http://iot-platform#NormalUser
 
 :NormalUser a owl:Class ;
-	rdfs:subClassOf <http://xmlns.com/foaf/0.1/Person> ;
+	rdfs:subClassOf foaf:Person ;
 	rdfs:comment "It describes a normal user who uses an application . ie: Customer . This allows to specify certin privilages to that type of user" .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice
@@ -1436,24 +1455,24 @@ Ex: <geo:Point>
 # 
 # http://xmlns.com/foaf/0.1/Agent
 
-<http://xmlns.com/foaf/0.1/Agent> a owl:Class ;
+foaf:Agent a owl:Class ;
 	rdfs:comment "An agent (eg. person, group, software or physical artifact)." ;
 	rdfs:label "Agent" ;
 	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
 # 
 # http://xmlns.com/foaf/0.1/Group
 
-<http://xmlns.com/foaf/0.1/Group> a owl:Class ;
-	rdfs:subClassOf <http://xmlns.com/foaf/0.1/Agent> ;
+foaf:Group a owl:Class ;
+	rdfs:subClassOf foaf:Agent ;
 	rdfs:comment "A class of Agents." ;
 	rdfs:label "Group" ;
 	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
 # 
 # http://xmlns.com/foaf/0.1/Organization
 
-<http://xmlns.com/foaf/0.1/Organization> a owl:Class ;
-	rdfs:subClassOf <http://xmlns.com/foaf/0.1/Agent> ;
-	owl:disjointWith <http://xmlns.com/foaf/0.1/Person> ;
+foaf:Organization a owl:Class ;
+	rdfs:subClassOf foaf:Agent ;
+	owl:disjointWith foaf:Person ;
 	rdfs:comment "An organization." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
 	rdfs:label "Organization" ;
@@ -1461,8 +1480,8 @@ Ex: <geo:Point>
 # 
 # http://xmlns.com/foaf/0.1/Person
 
-<http://xmlns.com/foaf/0.1/Person> a owl:Class ;
-	rdfs:subClassOf <http://xmlns.com/foaf/0.1/Agent> ;
+foaf:Person a owl:Class ;
+	rdfs:subClassOf foaf:Agent ;
 	rdfs:comment "A person." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
 	rdfs:label "Person" ;
