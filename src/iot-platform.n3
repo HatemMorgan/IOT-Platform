@@ -83,13 +83,6 @@ rdfs:seeAlso a owl:AnnotationProperty .
 	rdfs:comment "Describes the relation between an IOTSystem and DeviceModule." ;
 	rdfs:label "has Device Module" .
 # 
-# http://iot-platform#hasService
-
-:hasService a owl:ObjectProperty ;
-	rdfs:domain ssn:Device ;
-	rdfs:range iot-lite:Service ;
-	rdfs:comment "A device has a service." .
-# 
 # http://iot-platform#usesApplication
 
 :usesApplication a owl:ObjectProperty ;
@@ -103,6 +96,13 @@ rdfs:seeAlso a owl:AnnotationProperty .
 	rdfs:domain :Application ;
 	rdfs:range :IOTSystem ;
 	rdfs:comment "It describes the relation that an IOT application uses a system (smart campus)" .
+# 
+# http://purl.oclc.org/NET/UNIS/fiware/iot-lite#exposedBy
+
+iot-lite:exposedBy a owl:ObjectProperty ;
+	rdfs:domain ssn:Device ;
+	rdfs:range iot-lite:Service ;
+	rdfs:comment "A device is exposed by a service." .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#hasAttribute
 
