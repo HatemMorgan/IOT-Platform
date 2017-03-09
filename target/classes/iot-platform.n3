@@ -434,6 +434,7 @@ foaf:member a owl:ObjectProperty ;
 # http://iot-platform#dutyCycle
 
 :dutyCycle a owl:DatatypeProperty ;
+	rdfs:domain :CommunicatingDevice ;
 	rdfs:range xsd:string ;
 	rdfs:comment "Describes the duty cycle of a communicating device." ;
 	rdfs:label "Duty Cycle" .
@@ -504,7 +505,7 @@ foaf:member a owl:ObjectProperty ;
 # http://iot-platform#rangeOfTransmission
 
 :rangeOfTransmission a owl:DatatypeProperty ;
-	rdfs:subPropertyOf owl:topDataProperty ;
+	rdfs:domain :CommunicatingDevice ;
 	rdfs:range xsd:string ;
 	rdfs:comment "Describes the range of transmission of a communicating device." ;
 	rdfs:label "Range of transmission" .
@@ -513,7 +514,7 @@ foaf:member a owl:ObjectProperty ;
 
 iot-lite:endpoint a owl:DatatypeProperty ;
 	rdfs:domain iot-lite:Service ;
-	rdfs:range xsd:anyURI ;
+	rdfs:range xsd:string ;
 	rdfs:comment "Endpoint of a service (i.e. URL that provides a RESTful interface (website fo example to give more information about the service ) to access a service) ," .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#id

@@ -61,7 +61,16 @@ public class Platform extends Class {
 		super.getProperties().put("hasLocation",
 				new ObjectProperty("hasLocation", Prefixes.GEO, Point.getPointInstacne(), false, false));
 
+		/*
+		 * Describes if the platform is moving . ie: fish (A fish is a type of
+		 * platform because a sensor can be attached to it)
+		 */
+		super.getProperties().put("isMobile",
+				new DataTypeProperty("isMobile", Prefixes.IOT_LITE, XSDDataTypes.boolean_type, false, false));
+
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.GEO.getUri() + "hasLocation", "hasLocation");
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "isMobile", "isMobile");
+
 	}
 }
