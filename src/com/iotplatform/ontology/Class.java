@@ -6,15 +6,23 @@ import java.util.Hashtable;
 /*
  * It defines Classes in ontologies which is one of the main requirements for a semantic ontology
  */
-public abstract class Class {
+public class Class {
 	private String name;
 	private String uri;
 	private Prefixes prefix;
+	// hashtable of class properties with key propertyName and value property
 	private Hashtable<String, Property> properties;
-	private Hashtable<String,String> htblPropUriName;
-	
-	private ArrayList<Class> superClassesList ;
-	
+	/*
+	 * hashtable of class properties with key propertyUri and value
+	 * propertyName. this list is used to get the propertyName when you are
+	 * given propertyURI. It is used to construct jsonObject after quering to
+	 * remove prefix from property
+	 */
+
+	private Hashtable<String, String> htblPropUriName;
+
+	private ArrayList<Class> superClassesList;
+
 	public Class(String name, String uri, Prefixes prefix) {
 		this.name = name;
 		this.uri = uri;
@@ -48,6 +56,4 @@ public abstract class Class {
 		return superClassesList;
 	}
 
-	
-	
 }
