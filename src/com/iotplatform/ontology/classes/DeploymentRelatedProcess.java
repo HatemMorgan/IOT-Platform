@@ -3,8 +3,10 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  * This Class maps the ssn:DeploymentRelatedProcess class in the ontology
@@ -56,6 +58,14 @@ public class DeploymentRelatedProcess extends Class {
 		this.getProperties().put("deploymentProcessPart", new ObjectProperty("deploymentProcessPart", Prefixes.SSN,
 				DeploymentRelatedProcess.getDeploymentRelatedProcessInstance(), true, false));
 
+		/*
+		 * id and it must be unique
+		 */
+		super.getProperties().put("id",
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deploymentProcessPart", "deploymentProcessPart");
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+
 	}
 }

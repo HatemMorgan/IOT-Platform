@@ -15,10 +15,6 @@ public class TagDevice extends Device {
 
 	public TagDevice() {
 		super("TagDevice", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice", Prefixes.IOT_LITE);
-		init();
 	}
 
-	private void init() {
-
-	}
 }

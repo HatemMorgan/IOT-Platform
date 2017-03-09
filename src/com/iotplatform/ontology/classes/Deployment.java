@@ -46,11 +46,7 @@ public class Deployment extends DeploymentRelatedProcess {
 	}
 
 	private void init() {
-		/*
-		 * Deployment id and it must be unique
-		 */
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		
 
 		/*
 		 * Relation between a deployment and the platform on which the system
@@ -61,7 +57,7 @@ public class Deployment extends DeploymentRelatedProcess {
 				new ObjectProperty("deployedOnPlatform", Prefixes.SSN, Platform.getPlatformInstance(), false, false));
 
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deployedOnPlatform", "deployedOnPlatform");
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+
 
 	}
 
