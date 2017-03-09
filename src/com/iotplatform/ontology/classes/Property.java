@@ -45,6 +45,6 @@ public class Property extends Class {
 	}
 
 	private void init() {
-
+		
 	}
 }

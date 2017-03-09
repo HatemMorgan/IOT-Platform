@@ -458,7 +458,7 @@ foaf:member a owl:ObjectProperty ;
 :hasDataValue a owl:DatatypeProperty ;
 	rdfs:domain :Amount ;
 	rdfs:range xsd:double ;
-	rdfs:comment "Describes the value of an amount . ie: the value of property like frequency or senstivity or batteryLifeTime" .
+	rdfs:comment "Describes the value of an amount. The value of property like frequency or senstivity or batteryLifeTime. eg: 21 μA" .
 # 
 # http://iot-platform#hasFrequency
 

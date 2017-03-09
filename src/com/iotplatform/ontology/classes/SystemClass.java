@@ -68,7 +68,7 @@ public class SystemClass extends Class {
 		 * can have many subsystems so multipleValues is enabled (one to many
 		 * relation)
 		 */
-		this.getProperties().put("hasSubSystem",
+		super.getProperties().put("hasSubSystem",
 				new ObjectProperty("hasSubSystem", Prefixes.SSN, SystemClass.getSystemInstance(), true, false));
 
 		/*
@@ -78,7 +78,7 @@ public class SystemClass extends Class {
 		 * system cannot be deployed in two places
 		 */
 
-		this.getProperties().put("hasDeployment",
+		super.getProperties().put("hasDeployment",
 				new ObjectProperty("hasDeployment", Prefixes.SSN, Deployment.getDeploymentInstance(), false, false));
 
 		/*
@@ -89,14 +89,14 @@ public class SystemClass extends Class {
 		 * attached to another entity, or in 3D space) are made using DOLCE's
 		 * Regions (SpaceRegion). It is one to one relation
 		 */
-		this.getProperties().put("onPlatform",
+		super.getProperties().put("onPlatform",
 				new ObjectProperty("onPlatform", Prefixes.SSN, Platform.getPlatformInstance(), false, false));
 
 		/*
 		 * A Relation from a System to a SurvivalRange. It is a one to one
 		 * relationShip because a system/device has only one survivalRange
 		 */
-		this.getProperties().put("hasSurvivalRange", new ObjectProperty("hasSurvivalRange", Prefixes.SSN,
+		super.getProperties().put("hasSurvivalRange", new ObjectProperty("hasSurvivalRange", Prefixes.SSN,
 				SurvivalRange.getSurvivalRangeInstance(), false, false));
 
 		/*
@@ -104,7 +104,7 @@ public class SystemClass extends Class {
 		 * operating environment of the System. It is one to one relationShip
 		 * because a system/device has only one operatingRange
 		 */
-		this.getProperties().put("hasOperatingRange", new ObjectProperty("hasOperatingRange", Prefixes.SSN,
+		super.getProperties().put("hasOperatingRange", new ObjectProperty("hasOperatingRange", Prefixes.SSN,
 				OperatingRange.getOperatingRangeInstance(), false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
