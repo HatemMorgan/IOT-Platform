@@ -63,6 +63,10 @@ public class IOTSystem extends Class {
 		super.getProperties().put("hasDeviceModule", new ObjectProperty("hasDeviceModule", Prefixes.IOT_PLATFORM,
 				DeviceModule.getDeviceModuleInstance(), true, false));
 
+		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
+		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
+		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasDeviceModule", "hasDeviceModule");
+
 	}
 
 }

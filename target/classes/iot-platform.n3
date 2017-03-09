@@ -510,7 +510,6 @@ iot-lite:endpoint a owl:DatatypeProperty ;
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#id
 
 iot-lite:id a owl:DatatypeProperty ;
-	rdfs:domain ssn:Device ;
 	rdfs:range xsd:string .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#interfaceDescription

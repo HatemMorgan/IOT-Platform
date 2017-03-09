@@ -10,7 +10,15 @@ public class Class {
 	private String name;
 	private String uri;
 	private Prefixes prefix;
+	// hashtable of class properties with key propertyName and value property
 	private Hashtable<String, Property> properties;
+	/*
+	 * hashtable of class properties with key propertyUri and value
+	 * propertyName. this list is used to get the propertyName when you are
+	 * given propertyURI. It is used to construct jsonObject after quering to
+	 * remove prefix from property
+	 */
+
 	private Hashtable<String, String> htblPropUriName;
 
 	private ArrayList<Class> superClassesList;
