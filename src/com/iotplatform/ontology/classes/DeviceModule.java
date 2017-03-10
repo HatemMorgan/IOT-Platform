@@ -54,9 +54,24 @@ public class DeviceModule extends Class {
 		super.getProperties().put("hasDevice",
 				new ObjectProperty("hasDevice", Prefixes.IOT_PLATFORM, Device.getDeviceInstance(), true, false));
 
-		
+		/*
+		 * Relation between a DeviceModule (e.g., A module consists of one or
+		 * more devices ) and a Platform. The relation locates the DeviceModule
+		 * relative to other described entities entities: i.e., the DeviceModule
+		 * d1's location is Platform p1. More precise locations for DeviceModule
+		 * in space (relative to other entities, where attached to another
+		 * entity, or in 3D space) are made using DOLCE's Regions (SpaceRegion).
+		 * 
+		 * One to one relationShip but the platform can has more than one
+		 * DeviceModule so onPlatform has to have a uniqueValue
+		 * 
+		 */
+		super.getProperties().put("onPlatform",
+				new ObjectProperty("onPlatform", Prefixes.SSN, Platform.getPlatformInstance(), false, false));
+
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasDevice", "hasDevice");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "onPlatform", "onPlatform");
 
 	}
 

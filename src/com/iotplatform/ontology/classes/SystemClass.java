@@ -78,27 +78,6 @@ public class SystemClass extends Class {
 				new ObjectProperty("hasSubSystem", Prefixes.SSN, SystemClass.getSystemInstance(), true, false));
 
 		/*
-		 * Relation between a System and a Deployment, recording that the
-		 * System/Sensor was deployed in that Deployment. A deployment will have
-		 * a name and it will be one to one relation because a senesor or a
-		 * system cannot be deployed in two places
-		 */
-
-		super.getProperties().put("hasDeployment",
-				new ObjectProperty("hasDeployment", Prefixes.SSN, Deployment.getDeploymentInstance(), false, false));
-
-		/*
-		 * Relation between a System (e.g., a Sensor) and a Platform. The
-		 * relation locates the sensor relative to other described entities
-		 * entities: i.e., the Sensor s1's location is Platform p1. More precise
-		 * locations for sensors in space (relative to other entities, where
-		 * attached to another entity, or in 3D space) are made using DOLCE's
-		 * Regions (SpaceRegion). It is one to one relation
-		 */
-		super.getProperties().put("onPlatform",
-				new ObjectProperty("onPlatform", Prefixes.SSN, Platform.getPlatformInstance(), false, false));
-
-		/*
 		 * A Relation from a System to a SurvivalRange. It is a one to one
 		 * relationShip because a system/device has only one survivalRange
 		 */
@@ -115,8 +94,6 @@ public class SystemClass extends Class {
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSubSystem", "hasSubSystem");
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasDeployment", "hasDeployment");
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "onPlatform", "onPlatform");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalRange", "hasSurvivalRange");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingRange", "hasOperatingRange");
 

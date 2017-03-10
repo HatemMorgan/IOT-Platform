@@ -63,9 +63,19 @@ public class IOTSystem extends Class {
 		super.getProperties().put("hasDeviceModule", new ObjectProperty("hasDeviceModule", Prefixes.IOT_PLATFORM,
 				DeviceModule.getDeviceModuleInstance(), true, false));
 
+		/*
+		 * Relation between a IOTSystem and a Deployment, recording that the
+		 * IOTSystem was deployed in that Deployment. and it one to one
+		 * relationshiip
+		 */
+
+		super.getProperties().put("hasDeployment",
+				new ObjectProperty("hasDeployment", Prefixes.SSN, Deployment.getDeploymentInstance(), false, false));
+
 		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasDeviceModule", "hasDeviceModule");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasDeployment", "hasDeployment");
 
 	}
 
