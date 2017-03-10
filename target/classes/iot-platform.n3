@@ -380,9 +380,9 @@ ssn:sensingMethodUsed a owl:ObjectProperty ;
 DUL:includesEvent a owl:ObjectProperty ;
 	rdfs:comment "Links an observation to its stimulus(Event)." .
 # 
-# http://www.w3.org/2003/01/geo/wgs84_pos#hasLocation
+# http://www.w3.org/2003/01/geo/wgs84_pos#location
 
-geo:hasLocation a owl:ObjectProperty ;
+geo:location a owl:ObjectProperty ;
 	rdfs:range geo:Point .
 # 
 # http://xmlns.com/foaf/0.1/fundedBy

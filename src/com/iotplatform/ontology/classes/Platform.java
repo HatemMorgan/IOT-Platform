@@ -60,8 +60,8 @@ public class Platform extends Class {
 		 * Relation between Platform and its physical location described by
 		 * point class
 		 */
-		super.getProperties().put("hasLocation",
-				new ObjectProperty("hasLocation", Prefixes.GEO, Point.getPointInstacne(), false, false));
+		super.getProperties().put("location",
+				new ObjectProperty("location", Prefixes.GEO, Point.getPointInstacne(), false, false));
 
 		/*
 		 * Describes if the platform is moving . ie: fish (A fish is a type of
