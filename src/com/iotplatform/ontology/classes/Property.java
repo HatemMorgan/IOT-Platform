@@ -3,6 +3,7 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 
 /*
@@ -45,6 +46,13 @@ public class Property extends Class {
 	}
 
 	private void init() {
-		
+
+		/*
+		 * relation between a Property and its value of type Amount
+		 */
+		super.getProperties().put("hasValue",
+				new ObjectProperty("hasValue", Prefixes.SSN, Amount.getAmountInstance(), false, false));
+
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasValue", "hasValue");
 	}
 }

@@ -46,6 +46,6 @@ public class OperatingRange extends Property {
 	}
 
 	private void init() {
-
+		
 	}
 }
