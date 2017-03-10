@@ -2,6 +2,7 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 
 /*
@@ -46,6 +47,24 @@ public class OperatingRange extends Property {
 	}
 
 	private void init() {
-		
+
+		/*
+		 * Relation from an OperatingRange to a Property. For example, to a
+		 * battery lifetime.
+		 */
+		super.getProperties().put("hasOperatingProperty", new ObjectProperty("hasOperatingProperty", Prefixes.SSN,
+				OperatingProperty.getOperatingPropertyInstance(), false, false));
+
+		/*
+		 * Describes the prevailing environmental conditions for
+		 * MeasurementCapabilites, OperatingConditions and SurvivalRanges. Used
+		 * for example to say that a sensor has a particular accuracy in
+		 * particular conditions. (see also MeasurementCapability)
+		 */
+		super.getProperties().put("inCondition",
+				new ObjectProperty("inCondition", Prefixes.SSN, Condition.getConditionInstance(), false, false));
+
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingProperty", "hasOperatingProperty");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
 	}
 }
