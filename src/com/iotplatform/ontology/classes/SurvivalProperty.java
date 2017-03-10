@@ -32,15 +32,32 @@ public class SurvivalProperty extends Property {
 		/*
 		 * Total useful life of a battery.
 		 */
-		survivalPropertyTypesList.put("BatteryLifetime",
-				new Class("BatteryLifetime", "http://purl.oclc.org/NET/ssnx/ssn#BatteryLifetime", Prefixes.SSN));
+		Class batteryLifetime = new Class("BatteryLifetime", "http://purl.oclc.org/NET/ssnx/ssn#BatteryLifetime",
+				Prefixes.SSN);
+
+		/*
+		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
+		 * to add triple that expresses that an instance of class
+		 * ssn:BatteryLifetime is also an instance of class ssn:SurvivalProperty
+		 */
+		batteryLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
+		survivalPropertyTypesList.put("BatteryLifetime", batteryLifetime);
 
 		/*
 		 * Total useful life of a sensor/system (expressed as total life since
 		 * manufacture, time in use, number of operations, etc.).
 		 */
-		survivalPropertyTypesList.put("SystemLifetime",
-				new Class("SystemLifetime", "http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime", Prefixes.SSN));
+
+		Class systemLifetime = new Class("SystemLifetime", "http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime",
+				Prefixes.SSN);
+
+		/*
+		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
+		 * to add triple that expresses that an instance of class
+		 * ssn:SystemLifetime is also an instance of class ssn:SurvivalProperty
+		 */
+		systemLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
+		survivalPropertyTypesList.put("SystemLifetime", systemLifetime);
 
 	}
 

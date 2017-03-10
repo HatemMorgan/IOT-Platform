@@ -2,6 +2,7 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 
 /*
@@ -43,6 +44,22 @@ public class SurvivalRange extends Property {
 	}
 
 	private void init() {
+		/*
+		 * Relation from an SurvivalProperty to a Property.
+		 */
+		super.getProperties().put("hasSurvivalProperty", new ObjectProperty("hasSurvivalProperty", Prefixes.SSN,
+				SurvivalProperty.getPropertyInstance(), false, false));
 
+		/*
+		 * Describes the prevailing environmental conditions for
+		 * MeasurementCapabilites, OperatingConditions and SurvivalRanges. Used
+		 * for example to say that a sensor has a particular accuracy in
+		 * particular conditions. (see also MeasurementCapability)
+		 */
+		super.getProperties().put("inCondition",
+				new ObjectProperty("inCondition", Prefixes.SSN, Condition.getConditionInstance(), false, false));
+
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalProperty", "hasSurvivalProperty");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
 	}
 }
