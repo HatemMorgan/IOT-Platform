@@ -11,12 +11,18 @@ import com.iotplatform.ontology.XSDDataTypes;
 /*
  *  This class maps the ssn:System class in the ontology 
  * 
- * System is the superClass of device class 
+ * System is the superClass of device class and it has properties that describes any system
+ * (eg:device like what our ontology has)
  * 
- * A system can be a SmartCampus of example
+ * hasOperatingRange and hasSurvivalRange Properties describes that the system has and operatingRange 
+ * or survivalRage that under certain conditions will have a specified survivalProperty or operatingProperty
+ * 
+ * so SurvivalRange and OperatingRange classes act like a wrapper for a condition and the property triggered 
  * 
  * System is a unit of abstraction for pieces of infrastructure (and we largely care that they are) for sensing. 
  * A system has components, its subsystems, which are other systems.
+ * 
+ * 
  */
 
 @Component

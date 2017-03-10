@@ -13,6 +13,10 @@ import com.iotplatform.ontology.Prefixes;
  * i.e., that the maintenance schedule or power requirements differ according to the conditions. 
  * 
  * If the Operating Range exceeded ,the system must be maintained
+ * 
+ *  It is a wrapper for condition and operating property and it is used by System Class to describe that in certain
+ *  condition there is an OperatingProperty instance which has a value or a range
+ *  
  */
 
 @Component

@@ -16,6 +16,8 @@ import com.iotplatform.ontology.XSDDataTypes;
  *   or a fish might act as a Platform for an attached sensor.
  *   
  *   So It is a place where a device is attached to it
+ *   
+ *   A Platform can be used for multiple sensors
  *  
  */
 
