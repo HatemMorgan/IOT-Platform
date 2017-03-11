@@ -20,20 +20,20 @@ import com.iotplatform.ontology.classes.Admin;
 import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.validations.RequestValidation;
+import com.iotplatform.validations.SingleClassRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
 @Service("adminService")
 public class AdminService {
 
-	private RequestValidation requestValidation;
+	private SingleClassRequestValidation requestValidation;
 	private ApplicationDao applicationDao;
 	private AdminDao adminDao;
 	private Admin adminClass;
 
 	@Autowired
-	public AdminService(RequestValidation requestValidation, ApplicationDao applicationDao, AdminDao adminDao,
+	public AdminService(SingleClassRequestValidation requestValidation, ApplicationDao applicationDao, AdminDao adminDao,
 			Admin adminClass) {
 		this.requestValidation = requestValidation;
 		this.applicationDao = applicationDao;
@@ -143,7 +143,7 @@ public class AdminService {
 
 		Admin adminClass = new Admin();
 
-		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
+		SingleClassRequestValidation requestValidation = new SingleClassRequestValidation(validationDao, dynamicConceptDao);
 
 		AdminDao adminDao = new AdminDao(oracle, new SelectionUtility(requestValidation), adminClass);
 

@@ -22,20 +22,20 @@ import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Group;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.validations.RequestValidation;
+import com.iotplatform.validations.SingleClassRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
 @Service("GroupService")
 public class GroupService {
 
-	private RequestValidation requestValidation;
+	private SingleClassRequestValidation requestValidation;
 	private ApplicationDao applicationDao;
 	private GroupDao groupDao;
 	private Group groupClass;
 
 	@Autowired
-	public GroupService(RequestValidation requestValidation, ApplicationDao applicationDao, GroupDao groupDao,
+	public GroupService(SingleClassRequestValidation requestValidation, ApplicationDao applicationDao, GroupDao groupDao,
 			Group groupClass) {
 
 		this.requestValidation = requestValidation;
@@ -146,7 +146,7 @@ public class GroupService {
 
 		Group groupClass = new Group();
 
-		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
+		SingleClassRequestValidation requestValidation = new SingleClassRequestValidation(validationDao, dynamicConceptDao);
 
 		GroupDao groupDao = new GroupDao(oracle, new SelectionUtility(requestValidation), groupClass);
 

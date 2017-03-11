@@ -20,7 +20,7 @@ import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Developer;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.validations.RequestValidation;
+import com.iotplatform.validations.SingleClassRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -28,12 +28,12 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class DeveloperService {
 
 	private DeveloperDao developerDao;
-	private RequestValidation requestValidation;
+	private SingleClassRequestValidation requestValidation;
 	private Developer developerClass;
 	private ApplicationDao applicationDao;
 
 	@Autowired
-	public DeveloperService(DeveloperDao developerDao, RequestValidation requestValidation, Developer developerClass,
+	public DeveloperService(DeveloperDao developerDao, SingleClassRequestValidation requestValidation, Developer developerClass,
 			ApplicationDao applicationDao) {
 		this.developerDao = developerDao;
 		this.requestValidation = requestValidation;
@@ -144,8 +144,8 @@ public class DeveloperService {
 
 		Developer developerClass = new Developer();
 		DeveloperDao developerDao = new DeveloperDao(oracle, developerClass,
-				new SelectionUtility(new RequestValidation(validationDao, dynamicConceptDao)));
-		RequestValidation requestValidation = new RequestValidation(new ValidationDao(oracle),
+				new SelectionUtility(new SingleClassRequestValidation(validationDao, dynamicConceptDao)));
+		SingleClassRequestValidation requestValidation = new SingleClassRequestValidation(new ValidationDao(oracle),
 				new DynamicConceptDao(dataSource));
 
 		ApplicationDao applicationDao = new ApplicationDao(oracle, new Application());

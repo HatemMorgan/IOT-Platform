@@ -37,14 +37,19 @@ import com.iotplatform.utilities.ValueOfTypeClass;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
+/*
+ * SingleClassRequestValidation class is responsible to validate a single entity(class) request 
+ * eg. Admin,Developer,Application,Organization
+ */
+
 @Component
-public class RequestValidation {
+public class SingleClassRequestValidation {
 
 	private ValidationDao validationDao;
 	private DynamicConceptDao dynamicConceptDao;
 
 	@Autowired
-	public RequestValidation(ValidationDao validationDao, DynamicConceptDao dynamicConceptDao) {
+	public SingleClassRequestValidation(ValidationDao validationDao, DynamicConceptDao dynamicConceptDao) {
 
 		this.validationDao = validationDao;
 		this.dynamicConceptDao = dynamicConceptDao;
@@ -62,7 +67,7 @@ public class RequestValidation {
 
 		ArrayList<SqlCondition> orCondtionsFilterList = new ArrayList<>();
 		orCondtionsFilterList.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), subjectClass.getUri()));
-		
+
 		for (Class superClass : subjectClass.getSuperClassesList()) {
 			orCondtionsFilterList
 					.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), superClass.getUri()));
@@ -128,10 +133,8 @@ public class RequestValidation {
 	}
 
 	/*
-	 * checkIfFieldsValid checks if the fields passed by the http request are
-	 * valid or not and it return an array of hashtables if the fields are valid
-	 * which contains the hashtable of dynamic properties and the other
-	 * hashtable for static properties
+	 * isFieldsValid checks if the fields passed by the http request are valid
+	 * or not and it returns a hashtable of propertyValue keyValue
 	 */
 	private Hashtable<Object, Object> isFieldsValid(String applicationName, Class subjectClass,
 			Hashtable<String, Object> htblPropertyValue) {
@@ -171,8 +174,9 @@ public class RequestValidation {
 				} else {
 
 					/*
-					 * passed field is a static property so add it to
-					 * htblDynamicProperties
+					 * passed field is a dynamic property and it is cached so it
+					 * will be availabe in the subject class properties list so
+					 * add it to the returned hashtable of property and value
 					 */
 					htblFieldPropValue.put(htblProperties.get(field), value);
 				}
@@ -181,7 +185,17 @@ public class RequestValidation {
 
 				/*
 				 * passed field is a static property so add it to
-				 * htblStaticProperty
+				 * htblStaticProperty so check that the property is valid for
+				 * this application domain
+				 * 
+				 * if the applicationName is null so this field maps a property
+				 * in the main ontology .
+				 * 
+				 * if the applicationName is equal to passed applicationName so
+				 * it is a dynamic added property to this application domain
+				 * 
+				 * else it will be a dynamic property in another application
+				 * domain which will happen rarely
 				 */
 
 				if (htblProperties.get(field).getApplicationName() == null || htblProperties.get(field)
@@ -247,12 +261,11 @@ public class RequestValidation {
 	}
 
 	/*
-	 * isStaticDataValueValid checks that the datatype of the values passed with
-	 * the property are valid to maintain data integrity and consistency.
+	 * isDataValueValid checks that the datatype of the values passed with the
+	 * property are valid to maintain data integrity and consistency.
 	 * 
-	 * It is used with static dataProperty
 	 */
-	private boolean isStaticDataValueValid(DataTypeProperty dataProperty, Object value) {
+	private boolean isDataValueValid(DataTypeProperty dataProperty, Object value) {
 
 		XSDDataTypes xsdDataType = dataProperty.getDataType();
 		switch (xsdDataType) {
@@ -438,7 +451,7 @@ public class RequestValidation {
 				 * check if the datatype is correct or not
 				 */
 
-				if (!isStaticDataValueValid((DataTypeProperty) property, value)) {
+				if (!isDataValueValid((DataTypeProperty) property, value)) {
 
 					throw new InvalidPropertyValuesException(subjectClass.getName(), property.getName());
 				}
@@ -518,7 +531,8 @@ public class RequestValidation {
 
 		System.out.println("Connected to Database");
 
-		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
+		SingleClassRequestValidation requestValidation = new SingleClassRequestValidation(validationDao,
+				dynamicConceptDao);
 
 		Hashtable<String, Object> htblPropValues = new Hashtable<>();
 		htblPropValues.put("firstName", "Hatem");

@@ -2,6 +2,7 @@ package com.iotplatform.utilities;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
@@ -55,17 +56,78 @@ public class QueryUtility {
 
 		return stringBuilder.toString();
 	}
-	
 
 	/*
-	 * constructInsertQuery method takes a hashtable with class as key and
-	 * lits of prefixed property values as the value of hashtable and returns constructed insert query
+	 * constructInsertQuery method takes a hashtable with class as key and lits
+	 * of prefixed property values as the value of hashtable and it also takes a
+	 * hashtable of subject names with class as the key and subject as the value
+	 * 
+	 * returns constructed insert query
 	 */
-	public static String constructInsertQuery(Hashtable<Class, ArrayList<PropertyValue>> classPrefixedPropertyValue) {
-		
-		
-		
-		return null;
+	public static String constructInsertQuery(Hashtable<Class, ArrayList<PropertyValue>> htblClassPrefixedPropertyValue,
+			Hashtable<Class, String> htblClassTypeSubjectName) {
+
+		/*
+		 * The two hashtables will have the same length
+		 */
+		Iterator<Class> htblClassPrefixedPropertyValueIterator = htblClassPrefixedPropertyValue.keySet().iterator();
+		Iterator<Class> htblClassTypeSubjectNameIterator = htblClassTypeSubjectName.keySet().iterator();
+
+		StringBuilder stringBuilder = new StringBuilder();
+
+		/*
+		 * add Prefixes and start of SPARQL insert query
+		 */
+		if (prefixesString == null) {
+			StringBuilder prefixStringBuilder = new StringBuilder();
+			for (Prefixes prefix : Prefixes.values()) {
+				prefixStringBuilder.append("PREFIX	" + prefix.getPrefix() + "	<" + prefix.getUri() + ">\n");
+			}
+
+			prefixesString = prefixStringBuilder.toString();
+		}
+
+		stringBuilder.append(prefixesString);
+		stringBuilder.append("INSERT DATA { \n");
+
+		/*
+		 * Add insert query body by looping on hashtables to add an instance of
+		 * each class and also adding properties passed to instances of that
+		 * class
+		 */
+		while (htblClassPrefixedPropertyValueIterator.hasNext()) {
+
+			Class subjectClass = htblClassPrefixedPropertyValueIterator.next();
+			ArrayList<PropertyValue> propValueList = htblClassPrefixedPropertyValue.get(subjectClass);
+
+			htblClassTypeSubjectNameIterator.next();
+			String subject = htblClassTypeSubjectName.get(subjectClass);
+
+			stringBuilder.append(subject + "	a	" + "<" + subjectClass.getUri() + "> ; \n");
+
+			int counter = 0;
+			int size = propValueList.size();
+
+			for (PropertyValue propertyValue : propValueList) {
+
+				String prefixedPropStr = propertyValue.getPropertyName();
+				Object value = propertyValue.getValue();
+
+				/*
+				 * check if it is the last property value to end the query
+				 */
+				if (counter < size - 1) {
+					stringBuilder.append(prefixedPropStr + "	" + value + " ;\n");
+				} else {
+					stringBuilder.append(prefixedPropStr + "	" + value + " . \n ");
+				}
+
+				counter++;
+			}
+		}
+		stringBuilder.append(" } ");
+		return stringBuilder.toString();
+
 	}
 
 	public static String constructSelectAllQueryNoFilters(Class SubjectClass, String modelName) {

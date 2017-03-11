@@ -16,15 +16,15 @@ import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
-import com.iotplatform.validations.RequestValidation;
+import com.iotplatform.validations.SingleClassRequestValidation;
 
 @Component
 public class SelectionUtility {
 
-	RequestValidation requestValidation;
+	SingleClassRequestValidation requestValidation;
 
 	@Autowired
-	public SelectionUtility(RequestValidation requestValidation) {
+	public SelectionUtility(SingleClassRequestValidation requestValidation) {
 		this.requestValidation = requestValidation;
 	}
 

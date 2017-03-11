@@ -22,20 +22,20 @@ import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Organization;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.validations.RequestValidation;
+import com.iotplatform.validations.SingleClassRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
 @Service("organizationService")
 public class OrganizationService {
 
-	private RequestValidation requestValidation;
+	private SingleClassRequestValidation requestValidation;
 	private ApplicationDao applicationDao;
 	private OrganizationDao organizationDao;
 	private Organization organizationClass;
 
 	@Autowired
-	public OrganizationService(RequestValidation requestValidation, ApplicationDao applicationDao,
+	public OrganizationService(SingleClassRequestValidation requestValidation, ApplicationDao applicationDao,
 			OrganizationDao organizationDao, Organization organizationClass) {
 		this.requestValidation = requestValidation;
 		this.applicationDao = applicationDao;
@@ -148,7 +148,7 @@ public class OrganizationService {
 
 		Organization organizationClass = new Organization();
 
-		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
+		SingleClassRequestValidation requestValidation = new SingleClassRequestValidation(validationDao, dynamicConceptDao);
 
 		OrganizationDao organizationDao = new OrganizationDao(oracle, new SelectionUtility(requestValidation),
 				organizationClass);

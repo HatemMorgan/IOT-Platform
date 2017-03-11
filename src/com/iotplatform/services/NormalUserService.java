@@ -22,20 +22,20 @@ import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.NormalUser;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.validations.RequestValidation;
+import com.iotplatform.validations.SingleClassRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
 @Service("normalUserService")
 public class NormalUserService {
 
-	private RequestValidation requestValidation;
+	private SingleClassRequestValidation requestValidation;
 	private ApplicationDao applicationDao;
 	private NormalUserDao normalUserDao;
 	private NormalUser normalUserClass;
 
 	@Autowired
-	public NormalUserService(RequestValidation requestValidation, ApplicationDao applicationDao,
+	public NormalUserService(SingleClassRequestValidation requestValidation, ApplicationDao applicationDao,
 			NormalUserDao normalUserDao, NormalUser normalUserClass) {
 		this.requestValidation = requestValidation;
 		this.applicationDao = applicationDao;
@@ -146,7 +146,7 @@ public class NormalUserService {
 
 		NormalUser normalUserClass = new NormalUser();
 
-		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
+		SingleClassRequestValidation requestValidation = new SingleClassRequestValidation(validationDao, dynamicConceptDao);
 
 		NormalUserDao normalUserDao = new NormalUserDao(oracle, new SelectionUtility(requestValidation), normalUserClass);
 
