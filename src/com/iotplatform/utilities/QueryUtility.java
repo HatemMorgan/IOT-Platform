@@ -1,6 +1,7 @@
 package com.iotplatform.utilities;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
@@ -53,6 +54,18 @@ public class QueryUtility {
 		}
 
 		return stringBuilder.toString();
+	}
+	
+
+	/*
+	 * constructInsertQuery method takes a hashtable with class as key and
+	 * lits of prefixed property values as the value of hashtable and returns constructed insert query
+	 */
+	public static String constructInsertQuery(Hashtable<Class, ArrayList<PropertyValue>> classPrefixedPropertyValue) {
+		
+		
+		
+		return null;
 	}
 
 	public static String constructSelectAllQueryNoFilters(Class SubjectClass, String modelName) {

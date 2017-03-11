@@ -82,7 +82,7 @@ public class SystemClass extends Class {
 		 * relationShip because a system/device has only one survivalRange
 		 */
 		super.getProperties().put("hasSurvivalRange", new ObjectProperty("hasSurvivalRange", Prefixes.SSN,
-				SurvivalRange.getSurvivalRangeInstance(), false, false));
+				SurvivalRange.getSurvivalRangeInstance(), true, false));
 
 		/*
 		 * Relation from a System to an OperatingRange describing the normal
@@ -90,7 +90,7 @@ public class SystemClass extends Class {
 		 * because a system/device has only one operatingRange
 		 */
 		super.getProperties().put("hasOperatingRange", new ObjectProperty("hasOperatingRange", Prefixes.SSN,
-				OperatingRange.getOperatingRangeInstance(), false, false));
+				OperatingRange.getOperatingRangeInstance(), true, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSubSystem", "hasSubSystem");
