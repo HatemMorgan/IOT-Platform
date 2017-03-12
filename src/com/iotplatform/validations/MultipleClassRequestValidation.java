@@ -5,6 +5,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -197,7 +199,7 @@ public class MultipleClassRequestValidation {
 	 * constraint and unique constraint and dataType constraint a
 	 */
 	private ArrayList<PropertyValue> isRequestValid(String applicationName,
-			Hashtable<Class, Hashtable<String, ValueType>> htblClassFieldValue, Class requestSubjectClass) {
+			Hashtable<Class, Hashtable<String, PropertyValue>> htblClassFieldValue, Class requestSubjectClass) {
 
 		// list of classes that need to bring their dynamic properties
 		ArrayList<Class> classList = new ArrayList<>();
@@ -207,7 +209,7 @@ public class MultipleClassRequestValidation {
 		 * property and will be waiting to another check to dynamic properties
 		 * after being loaded.
 		 */
-		Hashtable<String, ValueType> htblNotFoundFieldValue = new Hashtable<>();
+		Hashtable<String, PropertyValue> htblNotFoundFieldValue = new Hashtable<>();
 
 		// returned propertyValue arraylist
 		ArrayList<PropertyValue> returnedPropertyValueList = new ArrayList<>();
@@ -216,7 +218,7 @@ public class MultipleClassRequestValidation {
 
 		while (htblPropertyValueIterator.hasNext()) {
 			Class subjectClass = htblPropertyValueIterator.next();
-			Hashtable<String, ValueType> htblFieldValue = htblClassFieldValue.get(subjectClass);
+			Hashtable<String, PropertyValue> htblFieldValue = htblClassFieldValue.get(subjectClass);
 
 			/*
 			 * iterate over request fieldValue pair of the specifiedClass
@@ -225,7 +227,7 @@ public class MultipleClassRequestValidation {
 
 			while (htblFieldValueIterator.hasNext()) {
 				String propertyName = htblFieldValueIterator.next();
-				ValueType valueType = htblFieldValue.get(propertyName);
+				PropertyValue valueType = htblFieldValue.get(propertyName);
 
 				Property property = subjectClass.getProperties().get(propertyName);
 
@@ -461,7 +463,77 @@ public class MultipleClassRequestValidation {
 		return null;
 	}
 
-	private boolean isProrpertyValueValid(Property property) {
+	/*
+	 * isDataValueValid checks that the datatype of the values passed with the
+	 * property are valid to maintain data integrity and consistency.
+	 * 
+	 */
+	private boolean isDataValueValid(DataTypeProperty dataProperty, Object value) {
+
+		XSDDataTypes xsdDataType = dataProperty.getDataType();
+		switch (xsdDataType) {
+		case boolean_type:
+			if (value instanceof Boolean) {
+				return true;
+			} else {
+				return false;
+			}
+		case decimal_typed:
+			if (value instanceof Double) {
+				return true;
+			} else {
+				return false;
+			}
+		case float_typed:
+			if (value instanceof Float) {
+				return true;
+			} else {
+				return false;
+			}
+		case integer_typed:
+			if (value instanceof Integer) {
+				return true;
+			} else {
+				return false;
+			}
+		case string_typed:
+			if (value instanceof String) {
+				return true;
+			} else {
+				return false;
+			}
+		case dateTime_typed:
+			if (value instanceof XMLGregorianCalendar) {
+				return true;
+			} else {
+				return false;
+			}
+		case double_typed:
+			if (value instanceof Double) {
+				return true;
+			} else {
+				return false;
+			}
+		default:
+			return false;
+		}
+
+	}
+
+	/*
+	 * isObjectPropertiesValuesValid method takes a list property and valueType
+	 * object (contains Object value and boolean isObject which determines if
+	 * the value was an object(represents a Class) before parsing request json
+	 * object)
+	 * 
+	 * isProrpertyValueValid checks if the property value is valid (No Data
+	 * Integrity constraint and no unique constraint violations)
+	 * 
+	 * if property value is valid it returns true else it will throw an
+	 * appropriate error to determine which type of constraint violations
+	 * occured
+	 */
+	private boolean isObjectPropertiesValuesValid(Property property, PropertyValue propertyValue) {
 		return false;
 	}
 
@@ -559,7 +631,7 @@ public class MultipleClassRequestValidation {
 
 		// testing isValidField method
 
-		Hashtable<Class, Hashtable<String, ValueType>> htblClassFieldValue = new Hashtable<>();
+		Hashtable<Class, Hashtable<String, PropertyValue>> htblClassFieldValue = new Hashtable<>();
 
 		ArrayList<String> hatersList = new ArrayList<>();
 		hatersList.add("HatemMorgan");
@@ -569,15 +641,15 @@ public class MultipleClassRequestValidation {
 		mails.add("hatemmorgan17@gmail.com");
 		mails.add("hatem.el-sayed@student.guc.edu.eg");
 
-		Hashtable<String, ValueType> htblDeveloperPropValues = new Hashtable<>();
-		htblDeveloperPropValues.put("firstName", new ValueType("Hatem", false));
-		htblDeveloperPropValues.put("knows", new ValueType("HatemMorgan", false));
-		htblDeveloperPropValues.put("mbox", new ValueType(mails, false));
-		htblDeveloperPropValues.put("hates", new ValueType(hatersList, false));
+		Hashtable<String, PropertyValue> htblDeveloperPropValues = new Hashtable<>();
+		htblDeveloperPropValues.put("firstName", new PropertyValue("Hatem", false));
+		htblDeveloperPropValues.put("knows", new PropertyValue("HatemMorgan", false));
+		htblDeveloperPropValues.put("mbox", new PropertyValue(mails, false));
+		htblDeveloperPropValues.put("hates", new PropertyValue(hatersList, false));
 
-		Hashtable<String, ValueType> htblActuatingDevicePropValues = new Hashtable<>();
-		htblActuatingDevicePropValues.put("hasOperatingRange", new ValueType("90129-219301-219031", false));
-		htblActuatingDevicePropValues.put("test", new ValueType("2134-2313-242-33332", false));
+		Hashtable<String, PropertyValue> htblActuatingDevicePropValues = new Hashtable<>();
+		htblActuatingDevicePropValues.put("hasOperatingRange", new PropertyValue("90129-219301-219031", false));
+		htblActuatingDevicePropValues.put("test", new PropertyValue("2134-2313-242-33332", false));
 
 		htblClassFieldValue.put(
 				multipleClassRequestValidation.getHtblAllStaticClasses().get("http://iot-platform#Developer"),
