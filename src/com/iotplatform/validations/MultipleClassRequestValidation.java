@@ -179,45 +179,73 @@ public class MultipleClassRequestValidation {
 	 * isFieldsValid checks if the fields passed by the http request are valid
 	 * or not and it returns a hashtable of propertyValue keyValue
 	 * 
-	 * This method takes a hashtable of fields and values . the values may be
-	 * single value or an Arraylist or an object so this method will reconstruct
-	 * the request body into the appropriate classes and check for the validity
-	 * of each field(by checking if maps to a valid property or not)
+	 * This method takes a hashtable with class as a key and hashtable of
+	 * fieldsValues ( fields(propertyName) and values, the values may be single
+	 * value or an Arraylist or an object).
+	 * 
+	 * This method will return ArrayList<PropertyValue> which breaks all the
+	 * value objects or arraylist into single propertyValue pair and get the
+	 * prfixPropertyName
+	 * 
+	 * to be inserted after that and also to be validated for data integrity
+	 * constraint and unique constraint and dataType constraint a
 	 */
-	private Hashtable<String, Property> isFieldsValid(String applicationName, ArrayList<Class> classesList,
-			Hashtable<String, Object> htblPropertyValue) {
+	private ArrayList<PropertyValue> isFieldsValid(String applicationName,
+			Hashtable<Class, Hashtable<String, Object>> htblClassFieldValue) {
 
 		Hashtable<String, Property> htbClassesAllProperties = new Hashtable<>();
 
-		/*
-		 * get all properties from all classes in classList and put them into
-		 * one hashtable
-		 */
+		// list of classes that need to bring their dynamic properties
+		ArrayList<Class> classList = new ArrayList<>();
 
-		for (Class subjectClass : classesList) {
-			Hashtable<String, Property> subjectClassProperties = subjectClass.getProperties();
-			htbClassesAllProperties.putAll(subjectClassProperties);
-		}
+		ArrayList<PropertyValue> returnedPropertyValueList = new ArrayList<>();
 
-		Iterator<String> htblPropertyValueIterator = htblPropertyValue.keySet().iterator();
+		Iterator<Class> htblPropertyValueIterator = htblClassFieldValue.keySet().iterator();
 
 		while (htblPropertyValueIterator.hasNext()) {
-			String propertyName = htblPropertyValueIterator.next();
-			Object value = htblPropertyValue.get(propertyName);
+			Class subjectClass = htblPropertyValueIterator.next();
+			Hashtable<String, Object> htblFieldValue = htblClassFieldValue.get(subjectClass);
 
 			/*
-			 * check if the property not exist in the htbClassesAllProperties
-			 * hashtable . If it is not exist then call getDynamicProperties
-			 * method
+			 * This hashtable holds the fieldValue pair that has no mapping to a
+			 * property and will be waiting to another check to dynamic
+			 * properties after being loaded.
 			 */
+			Hashtable<String, Object> htblNotFoundFieldValue = new Hashtable<>();
+			/*
+			 * iterate over request fieldValue pair of the specifiedClass
+			 */
+			Iterator<String> htblFieldValueIterator = htblFieldValue.keySet().iterator();
 
-			if (!htbClassesAllProperties.containsKey(propertyName)) {
+			while (htblFieldValueIterator.hasNext()) {
+				String propertyName = htblFieldValueIterator.next();
+				Object value = htblFieldValue.get(propertyName);
 
+				/*
+				 * check if the property not exist in the
+				 * htbClassesAllProperties hashtable . If it is not exist then
+				 * add it to classList Arraylist to be passed to
+				 * getDynamicPropertiesMethod at the end
+				 */
+
+				if (!htbClassesAllProperties.containsKey(propertyName)) {
+					htblNotFoundFieldValue.put(propertyName, value);
+					classList.add(subjectClass);
+				} else {
+
+					/*
+					 * Field is valid and has a mapping for a property so we
+					 * will break any object or arraylist value and get
+					 * prefixedPropertyName then add it to
+					 * returnedPropertyValueList
+					 */
+
+				}
 			}
 
 		}
 
-		return null;
+		return returnedPropertyValueList;
 
 	}
 
@@ -233,6 +261,9 @@ public class MultipleClassRequestValidation {
 
 	}
 
+	/*
+	 * get Prefix enum that maps the String prefixAlias from a dynamicProperty
+	 */
 	private Prefixes getPrefix(String prefixAlias) {
 
 		if (Prefixes.FOAF.getPrefix().equals(prefixAlias)) {
