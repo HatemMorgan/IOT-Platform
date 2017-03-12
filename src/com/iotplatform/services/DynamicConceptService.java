@@ -10,9 +10,12 @@ import org.springframework.stereotype.Service;
 import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.exceptions.ErrorObjException;
+import com.iotplatform.exceptions.InvalidDynamicConceptException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.models.SuccessfullInsertionModel;
+import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.PropertyType;
 
 @Service("dynamicConceptService")
 public class DynamicConceptService {
@@ -60,13 +63,25 @@ public class DynamicConceptService {
 				return err.getExceptionHashTable(timeTaken);
 			}
 
-			dynamicConceptDao.insertNewConcept(newConcept);
-			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("New Ontology Concept");
-			return successModel.getResponseJson();
+			/*
+			 * check if the passed new concept has a valid fields
+			 * 
+			 * if newConcept is invalid the isNewConceptValid method will throw
+			 * an InvalidDynamicConceptException
+			 */
+
+			if (isNewConceptValid(newConcept)) {
+				dynamicConceptDao.insertNewConcept(newConcept);
+				SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("New Ontology Concept");
+				return successModel.getResponseJson();
+			}
+
 		} catch (ErrorObjException e) {
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			return e.getExceptionHashTable(timeTaken);
 		}
+		
+		return null;
 	}
 
 	public Hashtable<String, Object> getApplicationDynamicConcepts(String applicationNameCode) {
@@ -94,6 +109,76 @@ public class DynamicConceptService {
 			return e.getExceptionHashTable(timeTaken);
 		}
 
+	}
+
+	/*
+	 * isValidUri method is used to check if the classURI, propertyURI and
+	 * ObjectTypeURI have valid URI (started with one of the prefixes URIs
+	 * defined in the ontology)
+	 */
+	private boolean isNewConceptValid(DynamicConceptModel newConcept) {
+
+		boolean validClassURI = false;
+		boolean validPropertyURI = false;
+		boolean validObjectTypeURI = false;
+
+		for (Prefixes prefix : Prefixes.values()) {
+
+			if (!validClassURI) {
+				if (newConcept.getClass_uri().contains(prefix.getUri())
+						&& newConcept.getClass_prefix_uri().equals(prefix.getUri())
+						&& newConcept.getClass_prefix_alias().equals(prefix.getPrefix()))
+					validClassURI = true;
+			}
+
+			if (!validPropertyURI) {
+				if (newConcept.getProperty_uri().contains(prefix.getUri())
+						&& newConcept.getProperty_prefix_uri().equals(prefix.getUri())
+						&& newConcept.getProperty_prefix_alias().equals(prefix.getPrefix()))
+					validPropertyURI = true;
+			}
+
+			if (!validObjectTypeURI) {
+				if (newConcept.getProperty_object_type_uri().contains(prefix.getUri()))
+					validClassURI = true;
+			}
+
+		}
+
+		if (!(newConcept.getIsUnique() == 0 || newConcept.getIsUnique() == 1)) {
+			throw new InvalidDynamicConceptException(
+					"Invalid isUnique field value. isUnique field must be 0(false) or 1(true)");
+		}
+
+		if (!(newConcept.getHasMultipleValues() == 0 || newConcept.getHasMultipleValues() == 1)) {
+			throw new InvalidDynamicConceptException(
+					"Invalid hasMultipleValues field value. hasMultipleValues field must be 0(false) or 1(true)");
+		}
+
+		if (!validClassURI) {
+			throw new InvalidDynamicConceptException(
+					"Invalid Class fields values. ClassURI, classPrefixURI and classPrefixAlias values must"
+							+ " be a valid URI with one of the ontology prefixes");
+		}
+
+		if (!validPropertyURI) {
+			throw new InvalidDynamicConceptException(
+					"Invalid Class fields values. ClassURI, classPrefixURI and classPrefixAlias values must"
+							+ " be a valid URI with one of the ontology prefixes");
+		}
+
+		if (!validObjectTypeURI) {
+			throw new InvalidDynamicConceptException("Invalid Class fields values. propertyObjectTypeURI values must"
+					+ " be a valid URI with one of the ontology prefixes");
+		}
+
+		if (!(newConcept.getProperty_type().equals(PropertyType.DatatypeProperty.toString())
+				|| newConcept.getProperty_type().equals(PropertyType.ObjectProperty.toString()))) {
+			throw new InvalidDynamicConceptException("Invalid propertyObjectTypeURI value. propertyObjectTypeURI field"
+					+ " must have a value either \"DatatypeProperty\" or \"ObjectProperty\" ");
+		}
+
+		return true;
 	}
 
 }
