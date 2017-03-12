@@ -1,5 +1,7 @@
 package com.iotplatform.utilities;
 
+import com.iotplatform.ontology.Class;
+
 /*
  * PropertyValue class is used to create instances which has a propertyName and an object value and a boolean isObject which
  * specifies if the value was object or just a datatype value (eg. string,int,etc.)
@@ -11,9 +13,9 @@ package com.iotplatform.utilities;
  * This Class is also used to construct the proper propertyValue pair that will be used in the insert query
  */
 
-
 public class PropertyValue {
 
+	private Class subjectClass;
 	private String propertyName;
 	private Object value;
 	private boolean isObject;
@@ -21,6 +23,13 @@ public class PropertyValue {
 	public PropertyValue(String propertyName, Object value) {
 		this.propertyName = propertyName;
 		this.value = value;
+	}
+
+	public PropertyValue(String propertyName, Object value, Class subjectClass, boolean isObject) {
+		this.propertyName = propertyName;
+		this.subjectClass = subjectClass;
+		this.value = value;
+		this.isObject = isObject;
 	}
 
 	public PropertyValue(Object value, boolean isObject) {
@@ -54,9 +63,22 @@ public class PropertyValue {
 		return isObject;
 	}
 
+	public Class getSubjectClass() {
+		return subjectClass;
+	}
+
+	public void setSubjectClass(Class subjectClass) {
+		this.subjectClass = subjectClass;
+	}
+
+	public void setObject(boolean isObject) {
+		this.isObject = isObject;
+	}
+
 	@Override
 	public String toString() {
-		return "PropertyValue [propertyName=" + propertyName + ", value=" + value + "]";
+		return "PropertyValue [subjectClass=" + subjectClass + ", propertyName=" + propertyName + ", value=" + value
+				+ ", isObject=" + isObject + "]";
 	}
 
 }

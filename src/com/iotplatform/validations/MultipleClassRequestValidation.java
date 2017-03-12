@@ -73,7 +73,6 @@ import com.iotplatform.ontology.classes.Unit;
 import com.iotplatform.utilities.InsertionUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SqlCondition;
-import com.iotplatform.utilities.ValueType;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -194,11 +193,13 @@ public class MultipleClassRequestValidation {
 	 * This method will return ArrayList<PropertyValue> which breaks all the
 	 * value objects or arraylist into single propertyValue pair and get the
 	 * prfixPropertyName
+	 *
 	 * 
 	 * to be inserted after that and also to be validated for data integrity
 	 * constraint and unique constraint and dataType constraint a
 	 */
-	private ArrayList<PropertyValue> isRequestValid(String applicationName,
+
+	private ArrayList<PropertyValue> isFieldsValid(String applicationName,
 			Hashtable<Class, Hashtable<String, PropertyValue>> htblClassFieldValue, Class requestSubjectClass) {
 
 		// list of classes that need to bring their dynamic properties
@@ -227,6 +228,13 @@ public class MultipleClassRequestValidation {
 
 			while (htblFieldValueIterator.hasNext()) {
 				String propertyName = htblFieldValueIterator.next();
+
+				/*
+				 * this object contains the value and a boolean isObject which
+				 * expresses if this value was an object(represent a class
+				 * propertyValue) before parsing, it is of type PropertyValue
+				 * and it has only those two attributes
+				 */
 				PropertyValue valueType = htblFieldValue.get(propertyName);
 
 				Property property = subjectClass.getProperties().get(propertyName);
@@ -250,7 +258,8 @@ public class MultipleClassRequestValidation {
 					 * returnedPropertyValueList
 					 */
 
-					returnedPropertyValueList.addAll(constructPropertyValue(property, valueType.getValue()));
+					returnedPropertyValueList.addAll(
+							constructPropertyValue(property, valueType.getValue(), subjectClass, valueType.isObject()));
 
 				}
 			}
@@ -308,7 +317,8 @@ public class MultipleClassRequestValidation {
 						 */
 
 						returnedPropertyValueList
-								.addAll(constructPropertyValue(property, htblNotFoundFieldValue.get(field).getValue()));
+								.addAll(constructPropertyValue(property, htblNotFoundFieldValue.get(field).getValue(),
+										subjectClass, htblNotFoundFieldValue.get(field).isObject()));
 
 					} else {
 
@@ -330,11 +340,17 @@ public class MultipleClassRequestValidation {
 
 	}
 
-	private ArrayList<PropertyValue> constructPropertyValue(Property property, Object value) {
+	/*
+	 * constructPropertyValue method is used to construct an arraylist of
+	 * PrefixedpropertyValues by breakdown any lists and add prefix to values
+	 * and properties
+	 */
+	private ArrayList<PropertyValue> constructPropertyValue(Property property, Object value, Class subjectClass,
+			boolean isObject) {
 
 		ArrayList<PropertyValue> propValueList = new ArrayList<>();
 
-		String prefixedProperty = property.getPrefix().getUri() + property.getName();
+		String prefixedProperty = property.getPrefix().getPrefix() + property.getName();
 		/*
 		 * multiple value and the value passed is instance of of array so It
 		 * must be broken to propertyValue objects to be able to check if the
@@ -345,7 +361,13 @@ public class MultipleClassRequestValidation {
 		if (property.isMulitpleValues() && value instanceof java.util.ArrayList) {
 			ArrayList<Object> valueList = (ArrayList<Object>) value;
 			for (int i = 0; i < valueList.size(); i++) {
-				PropertyValue propertyValue = new PropertyValue(prefixedProperty, valueList.get(i));
+
+				/*
+				 * get prefixed value to follow semantic web structure
+				 */
+				Object prefixedValue = getValue(property, valueList.get(i));
+				PropertyValue propertyValue = new PropertyValue(prefixedProperty, prefixedValue, subjectClass,
+						isObject);
 				propValueList.add(propertyValue);
 			}
 		} else {
@@ -356,23 +378,12 @@ public class MultipleClassRequestValidation {
 			 * propValueList
 			 */
 
-			PropertyValue propertyValue = new PropertyValue(prefixedProperty, value);
+			Object prefixedValue = getValue(property, value);
+			PropertyValue propertyValue = new PropertyValue(prefixedProperty, prefixedValue, subjectClass, isObject);
 			propValueList.add(propertyValue);
 
 		}
 		return propValueList;
-	}
-
-	public ArrayList<PropertyValue> isRequestValid(String applicationName, Class subjectClass,
-			Hashtable<String, Object> htblPropertyValue) {
-		return null;
-		// Hashtable<Object, Object> htblPropValue =
-		// isFieldsValid(applicationName, subjectClass, htblPropertyValue);
-		// ArrayList<PropertyValue> propertyValueList =
-		// InsertionUtility.constructPropValueList(htblPropValue);
-		// return isProrpertyValueValid(propertyValueList, subjectClass,
-		// applicationName);
-
 	}
 
 	/*
@@ -521,10 +532,22 @@ public class MultipleClassRequestValidation {
 	}
 
 	/*
-	 * isObjectPropertiesValuesValid method takes a list property and valueType
-	 * object (contains Object value and boolean isObject which determines if
-	 * the value was an object(represents a Class) before parsing request json
-	 * object)
+	 * getValue method returns the appropriate value by appending a prefix
+	 */
+	private Object getValue(Property property, Object value) {
+
+		if (property instanceof DataTypeProperty) {
+			XSDDataTypes xsdDataType = ((DataTypeProperty) property).getDataType();
+			value = "\"" + value.toString() + "\"" + xsdDataType.getXsdType();
+			return value;
+		} else {
+			return Prefixes.IOT_PLATFORM.getPrefix() + value;
+		}
+	}
+
+	/*
+	 * isObjectPropertiesValuesValid method takes a list of
+	 * prefiexedPropertyValue
 	 * 
 	 * isProrpertyValueValid checks if the property value is valid (No Data
 	 * Integrity constraint and no unique constraint violations)
@@ -533,7 +556,7 @@ public class MultipleClassRequestValidation {
 	 * appropriate error to determine which type of constraint violations
 	 * occured
 	 */
-	private boolean isObjectPropertiesValuesValid(Property property, PropertyValue propertyValue) {
+	private boolean isObjectPropertiesValuesValid(ArrayList<PropertyValue> prefixedPropertyValue) {
 		return false;
 	}
 
@@ -659,7 +682,7 @@ public class MultipleClassRequestValidation {
 						.get("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice"),
 				htblActuatingDevicePropValues);
 
-		System.out.println(multipleClassRequestValidation.isRequestValid("TESTAPPLICATION", htblClassFieldValue,
+		System.out.println(multipleClassRequestValidation.isFieldsValid("TESTAPPLICATION", htblClassFieldValue,
 				multipleClassRequestValidation.getHtblAllStaticClasses()
 						.get("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice")));
 
