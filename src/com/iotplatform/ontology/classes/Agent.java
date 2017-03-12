@@ -31,6 +31,12 @@ public class Agent extends Class {
 
 	}
 
+	public Agent() {
+		super("Agent", "http://xmlns.com/foaf/0.1/Agent", Prefixes.FOAF);
+		init();
+
+	}
+
 	public synchronized static Agent getAgentInstance() {
 
 		if (agentInstance == null) {
