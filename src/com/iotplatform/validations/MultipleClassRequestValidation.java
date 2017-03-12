@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
+import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
@@ -70,6 +71,7 @@ import com.iotplatform.ontology.classes.Unit;
 import com.iotplatform.utilities.InsertionUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SqlCondition;
+import com.iotplatform.utilities.ValueType;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -184,7 +186,8 @@ public class MultipleClassRequestValidation {
 	 * 
 	 * This method takes a hashtable with class as a key and hashtable of
 	 * fieldsValues ( fields(propertyName) and values, the values may be single
-	 * value or an Arraylist or an object).
+	 * value or an Arraylist or an object). It also takes the application
+	 * subjectClass which is passed to thrown exception object.
 	 * 
 	 * This method will return ArrayList<PropertyValue> which breaks all the
 	 * value objects or arraylist into single propertyValue pair and get the
@@ -193,28 +196,28 @@ public class MultipleClassRequestValidation {
 	 * to be inserted after that and also to be validated for data integrity
 	 * constraint and unique constraint and dataType constraint a
 	 */
-	private ArrayList<PropertyValue> isFieldsValid(String applicationName,
-			Hashtable<Class, Hashtable<String, Object>> htblClassFieldValue) {
-
-		Hashtable<String, Property> htbClassesAllProperties = new Hashtable<>();
+	private ArrayList<PropertyValue> isRequestValid(String applicationName,
+			Hashtable<Class, Hashtable<String, ValueType>> htblClassFieldValue, Class requestSubjectClass) {
 
 		// list of classes that need to bring their dynamic properties
 		ArrayList<Class> classList = new ArrayList<>();
 
+		/*
+		 * This hashtable holds the fieldValue pair that has no mapping to a
+		 * property and will be waiting to another check to dynamic properties
+		 * after being loaded.
+		 */
+		Hashtable<String, ValueType> htblNotFoundFieldValue = new Hashtable<>();
+
+		// returned propertyValue arraylist
 		ArrayList<PropertyValue> returnedPropertyValueList = new ArrayList<>();
 
 		Iterator<Class> htblPropertyValueIterator = htblClassFieldValue.keySet().iterator();
 
 		while (htblPropertyValueIterator.hasNext()) {
 			Class subjectClass = htblPropertyValueIterator.next();
-			Hashtable<String, Object> htblFieldValue = htblClassFieldValue.get(subjectClass);
+			Hashtable<String, ValueType> htblFieldValue = htblClassFieldValue.get(subjectClass);
 
-			/*
-			 * This hashtable holds the fieldValue pair that has no mapping to a
-			 * property and will be waiting to another check to dynamic
-			 * properties after being loaded.
-			 */
-			Hashtable<String, Object> htblNotFoundFieldValue = new Hashtable<>();
 			/*
 			 * iterate over request fieldValue pair of the specifiedClass
 			 */
@@ -222,7 +225,9 @@ public class MultipleClassRequestValidation {
 
 			while (htblFieldValueIterator.hasNext()) {
 				String propertyName = htblFieldValueIterator.next();
-				Object value = htblFieldValue.get(propertyName);
+				ValueType valueType = htblFieldValue.get(propertyName);
+
+				Property property = subjectClass.getProperties().get(propertyName);
 
 				/*
 				 * check if the property not exist in the
@@ -231,25 +236,129 @@ public class MultipleClassRequestValidation {
 				 * getDynamicPropertiesMethod at the end
 				 */
 
-				if (!htbClassesAllProperties.containsKey(propertyName)) {
-					htblNotFoundFieldValue.put(propertyName, value);
+				if (!subjectClass.getProperties().containsKey(propertyName)) {
+					htblNotFoundFieldValue.put(propertyName, valueType);
 					classList.add(subjectClass);
 				} else {
 
 					/*
 					 * Field is valid and has a mapping for a property so we
-					 * will break any object or arraylist value and get
+					 * will break any arraylist value and get
 					 * prefixedPropertyName then add it to
 					 * returnedPropertyValueList
 					 */
+
+					returnedPropertyValueList.addAll(constructPropertyValue(property, valueType.getValue()));
 
 				}
 			}
 
 		}
 
+		/*
+		 * get Dynamic Properties
+		 */
+
+		if (classList.size() > 0) {
+			Hashtable<String, DynamicConceptModel> loadedDynamicProperties = getDynamicProperties(applicationName,
+					classList);
+
+			/*
+			 * Check that the fields that had no mappings are valid or not
+			 */
+
+			Iterator<String> htblNotFoundFieldValueIterator = htblNotFoundFieldValue.keySet().iterator();
+
+			while (htblNotFoundFieldValueIterator.hasNext()) {
+				String field = htblNotFoundFieldValueIterator.next();
+
+				if (!loadedDynamicProperties.containsKey(field)) {
+					throw new InvalidRequestFieldsException(requestSubjectClass.getName(), field);
+				} else {
+
+					/*
+					 * passed field is a static property so add it to
+					 * htblStaticProperty so check that the property is valid
+					 * for this application domain
+					 * 
+					 * if the applicationName is null so this field maps a
+					 * property in the main ontology .
+					 * 
+					 * if the applicationName is equal to passed applicationName
+					 * so it is a dynamic added property to this application
+					 * domain
+					 * 
+					 * else it will be a dynamic property in another application
+					 * domain which will happen rarely
+					 */
+
+					Class subjectClass = htblAllStaticClasses.get(loadedDynamicProperties.get(field).getClass_uri());
+					Property property = subjectClass.getProperties().get(field);
+
+					if (property.getApplicationName() == null
+							|| property.getApplicationName().equals(applicationName.replace(" ", "").toUpperCase())) {
+
+						/*
+						 * Field is valid dynamic property and has a mapping for
+						 * a dynamic property so we will break any arraylist
+						 * value and get prefixedPropertyName then add it to
+						 * returnedPropertyValueList
+						 */
+
+						returnedPropertyValueList
+								.addAll(constructPropertyValue(property, htblNotFoundFieldValue.get(field).getValue()));
+
+					} else {
+
+						/*
+						 * this means that this class has a property with the
+						 * same name but it is not for the specified application
+						 * domain
+						 */
+
+						throw new InvalidRequestFieldsException(subjectClass.getName(), field);
+
+					}
+				}
+
+			}
+		}
+
 		return returnedPropertyValueList;
 
+	}
+
+	private ArrayList<PropertyValue> constructPropertyValue(Property property, Object value) {
+
+		ArrayList<PropertyValue> propValueList = new ArrayList<>();
+
+		String prefixedProperty = property.getPrefix().getUri() + property.getName();
+		/*
+		 * multiple value and the value passed is instance of of array so It
+		 * must be broken to propertyValue objects to be able to check if the
+		 * values are valid in case the property is an objectProperty and to
+		 * allow inserting values as triples
+		 */
+
+		if (property.isMulitpleValues() && value instanceof java.util.ArrayList) {
+			ArrayList<Object> valueList = (ArrayList<Object>) value;
+			for (int i = 0; i < valueList.size(); i++) {
+				PropertyValue propertyValue = new PropertyValue(prefixedProperty, valueList.get(i));
+				propValueList.add(propertyValue);
+			}
+		} else {
+
+			/*
+			 * Its a normal property value pair so I will only create a
+			 * propertyValue object to hold them and add the object to
+			 * propValueList
+			 */
+
+			PropertyValue propertyValue = new PropertyValue(prefixedProperty, value);
+			propValueList.add(propertyValue);
+
+		}
+		return propValueList;
 	}
 
 	public ArrayList<PropertyValue> isRequestValid(String applicationName, Class subjectClass,
@@ -352,6 +461,10 @@ public class MultipleClassRequestValidation {
 		return null;
 	}
 
+	private boolean isProrpertyValueValid(Property property) {
+		return false;
+	}
+
 	private void init() {
 		htblAllStaticClasses = new Hashtable<>();
 		htblAllStaticClasses.put("http://iot-platform#Application", new Application());
@@ -407,6 +520,10 @@ public class MultipleClassRequestValidation {
 		htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#Unit", new Unit());
 	}
 
+	public Hashtable<String, Class> getHtblAllStaticClasses() {
+		return htblAllStaticClasses;
+	}
+
 	public static void main(String[] args) {
 
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
@@ -423,18 +540,57 @@ public class MultipleClassRequestValidation {
 		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
 		ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL, szUser, szPasswd));
 
-		ArrayList<Class> classList = new ArrayList<>();
-		ActuatingDevice actuatingDevice = new ActuatingDevice();
-		classList.add(actuatingDevice);
-		classList.add(new Service());
-		classList.add(new OperatingRange());
-		classList.add(new SurvivalRange());
+		MultipleClassRequestValidation multipleClassRequestValidation = new MultipleClassRequestValidation(
+				validationDao, dynamicConceptDao);
 
-		MultipleClassRequestValidation multipleClassRequestValidation = new MultipleClassRequestValidation(validationDao, dynamicConceptDao);
-		System.out.println(multipleClassRequestValidation.getDynamicProperties("TESTAPPLICATION", classList));
-		System.out.println("==========================================================================");
-		System.out.println(actuatingDevice.getProperties().toString());
-		
+		// testing loading dynamic properties
+
+		// ArrayList<Class> classList = new ArrayList<>();
+		// ActuatingDevice actuatingDevice = new ActuatingDevice();
+		// classList.add(actuatingDevice);
+		// classList.add(new Service());
+		// classList.add(new OperatingRange());
+		// classList.add(new SurvivalRange());
+		//
+		// System.out.println(multipleClassRequestValidation.getDynamicProperties("TESTAPPLICATION",
+		// classList));
+		// System.out.println("==========================================================================");
+		// System.out.println(actuatingDevice.getProperties().toString());
+
+		// testing isValidField method
+
+		Hashtable<Class, Hashtable<String, ValueType>> htblClassFieldValue = new Hashtable<>();
+
+		ArrayList<String> hatersList = new ArrayList<>();
+		hatersList.add("HatemMorgan");
+		hatersList.add("AhmedMorgan");
+
+		ArrayList<String> mails = new ArrayList<>();
+		mails.add("hatemmorgan17@gmail.com");
+		mails.add("hatem.el-sayed@student.guc.edu.eg");
+
+		Hashtable<String, ValueType> htblDeveloperPropValues = new Hashtable<>();
+		htblDeveloperPropValues.put("firstName", new ValueType("Hatem", false));
+		htblDeveloperPropValues.put("knows", new ValueType("HatemMorgan", false));
+		htblDeveloperPropValues.put("mbox", new ValueType(mails, false));
+		htblDeveloperPropValues.put("hates", new ValueType(hatersList, false));
+
+		Hashtable<String, ValueType> htblActuatingDevicePropValues = new Hashtable<>();
+		htblActuatingDevicePropValues.put("hasOperatingRange", new ValueType("90129-219301-219031", false));
+		htblActuatingDevicePropValues.put("test", new ValueType("2134-2313-242-33332", false));
+
+		htblClassFieldValue.put(
+				multipleClassRequestValidation.getHtblAllStaticClasses().get("http://iot-platform#Developer"),
+				htblDeveloperPropValues);
+		htblClassFieldValue.put(
+				multipleClassRequestValidation.getHtblAllStaticClasses()
+						.get("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice"),
+				htblActuatingDevicePropValues);
+
+		System.out.println(multipleClassRequestValidation.isRequestValid("TESTAPPLICATION", htblClassFieldValue,
+				multipleClassRequestValidation.getHtblAllStaticClasses()
+						.get("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice")));
+
 	}
 
 }
