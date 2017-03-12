@@ -140,7 +140,7 @@ public class DynamicConceptService {
 
 			if (!validObjectTypeURI) {
 				if (newConcept.getProperty_object_type_uri().contains(prefix.getUri()))
-					validClassURI = true;
+					validObjectTypeURI = true;
 			}
 
 		}
