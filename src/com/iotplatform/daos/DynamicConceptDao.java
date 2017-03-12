@@ -68,7 +68,7 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 				+ "class_name VARCHAR(50), class_uri VARCHAR(150), class_prefix_uri VARCHAR(150),"
 				+ "class_prefix_alias VARCHAR(20), property_name VARCHAR(50), property_uri VARCHAR(150),"
 				+ "property_prefix_uri VARCHAR(150), property_prefix_alias VARCHAR(50),"
-				+ "property_type VARCHAR(20), property_object_type VARCHAR(20),isUnique NUMBER(1,0) ,"
+				+ "property_type VARCHAR(20), property_object_type_uri VARCHAR(150),isUnique NUMBER(1,0) ,"
 				+ " hasMultipleValues NUMBER(1,0),"
 				+ "CONSTRAINT dynamic_concept_table_uk PRIMARY KEY(application_name,class_uri,property_uri) )";
 		try {

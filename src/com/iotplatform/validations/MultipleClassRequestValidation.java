@@ -16,8 +16,10 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.DynamicConceptColumns;
 import com.iotplatform.ontology.ObjectProperty;
+import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.PropertyType;
+import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.ActuatingDevice;
 import com.iotplatform.ontology.classes.Admin;
 import com.iotplatform.ontology.classes.Agent;
@@ -142,7 +144,7 @@ public class MultipleClassRequestValidation {
 
 		for (DynamicConceptModel dynamicProperty : res) {
 
-			Class subjectClass = htblAllStaticClasses.get(dynamicProperty.getClass_name());
+			Class subjectClass = htblAllStaticClasses.get(dynamicProperty.getClass_uri());
 
 			// skip if the property was cached before
 			if (subjectClass.getProperties().contains(dynamicProperty.getProperty_name())) {
@@ -161,11 +163,10 @@ public class MultipleClassRequestValidation {
 								dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
 			} else {
 				if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
-					subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
-							new ObjectProperty(dynamicProperty.getProperty_name(),
-									getPrefix(dynamicProperty.getProperty_prefix_alias()),
-									getClassByName(dynamicProperty.getProperty_object_type()), applicationName,
-									dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
+					subjectClass.getProperties().put(dynamicProperty.getProperty_name(), new ObjectProperty(
+							dynamicProperty.getProperty_name(), getPrefix(dynamicProperty.getProperty_prefix_alias()),
+							htblAllStaticClasses.get(dynamicProperty.getProperty_object_type()), applicationName,
+							dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
 				}
 			}
 			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
@@ -232,6 +233,91 @@ public class MultipleClassRequestValidation {
 
 	}
 
+	private Prefixes getPrefix(String prefixAlias) {
+
+		if (Prefixes.FOAF.getPrefix().equals(prefixAlias)) {
+			return Prefixes.FOAF;
+		}
+
+		if (Prefixes.SSN.getPrefix().equals(prefixAlias)) {
+			return Prefixes.SSN;
+		}
+
+		if (Prefixes.IOT_LITE.getPrefix().equals(prefixAlias)) {
+			return Prefixes.IOT_LITE;
+		}
+
+		if (Prefixes.IOT_PLATFORM.getPrefix().equals(prefixAlias)) {
+			return Prefixes.IOT_PLATFORM;
+		}
+
+		if (Prefixes.GEO.getPrefix().equals(prefixAlias)) {
+			return Prefixes.GEO;
+		}
+
+		if (Prefixes.XSD.getPrefix().equals(prefixAlias)) {
+			return Prefixes.XSD;
+		}
+
+		if (Prefixes.OWL.getPrefix().equals(prefixAlias)) {
+			return Prefixes.OWL;
+		}
+
+		if (Prefixes.RDFS.getPrefix().equals(prefixAlias)) {
+			return Prefixes.RDFS;
+		}
+
+		if (Prefixes.RDF.getPrefix().equals(prefixAlias)) {
+			return Prefixes.RDF;
+		}
+
+		if (Prefixes.QU.getPrefix().equals(prefixAlias)) {
+			return Prefixes.QU;
+		}
+
+		if (Prefixes.DUL.getPrefix().equals(prefixAlias)) {
+			return Prefixes.DUL;
+		}
+
+		return null;
+	}
+
+	/*
+	 * getXSDDataTypeEnum return XsdDataType enum instance
+	 */
+	private XSDDataTypes getXSDDataTypeEnum(String dataType) {
+
+		if (XSDDataTypes.boolean_type.getDataType().equals(dataType)) {
+			return XSDDataTypes.boolean_type;
+		}
+
+		if (XSDDataTypes.decimal_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.decimal_typed;
+		}
+
+		if (XSDDataTypes.float_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.float_typed;
+		}
+
+		if (XSDDataTypes.integer_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.integer_typed;
+		}
+
+		if (XSDDataTypes.string_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.string_typed;
+		}
+
+		if (XSDDataTypes.dateTime_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.dateTime_typed;
+		}
+
+		if (XSDDataTypes.double_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.double_typed;
+		}
+
+		return null;
+	}
+
 	private void init() {
 		htblAllStaticClasses = new Hashtable<>();
 		htblAllStaticClasses.put("http://iot-platform#Application", new Application());
@@ -294,6 +380,11 @@ public class MultipleClassRequestValidation {
 		classesList.add(new Service());
 		classesList.add(new OperatingRange());
 		classesList.add(new SurvivalRange());
+
+		UrlValidator defaultValidator = new UrlValidator(); // default schemes
+		if (defaultValidator.isValid("http://www.apache.org")) {
+			System.out.println("valid");
+		}
 
 		// MultipleClassRequestValidation multipleClassRequestValidation = new
 		// MultipleClassRequestValidation();
