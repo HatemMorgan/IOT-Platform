@@ -426,14 +426,14 @@ public class MultipleClassRequestValidation {
 		ArrayList<Class> classList = new ArrayList<>();
 		ActuatingDevice actuatingDevice = new ActuatingDevice();
 		classList.add(actuatingDevice);
-//		classList.add(new Service());
-//		classList.add(new OperatingRange());
-//		classList.add(new SurvivalRange());
+		classList.add(new Service());
+		classList.add(new OperatingRange());
+		classList.add(new SurvivalRange());
 
-//		MultipleClassRequestValidation multipleClassRequestValidation = new MultipleClassRequestValidation(validationDao, dynamicConceptDao);
-//		System.out.println(multipleClassRequestValidation.getDynamicProperties("TESTAPPLICATION", classList));
-//		System.out.println("==========================================================================");
-//		System.out.println(actuatingDevice.getProperties().toString());
+		MultipleClassRequestValidation multipleClassRequestValidation = new MultipleClassRequestValidation(validationDao, dynamicConceptDao);
+		System.out.println(multipleClassRequestValidation.getDynamicProperties("TESTAPPLICATION", classList));
+		System.out.println("==========================================================================");
+		System.out.println(actuatingDevice.getProperties().toString());
 		
 	}
 
