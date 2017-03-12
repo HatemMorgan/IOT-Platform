@@ -159,13 +159,13 @@ public class MultipleClassRequestValidation {
 				subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
 						new DataTypeProperty(dynamicProperty.getProperty_name(),
 								getPrefix(dynamicProperty.getProperty_prefix_alias()),
-								getXSDDataTypeEnum(dynamicProperty.getProperty_object_type()), applicationName,
+								getXSDDataTypeEnum(dynamicProperty.getProperty_object_type_uri()), applicationName,
 								dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
 			} else {
 				if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
 					subjectClass.getProperties().put(dynamicProperty.getProperty_name(), new ObjectProperty(
 							dynamicProperty.getProperty_name(), getPrefix(dynamicProperty.getProperty_prefix_alias()),
-							htblAllStaticClasses.get(dynamicProperty.getProperty_object_type()), applicationName,
+							htblAllStaticClasses.get(dynamicProperty.getProperty_object_type_uri()), applicationName,
 							dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
 				}
 			}
@@ -380,11 +380,6 @@ public class MultipleClassRequestValidation {
 		classesList.add(new Service());
 		classesList.add(new OperatingRange());
 		classesList.add(new SurvivalRange());
-
-		UrlValidator defaultValidator = new UrlValidator(); // default schemes
-		if (defaultValidator.isValid("http://www.apache.org")) {
-			System.out.println("valid");
-		}
 
 		// MultipleClassRequestValidation multipleClassRequestValidation = new
 		// MultipleClassRequestValidation();

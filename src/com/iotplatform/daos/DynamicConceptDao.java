@@ -95,7 +95,7 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 							newDynamicConcept.getClass_prefix_alias(), newDynamicConcept.getProperty_name(),
 							newDynamicConcept.getProperty_uri(), newDynamicConcept.getProperty_prefix_uri(),
 							newDynamicConcept.getProperty_prefix_alias(), newDynamicConcept.getProperty_type(),
-							newDynamicConcept.getProperty_object_type(), newDynamicConcept.getIsUnique(),
+							newDynamicConcept.getProperty_object_type_uri(), newDynamicConcept.getIsUnique(),
 							newDynamicConcept.getHasMultipleValues() });
 			return count;
 		} catch (DuplicateKeyException duplicateKeyException) {
@@ -239,24 +239,24 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 
 		DynamicConceptDao dao = new DynamicConceptDao(dataSource);
 
-//		 DynamicConceptModel newConcept = new
-//		 DynamicConceptModel("TestApplication", "Person",
-//		 "http://xmlns.com/foaf/0.1/Person", "http://xmlns.com/foaf/0.1/",
-//		 "foaf:",
-//		 "hates", "http://xmlns.com/foaf/0.1/hates",
-//		 "http://xmlns.com/foaf/0.1/", "foaf:",
-//		 PropertyType.ObjectProperty.toString(), "Person",0,1);
+		// DynamicConceptModel newConcept = new
+		// DynamicConceptModel("TestApplication", "Person",
+		// "http://xmlns.com/foaf/0.1/Person", "http://xmlns.com/foaf/0.1/",
+		// "foaf:",
+		// "hates", "http://xmlns.com/foaf/0.1/hates",
+		// "http://xmlns.com/foaf/0.1/", "foaf:",
+		// PropertyType.ObjectProperty.toString(), "Person",0,1);
 
-//		 DynamicConceptModel newConcept = new
-//		 DynamicConceptModel("TestApplication", "Developer",
-//		 "http://iot-platform#Developer", "http://iot-platform#",
-//		 "iot-platform:",
-//		 "love", "http://iot-platform#love",
-//		 "http://iot-platform#", "iot-platform:",
-//		 PropertyType.ObjectProperty.toString(), "Person",0,1);
-//
-//		 System.out.println(dao.insertNewConcept(newConcept));
-//		 System.out.println(dao.getConceptsOfApplication("testapplication").toString());
+		// DynamicConceptModel newConcept = new
+		// DynamicConceptModel("TestApplication", "Developer",
+		// "http://iot-platform#Developer", "http://iot-platform#",
+		// "iot-platform:",
+		// "love", "http://iot-platform#love",
+		// "http://iot-platform#", "iot-platform:",
+		// PropertyType.ObjectProperty.toString(), "Person",0,1);
+		//
+		// System.out.println(dao.insertNewConcept(newConcept));
+		// System.out.println(dao.getConceptsOfApplication("testapplication").toString());
 
 		ArrayList<SqlCondition> orConditionList = new ArrayList<>();
 

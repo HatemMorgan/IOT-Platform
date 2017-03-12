@@ -115,14 +115,14 @@ public class SingleClassRequestValidation {
 				subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
 						new DataTypeProperty(dynamicProperty.getProperty_name(),
 								getPrefix(dynamicProperty.getProperty_prefix_alias()),
-								getXSDDataTypeEnum(dynamicProperty.getProperty_object_type()), applicationName,
+								getXSDDataTypeEnum(dynamicProperty.getProperty_object_type_uri()), applicationName,
 								dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
 			} else {
 				if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
 					subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
 							new ObjectProperty(dynamicProperty.getProperty_name(),
 									getPrefix(dynamicProperty.getProperty_prefix_alias()),
-									getClassByName(dynamicProperty.getProperty_object_type()), applicationName,
+									getClassByName(dynamicProperty.getProperty_object_type_uri()), applicationName,
 									dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
 				}
 			}
