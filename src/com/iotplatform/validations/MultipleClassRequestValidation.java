@@ -20,15 +20,50 @@ import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.ontology.classes.ActuatingDevice;
 import com.iotplatform.ontology.classes.Admin;
+import com.iotplatform.ontology.classes.Agent;
 import com.iotplatform.ontology.classes.Amount;
 import com.iotplatform.ontology.classes.Application;
+import com.iotplatform.ontology.classes.Attribute;
+import com.iotplatform.ontology.classes.CommunicatingDevice;
+import com.iotplatform.ontology.classes.Condition;
+import com.iotplatform.ontology.classes.Coverage;
+import com.iotplatform.ontology.classes.Deployment;
+import com.iotplatform.ontology.classes.DeploymentRelatedProcess;
 import com.iotplatform.ontology.classes.Developer;
+import com.iotplatform.ontology.classes.Device;
+import com.iotplatform.ontology.classes.DeviceModule;
+import com.iotplatform.ontology.classes.FeatureOfInterest;
+import com.iotplatform.ontology.classes.Group;
+import com.iotplatform.ontology.classes.IOTSystem;
+import com.iotplatform.ontology.classes.Input;
+import com.iotplatform.ontology.classes.MeasurementCapability;
+import com.iotplatform.ontology.classes.MeasurementProperty;
+import com.iotplatform.ontology.classes.Metadata;
 import com.iotplatform.ontology.classes.NormalUser;
+import com.iotplatform.ontology.classes.ObjectClass;
+import com.iotplatform.ontology.classes.Observation;
+import com.iotplatform.ontology.classes.ObservationValue;
+import com.iotplatform.ontology.classes.OperatingProperty;
 import com.iotplatform.ontology.classes.OperatingRange;
+import com.iotplatform.ontology.classes.Organization;
+import com.iotplatform.ontology.classes.Output;
 import com.iotplatform.ontology.classes.Person;
+import com.iotplatform.ontology.classes.Platform;
 import com.iotplatform.ontology.classes.Point;
+import com.iotplatform.ontology.classes.Process;
+import com.iotplatform.ontology.classes.QuantityKind;
+import com.iotplatform.ontology.classes.Sensing;
+import com.iotplatform.ontology.classes.SensingDevice;
+import com.iotplatform.ontology.classes.Sensor;
+import com.iotplatform.ontology.classes.SensorDataSheet;
+import com.iotplatform.ontology.classes.SensorOutput;
 import com.iotplatform.ontology.classes.Service;
+import com.iotplatform.ontology.classes.Stimulus;
+import com.iotplatform.ontology.classes.SurvivalProperty;
 import com.iotplatform.ontology.classes.SurvivalRange;
+import com.iotplatform.ontology.classes.SystemClass;
+import com.iotplatform.ontology.classes.TagDevice;
+import com.iotplatform.ontology.classes.Unit;
 import com.iotplatform.utilities.InsertionUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SqlCondition;
@@ -45,11 +80,13 @@ public class MultipleClassRequestValidation {
 
 	private ValidationDao validationDao;
 	private DynamicConceptDao dynamicConceptDao;
+	private Hashtable<String, Class> htblAllStaticClasses;
 
 	@Autowired
 	public MultipleClassRequestValidation(ValidationDao validationDao, DynamicConceptDao dynamicConceptDao) {
 		this.validationDao = validationDao;
 		this.dynamicConceptDao = dynamicConceptDao;
+		init();
 	}
 
 	/*
@@ -105,7 +142,7 @@ public class MultipleClassRequestValidation {
 
 		for (DynamicConceptModel dynamicProperty : res) {
 
-			String className = dynamicProperty.getClass_name();
+			Class subjectClass = htblAllStaticClasses.get(dynamicProperty.getClass_name());
 
 			// skip if the property was cached before
 			if (subjectClass.getProperties().contains(dynamicProperty.getProperty_name())) {
@@ -195,26 +232,59 @@ public class MultipleClassRequestValidation {
 
 	}
 
-	private Class getClassByName(String name) {
-
-		switch (name) {
-		case "Application":
-			return new Application();
-		case "Person":
-			return new Person();
-		case "Admin":
-			return new Admin();
-		case "Developer":
-			return new Developer();
-		case "NormalUser":
-			return new NormalUser();
-		case "ActuatingDevice": return new ActuatingDevice();	
-		case "Agent" : return new Age
-		case "Amount" : return new Amount();
-		
-		}
-
-		return null;
+	private void init() {
+		htblAllStaticClasses = new Hashtable<>();
+		htblAllStaticClasses.put("http://iot-platform#Application", new Application());
+		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Person", new Person());
+		htblAllStaticClasses.put("http://iot-platform#Admin", new Admin());
+		htblAllStaticClasses.put("http://iot-platform#Developer", new Developer());
+		htblAllStaticClasses.put("http://iot-platform#NormalUser", new NormalUser());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice",
+				new ActuatingDevice());
+		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Agent", new Agent());
+		htblAllStaticClasses.put("http://iot-platform#Amount", new Amount());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", new Attribute());
+		htblAllStaticClasses.put("http://iot-platform#CommunicatingDevice", new CommunicatingDevice());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Condition", new Condition());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", new Coverage());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Deployment", new Deployment());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess",
+				new DeploymentRelatedProcess());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Device", new Device());
+		htblAllStaticClasses.put("http://iot-platform#DeviceModule", new DeviceModule());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", new FeatureOfInterest());
+		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Group", new Group());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Input", new Input());
+		htblAllStaticClasses.put("http://iot-platform#IOTSystem", new IOTSystem());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability",
+				new MeasurementCapability());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementProperty", new MeasurementProperty());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", new Metadata());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Object", new ObjectClass());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Observation", new Observation());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#ObservationValue", new ObservationValue());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", new OperatingProperty());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingRange", new OperatingRange());
+		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Organization", new Organization());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Output", new Output());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Platform", new Platform());
+		htblAllStaticClasses.put("http://www.w3.org/2003/01/geo/wgs84_pos#Point", new Point());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Process", new Process());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Property",
+				new com.iotplatform.ontology.classes.Property());
+		htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#QuantityKind", new QuantityKind());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensing", new Sensing());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensingDevice", new SensingDevice());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensor", new Sensor());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet", new SensorDataSheet());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensorOutput", new SensorOutput());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service", new Service());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Stimulus", new Stimulus());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", new SurvivalProperty());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", new SurvivalRange());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#System", new SystemClass());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice", new TagDevice());
+		htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#Unit", new Unit());
 	}
 
 	public static void main(String[] args) {
