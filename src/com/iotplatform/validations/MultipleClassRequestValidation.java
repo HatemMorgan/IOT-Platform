@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -69,6 +70,8 @@ import com.iotplatform.ontology.classes.Unit;
 import com.iotplatform.utilities.InsertionUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SqlCondition;
+
+import oracle.spatial.rdf.client.jena.Oracle;
 
 /*
  * MultipleClassRequestValidation class is used to validate multiple Class request
@@ -405,18 +408,33 @@ public class MultipleClassRequestValidation {
 	}
 
 	public static void main(String[] args) {
-		ArrayList<Class> classesList = new ArrayList<>();
 
-		classesList.add(new ActuatingDevice());
-		classesList.add(new Service());
-		classesList.add(new OperatingRange());
-		classesList.add(new SurvivalRange());
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
 
-		// MultipleClassRequestValidation multipleClassRequestValidation = new
-		// MultipleClassRequestValidation();
-		//
-		// System.out.println(multipleClassRequestValidation.isFieldsValid(null,
-		// classesList, null));
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(szJdbcDriver);
+		dataSource.setUrl(szJdbcURL);
+		dataSource.setUsername(szUser);
+		dataSource.setPassword(szPasswd);
+
+		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+		ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL, szUser, szPasswd));
+
+		ArrayList<Class> classList = new ArrayList<>();
+		ActuatingDevice actuatingDevice = new ActuatingDevice();
+		classList.add(actuatingDevice);
+//		classList.add(new Service());
+//		classList.add(new OperatingRange());
+//		classList.add(new SurvivalRange());
+
+//		MultipleClassRequestValidation multipleClassRequestValidation = new MultipleClassRequestValidation(validationDao, dynamicConceptDao);
+//		System.out.println(multipleClassRequestValidation.getDynamicProperties("TESTAPPLICATION", classList));
+//		System.out.println("==========================================================================");
+//		System.out.println(actuatingDevice.getProperties().toString());
+		
 	}
 
 }

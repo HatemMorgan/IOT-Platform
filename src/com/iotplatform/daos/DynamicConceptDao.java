@@ -255,15 +255,22 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 		// "http://iot-platform#", "iot-platform:",
 		// PropertyType.ObjectProperty.toString(), "Person",0,1);
 		//
-		// System.out.println(dao.insertNewConcept(newConcept));
-		// System.out.println(dao.getConceptsOfApplication("testapplication").toString());
-
-		ArrayList<SqlCondition> orConditionList = new ArrayList<>();
-
-		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Person"));
-		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Developer"));
-
-		System.out.println(dao.getConceptsOfApplicationByFilters("TESTAPPLICATION", null, orConditionList).toString());
+		
+		
+		DynamicConceptModel newConcept = new DynamicConceptModel("TestApplication", "System",
+				"http://purl.oclc.org/NET/ssnx/ssn#System", "http://purl.oclc.org/NET/ssnx/ssn#", "ssn:", "test",
+				"http://iot-platform#test", "http://iot-platform#", "iot-platform:",
+				PropertyType.ObjectProperty.toString(), "http://purl.oclc.org/NET/ssnx/ssn#System",0,0);
+		System.out.println(dao.insertNewConcept(newConcept));
+		 System.out.println(dao.getConceptsOfApplication("testapplication").toString());
+		
+//
+//		ArrayList<SqlCondition> orConditionList = new ArrayList<>();
+//
+//		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Person"));
+//		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Developer"));
+//
+//		System.out.println(dao.getConceptsOfApplicationByFilters("TESTAPPLICATION", null, orConditionList).toString());
 	}
 
 }
