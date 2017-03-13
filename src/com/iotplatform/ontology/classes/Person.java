@@ -15,9 +15,20 @@ public class Person extends Agent {
 
 	public Person() {
 		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF);
-
 		init();
+	}
 
+	/*
+	 * This constructor is used to perform overloading constructor technique and
+	 * the parameter String nothing will be passed always with null
+	 * 
+	 * I have done this overloaded constructor to instantiate the static
+	 * systemInstance to avoid java.lang.StackOverflowError exception that Occur
+	 * when calling init() to add properties to systemInstance
+	 * 
+	 */
+	public Person(String nothing) {
+		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF);
 	}
 
 	public Person(String name, String uri, Prefixes prefix) {
@@ -29,9 +40,10 @@ public class Person extends Agent {
 	public synchronized static Person getPersonInstance() {
 
 		if (personInstance == null) {
-			personInstance = new Person();
-
+			personInstance = new Person(null);
+			initPersonStaticInstance(personInstance);
 		}
+
 		return personInstance;
 	}
 
@@ -69,4 +81,38 @@ public class Person extends Agent {
 		this.getSuperClassesList().add(Agent.getAgentInstance());
 
 	}
+
+	private static void initPersonStaticInstance(Person personInstance) {
+		personInstance.getProperties().put("age",
+				new DataTypeProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed, false, false));
+		personInstance.getProperties().put("birthday",
+				new DataTypeProperty("birthday", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+		personInstance.getProperties().put("familyName",
+				new DataTypeProperty("familyName", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+		personInstance.getProperties().put("firstName",
+				new DataTypeProperty("firstName", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+		personInstance.getProperties().put("middleName",
+				new DataTypeProperty("middleName", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+		personInstance.getProperties().put("gender",
+				new DataTypeProperty("gender", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+		personInstance.getProperties().put("title",
+				new DataTypeProperty("title", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+		personInstance.getProperties().put("userName",
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		personInstance.getProperties().put("knows",
+				new ObjectProperty("knows", Prefixes.FOAF, Person.getPersonInstance(), true, false));
+
+		personInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "age", "age");
+		personInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "birthday", "birthday");
+		personInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "familyName", "familyName");
+		personInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "firstName", "firstName");
+		personInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "middleName", "middleName");
+		personInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "gender", "gender");
+		personInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "title", "title");
+		personInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "userName", "userName");
+		personInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "knows", "knows");
+
+		personInstance.getSuperClassesList().add(Agent.getAgentInstance());
+	}
+
 }

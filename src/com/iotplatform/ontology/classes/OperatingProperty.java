@@ -23,6 +23,7 @@ public class OperatingProperty extends Property {
 
 	public OperatingProperty() {
 		super("OperatingProperty", "http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", Prefixes.SSN);
+		operatingPropertyTypesList = new Hashtable<>();
 		init();
 	}
 
@@ -36,7 +37,8 @@ public class OperatingProperty extends Property {
 	 * 
 	 */
 	public OperatingProperty(String nothing) {
-		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN);
+		super("OperatingProperty", "http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", Prefixes.SSN);
+		operatingPropertyTypesList = new Hashtable<>();
 	}
 
 	public static OperatingProperty getOperatingPropertyInstance() {
@@ -49,7 +51,6 @@ public class OperatingProperty extends Property {
 	}
 
 	private void init() {
-		operatingPropertyTypesList = new Hashtable<>();
 
 		/*
 		 * Schedule of maintenance for a system/sensor in the specified

@@ -38,12 +38,13 @@ public class Coverage extends Class {
 	 * 
 	 */
 	public Coverage(String nothing) {
-		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN);
+		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE);
+		coverageTypesList = new Hashtable<>();
 	}
 
 	public synchronized static Coverage getCoverageInstance() {
 		if (coverageInstance == null) {
-			coverageInstance = new Coverage();
+			coverageInstance = new Coverage(null);
 			initCoverageStaticInstance(coverageInstance);
 		}
 

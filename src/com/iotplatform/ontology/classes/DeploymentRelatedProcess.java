@@ -1,5 +1,7 @@
 package com.iotplatform.ontology.classes;
 
+import java.util.Hashtable;
+
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
@@ -32,10 +34,24 @@ public class DeploymentRelatedProcess extends Class {
 		init();
 	}
 
-	public synchronized static DeploymentRelatedProcess getDeploymentRelatedProcessInstance() {
-		if (deploymentRelatedProcessInstance == null)
-			deploymentRelatedProcessInstance = new DeploymentRelatedProcess();
+	/*
+	 * This constructor is used to perform overloading constructor technique and
+	 * the parameter String nothing will be passed always with null
+	 * 
+	 * I have done this overloaded constructor to instantiate the static
+	 * systemInstance to avoid java.lang.StackOverflowError exception that Occur
+	 * when calling init() to add properties to systemInstance
+	 * 
+	 */
+	public DeploymentRelatedProcess(String nothing) {
+		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN);
+	}
 
+	public synchronized static DeploymentRelatedProcess getDeploymentRelatedProcessInstance() {
+		if (deploymentRelatedProcessInstance == null) {
+			deploymentRelatedProcessInstance = new DeploymentRelatedProcess(null);
+			initDeploymentRelatedProccessStaticInstance(deploymentRelatedProcessInstance);
+		}
 		return deploymentRelatedProcessInstance;
 	}
 
@@ -63,5 +79,32 @@ public class DeploymentRelatedProcess extends Class {
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deploymentProcessPart", "deploymentProcessPart");
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 
+	}
+
+	private static void initDeploymentRelatedProccessStaticInstance(
+			DeploymentRelatedProcess deploymentRelatedProcessInstance) {
+		/*
+		 * relation between a deployment process and its constituent processes.
+		 * 
+		 * It says that a ssn:deploymentProcess is part of another
+		 * ssn:deploymentProcess. A DeploymentRelatedProcess or its subclasses
+		 * can have many deploymentProcessParts so multipleValues is enabled
+		 * (one to many relation)
+		 * 
+		 */
+
+		deploymentRelatedProcessInstance.getProperties().put("deploymentProcessPart",
+				new ObjectProperty("deploymentProcessPart", Prefixes.SSN,
+						DeploymentRelatedProcess.getDeploymentRelatedProcessInstance(), true, false));
+
+		/*
+		 * id and it must be unique
+		 */
+		deploymentRelatedProcessInstance.getProperties().put("id",
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+
+		deploymentRelatedProcessInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deploymentProcessPart",
+				"deploymentProcessPart");
+		deploymentRelatedProcessInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}
 }
