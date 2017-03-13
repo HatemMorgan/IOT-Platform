@@ -20,10 +20,18 @@ import com.iotplatform.ontology.Prefixes;
 public class SurvivalProperty extends Property {
 
 	private Hashtable<String, Class> survivalPropertyTypesList;
+	private static SurvivalProperty survivalPropertyInstance;
 
 	public SurvivalProperty() {
 		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN);
 		init();
+	}
+
+	public synchronized static SurvivalProperty getSurvivalPropertyInstance() {
+		if (survivalPropertyInstance == null)
+			survivalPropertyInstance = new SurvivalProperty();
+
+		return survivalPropertyInstance;
 	}
 
 	private void init() {

@@ -34,6 +34,7 @@ public class SurvivalRange extends Property {
 	 */
 	public SurvivalRange(String nothing) {
 		super("SurvivalRange", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefixes.SSN);
+		init();
 	}
 
 	public synchronized static SurvivalRange getSurvivalRangeInstance() {
@@ -48,7 +49,7 @@ public class SurvivalRange extends Property {
 		 * Relation from an SurvivalProperty to a Property.
 		 */
 		super.getProperties().put("hasSurvivalProperty", new ObjectProperty("hasSurvivalProperty", Prefixes.SSN,
-				SurvivalProperty.getPropertyInstance(), false, false));
+				SurvivalProperty.getSurvivalPropertyInstance(), false, false));
 
 		/*
 		 * Describes the prevailing environmental conditions for

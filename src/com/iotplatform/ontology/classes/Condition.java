@@ -36,7 +36,7 @@ public class Condition extends Property {
 
 	public static Condition getConditionInstance() {
 		if (conditionInstance == null)
-			conditionInstance = new Condition(null);
+			conditionInstance = new Condition();
 
 		return conditionInstance;
 	}

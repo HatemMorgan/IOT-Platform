@@ -682,10 +682,13 @@ public class MultipleClassRequestValidation {
 						.get("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice"),
 				htblActuatingDevicePropValues);
 
-		System.out.println(multipleClassRequestValidation.isFieldsValid("TESTAPPLICATION", htblClassFieldValue,
-				multipleClassRequestValidation.getHtblAllStaticClasses()
-						.get("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice")));
+		// System.out.println(multipleClassRequestValidation.isFieldsValid("TESTAPPLICATION",
+		// htblClassFieldValue,
+		// multipleClassRequestValidation.getHtblAllStaticClasses()
+		// .get("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice")));
 
+		System.out.println(multipleClassRequestValidation.getHtblAllStaticClasses()
+				.get("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice").getProperties().toString());
 	}
 
 }

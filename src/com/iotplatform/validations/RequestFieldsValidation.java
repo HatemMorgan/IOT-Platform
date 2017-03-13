@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.classes.ActuatingDevice;
 import com.iotplatform.utilities.PropertyValue;
 
 /*
@@ -98,10 +100,18 @@ public class RequestFieldsValidation {
 			 */
 
 			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, classList, htblNotFoundFieldValue)) {
+				Property property = subjectClass.getProperties().get(fieldName);
 
+				parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue, classList,
+						htblNotFoundFieldValue);
 			}
 		}
-
+		System.out.println("==============================================");
+		System.out.println(htblClassPropertyValue.toString());
+		System.out.println("=======================================");
+		System.out.println(classList.toString());
+		System.out.println("======================================");
+		System.out.println(htblNotFoundFieldValue.toString());
 		return null;
 	}
 
@@ -118,6 +128,7 @@ public class RequestFieldsValidation {
 	 */
 	private boolean isFieldMapsToStaticProperty(Class subjectClass, String fieldName, Object value,
 			ArrayList<Class> classList, Hashtable<String, Object> htblNotFoundFieldValue) {
+
 		if (subjectClass.getProperties().containsKey(fieldName)) {
 			return true;
 		} else {
@@ -169,6 +180,7 @@ public class RequestFieldsValidation {
 		if (value instanceof java.util.LinkedHashMap<?, ?> && property instanceof ObjectProperty) {
 			LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) value;
 			Class classType = ((ObjectProperty) property).getObject();
+
 			for (String fieldName : valueObject.keySet()) {
 
 				/*
@@ -180,11 +192,13 @@ public class RequestFieldsValidation {
 				 * htblNotFoundFieldValue
 				 */
 
-				if (isFieldMapsToStaticProperty(subjectClass, fieldName, valueObject, classList,
-						htblNotFoundFieldValue)) {
+				Object fieldValue = valueObject.get(fieldName);
+
+				if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, classList, htblNotFoundFieldValue)) {
+
 					Property classTypeProperty = classType.getProperties().get(fieldName);
 
-					parseAndConstructFieldValue(subjectClass, classTypeProperty, valueObject, htblClassPropertyValue,
+					parseAndConstructFieldValue(classType, classTypeProperty, fieldValue, htblClassPropertyValue,
 							classList, htblNotFoundFieldValue);
 				}
 
@@ -207,4 +221,34 @@ public class RequestFieldsValidation {
 		}
 	}
 
+	public static void main(String[] args) {
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(szJdbcDriver);
+		dataSource.setUrl(szJdbcURL);
+		dataSource.setUsername(szUser);
+		dataSource.setPassword(szPasswd);
+
+		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+
+		RequestFieldsValidation requestFieldsValidation = new RequestFieldsValidation(dynamicConceptDao);
+
+		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
+
+		LinkedHashMap<String, Object> condition = new LinkedHashMap<>();
+		condition.put("description", "High Tempreture Condition");
+
+		LinkedHashMap<String, Object> survivalRange = new LinkedHashMap<>();
+		survivalRange.put("inCondition", condition);
+
+		htblFieldValue.put("id", "2032-3232-2342");
+		htblFieldValue.put("hasSurvivalRange", survivalRange);
+
+		requestFieldsValidation.validateRequestFields(htblFieldValue, new ActuatingDevice());
+
+	}
 }
