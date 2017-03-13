@@ -3,12 +3,18 @@ package com.iotplatform.validations;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
+import com.iotplatform.ontology.ObjectProperty;
+import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Property;
+import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.utilities.PropertyValue;
 
 /*
@@ -118,6 +124,86 @@ public class RequestFieldsValidation {
 			classList.add(subjectClass);
 			htblNotFoundFieldValue.put(fieldName, value);
 			return false;
+		}
+	}
+
+	/*
+	 * parseAndConstructFieldValue method is used to parse the Object value and
+	 * reconstruct into prefixed property and prefixed value (constrcut a
+	 * propertyValue object) and then add it to htblClassPropertyValue
+	 */
+	private void parseAndConstructFieldValue(Class subjectClass, Property property, Object value,
+			Hashtable<Class, ArrayList<PropertyValue>> htblClassPropertyValue, ArrayList<Class> classList,
+			Hashtable<String, Object> htblNotFoundFieldValue) {
+
+		/*
+		 * check if the value is of type primitive datatype
+		 */
+		if ((value instanceof String) || (value instanceof Integer) || (value instanceof Float)
+				|| (value instanceof Double) || (value instanceof Boolean)) {
+
+			/*
+			 * construct a new PropertyValue instance to hold the prefiexed
+			 * propertyName and prefixed value
+			 */
+			PropertyValue propertyValue = new PropertyValue(getValue(property, value), false,
+					property.getPrefix().getPrefix() + property.getName());
+
+			/*
+			 * add PropertyValue object to htblClassPropertyValue
+			 */
+			if (htblClassPropertyValue.containsKey(subjectClass)) {
+				htblClassPropertyValue.get(subjectClass).add(propertyValue);
+			} else {
+				ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
+				htblClassPropertyValue.put(subjectClass, propertyValueList);
+				htblClassPropertyValue.get(subjectClass).add(propertyValue);
+			}
+
+		}
+
+		/*
+		 * value is an array of object so I will iterate on all the keyValue
+		 * pairs and check if the fields are valid or not and reconstruct them
+		 */
+		if (value instanceof java.util.LinkedHashMap<?, ?> && property instanceof ObjectProperty) {
+			LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) value;
+			Class classType = ((ObjectProperty) property).getObject();
+			for (String fieldName : valueObject.keySet()) {
+
+				/*
+				 * if it returns true then the field is a valid field (it maps
+				 * to a property in the properties list of passed classs)
+				 * 
+				 * if it return false means that no static mapping so it will
+				 * add the subject class to classList and fieldNameValue pair to
+				 * htblNotFoundFieldValue
+				 */
+
+				if (isFieldMapsToStaticProperty(subjectClass, fieldName, valueObject, classList,
+						htblNotFoundFieldValue)) {
+					Property classTypeProperty = classType.getProperties().get(fieldName);
+
+					parseAndConstructFieldValue(subjectClass, classTypeProperty, valueObject, htblClassPropertyValue,
+							classList, htblNotFoundFieldValue);
+				}
+
+			}
+		}
+
+	}
+
+	/*
+	 * getValue method returns the appropriate value by appending a prefix
+	 */
+	private Object getValue(Property property, Object value) {
+
+		if (property instanceof DataTypeProperty) {
+			XSDDataTypes xsdDataType = ((DataTypeProperty) property).getDataType();
+			value = "\"" + value.toString() + "\"" + xsdDataType.getXsdType();
+			return value;
+		} else {
+			return Prefixes.IOT_PLATFORM.getPrefix() + value;
 		}
 	}
 
