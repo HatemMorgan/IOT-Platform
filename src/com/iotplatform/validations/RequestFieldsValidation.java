@@ -17,6 +17,8 @@ import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.ActuatingDevice;
+import com.iotplatform.ontology.classes.SurvivalProperty;
+import com.iotplatform.ontology.classes.SurvivalRange;
 import com.iotplatform.utilities.PropertyValue;
 
 /*
@@ -101,7 +103,7 @@ public class RequestFieldsValidation {
 
 			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, classList, htblNotFoundFieldValue)) {
 				Property property = subjectClass.getProperties().get(fieldName);
-
+				
 				parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue, classList,
 						htblNotFoundFieldValue);
 			}
@@ -195,7 +197,8 @@ public class RequestFieldsValidation {
 				Object fieldValue = valueObject.get(fieldName);
 
 				if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, classList, htblNotFoundFieldValue)) {
-
+					// System.out.println("====>"+classType.getName() + " : " +
+					// classType.getProperties());
 					Property classTypeProperty = classType.getProperties().get(fieldName);
 
 					parseAndConstructFieldValue(classType, classTypeProperty, fieldValue, htblClassPropertyValue,
@@ -242,12 +245,21 @@ public class RequestFieldsValidation {
 		LinkedHashMap<String, Object> condition = new LinkedHashMap<>();
 		condition.put("description", "High Tempreture Condition");
 
+		
+
+		LinkedHashMap<String, Object> amount = new LinkedHashMap<>();
+		amount.put("hasDataValue", 20.21);
+
+		LinkedHashMap<String, Object> survivalProperty = new LinkedHashMap<>();
+		survivalProperty.put("hasValue", amount);
+		
 		LinkedHashMap<String, Object> survivalRange = new LinkedHashMap<>();
 		survivalRange.put("inCondition", condition);
+		survivalRange.put("hasSurvivalProperty", survivalProperty);
 
 		htblFieldValue.put("id", "2032-3232-2342");
 		htblFieldValue.put("hasSurvivalRange", survivalRange);
-
+		
 		requestFieldsValidation.validateRequestFields(htblFieldValue, new ActuatingDevice());
 
 	}
