@@ -22,19 +22,10 @@ public class Application extends Class {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public Application(String nothing) {
-		super("Application", "http://iot-platform#Application", Prefixes.IOT_PLATFORM);
-	}
-
 	public synchronized static Application getApplicationInstance() {
 
 		if (applicationInstance == null) {
-			applicationInstance = new Application(null);
+			applicationInstance = new Application();
 
 		}
 		return applicationInstance;

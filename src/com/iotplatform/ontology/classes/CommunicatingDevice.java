@@ -23,18 +23,9 @@ public class CommunicatingDevice extends Device {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public CommunicatingDevice(String nothing) {
-		super("CommunicatingDevice", "http://iot-platform#CommunicatingDevice", Prefixes.IOT_PLATFORM);
-	}
-
 	public synchronized static CommunicatingDevice getCommunicatingDeviceInstance() {
 		if (communicatingDeviceInstance == null)
-			communicatingDeviceInstance = new CommunicatingDevice(null);
+			communicatingDeviceInstance = new CommunicatingDevice();
 
 		return communicatingDeviceInstance;
 	}

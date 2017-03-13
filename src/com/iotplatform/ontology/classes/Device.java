@@ -27,18 +27,9 @@ public class Device extends SystemClass {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public Device(String nothing) {
-		super("Device", "http://purl.oclc.org/NET/ssnx/ssn#Device", Prefixes.SSN);
-	}
-
 	public synchronized static Device getDeviceInstance() {
 		if (deviceInstance == null)
-			deviceInstance = new Device(null);
+			deviceInstance = new Device();
 
 		return deviceInstance;
 	}
@@ -76,6 +67,5 @@ public class Device extends SystemClass {
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasMetadata", "hasMetadata");
 
 	}
-
 
 }

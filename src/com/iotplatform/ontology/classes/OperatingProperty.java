@@ -27,17 +27,23 @@ public class OperatingProperty extends Property {
 	}
 
 	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
+	 * This constructor is used to perform overloading constructor technique and
+	 * the parameter String nothing will be passed always with null
+	 * 
+	 * I have done this overloaded constructor to instantiate the static
+	 * systemInstance to avoid java.lang.StackOverflowError exception that Occur
+	 * when calling init() to add properties to systemInstance
+	 * 
 	 */
 	public OperatingProperty(String nothing) {
-		super("OperatingProperty", "http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", Prefixes.SSN);
+		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN);
 	}
 
 	public static OperatingProperty getOperatingPropertyInstance() {
-		if (operatingPropertyInstance == null)
+		if (operatingPropertyInstance == null) {
 			operatingPropertyInstance = new OperatingProperty(null);
+			initOperatingPropertyStaticInstance(operatingPropertyInstance);
+		}
 
 		return operatingPropertyInstance;
 	}
@@ -77,4 +83,46 @@ public class OperatingProperty extends Property {
 		operatingPropertyTypesList.put("OperatingPowerRange", operatingPowerRange);
 
 	}
+
+	private static void initOperatingPropertyStaticInstance(OperatingProperty operatingPropertyInstance) {
+		/*
+		 * Schedule of maintenance for a system/sensor in the specified
+		 * conditions.
+		 */
+		Class maintenanceSchedule = new Class("MaintenanceSchedule",
+				"http://purl.oclc.org/NET/ssnx/ssn#MaintenanceSchedule", Prefixes.SSN);
+
+		/*
+		 * adding ssn:OperatingProperty class to superClassesList to tell the
+		 * dao to add triple that expresses that an instance of class
+		 * ssn:MaintenanceSchedule is also an instance of class
+		 * ssn:OperatingProperty
+		 */
+		maintenanceSchedule.getSuperClassesList().add(OperatingProperty.getOperatingPropertyInstance());
+		operatingPropertyInstance.getOperatingPropertyTypesList().put("MaintenanceSchedule", maintenanceSchedule);
+
+		/*
+		 * Power range in which system/sensor is expected to operate.
+		 */
+		Class operatingPowerRange = new Class("OperatingPowerRange",
+				"http://purl.oclc.org/NET/ssnx/ssn#OperatingPowerRange", Prefixes.SSN);
+
+		/*
+		 * adding ssn:OperatingProperty class to superClassesList to tell the
+		 * dao to add triple that expresses that an instance of class
+		 * ssn:OperatingPowerRange is also an instance of class
+		 * ssn:OperatingProperty
+		 */
+		operatingPowerRange.getSuperClassesList().add(OperatingProperty.getOperatingPropertyInstance());
+		operatingPropertyInstance.getOperatingPropertyTypesList().put("OperatingPowerRange", operatingPowerRange);
+	}
+
+	public Hashtable<String, Class> getOperatingPropertyTypesList() {
+		return operatingPropertyTypesList;
+	}
+
+	public void setOperatingPropertyTypesList(Hashtable<String, Class> operatingPropertyTypesList) {
+		this.operatingPropertyTypesList = operatingPropertyTypesList;
+	}
+
 }

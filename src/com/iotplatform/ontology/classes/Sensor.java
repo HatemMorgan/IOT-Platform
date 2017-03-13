@@ -30,18 +30,9 @@ public class Sensor extends Device {
 
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public Sensor(String nothing) {
-		super("Sensor", "http://purl.oclc.org/NET/ssnx/ssn#Sensor", Prefixes.SSN);
-	}
-
 	public synchronized static Sensor getSensorInstance() {
 		if (sensorInstance == null)
-			sensorInstance = new Sensor(null);
+			sensorInstance = new Sensor();
 
 		return sensorInstance;
 	}
@@ -118,8 +109,9 @@ public class Sensor extends Device {
 		 * device (sensor) . ie: A module (device) has sensing device Tempreture
 		 * sensor (sensing device )attached to it .
 		 */
-//		this.getProperties().put("hasSensingDevice", new ObjectProperty("hasSensingDevice", Prefixes.IOT_LITE,
-//				SensingDevice.getSensingDeviceInstance(), false, true));
+		// this.getProperties().put("hasSensingDevice", new
+		// ObjectProperty("hasSensingDevice", Prefixes.IOT_LITE,
+		// SensingDevice.getSensingDeviceInstance(), false, true));
 
 		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasQuantityKind", "hasQuantityKind");
 		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "implements", "implements");

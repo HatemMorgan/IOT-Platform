@@ -20,19 +20,6 @@ public class Person extends Agent {
 
 	}
 
-	/*
-	 * this constructor is used only to construct an instance of class Person
-	 * that will be used as the class type of an object so it does not need to
-	 * has the associated properties of class Person . the nothing parameter
-	 * that it takes will be passed as null because it is only used to allow
-	 * overloading constructor technique
-	 */
-
-	public Person(String nothing) {
-
-		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF);
-	}
-
 	public Person(String name, String uri, Prefixes prefix) {
 		super(name, uri, prefix);
 		init();
@@ -42,7 +29,7 @@ public class Person extends Agent {
 	public synchronized static Person getPersonInstance() {
 
 		if (personInstance == null) {
-			personInstance = new Person(null);
+			personInstance = new Person();
 
 		}
 		return personInstance;

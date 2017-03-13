@@ -25,15 +25,6 @@ public class Condition extends Property {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public Condition(String nothing) {
-		super("Condition", "http://purl.oclc.org/NET/ssnx/ssn#Condition", Prefixes.SSN);
-	}
-
 	public static Condition getConditionInstance() {
 		if (conditionInstance == null)
 			conditionInstance = new Condition();

@@ -28,18 +28,9 @@ public class FeatureOfInterest extends Class {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public FeatureOfInterest(String nothing) {
-		super("FeatureOfInterest", "http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN);
-	}
-
 	public synchronized static FeatureOfInterest getFeatureOfInterestInstance() {
 		if (featureOfInterestInstance == null)
-			featureOfInterestInstance = new FeatureOfInterest(null);
+			featureOfInterestInstance = new FeatureOfInterest();
 
 		return featureOfInterestInstance;
 	}

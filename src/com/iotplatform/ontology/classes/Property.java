@@ -29,15 +29,6 @@ public class Property extends Class {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public Property(String nothing) {
-		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN);
-	}
-
 	public synchronized static Property getPropertyInstance() {
 		if (propertyInstance == null)
 			propertyInstance = new Property();

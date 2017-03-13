@@ -39,18 +39,9 @@ public class Stimulus extends Class {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public Stimulus(String nothing) {
-		super("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Prefixes.SSN);
-	}
-
 	public synchronized static Stimulus getStimulusInstance() {
 		if (stimulusInstance == null)
-			stimulusInstance = new Stimulus(null);
+			stimulusInstance = new Stimulus();
 
 		return stimulusInstance;
 	}

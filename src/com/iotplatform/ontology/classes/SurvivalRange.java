@@ -27,19 +27,9 @@ public class SurvivalRange extends Property {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public SurvivalRange(String nothing) {
-		super("SurvivalRange", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefixes.SSN);
-		init();
-	}
-
 	public synchronized static SurvivalRange getSurvivalRangeInstance() {
 		if (survivalRangeInstance == null)
-			survivalRangeInstance = new SurvivalRange(null);
+			survivalRangeInstance = new SurvivalRange();
 
 		return survivalRangeInstance;
 	}

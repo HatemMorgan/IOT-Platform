@@ -24,18 +24,9 @@ public class Metadata extends Class {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public Metadata(String nothing) {
-		super("Metadata", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefixes.IOT_LITE);
-	}
-
 	public synchronized static Metadata getMetadataInstance() {
 		if (metadataInstance == null)
-			metadataInstance = new Metadata(null);
+			metadataInstance = new Metadata();
 
 		return metadataInstance;
 	}

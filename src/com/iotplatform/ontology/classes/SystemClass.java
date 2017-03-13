@@ -37,24 +37,28 @@ public class SystemClass extends Class {
 
 	}
 
+	/*
+	 * This constructor is used to perform overloading constructor technique and
+	 * the parameter String nothing will be passed always with null
+	 * 
+	 * I have done this overloaded constructor to instantiate the static
+	 * systemInstance to avoid java.lang.StackOverflowError exception that Occur
+	 * when calling init() to add properties to systemInstance
+	 * 
+	 */
+	public SystemClass(String nothing) {
+		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN);
+	}
+
 	public SystemClass(String name, String uri, Prefixes prefix) {
 		super(name, uri, prefix);
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public SystemClass(String nothing) {
-
-		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN);
-	}
-
 	public synchronized static SystemClass getSystemInstance() {
 		if (systemInstance == null) {
 			systemInstance = new SystemClass(null);
+			initSystemStaticInstance(systemInstance);
 		}
 
 		return systemInstance;
@@ -97,6 +101,42 @@ public class SystemClass extends Class {
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalRange", "hasSurvivalRange");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingRange", "hasOperatingRange");
 
+	}
+
+	public static void initSystemStaticInstance(SystemClass systemInstance) {
+		/*
+		 * id which must be unique
+		 */
+		systemInstance.getProperties().put("id",
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+
+		/*
+		 * relation between a system and its parts. A system or its subclasses
+		 * can have many subsystems so multipleValues is enabled (one to many
+		 * relation)
+		 */
+		systemInstance.getProperties().put("hasSubSystem",
+				new ObjectProperty("hasSubSystem", Prefixes.SSN, SystemClass.getSystemInstance(), true, false));
+
+		/*
+		 * A Relation from a System to a SurvivalRange. It is a one to one
+		 * relationShip because a system/device has only one survivalRange
+		 */
+		systemInstance.getProperties().put("hasSurvivalRange", new ObjectProperty("hasSurvivalRange", Prefixes.SSN,
+				SurvivalRange.getSurvivalRangeInstance(), true, false));
+
+		/*
+		 * Relation from a System to an OperatingRange describing the normal
+		 * operating environment of the System. It is one to one relationShip
+		 * because a system/device has only one operatingRange
+		 */
+		systemInstance.getProperties().put("hasOperatingRange", new ObjectProperty("hasOperatingRange", Prefixes.SSN,
+				OperatingRange.getOperatingRangeInstance(), true, false));
+
+		systemInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		systemInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSubSystem", "hasSubSystem");
+		systemInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalRange", "hasSurvivalRange");
+		systemInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingRange", "hasOperatingRange");
 	}
 
 	// public static void main(String[] args) {

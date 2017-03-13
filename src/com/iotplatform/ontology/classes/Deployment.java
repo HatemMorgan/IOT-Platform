@@ -26,19 +26,9 @@ public class Deployment extends DeploymentRelatedProcess {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public Deployment(String nothing) {
-
-		super("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment", Prefixes.SSN);
-	}
-
 	public synchronized static Deployment getDeploymentInstance() {
 		if (deploymentInstance == null) {
-			deploymentInstance = new Deployment(null);
+			deploymentInstance = new Deployment();
 		}
 
 		return deploymentInstance;
@@ -46,7 +36,6 @@ public class Deployment extends DeploymentRelatedProcess {
 	}
 
 	private void init() {
-		
 
 		/*
 		 * Relation between a deployment and the platform on which the system
@@ -57,7 +46,6 @@ public class Deployment extends DeploymentRelatedProcess {
 				new ObjectProperty("deployedOnPlatform", Prefixes.SSN, Platform.getPlatformInstance(), false, false));
 
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deployedOnPlatform", "deployedOnPlatform");
-
 
 	}
 

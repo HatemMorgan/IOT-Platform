@@ -22,13 +22,9 @@ public class Unit extends Class {
 		super("Unit", "http://purl.org/NET/ssnx/qu/qu#Unit", Prefixes.QU);
 	}
 
-	public Unit(String nothing) {
-		super("Unit", "http://purl.org/NET/ssnx/qu/qu#Unit", Prefixes.QU);
-	}
-
 	public synchronized static Unit getUnitInstance() {
 		if (unitInstance == null)
-			unitInstance = new Unit(null);
+			unitInstance = new Unit();
 
 		return unitInstance;
 	}

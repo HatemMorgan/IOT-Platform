@@ -24,13 +24,9 @@ public class Amount extends Class {
 		init();
 	}
 
-	public Amount(String nothing) {
-		super("Amount", "http://iot-platform#Amount", Prefixes.IOT_PLATFORM);
-	}
-
 	public synchronized static Amount getAmountInstance() {
 		if (amountInstance == null)
-			amountInstance = new Amount(null);
+			amountInstance = new Amount();
 
 		return amountInstance;
 	}
@@ -64,9 +60,9 @@ public class Amount extends Class {
 				new DataTypeProperty("hasDataValue", Prefixes.IOT_PLATFORM, XSDDataTypes.double_typed, false, false));
 
 		/*
-		 * Links a thing that has a measurment unit with the units of the quantity kind it measures
-		 * (e.g. A sensor -sensor1- measures temperature in Celsius: senso1
-		 * hasUnit celsius).
+		 * Links a thing that has a measurment unit with the units of the
+		 * quantity kind it measures (e.g. A sensor -sensor1- measures
+		 * temperature in Celsius: senso1 hasUnit celsius).
 		 */
 
 		super.getProperties().put("hasUnit",

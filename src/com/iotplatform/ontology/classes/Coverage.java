@@ -24,34 +24,33 @@ public class Coverage extends Class {
 
 	public Coverage() {
 		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE);
-		init();
-	}
-
-	public Coverage(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix);
+		coverageTypesList = new Hashtable<>();
 		init();
 	}
 
 	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
+	 * This constructor is used to perform overloading constructor technique and
+	 * the parameter String nothing will be passed always with null
+	 * 
+	 * I have done this overloaded constructor to instantiate the static
+	 * systemInstance to avoid java.lang.StackOverflowError exception that Occur
+	 * when calling init() to add properties to systemInstance
+	 * 
 	 */
 	public Coverage(String nothing) {
-		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE);
-
+		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN);
 	}
 
 	public synchronized static Coverage getCoverageInstance() {
-		if (coverageInstance == null)
-			coverageInstance = new Coverage(null);
+		if (coverageInstance == null) {
+			coverageInstance = new Coverage();
+			initCoverageStaticInstance(coverageInstance);
+		}
 
 		return coverageInstance;
 	}
 
 	private void init() {
-
-		coverageTypesList = new Hashtable<>();
 
 		/*
 		 * Add iot-lite:Circle Class to coverageTypesList
@@ -104,4 +103,63 @@ public class Coverage extends Class {
 		super.getProperties().put("location",
 				new ObjectProperty("location", Prefixes.GEO, Point.getPointInstacne(), false, false));
 	}
+
+	private static void initCoverageStaticInstance(Coverage coverageInstance) {
+
+		/*
+		 * Add iot-lite:Circle Class to coverageTypesList
+		 */
+		Class circle = new Class("Circle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Circle", Prefixes.IOT_LITE);
+		circle.getProperties().put("radius",
+				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
+		circle.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "radius", "radius");
+
+		/*
+		 * adding coverage class to superClassesList to tell the dao to add
+		 * triple that expresses that an instance of class Circle is also an
+		 * instance of class Coverage
+		 */
+		circle.getSuperClassesList().add(Coverage.getCoverageInstance());
+		coverageInstance.getCoverageTypesList().put("Circle", circle);
+
+		/*
+		 * Add iot-lite:Rectange Class to coverageTypesList
+		 */
+		Class rectangle = new Class("Rectangle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Rectangle",
+				Prefixes.IOT_LITE);
+
+		/*
+		 * adding coverage class to superClassesList to tell the dao to add
+		 * triple that expresses that an instance of class Rectangle is also an
+		 * instance of class Coverage
+		 */
+		rectangle.getSuperClassesList().add(Coverage.getCoverageInstance());
+		coverageInstance.getCoverageTypesList().put("Rectangle", rectangle);
+
+		/*
+		 * Add iot-lite:Polygon Class to coverageTypesList
+		 */
+		Class polygon = new Class("Polygon", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Polygon",
+				Prefixes.IOT_LITE);
+
+		/*
+		 * adding coverage class to superClassesList to tell the dao to add
+		 * triple that expresses that an instance of class Polygon is also an
+		 * instance of class Coverage
+		 */
+		polygon.getSuperClassesList().add(Coverage.getCoverageInstance());
+		coverageInstance.getCoverageTypesList().put("Polygon", polygon);
+
+		/*
+		 * Relation between coverage and its physical location described by
+		 * point class
+		 */
+		coverageInstance.getProperties().put("location",
+				new ObjectProperty("location", Prefixes.GEO, Point.getPointInstacne(), false, false));
+	}
+
+	public Hashtable<String, Class> getCoverageTypesList() {
+		return coverageTypesList;
+	}
+
 }

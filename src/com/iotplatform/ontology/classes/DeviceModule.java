@@ -22,15 +22,6 @@ public class DeviceModule extends Class {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public DeviceModule(String nothing) {
-		super("DeviceModule", "http://iot-platform#DeviceModule", Prefixes.IOT_PLATFORM);
-	}
-
 	public synchronized static DeviceModule getDeviceModuleInstance() {
 		if (deviceModuleInstance == null)
 			deviceModuleInstance = new DeviceModule();

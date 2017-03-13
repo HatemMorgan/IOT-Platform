@@ -25,18 +25,9 @@ public class Sensing extends Process {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public Sensing(String nothing) {
-		super("Sensing", "http://purl.oclc.org/NET/ssnx/ssn#Sensing", Prefixes.SSN);
-	}
-
 	public synchronized static Sensing getSensingInstance() {
 		if (sensingInstance == null)
-			sensingInstance = new Sensing(null);
+			sensingInstance = new Sensing();
 
 		return sensingInstance;
 	}

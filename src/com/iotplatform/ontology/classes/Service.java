@@ -24,18 +24,9 @@ public class Service extends Class {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public Service(String nothing) {
-		super("Service", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service", Prefixes.IOT_LITE);
-	}
-
 	public synchronized static Service getServiceInstance() {
 		if (serviceInstance == null)
-			serviceInstance = new Service(null);
+			serviceInstance = new Service();
 
 		return serviceInstance;
 	}

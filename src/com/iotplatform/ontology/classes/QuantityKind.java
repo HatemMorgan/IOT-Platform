@@ -27,19 +27,9 @@ public class QuantityKind extends Class {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public QuantityKind(String nothing) {
-		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU);
-
-	}
-
 	public synchronized static QuantityKind getQuantityKindInstance() {
 		if (quantityKindInstance == null)
-			quantityKindInstance = new QuantityKind(null);
+			quantityKindInstance = new QuantityKind();
 
 		return quantityKindInstance;
 	}

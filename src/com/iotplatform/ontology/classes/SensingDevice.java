@@ -21,14 +21,10 @@ public class SensingDevice extends Device {
 		init();
 	}
 
-	public SensingDevice(String nothing) {
-		super("SensingDevice", "http://purl.oclc.org/NET/ssnx/ssn#SensingDevice", Prefixes.SSN);
-	}
-
 	public synchronized static SensingDevice getSensingDeviceInstance() {
 		if (sensingDeviceInstance == null) {
 			System.out.println("hreee");
-			sensingDeviceInstance = new SensingDevice(null);
+			sensingDeviceInstance = new SensingDevice();
 		}
 
 		return sensingDeviceInstance;

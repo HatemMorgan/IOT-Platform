@@ -32,13 +32,9 @@ public class DeploymentRelatedProcess extends Class {
 		init();
 	}
 
-	public DeploymentRelatedProcess(String nothing) {
-		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN);
-	}
-
 	public synchronized static DeploymentRelatedProcess getDeploymentRelatedProcessInstance() {
 		if (deploymentRelatedProcessInstance == null)
-			deploymentRelatedProcessInstance = new DeploymentRelatedProcess(null);
+			deploymentRelatedProcessInstance = new DeploymentRelatedProcess();
 
 		return deploymentRelatedProcessInstance;
 	}

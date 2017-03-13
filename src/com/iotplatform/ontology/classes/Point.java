@@ -29,19 +29,9 @@ public class Point extends Class {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public Point(String nothing) {
-		super("Point", "http://www.w3.org/2003/01/geo/wgs84_pos#Point", Prefixes.GEO);
-
-	}
-
 	public synchronized static Point getPointInstacne() {
 		if (pointInstance == null)
-			pointInstance = new Point(null);
+			pointInstance = new Point();
 
 		return pointInstance;
 	}

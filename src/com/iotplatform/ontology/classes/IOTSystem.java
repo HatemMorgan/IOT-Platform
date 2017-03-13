@@ -24,19 +24,9 @@ public class IOTSystem extends Class {
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public IOTSystem(String nothing) {
-		super("IOTSystem", "http://iot-platform#IOTSystem", Prefixes.IOT_PLATFORM);
-
-	}
-
 	public synchronized static IOTSystem getIOTSystemInstance() {
 		if (iotSystemInstance == null)
-			iotSystemInstance = new IOTSystem(null);
+			iotSystemInstance = new IOTSystem();
 
 		return iotSystemInstance;
 	}
