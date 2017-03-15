@@ -366,8 +366,7 @@ public class MultipleClassRequestValidation {
 				 * get prefixed value to follow semantic web structure
 				 */
 				Object prefixedValue = getValue(property, valueList.get(i));
-				PropertyValue propertyValue = new PropertyValue(prefixedProperty, prefixedValue, subjectClass,
-						isObject);
+				PropertyValue propertyValue = new PropertyValue(prefixedProperty, prefixedValue, isObject);
 				propValueList.add(propertyValue);
 			}
 		} else {
@@ -379,7 +378,7 @@ public class MultipleClassRequestValidation {
 			 */
 
 			Object prefixedValue = getValue(property, value);
-			PropertyValue propertyValue = new PropertyValue(prefixedProperty, prefixedValue, subjectClass, isObject);
+			PropertyValue propertyValue = new PropertyValue(prefixedProperty, prefixedValue, isObject);
 			propValueList.add(propertyValue);
 
 		}

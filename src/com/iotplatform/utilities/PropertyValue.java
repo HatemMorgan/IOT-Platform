@@ -25,9 +25,8 @@ public class PropertyValue {
 		this.value = value;
 	}
 
-	public PropertyValue(String propertyName, Object value, Class subjectClass, boolean isObject) {
+	public PropertyValue(String propertyName, Object value, boolean isObject) {
 		this.propertyName = propertyName;
-		this.subjectClass = subjectClass;
 		this.value = value;
 		this.isObject = isObject;
 	}
@@ -35,12 +34,6 @@ public class PropertyValue {
 	public PropertyValue(Object value, boolean isObject) {
 		this.value = value;
 		this.isObject = isObject;
-	}
-
-	public PropertyValue(Object value, boolean isObject, String propertyName) {
-		this.value = value;
-		this.isObject = isObject;
-		this.propertyName = propertyName;
 	}
 
 	public String getPropertyName() {

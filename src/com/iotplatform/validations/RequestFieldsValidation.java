@@ -18,8 +18,6 @@ import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.ActuatingDevice;
-import com.iotplatform.ontology.classes.SurvivalProperty;
-import com.iotplatform.ontology.classes.SurvivalRange;
 import com.iotplatform.utilities.PropertyValue;
 
 /*
@@ -83,6 +81,22 @@ public class RequestFieldsValidation {
 		Hashtable<Class, ArrayList<PropertyValue>> htblClassPropertyValue = new Hashtable<>();
 
 		/*
+		 * check if there is a fieldName= type which means that value of this
+		 * field describes a type class then change the subClass type to be the
+		 * subjectClass
+		 */
+		if (htblFieldValue.containsKey("type") && isobjectValueValidType(subjectClass, htblFieldValue.get("type"))) {
+			Class subClassSubject = subjectClass.getClassTypesList().get(htblFieldValue.get("type").toString());
+			subjectClass = subClassSubject;
+
+			/*
+			 * remove the keyValue pair from htblFIeld to avoid further
+			 * validation eg.(field Validation)
+			 */
+			htblFieldValue.remove("type");
+		}
+
+		/*
 		 * Iterate on htblFieldValue
 		 */
 		while (htblFieldValueIterator.hasNext()) {
@@ -94,8 +108,6 @@ public class RequestFieldsValidation {
 			 * this field describes a type class
 			 */
 			if (fieldName.equals("type") && isobjectValueValidType(subjectClass, value)) {
-				
-				
 
 			} else {
 
@@ -144,8 +156,8 @@ public class RequestFieldsValidation {
 			 */
 
 			Property idProperty = subjectClass.getProperties().get("id");
-			PropertyValue idPropertyValue = new PropertyValue(id, false,
-					idProperty.getPrefix().getPrefix() + idProperty.getName());
+			PropertyValue idPropertyValue = new PropertyValue(idProperty.getPrefix().getPrefix() + idProperty.getName(),
+					id, false);
 
 			/*
 			 * add idPropertyValue object to htblClassPropertyValue
@@ -211,8 +223,8 @@ public class RequestFieldsValidation {
 			 * construct a new PropertyValue instance to hold the prefiexed
 			 * propertyName and prefixed value
 			 */
-			PropertyValue propertyValue = new PropertyValue(getValue(property, value), false,
-					property.getPrefix().getPrefix() + property.getName());
+			PropertyValue propertyValue = new PropertyValue(property.getPrefix().getPrefix() + property.getName(),
+					getValue(property, value), false);
 
 			/*
 			 * add PropertyValue object to htblClassPropertyValue
@@ -277,8 +289,8 @@ public class RequestFieldsValidation {
 			 */
 
 			Property idProperty = classType.getProperties().get("id");
-			PropertyValue idPropertyValue = new PropertyValue(objectUniqueIdentifier, false,
-					idProperty.getPrefix().getPrefix() + idProperty.getName());
+			PropertyValue idPropertyValue = new PropertyValue(idProperty.getPrefix().getPrefix() + idProperty.getName(),
+					objectUniqueIdentifier, false);
 
 			/*
 			 * add idPropertyValue object to htblClassPropertyValue
@@ -295,8 +307,8 @@ public class RequestFieldsValidation {
 			 * construct a new PropertyValue instance to hold the prefiexed
 			 * propertyName and prefixed value
 			 */
-			PropertyValue propertyValue = new PropertyValue(objectUniqueIdentifier, false,
-					property.getPrefix().getPrefix() + property.getName());
+			PropertyValue propertyValue = new PropertyValue(property.getPrefix().getPrefix() + property.getName(),
+					objectUniqueIdentifier, true);
 			/*
 			 * add PropertyValue object to htblClassPropertyValue
 			 */
