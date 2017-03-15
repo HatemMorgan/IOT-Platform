@@ -15,7 +15,8 @@ public class Organization extends Agent {
 	private static Organization organizationInstance;
 
 	public Organization() {
-		super("Organization", "http://xmlns.com/foaf/0.1/Organization", Prefixes.FOAF);
+		super("Organization", "http://xmlns.com/foaf/0.1/Organization", Prefixes.FOAF,
+				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
 
 		super.getProperties().put("name",
 				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));

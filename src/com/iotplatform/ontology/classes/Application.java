@@ -18,7 +18,8 @@ public class Application extends Class {
 	private static Application applicationInstance;
 
 	public Application() {
-		super("Application", "http://iot-platform#Application", Prefixes.IOT_PLATFORM);
+		super("Application", "http://iot-platform#Application", Prefixes.IOT_PLATFORM,
+				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
 		init();
 	}
 

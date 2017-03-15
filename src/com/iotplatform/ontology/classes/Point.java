@@ -25,7 +25,8 @@ public class Point extends Class {
 	private static Point pointInstance;
 
 	public Point() {
-		super("Point", "http://www.w3.org/2003/01/geo/wgs84_pos#Point", Prefixes.GEO);
+		super("Point", "http://www.w3.org/2003/01/geo/wgs84_pos#Point", Prefixes.GEO,
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 		init();
 	}
 

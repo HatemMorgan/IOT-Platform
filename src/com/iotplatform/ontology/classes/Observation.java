@@ -3,8 +3,10 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  * This Class maps the Observation Class in the ontology
@@ -19,7 +21,8 @@ import com.iotplatform.ontology.Prefixes;
 public class Observation extends Class {
 
 	public Observation() {
-		super("Observation", "http://purl.oclc.org/NET/ssnx/ssn#Observation", Prefixes.SSN);
+		super("Observation", "http://purl.oclc.org/NET/ssnx/ssn#Observation", Prefixes.SSN,
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 		init();
 	}
 
@@ -32,7 +35,7 @@ public class Observation extends Class {
 		 * calculation to obtain a measurement result [VIM 2.6] . one to one
 		 * relationship
 		 */
-		this.getProperties().put("sensingMethodUsed",
+		super.getProperties().put("sensingMethodUsed",
 				new ObjectProperty("sensingMethodUsed", Prefixes.SSN, Sensing.getSensingInstance(), false, false));
 		/*
 		 * Relation linking an Observation (i.e., a description of the context,
@@ -40,7 +43,7 @@ public class Observation extends Class {
 		 * Result(Sensor Output), which contains a value representing the value
 		 * associated with the observed Property. one to one relationship
 		 */
-		this.getProperties().put("observationResult", new ObjectProperty("observationResult", Prefixes.SSN,
+		super.getProperties().put("observationResult", new ObjectProperty("observationResult", Prefixes.SSN,
 				SensorOutput.getSensorOutputInstance(), false, false));
 
 		/*
@@ -49,7 +52,7 @@ public class Observation extends Class {
 		 * FeatureOfInterest (linked by featureOfInterest) of this observation.
 		 * one to one relationship
 		 */
-		this.getProperties().put("observedProperty",
+		super.getProperties().put("observedProperty",
 				new ObjectProperty("observedProperty", Prefixes.SSN, Property.getPropertyInstance(), false, false));
 
 		/*
@@ -58,14 +61,24 @@ public class Observation extends Class {
 		 * the feature of interest is the person and the quality is weight. one
 		 * to one relationship
 		 */
-		this.getProperties().put("featureOfInterest", new ObjectProperty("featureOfInterest", Prefixes.SSN,
+		super.getProperties().put("featureOfInterest", new ObjectProperty("featureOfInterest", Prefixes.SSN,
 				FeatureOfInterest.getFeatureOfInterestInstance(), false, false));
 
 		/*
 		 * Links an observation to its stimulus(Event). one to one relationship
 		 */
-		this.getProperties().put("includesEvent",
+		super.getProperties().put("includesEvent",
 				new ObjectProperty("includesEvent", Prefixes.DUL, Stimulus.getStimulusInstance(), false, false));
+
+		super.getProperties().put("id",
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "sensingMethodUsed", "sensingMethodUsed");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "observationResult", "observationResult");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "observedProperty", "observedProperty");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "featureOfInterest", "featureOfInterest");
+		super.getHtblPropUriName().put(Prefixes.DUL.getUri() + "includesEvent", "includesEvent");
 
 	}
 

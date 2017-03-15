@@ -3,6 +3,7 @@ package com.iotplatform.ontology.classes;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -13,13 +14,13 @@ public class Agent extends Class {
 
 	private static Agent agentInstance;
 
-	public Agent(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix);
+	public Agent(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty) {
+		super(name, uri, prefix, uniqueIdentifierProperty);
 		init();
 	}
 
 	public Agent() {
-		super("Agent", "http://xmlns.com/foaf/0.1/Agent", Prefixes.FOAF);
+		super("Agent", "http://xmlns.com/foaf/0.1/Agent", Prefixes.FOAF, null);
 		init();
 
 	}

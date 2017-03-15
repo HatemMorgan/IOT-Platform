@@ -31,7 +31,7 @@ public class SystemClass extends Class {
 	private static SystemClass systemInstance;
 
 	public SystemClass() {
-		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN);
+		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN,null);
 
 		init();
 
@@ -47,11 +47,11 @@ public class SystemClass extends Class {
 	 * 
 	 */
 	public SystemClass(String nothing) {
-		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN);
+		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN,null);
 	}
 
 	public SystemClass(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix);
+		super(name, uri, prefix,null);
 		init();
 	}
 

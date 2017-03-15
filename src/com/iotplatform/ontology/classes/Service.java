@@ -20,7 +20,8 @@ public class Service extends Class {
 	private static Service serviceInstance;
 
 	public Service() {
-		super("Service", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service", Prefixes.IOT_LITE);
+		super("Service", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service", Prefixes.IOT_LITE,
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 		init();
 	}
 
@@ -53,6 +54,10 @@ public class Service extends Class {
 		super.getProperties().put("interfaceType",
 				new DataTypeProperty("interfaceType", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
+		super.getProperties().put("id",
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "endpoint", "endpoint");
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "interfaceDescription", "interfaceDescription");
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "interfaceType", "interfaceType");

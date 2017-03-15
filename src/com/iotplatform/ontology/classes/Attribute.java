@@ -3,7 +3,9 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  * This Class maps Attribute Class in the ontology
@@ -16,11 +18,15 @@ import com.iotplatform.ontology.Prefixes;
 public class Attribute extends Class {
 
 	public Attribute() {
-		super("Attribute", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", Prefixes.IOT_LITE);
+		super("Attribute", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", Prefixes.IOT_LITE, null);
 		init();
 	}
 
 	private void init() {
+		super.getProperties().put("id",
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 
 	}
 

@@ -27,7 +27,8 @@ public class Platform extends Class {
 	private static Platform platformInstance;
 
 	public Platform() {
-		super("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform", Prefixes.SSN);
+		super("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform", Prefixes.SSN,
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 		init();
 	}
 

@@ -3,7 +3,9 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  *  This Class maps the Input Class in the ontology 
@@ -15,12 +17,16 @@ import com.iotplatform.ontology.Prefixes;
 public class Input extends Class {
 
 	public Input() {
-		super("Input", "http://purl.oclc.org/NET/ssnx/ssn#Input", Prefixes.SSN);
+		super("Input", "http://purl.oclc.org/NET/ssnx/ssn#Input", Prefixes.SSN,
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 		init();
 	}
 
 	private void init() {
+		super.getProperties().put("id",
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}
 
 }

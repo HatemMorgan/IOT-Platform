@@ -16,7 +16,8 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Group extends Agent {
 
 	public Group() {
-		super("Group", "http://xmlns.com/foaf/0.1/Group", Prefixes.FOAF);
+		super("Group", "http://xmlns.com/foaf/0.1/Group", Prefixes.FOAF,
+				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
 
 		super.getProperties().put("name",
 				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));

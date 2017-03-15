@@ -20,7 +20,7 @@ public class Amount extends Class {
 	private static Amount amountInstance;
 
 	public Amount() {
-		super("Amount", "http://iot-platform#Amount", Prefixes.IOT_PLATFORM);
+		super("Amount", "http://iot-platform#Amount", Prefixes.IOT_PLATFORM, null);
 		init();
 	}
 
@@ -32,9 +32,7 @@ public class Amount extends Class {
 	}
 
 	private void init() {
-		/*
-		 * unique ID
-		 */
+
 		super.getProperties().put("id",
 				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 
@@ -67,6 +65,12 @@ public class Amount extends Class {
 
 		super.getProperties().put("hasUnit",
 				new ObjectProperty("hasUnit", Prefixes.IOT_LITE, Unit.getUnitInstance(), false, false));
+
+		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasRangeMaxValue", "hasRangeMaxValue");
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasRangeMinValue", "hasRangeMinValue");
+		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasDataValue", "hasDataValue");
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasUnit", "hasUnit");
 	}
 
 }

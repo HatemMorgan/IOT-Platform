@@ -23,7 +23,8 @@ public class Coverage extends Class {
 	private Hashtable<String, Class> coverageTypesList;
 
 	public Coverage() {
-		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE);
+		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE,
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 		coverageTypesList = new Hashtable<>();
 		init();
 	}
@@ -38,7 +39,8 @@ public class Coverage extends Class {
 	 * 
 	 */
 	public Coverage(String nothing) {
-		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE);
+		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE,
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 		coverageTypesList = new Hashtable<>();
 	}
 
@@ -55,8 +57,12 @@ public class Coverage extends Class {
 
 		/*
 		 * Add iot-lite:Circle Class to coverageTypesList
+		 * 
+		 * I put uniqueIdentefier to null because I defiened in coverage class
+		 * which is the superClass
 		 */
-		Class circle = new Class("Circle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Circle", Prefixes.IOT_LITE);
+		Class circle = new Class("Circle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Circle", Prefixes.IOT_LITE,
+				null);
 		circle.getProperties().put("radius",
 				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
 		circle.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "radius", "radius");
@@ -73,7 +79,7 @@ public class Coverage extends Class {
 		 * Add iot-lite:Rectange Class to coverageTypesList
 		 */
 		Class rectangle = new Class("Rectangle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Rectangle",
-				Prefixes.IOT_LITE);
+				Prefixes.IOT_LITE, null);
 
 		/*
 		 * adding coverage class to superClassesList to tell the dao to add
@@ -86,8 +92,8 @@ public class Coverage extends Class {
 		/*
 		 * Add iot-lite:Polygon Class to coverageTypesList
 		 */
-		Class polygon = new Class("Polygon", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Polygon",
-				Prefixes.IOT_LITE);
+		Class polygon = new Class("Polygon", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Polygon", Prefixes.IOT_LITE,
+				null);
 
 		/*
 		 * adding coverage class to superClassesList to tell the dao to add
@@ -103,14 +109,24 @@ public class Coverage extends Class {
 		 */
 		super.getProperties().put("location",
 				new ObjectProperty("location", Prefixes.GEO, Point.getPointInstacne(), false, false));
+
+		super.getProperties().put("id",
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		super.getHtblPropUriName().put(Prefixes.GEO.getUri() + "location", "location");
 	}
 
 	private static void initCoverageStaticInstance(Coverage coverageInstance) {
 
 		/*
 		 * Add iot-lite:Circle Class to coverageTypesList
+		 * 
+		 * I put uniqueIdentefier to null because I defiened in coverage class
+		 * which is the superClass
 		 */
-		Class circle = new Class("Circle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Circle", Prefixes.IOT_LITE);
+		Class circle = new Class("Circle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Circle", Prefixes.IOT_LITE,
+				null);
 		circle.getProperties().put("radius",
 				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
 		circle.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "radius", "radius");
@@ -127,7 +143,7 @@ public class Coverage extends Class {
 		 * Add iot-lite:Rectange Class to coverageTypesList
 		 */
 		Class rectangle = new Class("Rectangle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Rectangle",
-				Prefixes.IOT_LITE);
+				Prefixes.IOT_LITE, null);
 
 		/*
 		 * adding coverage class to superClassesList to tell the dao to add
@@ -140,8 +156,8 @@ public class Coverage extends Class {
 		/*
 		 * Add iot-lite:Polygon Class to coverageTypesList
 		 */
-		Class polygon = new Class("Polygon", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Polygon",
-				Prefixes.IOT_LITE);
+		Class polygon = new Class("Polygon", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Polygon", Prefixes.IOT_LITE,
+				null);
 
 		/*
 		 * adding coverage class to superClassesList to tell the dao to add
@@ -157,6 +173,13 @@ public class Coverage extends Class {
 		 */
 		coverageInstance.getProperties().put("location",
 				new ObjectProperty("location", Prefixes.GEO, Point.getPointInstacne(), false, false));
+
+		coverageInstance.getProperties().put("id",
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+
+		coverageInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		coverageInstance.getHtblPropUriName().put(Prefixes.GEO.getUri() + "location", "location");
+
 	}
 
 	public Hashtable<String, Class> getCoverageTypesList() {

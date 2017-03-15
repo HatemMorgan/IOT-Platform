@@ -25,12 +25,13 @@ public class DeploymentRelatedProcess extends Class {
 	private static DeploymentRelatedProcess deploymentRelatedProcessInstance;
 
 	public DeploymentRelatedProcess(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix);
+		super(name, uri, prefix, new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 		init();
 	}
 
 	public DeploymentRelatedProcess() {
-		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN);
+		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN,
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 		init();
 	}
 
@@ -44,7 +45,8 @@ public class DeploymentRelatedProcess extends Class {
 	 * 
 	 */
 	public DeploymentRelatedProcess(String nothing) {
-		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN);
+		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN,
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 	}
 
 	public synchronized static DeploymentRelatedProcess getDeploymentRelatedProcessInstance() {

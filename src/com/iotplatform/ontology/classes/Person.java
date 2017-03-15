@@ -14,7 +14,8 @@ public class Person extends Agent {
 	private static Person personInstance;
 
 	public Person() {
-		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF);
+		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF,
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
 		init();
 	}
 
@@ -28,11 +29,13 @@ public class Person extends Agent {
 	 * 
 	 */
 	public Person(String nothing) {
-		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF);
+		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF,
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
 	}
 
 	public Person(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix);
+		super(name, uri, prefix,
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
 		init();
 
 	}

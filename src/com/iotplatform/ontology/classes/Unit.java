@@ -19,7 +19,7 @@ public class Unit extends Class {
 	private static Unit unitInstance;
 
 	public Unit() {
-		super("Unit", "http://purl.org/NET/ssnx/qu/qu#Unit", Prefixes.QU);
+		super("Unit", "http://purl.org/NET/ssnx/qu/qu#Unit", Prefixes.QU, null);
 	}
 
 	public synchronized static Unit getUnitInstance() {

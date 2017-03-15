@@ -57,7 +57,7 @@ public class SurvivalProperty extends Property {
 		 * Total useful life of a battery.
 		 */
 		Class batteryLifetime = new Class("BatteryLifetime", "http://purl.oclc.org/NET/ssnx/ssn#BatteryLifetime",
-				Prefixes.SSN);
+				Prefixes.SSN, null);
 
 		/*
 		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
@@ -73,7 +73,7 @@ public class SurvivalProperty extends Property {
 		 */
 
 		Class systemLifetime = new Class("SystemLifetime", "http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime",
-				Prefixes.SSN);
+				Prefixes.SSN, null);
 
 		/*
 		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
@@ -90,7 +90,7 @@ public class SurvivalProperty extends Property {
 		 * Total useful life of a battery.
 		 */
 		Class batteryLifetime = new Class("BatteryLifetime", "http://purl.oclc.org/NET/ssnx/ssn#BatteryLifetime",
-				Prefixes.SSN);
+				Prefixes.SSN, null);
 
 		/*
 		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
@@ -106,7 +106,7 @@ public class SurvivalProperty extends Property {
 		 */
 
 		Class systemLifetime = new Class("SystemLifetime", "http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime",
-				Prefixes.SSN);
+				Prefixes.SSN, null);
 
 		/*
 		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao

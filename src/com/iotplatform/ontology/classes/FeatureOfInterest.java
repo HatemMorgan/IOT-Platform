@@ -3,7 +3,9 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  *  This Class maps the ssn:FeatureOfInterest class in the ontology
@@ -24,7 +26,8 @@ public class FeatureOfInterest extends Class {
 	private static FeatureOfInterest featureOfInterestInstance;
 
 	public FeatureOfInterest() {
-		super("FeatureOfInterest", "http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN);
+		super("FeatureOfInterest", "http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN,
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 		init();
 	}
 
@@ -36,7 +39,10 @@ public class FeatureOfInterest extends Class {
 	}
 
 	private void init() {
+		super.getProperties().put("id",
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}
 
 }

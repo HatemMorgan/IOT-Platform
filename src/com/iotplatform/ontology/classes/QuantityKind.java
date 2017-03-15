@@ -3,7 +3,9 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  * This class maps qu:QuantityKind Class in the ontology
@@ -22,7 +24,8 @@ public class QuantityKind extends Class {
 	private static QuantityKind quantityKindInstance;
 
 	public QuantityKind() {
-		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU);
+		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU,
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 
 		init();
 	}
@@ -35,7 +38,10 @@ public class QuantityKind extends Class {
 	}
 
 	private void init() {
+		super.getProperties().put("id",
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}
 
 }
