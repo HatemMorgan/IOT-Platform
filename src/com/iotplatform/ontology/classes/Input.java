@@ -18,13 +18,13 @@ public class Input extends Class {
 
 	public Input() {
 		super("Input", "http://purl.oclc.org/NET/ssnx/ssn#Input", Prefixes.SSN,
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				null);
 		init();
 	}
 
 	private void init() {
 		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}

@@ -25,13 +25,13 @@ public class DeploymentRelatedProcess extends Class {
 	private static DeploymentRelatedProcess deploymentRelatedProcessInstance;
 
 	public DeploymentRelatedProcess(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix, new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		super(name, uri, prefix, null);
 		init();
 	}
 
 	public DeploymentRelatedProcess() {
 		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN,
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				null);
 		init();
 	}
 
@@ -46,7 +46,7 @@ public class DeploymentRelatedProcess extends Class {
 	 */
 	public DeploymentRelatedProcess(String nothing) {
 		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN,
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				null);
 	}
 
 	public synchronized static DeploymentRelatedProcess getDeploymentRelatedProcessInstance() {
@@ -76,7 +76,7 @@ public class DeploymentRelatedProcess extends Class {
 		 * id and it must be unique
 		 */
 		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deploymentProcessPart", "deploymentProcessPart");
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
@@ -103,7 +103,7 @@ public class DeploymentRelatedProcess extends Class {
 		 * id and it must be unique
 		 */
 		deploymentRelatedProcessInstance.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		deploymentRelatedProcessInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deploymentProcessPart",
 				"deploymentProcessPart");

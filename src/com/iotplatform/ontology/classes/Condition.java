@@ -33,11 +33,6 @@ public class Condition extends Property {
 	}
 
 	private void init() {
-		/*
-		 * Unique Identifier
-		 */
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 
 		/*
 		 * Condition description

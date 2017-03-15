@@ -20,8 +20,7 @@ public class Metadata extends Class {
 	private static Metadata metadataInstance;
 
 	public Metadata() {
-		super("Metadata", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefixes.IOT_LITE,
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		super("Metadata", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefixes.IOT_LITE, null);
 		init();
 	}
 
@@ -48,7 +47,7 @@ public class Metadata extends Class {
 				new DataTypeProperty("metadataValue", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "metadataType", "metadataType");

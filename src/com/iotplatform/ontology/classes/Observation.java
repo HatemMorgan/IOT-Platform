@@ -21,8 +21,7 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Observation extends Class {
 
 	public Observation() {
-		super("Observation", "http://purl.oclc.org/NET/ssnx/ssn#Observation", Prefixes.SSN,
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		super("Observation", "http://purl.oclc.org/NET/ssnx/ssn#Observation", Prefixes.SSN, null);
 		init();
 	}
 
@@ -71,7 +70,7 @@ public class Observation extends Class {
 				new ObjectProperty("includesEvent", Prefixes.DUL, Stimulus.getStimulusInstance(), false, false));
 
 		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "sensingMethodUsed", "sensingMethodUsed");

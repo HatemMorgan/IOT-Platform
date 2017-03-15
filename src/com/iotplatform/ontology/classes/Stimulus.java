@@ -37,8 +37,7 @@ public class Stimulus extends Class {
 	private static Stimulus stimulusInstance;
 
 	public Stimulus() {
-		super("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Prefixes.SSN,
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		super("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Prefixes.SSN, null);
 		init();
 	}
 
@@ -51,7 +50,7 @@ public class Stimulus extends Class {
 
 	private void init() {
 		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}

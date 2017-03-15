@@ -27,8 +27,7 @@ public class Platform extends Class {
 	private static Platform platformInstance;
 
 	public Platform() {
-		super("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform", Prefixes.SSN,
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		super("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform", Prefixes.SSN, null);
 		init();
 	}
 
@@ -45,7 +44,7 @@ public class Platform extends Class {
 		 * DeviceModule id which must be unique
 		 */
 		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * Relation between Platform and its physical location described by

@@ -22,13 +22,12 @@ public class Property extends Class {
 	private static Property propertyInstance;
 
 	public Property(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix, new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		super(name, uri, prefix, null);
 		init();
 	}
 
 	public Property() {
-		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN,
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN, null);
 		init();
 	}
 
@@ -48,7 +47,7 @@ public class Property extends Class {
 				new ObjectProperty("hasValue", Prefixes.SSN, Amount.getAmountInstance(), false, false));
 
 		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasValue", "hasValue");

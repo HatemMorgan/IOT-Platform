@@ -18,8 +18,7 @@ public class DeviceModule extends Class {
 	private static DeviceModule deviceModuleInstance;
 
 	public DeviceModule() {
-		super("DeviceModule", "http://iot-platform#DeviceModule", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		super("DeviceModule", "http://iot-platform#DeviceModule", Prefixes.IOT_PLATFORM, null);
 		init();
 	}
 
@@ -36,7 +35,7 @@ public class DeviceModule extends Class {
 		 * DeviceModule id which must be unique
 		 */
 		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * Describes relation between Device module and its device

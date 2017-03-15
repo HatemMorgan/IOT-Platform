@@ -23,8 +23,7 @@ public class Coverage extends Class {
 	private Hashtable<String, Class> coverageTypesList;
 
 	public Coverage() {
-		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE,
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE,null);
 		coverageTypesList = new Hashtable<>();
 		init();
 	}
@@ -111,7 +110,7 @@ public class Coverage extends Class {
 				new ObjectProperty("location", Prefixes.GEO, Point.getPointInstacne(), false, false));
 
 		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.GEO.getUri() + "location", "location");
@@ -175,7 +174,7 @@ public class Coverage extends Class {
 				new ObjectProperty("location", Prefixes.GEO, Point.getPointInstacne(), false, false));
 
 		coverageInstance.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		coverageInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		coverageInstance.getHtblPropUriName().put(Prefixes.GEO.getUri() + "location", "location");

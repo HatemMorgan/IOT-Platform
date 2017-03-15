@@ -18,19 +18,18 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Process extends Class {
 
 	public Process(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix, new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		super(name, uri, prefix, null);
 		init();
 	}
 
 	public Process() {
-		super("Process", "http://purl.oclc.org/NET/ssnx/ssn#Process", Prefixes.SSN,
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		super("Process", "http://purl.oclc.org/NET/ssnx/ssn#Process", Prefixes.SSN, null);
 		init();
 	}
 
 	private void init() {
 		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}

@@ -25,8 +25,7 @@ public class Point extends Class {
 	private static Point pointInstance;
 
 	public Point() {
-		super("Point", "http://www.w3.org/2003/01/geo/wgs84_pos#Point", Prefixes.GEO,
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		super("Point", "http://www.w3.org/2003/01/geo/wgs84_pos#Point", Prefixes.GEO, null);
 		init();
 	}
 
@@ -43,7 +42,7 @@ public class Point extends Class {
 		 * point id which must be unique
 		 */
 		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * point latitude

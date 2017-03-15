@@ -35,6 +35,7 @@ public class Class {
 		properties = new Hashtable<>();
 		superClassesList = new ArrayList<>();
 
+		this.uniqueIdentifierProperty = uniqueIdentifierProperty;
 		hasUniqueIdentifierProperty = uniqueIdentifierProperty == null ? false : true;
 
 	}

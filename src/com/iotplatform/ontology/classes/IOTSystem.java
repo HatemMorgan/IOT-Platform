@@ -22,6 +22,7 @@ public class IOTSystem extends Class {
 	public IOTSystem() {
 		super("IOTSystem", "http://iot-platform#IOTSystem", Prefixes.IOT_PLATFORM,
 				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		
 		init();
 	}
 

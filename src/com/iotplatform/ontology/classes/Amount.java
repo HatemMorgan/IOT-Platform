@@ -34,7 +34,7 @@ public class Amount extends Class {
 	private void init() {
 
 		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * It describes the max value amount of a range of a property like

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.UUID;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,11 +104,51 @@ public class RequestFieldsValidation {
 
 			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, classList, htblNotFoundFieldValue)) {
 				Property property = subjectClass.getProperties().get(fieldName);
-				
+
 				parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue, classList,
 						htblNotFoundFieldValue);
 			}
+
 		}
+
+		/*
+		 * There is no uniqueIdentfier for this object class so the platform has
+		 * to generate a UUID to be the unique Identifier that will be the
+		 * subject and will be the value of ID property defined by the platform
+		 */
+
+		if (!subjectClass.isHasUniqueIdentifierProperty()) {
+
+			String id = UUID.randomUUID().toString();
+
+			/*
+			 * prefixing objectUniqueIdentifier
+			 */
+
+			id = "\"" + id + "\"" + XSDDataTypes.string_typed.getXsdType();
+
+			/*
+			 * add property id for classTypeObject and add generated UUID as the
+			 * object of it
+			 */
+
+			Property idProperty = subjectClass.getProperties().get("id");
+			PropertyValue idPropertyValue = new PropertyValue(id, false,
+					idProperty.getPrefix().getPrefix() + idProperty.getName());
+
+			/*
+			 * add idPropertyValue object to htblClassPropertyValue
+			 */
+			if (htblClassPropertyValue.containsKey(subjectClass)) {
+				htblClassPropertyValue.get(subjectClass).add(idPropertyValue);
+			} else {
+				ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
+				htblClassPropertyValue.put(subjectClass, propertyValueList);
+				htblClassPropertyValue.get(subjectClass).add(idPropertyValue);
+			}
+
+		}
+
 		System.out.println("==============================================");
 		System.out.println(htblClassPropertyValue.toString());
 		System.out.println("=======================================");
@@ -183,6 +224,77 @@ public class RequestFieldsValidation {
 			LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) value;
 			Class classType = ((ObjectProperty) property).getObject();
 
+			/*
+			 * linking subject class with object class by adding a the unique
+			 * identifier as the object value of the property
+			 */
+
+			/*
+			 * if it has unique Identifier this means that a unique property
+			 * value added by the user must be the unique identifier that will
+			 * be the subject of object value and references the object value
+			 * instance to the subject
+			 */
+			String objectUniqueIdentifier;
+			if (classType.isHasUniqueIdentifierProperty()) {
+				Property uniqueIdentifierProperty = classType.getUniqueIdentifierProperty();
+				objectUniqueIdentifier = valueObject.get(uniqueIdentifierProperty.getName()).toString();
+
+			} else {
+				/*
+				 * There is no uniqueIdentfier for this object class so the
+				 * platform has to generate a UUID to be the unique Identifier
+				 * that will be the subject of object value and references the
+				 * object value instance to the subject
+				 */
+
+				objectUniqueIdentifier = UUID.randomUUID().toString();
+
+			}
+
+			/*
+			 * prefixing objectUniqueIdentifier
+			 */
+
+			objectUniqueIdentifier = "\"" + objectUniqueIdentifier + "\"" + XSDDataTypes.string_typed.getXsdType();
+
+			/*
+			 * add property id for classTypeObject and add generated UUID as the
+			 * object of it
+			 */
+
+			Property idProperty = classType.getProperties().get("id");
+			PropertyValue idPropertyValue = new PropertyValue(objectUniqueIdentifier, false,
+					idProperty.getPrefix().getPrefix() + idProperty.getName());
+
+			/*
+			 * add idPropertyValue object to htblClassPropertyValue
+			 */
+			if (htblClassPropertyValue.containsKey(classType)) {
+				htblClassPropertyValue.get(classType).add(idPropertyValue);
+			} else {
+				ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
+				htblClassPropertyValue.put(classType, propertyValueList);
+				htblClassPropertyValue.get(classType).add(idPropertyValue);
+			}
+
+			/*
+			 * construct a new PropertyValue instance to hold the prefiexed
+			 * propertyName and prefixed value
+			 */
+			PropertyValue propertyValue = new PropertyValue(objectUniqueIdentifier, false,
+					property.getPrefix().getPrefix() + property.getName());
+			/*
+			 * add PropertyValue object to htblClassPropertyValue
+			 */
+			if (htblClassPropertyValue.containsKey(subjectClass)) {
+				htblClassPropertyValue.get(subjectClass).add(propertyValue);
+			} else {
+				ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
+				htblClassPropertyValue.put(subjectClass, propertyValueList);
+				htblClassPropertyValue.get(subjectClass).add(propertyValue);
+			}
+
 			for (String fieldName : valueObject.keySet()) {
 
 				/*
@@ -210,6 +322,10 @@ public class RequestFieldsValidation {
 
 	}
 
+	private boolean objectTypeCheck(Class subjectClass, Object value){
+		return false;
+	}
+	
 	/*
 	 * getValue method returns the appropriate value by appending a prefix
 	 */
@@ -245,21 +361,19 @@ public class RequestFieldsValidation {
 		LinkedHashMap<String, Object> condition = new LinkedHashMap<>();
 		condition.put("description", "High Tempreture Condition");
 
-		
-
 		LinkedHashMap<String, Object> amount = new LinkedHashMap<>();
 		amount.put("hasDataValue", 20.21);
 
 		LinkedHashMap<String, Object> survivalProperty = new LinkedHashMap<>();
 		survivalProperty.put("hasValue", amount);
-		
+
 		LinkedHashMap<String, Object> survivalRange = new LinkedHashMap<>();
 		survivalRange.put("inCondition", condition);
 		survivalRange.put("hasSurvivalProperty", survivalProperty);
 
-		htblFieldValue.put("id", "2032-3232-2342");
+		// htblFieldValue.put("id", "2032-3232-2342");
 		htblFieldValue.put("hasSurvivalRange", survivalRange);
-		
+
 		requestFieldsValidation.validateRequestFields(htblFieldValue, new ActuatingDevice());
 
 	}
