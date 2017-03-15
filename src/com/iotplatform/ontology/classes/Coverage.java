@@ -1,7 +1,5 @@
 package com.iotplatform.ontology.classes;
 
-import java.util.Hashtable;
-
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
@@ -20,11 +18,9 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Coverage extends Class {
 
 	private static Coverage coverageInstance;
-	private Hashtable<String, Class> coverageTypesList;
 
 	public Coverage() {
-		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE,null,true);
-		coverageTypesList = new Hashtable<>();
+		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE, null, true);
 		init();
 	}
 
@@ -38,9 +34,7 @@ public class Coverage extends Class {
 	 * 
 	 */
 	public Coverage(String nothing) {
-		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE,
-				null,true);
-		coverageTypesList = new Hashtable<>();
+		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE, null, true);
 	}
 
 	public synchronized static Coverage getCoverageInstance() {
@@ -55,54 +49,6 @@ public class Coverage extends Class {
 	private void init() {
 
 		/*
-		 * Add iot-lite:Circle Class to coverageTypesList
-		 * 
-		 * I put uniqueIdentefier to null because I defiened in coverage class
-		 * which is the superClass
-		 */
-		Class circle = new Class("Circle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Circle", Prefixes.IOT_LITE,
-				null);
-		circle.getProperties().put("radius",
-				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
-		circle.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "radius", "radius");
-
-		/*
-		 * adding coverage class to superClassesList to tell the dao to add
-		 * triple that expresses that an instance of class Circle is also an
-		 * instance of class Coverage
-		 */
-		circle.getSuperClassesList().add(Coverage.getCoverageInstance());
-		coverageTypesList.put("Circle", circle);
-
-		/*
-		 * Add iot-lite:Rectange Class to coverageTypesList
-		 */
-		Class rectangle = new Class("Rectangle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Rectangle",
-				Prefixes.IOT_LITE, null);
-
-		/*
-		 * adding coverage class to superClassesList to tell the dao to add
-		 * triple that expresses that an instance of class Rectangle is also an
-		 * instance of class Coverage
-		 */
-		rectangle.getSuperClassesList().add(Coverage.getCoverageInstance());
-		coverageTypesList.put("Rectangle", rectangle);
-
-		/*
-		 * Add iot-lite:Polygon Class to coverageTypesList
-		 */
-		Class polygon = new Class("Polygon", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Polygon", Prefixes.IOT_LITE,
-				null);
-
-		/*
-		 * adding coverage class to superClassesList to tell the dao to add
-		 * triple that expresses that an instance of class Polygon is also an
-		 * instance of class Coverage
-		 */
-		polygon.getSuperClassesList().add(Coverage.getCoverageInstance());
-		coverageTypesList.put("Polygon", polygon);
-
-		/*
 		 * Relation between coverage and its physical location described by
 		 * point class
 		 */
@@ -114,12 +60,16 @@ public class Coverage extends Class {
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.GEO.getUri() + "location", "location");
-	}
 
-	private static void initCoverageStaticInstance(Coverage coverageInstance) {
+		// -------------------------------------------------------------------------------------------
 
 		/*
 		 * Add iot-lite:Circle Class to coverageTypesList
+		 * 
+		 * set type classes properties list and htblPropUriName so coverage ones
+		 * inOrder to make them have access on the properties list and
+		 * htblPropUriName of Coverage class
+		 * 
 		 * 
 		 * I put uniqueIdentefier to null because I defiened in coverage class
 		 * which is the superClass
@@ -128,6 +78,9 @@ public class Coverage extends Class {
 				null);
 		circle.getProperties().put("radius",
 				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
+
+		circle.setProperties(super.getProperties());
+		circle.setHtblPropUriName(super.getHtblPropUriName());
 		circle.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "radius", "radius");
 
 		/*
@@ -136,7 +89,7 @@ public class Coverage extends Class {
 		 * instance of class Coverage
 		 */
 		circle.getSuperClassesList().add(Coverage.getCoverageInstance());
-		coverageInstance.getCoverageTypesList().put("Circle", circle);
+		this.getClassTypesList().put("Circle", circle);
 
 		/*
 		 * Add iot-lite:Rectange Class to coverageTypesList
@@ -150,7 +103,9 @@ public class Coverage extends Class {
 		 * instance of class Coverage
 		 */
 		rectangle.getSuperClassesList().add(Coverage.getCoverageInstance());
-		coverageInstance.getCoverageTypesList().put("Rectangle", rectangle);
+		rectangle.setProperties(super.getProperties());
+		rectangle.setHtblPropUriName(super.getHtblPropUriName());
+		this.getClassTypesList().put("Rectangle", rectangle);
 
 		/*
 		 * Add iot-lite:Polygon Class to coverageTypesList
@@ -164,7 +119,13 @@ public class Coverage extends Class {
 		 * instance of class Coverage
 		 */
 		polygon.getSuperClassesList().add(Coverage.getCoverageInstance());
-		coverageInstance.getCoverageTypesList().put("Polygon", polygon);
+		polygon.setProperties(super.getProperties());
+		polygon.setHtblPropUriName(super.getHtblPropUriName());
+		this.getClassTypesList().put("Polygon", polygon);
+
+	}
+
+	private static void initCoverageStaticInstance(Coverage coverageInstance) {
 
 		/*
 		 * Relation between coverage and its physical location described by
@@ -179,10 +140,67 @@ public class Coverage extends Class {
 		coverageInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		coverageInstance.getHtblPropUriName().put(Prefixes.GEO.getUri() + "location", "location");
 
-	}
+		// -------------------------------------------------------------------------------------------------------
 
-	public Hashtable<String, Class> getCoverageTypesList() {
-		return coverageTypesList;
+		/*
+		 * Add iot-lite:Circle Class to coverageTypesList
+		 * 
+		 * set type classes properties list and htblPropUriName so coverage ones
+		 * inOrder to make them have access on the properties list and
+		 * htblPropUriName of Coverage class
+		 * 
+		 * I put uniqueIdentefier to null because I defiened in coverage class
+		 * which is the superClass
+		 */
+		Class circle = new Class("Circle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Circle", Prefixes.IOT_LITE,
+				null);
+		circle.getProperties().put("radius",
+				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
+		circle.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "radius", "radius");
+
+		/*
+		 * adding coverage class to superClassesList to tell the dao to add
+		 * triple that expresses that an instance of class Circle is also an
+		 * instance of class Coverage
+		 */
+		circle.getSuperClassesList().add(Coverage.getCoverageInstance());
+		circle.setProperties(coverageInstance.getProperties());
+		circle.setHtblPropUriName(coverageInstance.getHtblPropUriName());
+
+		coverageInstance.getClassTypesList().put("Circle", circle);
+
+		/*
+		 * Add iot-lite:Rectange Class to coverageTypesList
+		 */
+		Class rectangle = new Class("Rectangle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Rectangle",
+				Prefixes.IOT_LITE, null);
+
+		/*
+		 * adding coverage class to superClassesList to tell the dao to add
+		 * triple that expresses that an instance of class Rectangle is also an
+		 * instance of class Coverage
+		 */
+		rectangle.getSuperClassesList().add(Coverage.getCoverageInstance());
+		rectangle.setProperties(coverageInstance.getProperties());
+		rectangle.setHtblPropUriName(coverageInstance.getHtblPropUriName());
+		coverageInstance.getClassTypesList().put("Rectangle", rectangle);
+
+		/*
+		 * Add iot-lite:Polygon Class to coverageTypesList
+		 */
+		Class polygon = new Class("Polygon", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Polygon", Prefixes.IOT_LITE,
+				null);
+
+		/*
+		 * adding coverage class to superClassesList to tell the dao to add
+		 * triple that expresses that an instance of class Polygon is also an
+		 * instance of class Coverage
+		 */
+		polygon.getSuperClassesList().add(Coverage.getCoverageInstance());
+		polygon.setProperties(coverageInstance.getProperties());
+		polygon.setHtblPropUriName(coverageInstance.getHtblPropUriName());
+		coverageInstance.getClassTypesList().put("Polygon", polygon);
+
 	}
 
 }

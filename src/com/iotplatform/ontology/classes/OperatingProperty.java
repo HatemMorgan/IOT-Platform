@@ -1,7 +1,5 @@
 package com.iotplatform.ontology.classes;
 
-import java.util.Hashtable;
-
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
@@ -18,12 +16,10 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class OperatingProperty extends Property {
 
-	private Hashtable<String, Class> operatingPropertyTypesList;
 	private static OperatingProperty operatingPropertyInstance;
 
 	public OperatingProperty() {
 		super("OperatingProperty", "http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", Prefixes.SSN, true);
-		operatingPropertyTypesList = new Hashtable<>();
 		init();
 	}
 
@@ -38,7 +34,6 @@ public class OperatingProperty extends Property {
 	 */
 	public OperatingProperty(String nothing) {
 		super("OperatingProperty", "http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", Prefixes.SSN, true);
-		operatingPropertyTypesList = new Hashtable<>();
 	}
 
 	public static OperatingProperty getOperatingPropertyInstance() {
@@ -66,7 +61,9 @@ public class OperatingProperty extends Property {
 		 * ssn:OperatingProperty
 		 */
 		maintenanceSchedule.getSuperClassesList().add(OperatingProperty.getOperatingPropertyInstance());
-		operatingPropertyTypesList.put("MaintenanceSchedule", maintenanceSchedule);
+		maintenanceSchedule.setProperties(super.getProperties());
+		maintenanceSchedule.setHtblPropUriName(super.getHtblPropUriName());
+		this.getClassTypesList().put("MaintenanceSchedule", maintenanceSchedule);
 
 		/*
 		 * Power range in which system/sensor is expected to operate.
@@ -81,7 +78,9 @@ public class OperatingProperty extends Property {
 		 * ssn:OperatingProperty
 		 */
 		operatingPowerRange.getSuperClassesList().add(OperatingProperty.getOperatingPropertyInstance());
-		operatingPropertyTypesList.put("OperatingPowerRange", operatingPowerRange);
+		operatingPowerRange.setProperties(super.getProperties());
+		operatingPowerRange.setHtblPropUriName(super.getHtblPropUriName());
+		this.getClassTypesList().put("OperatingPowerRange", operatingPowerRange);
 
 	}
 
@@ -100,7 +99,9 @@ public class OperatingProperty extends Property {
 		 * ssn:OperatingProperty
 		 */
 		maintenanceSchedule.getSuperClassesList().add(OperatingProperty.getOperatingPropertyInstance());
-		operatingPropertyInstance.getOperatingPropertyTypesList().put("MaintenanceSchedule", maintenanceSchedule);
+		maintenanceSchedule.setProperties(operatingPropertyInstance.getProperties());
+		maintenanceSchedule.setHtblPropUriName(operatingPropertyInstance.getHtblPropUriName());
+		operatingPropertyInstance.getClassTypesList().put("MaintenanceSchedule", maintenanceSchedule);
 
 		/*
 		 * Power range in which system/sensor is expected to operate.
@@ -115,15 +116,9 @@ public class OperatingProperty extends Property {
 		 * ssn:OperatingProperty
 		 */
 		operatingPowerRange.getSuperClassesList().add(OperatingProperty.getOperatingPropertyInstance());
-		operatingPropertyInstance.getOperatingPropertyTypesList().put("OperatingPowerRange", operatingPowerRange);
-	}
-
-	public Hashtable<String, Class> getOperatingPropertyTypesList() {
-		return operatingPropertyTypesList;
-	}
-
-	public void setOperatingPropertyTypesList(Hashtable<String, Class> operatingPropertyTypesList) {
-		this.operatingPropertyTypesList = operatingPropertyTypesList;
+		operatingPowerRange.setProperties(operatingPropertyInstance.getProperties());
+		operatingPowerRange.setHtblPropUriName(operatingPropertyInstance.getHtblPropUriName());
+		operatingPropertyInstance.getClassTypesList().put("OperatingPowerRange", operatingPowerRange);
 	}
 
 }

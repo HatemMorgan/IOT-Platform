@@ -1,7 +1,5 @@
 package com.iotplatform.ontology.classes;
 
-import java.util.Hashtable;
-
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
@@ -19,12 +17,10 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class SurvivalProperty extends Property {
 
-	private Hashtable<String, Class> survivalPropertyTypesList;
 	private static SurvivalProperty survivalPropertyInstance;
 
 	public SurvivalProperty() {
-		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN,true);
-		survivalPropertyTypesList = new Hashtable<>();
+		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN, true);
 		init();
 	}
 
@@ -38,8 +34,7 @@ public class SurvivalProperty extends Property {
 	 * 
 	 */
 	public SurvivalProperty(String nothing) {
-		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN,true);
-		survivalPropertyTypesList = new Hashtable<>();
+		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN, true);
 	}
 
 	public synchronized static SurvivalProperty getSurvivalPropertyInstance() {
@@ -65,7 +60,9 @@ public class SurvivalProperty extends Property {
 		 * ssn:BatteryLifetime is also an instance of class ssn:SurvivalProperty
 		 */
 		batteryLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
-		survivalPropertyTypesList.put("BatteryLifetime", batteryLifetime);
+		batteryLifetime.setProperties(super.getProperties());
+		batteryLifetime.setHtblPropUriName(super.getHtblPropUriName());
+		this.getClassTypesList().put("BatteryLifetime", batteryLifetime);
 
 		/*
 		 * Total useful life of a sensor/system (expressed as total life since
@@ -81,7 +78,9 @@ public class SurvivalProperty extends Property {
 		 * ssn:SystemLifetime is also an instance of class ssn:SurvivalProperty
 		 */
 		systemLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
-		survivalPropertyTypesList.put("SystemLifetime", systemLifetime);
+		systemLifetime.setProperties(super.getProperties());
+		systemLifetime.setHtblPropUriName(super.getHtblPropUriName());
+		this.getClassTypesList().put("SystemLifetime", systemLifetime);
 
 	}
 
@@ -98,7 +97,9 @@ public class SurvivalProperty extends Property {
 		 * ssn:BatteryLifetime is also an instance of class ssn:SurvivalProperty
 		 */
 		batteryLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
-		survivalPropertyInstance.survivalPropertyTypesList.put("BatteryLifetime", batteryLifetime);
+		batteryLifetime.setProperties(survivalPropertyInstance.getProperties());
+		batteryLifetime.setHtblPropUriName(survivalPropertyInstance.getHtblPropUriName());
+		survivalPropertyInstance.getClassTypesList().put("BatteryLifetime", batteryLifetime);
 
 		/*
 		 * Total useful life of a sensor/system (expressed as total life since
@@ -114,11 +115,9 @@ public class SurvivalProperty extends Property {
 		 * ssn:SystemLifetime is also an instance of class ssn:SurvivalProperty
 		 */
 		systemLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
-		survivalPropertyInstance.survivalPropertyTypesList.put("SystemLifetime", systemLifetime);
-	}
-
-	public Hashtable<String, Class> getSurvivalPropertyTypesList() {
-		return survivalPropertyTypesList;
+		systemLifetime.setProperties(survivalPropertyInstance.getProperties());
+		systemLifetime.setHtblPropUriName(survivalPropertyInstance.getHtblPropUriName());
+		survivalPropertyInstance.getClassTypesList().put("SystemLifetime", systemLifetime);
 	}
 
 }

@@ -44,10 +44,14 @@ public class Class {
 	private ArrayList<Class> superClassesList;
 
 	/*
-	 * this boolean reperesents if the class has types like
-	 * measurementProperties
+	 * this boolean reperesents if the class has types eg. measurementProperties
 	 */
 	private boolean hasTypeClasses;
+
+	/*
+	 * ClassTypesList is a list of classes types
+	 */
+	private Hashtable<String, Class> classTypesList;
 
 	public Class(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty) {
 		this.name = name;
@@ -70,9 +74,10 @@ public class Class {
 		this.uniqueIdentifierProperty = uniqueIdentifierProperty;
 		this.hasTypeClasses = hasTypeClasses;
 
-		properties = new Hashtable<>();
-		superClassesList = new ArrayList<>();
-		hasUniqueIdentifierProperty = uniqueIdentifierProperty == null ? false : true;
+		this.classTypesList = hasTypeClasses == true ? new Hashtable<>() : null;
+		this.properties = new Hashtable<>();
+		this.superClassesList = new ArrayList<>();
+		this.hasUniqueIdentifierProperty = uniqueIdentifierProperty == null ? false : true;
 
 	}
 
@@ -112,4 +117,17 @@ public class Class {
 		return hasTypeClasses;
 	}
 
+	public Hashtable<String, Class> getClassTypesList() {
+		return classTypesList;
+	}
+
+	public void setProperties(Hashtable<String, Property> properties) {
+		this.properties = properties;
+	}
+
+	public void setHtblPropUriName(Hashtable<String, String> htblPropUriName) {
+		this.htblPropUriName = htblPropUriName;
+	}
+
+	
 }

@@ -90,25 +90,36 @@ public class RequestFieldsValidation {
 			Object value = htblFieldValue.get(fieldName);
 
 			/*
-			 * if it returns true then the field is a valid field so we have to
-			 * parse the value to determine if we need to do further check if
-			 * value maps another class eg. hasSurvivalRange property for Sensor
-			 * or ActuatingDevice or it need to reconstruct the value to follow
-			 * the semantic web structure in order to do further validations and
-			 * insertion
-			 * 
-			 * if it return false means that no static mapping so it will add
-			 * the subject class to classList and fieldNameValue pair to
-			 * htblNotFoundFieldValue
+			 * check if there is a fieldName= type which means that value of
+			 * this field describes a type class
 			 */
+			if (fieldName.equals("type") && isobjectValueValidType(subjectClass, value)) {
+				
+				
 
-			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, classList, htblNotFoundFieldValue)) {
-				Property property = subjectClass.getProperties().get(fieldName);
+			} else {
 
-				parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue, classList,
-						htblNotFoundFieldValue);
+				/*
+				 * if it returns true then the field is a valid field so we have
+				 * to parse the value to determine if we need to do further
+				 * check if value maps another class eg. hasSurvivalRange
+				 * property for Sensor or ActuatingDevice or it need to
+				 * reconstruct the value to follow the semantic web structure in
+				 * order to do further validations and insertion
+				 * 
+				 * if it return false means that no static mapping so it will
+				 * add the subject class to classList and fieldNameValue pair to
+				 * htblNotFoundFieldValue
+				 */
+
+				if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, classList, htblNotFoundFieldValue)) {
+					Property property = subjectClass.getProperties().get(fieldName);
+
+					parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue, classList,
+							htblNotFoundFieldValue);
+				}
+
 			}
-
 		}
 
 		/*
@@ -216,6 +227,8 @@ public class RequestFieldsValidation {
 
 		}
 
+		// ------------------------------------------------------------------------------------------------------
+
 		/*
 		 * value is an array of object so I will iterate on all the keyValue
 		 * pairs and check if the fields are valid or not and reconstruct them
@@ -322,11 +335,18 @@ public class RequestFieldsValidation {
 
 	}
 
-	private boolean objectTypeCheck(Class subjectClass, Object value){
-				
-		return false;
+	/*
+	 * objectTypeCheck method checks if the type value is valid or not
+	 */
+	private boolean isobjectValueValidType(Class subjectClass, Object value) {
+
+		if (subjectClass.isHasTypeClasses()) {
+			return subjectClass.getClassTypesList().containsKey(value.toString());
+		} else {
+			return false;
+		}
 	}
-	
+
 	/*
 	 * getValue method returns the appropriate value by appending a prefix
 	 */
