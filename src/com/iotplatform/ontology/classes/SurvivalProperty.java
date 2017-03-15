@@ -23,7 +23,7 @@ public class SurvivalProperty extends Property {
 	private static SurvivalProperty survivalPropertyInstance;
 
 	public SurvivalProperty() {
-		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN);
+		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN,true);
 		survivalPropertyTypesList = new Hashtable<>();
 		init();
 	}
@@ -38,7 +38,7 @@ public class SurvivalProperty extends Property {
 	 * 
 	 */
 	public SurvivalProperty(String nothing) {
-		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN);
+		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN,true);
 		survivalPropertyTypesList = new Hashtable<>();
 	}
 

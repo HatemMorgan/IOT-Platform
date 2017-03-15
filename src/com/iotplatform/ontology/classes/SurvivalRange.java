@@ -23,7 +23,7 @@ public class SurvivalRange extends Property {
 	private static SurvivalRange survivalRangeInstance;
 
 	public SurvivalRange() {
-		super("SurvivalRange", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefixes.SSN);
+		super("SurvivalRange", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefixes.SSN, false);
 		init();
 	}
 

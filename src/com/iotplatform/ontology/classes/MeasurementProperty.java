@@ -20,7 +20,7 @@ public class MeasurementProperty extends Property {
 	private static MeasurementProperty measurementPropertyInstance;
 
 	public MeasurementProperty() {
-		super("MeasurementProperty", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementProperty", Prefixes.SSN);
+		super("MeasurementProperty", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementProperty", Prefixes.SSN, true);
 		measurementPropertyTypesList = new Hashtable<>();
 		init();
 	}
@@ -35,7 +35,7 @@ public class MeasurementProperty extends Property {
 	 * 
 	 */
 	public MeasurementProperty(String nothing) {
-		super("MeasurementProperty", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementProperty", Prefixes.SSN);
+		super("MeasurementProperty", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementProperty", Prefixes.SSN, true);
 		measurementPropertyTypesList = new Hashtable<>();
 	}
 

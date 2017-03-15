@@ -23,7 +23,7 @@ public class Coverage extends Class {
 	private Hashtable<String, Class> coverageTypesList;
 
 	public Coverage() {
-		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE,null);
+		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE,null,true);
 		coverageTypesList = new Hashtable<>();
 		init();
 	}
@@ -39,7 +39,7 @@ public class Coverage extends Class {
 	 */
 	public Coverage(String nothing) {
 		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE,
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				null,true);
 		coverageTypesList = new Hashtable<>();
 	}
 

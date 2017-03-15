@@ -26,7 +26,7 @@ public class OperatingRange extends Property {
 	private static OperatingRange operatingRangeInstance;
 
 	public OperatingRange() {
-		super("OperatingRange", "http://purl.oclc.org/NET/ssnx/ssn#OperatingRange", Prefixes.SSN);
+		super("OperatingRange", "http://purl.oclc.org/NET/ssnx/ssn#OperatingRange", Prefixes.SSN,false);
 		init();
 	}
 

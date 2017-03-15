@@ -21,8 +21,8 @@ public class Property extends Class {
 
 	private static Property propertyInstance;
 
-	public Property(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix, null);
+	public Property(String name, String uri, Prefixes prefix, boolean hasTypeClasses) {
+		super(name, uri, prefix, null,hasTypeClasses);
 		init();
 	}
 

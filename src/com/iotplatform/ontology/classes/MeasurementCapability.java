@@ -30,7 +30,7 @@ public class MeasurementCapability extends Property {
 	private static MeasurementCapability measurementCapabilityInstance;
 
 	public MeasurementCapability() {
-		super("MeasurementCapability", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefixes.SSN);
+		super("MeasurementCapability", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefixes.SSN, false);
 		init();
 	}
 

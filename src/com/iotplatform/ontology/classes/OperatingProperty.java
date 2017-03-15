@@ -22,7 +22,7 @@ public class OperatingProperty extends Property {
 	private static OperatingProperty operatingPropertyInstance;
 
 	public OperatingProperty() {
-		super("OperatingProperty", "http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", Prefixes.SSN);
+		super("OperatingProperty", "http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", Prefixes.SSN, true);
 		operatingPropertyTypesList = new Hashtable<>();
 		init();
 	}
@@ -37,7 +37,7 @@ public class OperatingProperty extends Property {
 	 * 
 	 */
 	public OperatingProperty(String nothing) {
-		super("OperatingProperty", "http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", Prefixes.SSN);
+		super("OperatingProperty", "http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", Prefixes.SSN, true);
 		operatingPropertyTypesList = new Hashtable<>();
 	}
 
