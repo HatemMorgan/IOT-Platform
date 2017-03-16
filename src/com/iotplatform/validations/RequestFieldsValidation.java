@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -11,14 +12,65 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.daos.DynamicConceptDao;
+import com.iotplatform.exceptions.ErrorObjException;
+import com.iotplatform.exceptions.InvalidRequestFieldsException;
+import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
+import com.iotplatform.ontology.DynamicConceptColumns;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.Property;
+import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.ActuatingDevice;
+import com.iotplatform.ontology.classes.Admin;
+import com.iotplatform.ontology.classes.Agent;
+import com.iotplatform.ontology.classes.Amount;
+import com.iotplatform.ontology.classes.Application;
+import com.iotplatform.ontology.classes.Attribute;
+import com.iotplatform.ontology.classes.CommunicatingDevice;
+import com.iotplatform.ontology.classes.Condition;
+import com.iotplatform.ontology.classes.Coverage;
+import com.iotplatform.ontology.classes.Deployment;
+import com.iotplatform.ontology.classes.DeploymentRelatedProcess;
+import com.iotplatform.ontology.classes.Developer;
+import com.iotplatform.ontology.classes.Device;
+import com.iotplatform.ontology.classes.DeviceModule;
+import com.iotplatform.ontology.classes.FeatureOfInterest;
+import com.iotplatform.ontology.classes.Group;
+import com.iotplatform.ontology.classes.IOTSystem;
+import com.iotplatform.ontology.classes.Input;
+import com.iotplatform.ontology.classes.MeasurementCapability;
+import com.iotplatform.ontology.classes.MeasurementProperty;
+import com.iotplatform.ontology.classes.Metadata;
+import com.iotplatform.ontology.classes.NormalUser;
+import com.iotplatform.ontology.classes.ObjectClass;
+import com.iotplatform.ontology.classes.Observation;
+import com.iotplatform.ontology.classes.ObservationValue;
+import com.iotplatform.ontology.classes.OperatingProperty;
+import com.iotplatform.ontology.classes.OperatingRange;
+import com.iotplatform.ontology.classes.Organization;
+import com.iotplatform.ontology.classes.Output;
+import com.iotplatform.ontology.classes.Person;
+import com.iotplatform.ontology.classes.Platform;
+import com.iotplatform.ontology.classes.Point;
+import com.iotplatform.ontology.classes.Process;
+import com.iotplatform.ontology.classes.QuantityKind;
+import com.iotplatform.ontology.classes.Sensing;
+import com.iotplatform.ontology.classes.SensingDevice;
+import com.iotplatform.ontology.classes.Sensor;
+import com.iotplatform.ontology.classes.SensorDataSheet;
+import com.iotplatform.ontology.classes.SensorOutput;
+import com.iotplatform.ontology.classes.Service;
+import com.iotplatform.ontology.classes.Stimulus;
+import com.iotplatform.ontology.classes.SurvivalProperty;
+import com.iotplatform.ontology.classes.SurvivalRange;
+import com.iotplatform.ontology.classes.SystemClass;
+import com.iotplatform.ontology.classes.TagDevice;
+import com.iotplatform.ontology.classes.Unit;
 import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.SqlCondition;
 
 /*
  * RequestFieldsValidation class is used to validate post request body and parse it.
@@ -43,10 +95,12 @@ public class RequestFieldsValidation {
 	 * classes added to the ontology
 	 */
 	private DynamicConceptDao dynamicConceptDao;
+	private Hashtable<String, Class> htblAllStaticClasses;
 
 	@Autowired
 	public RequestFieldsValidation(DynamicConceptDao dynamicConceptDao) {
 		this.dynamicConceptDao = dynamicConceptDao;
+		init();
 	}
 
 	/*
@@ -57,8 +111,8 @@ public class RequestFieldsValidation {
 	 * 
 	 * 
 	 */
-	public Hashtable<Class, ArrayList<PropertyValue>> validateRequestFields(Hashtable<String, Object> htblFieldValue,
-			Class subjectClass) {
+	public Hashtable<Class, ArrayList<PropertyValue>> validateRequestFields(String applicationName,
+			Hashtable<String, Object> htblFieldValue, Class subjectClass) {
 
 		Iterator<String> htblFieldValueIterator = htblFieldValue.keySet().iterator();
 
@@ -104,34 +158,25 @@ public class RequestFieldsValidation {
 			Object value = htblFieldValue.get(fieldName);
 
 			/*
-			 * check if there is a fieldName= type which means that value of
-			 * this field describes a type class
+			 * if it returns true then the field is a valid field so we have to
+			 * parse the value to determine if we need to do further check if
+			 * value maps another class eg. hasSurvivalRange property for Sensor
+			 * or ActuatingDevice or it need to reconstruct the value to follow
+			 * the semantic web structure in order to do further validations and
+			 * insertion
+			 * 
+			 * if it return false means that no static mapping so it will add
+			 * the subject class to classList and fieldNameValue pair to
+			 * htblNotFoundFieldValue
 			 */
-			if (fieldName.equals("type") && isobjectValueValidType(subjectClass, value)) {
 
-			} else {
+			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, classList, htblNotFoundFieldValue)) {
+				Property property = subjectClass.getProperties().get(fieldName);
 
-				/*
-				 * if it returns true then the field is a valid field so we have
-				 * to parse the value to determine if we need to do further
-				 * check if value maps another class eg. hasSurvivalRange
-				 * property for Sensor or ActuatingDevice or it need to
-				 * reconstruct the value to follow the semantic web structure in
-				 * order to do further validations and insertion
-				 * 
-				 * if it return false means that no static mapping so it will
-				 * add the subject class to classList and fieldNameValue pair to
-				 * htblNotFoundFieldValue
-				 */
-
-				if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, classList, htblNotFoundFieldValue)) {
-					Property property = subjectClass.getProperties().get(fieldName);
-
-					parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue, classList,
-							htblNotFoundFieldValue);
-				}
-
+				parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue, classList,
+						htblNotFoundFieldValue);
 			}
+
 		}
 
 		/*
@@ -172,6 +217,75 @@ public class RequestFieldsValidation {
 
 		}
 
+		/*
+		 * get Dynamic Properties
+		 */
+
+		if (classList.size() > 0) {
+			Hashtable<String, DynamicConceptModel> loadedDynamicProperties = getDynamicProperties(applicationName,
+					classList);
+			/*
+			 * Check that the fields that had no mappings are valid or not
+			 */
+
+			Iterator<String> htblNotFoundFieldValueIterator = htblNotFoundFieldValue.keySet().iterator();
+
+			while (htblNotFoundFieldValueIterator.hasNext()) {
+				String field = htblNotFoundFieldValueIterator.next();
+
+				if (!loadedDynamicProperties.containsKey(field)) {
+					throw new InvalidRequestFieldsException(subjectClass.getName(), field);
+				} else {
+
+					/*
+					 * passed field is a static property so add it to
+					 * htblStaticProperty so check that the property is valid
+					 * for this application domain
+					 * 
+					 * if the applicationName is null so this field maps a
+					 * property in the main ontology .
+					 * 
+					 * if the applicationName is equal to passed applicationName
+					 * so it is a dynamic added property to this application
+					 * domain
+					 * 
+					 * else it will be a dynamic property in another application
+					 * domain which will happen rarely
+					 */
+
+					Class dynamicPropertyClass = htblAllStaticClasses
+							.get(loadedDynamicProperties.get(field).getClass_uri());
+					Property property = dynamicPropertyClass.getProperties().get(field);
+
+					if (property.getApplicationName() == null
+							|| property.getApplicationName().equals(applicationName.replace(" ", "").toUpperCase())) {
+
+						/*
+						 * Field is valid dynamic property and has a mapping for
+						 * a dynamic property so we will break any arraylist
+						 * value and get prefixedPropertyName then add it to
+						 * returnedPropertyValueList
+						 */
+
+						parseAndConstructFieldValue(dynamicPropertyClass, property, htblNotFoundFieldValue.get(field),
+								htblClassPropertyValue, classList, htblNotFoundFieldValue);
+
+					} else {
+
+						/*
+						 * this means that this class has a property with the
+						 * same name but it is not for the specified application
+						 * domain
+						 */
+
+						throw new InvalidRequestFieldsException(subjectClass.getName(), field);
+
+					}
+				}
+
+			}
+		}
+
 		System.out.println("==============================================");
 		System.out.println(htblClassPropertyValue.toString());
 		System.out.println("=======================================");
@@ -194,10 +308,11 @@ public class RequestFieldsValidation {
 	 */
 	private boolean isFieldMapsToStaticProperty(Class subjectClass, String fieldName, Object value,
 			ArrayList<Class> classList, Hashtable<String, Object> htblNotFoundFieldValue) {
-
 		if (subjectClass.getProperties().containsKey(fieldName)) {
 			return true;
 		} else {
+			System.out.println(fieldName+"  "+value.toString());
+
 			classList.add(subjectClass);
 			htblNotFoundFieldValue.put(fieldName, value);
 			return false;
@@ -212,6 +327,8 @@ public class RequestFieldsValidation {
 	private void parseAndConstructFieldValue(Class subjectClass, Property property, Object value,
 			Hashtable<Class, ArrayList<PropertyValue>> htblClassPropertyValue, ArrayList<Class> classList,
 			Hashtable<String, Object> htblNotFoundFieldValue) {
+
+//		System.out.println("----->" + subjectClass.getName() + "  " + property.getName() + "   " + value.toString());
 
 		/*
 		 * check if the value is of type primitive datatype
@@ -248,6 +365,22 @@ public class RequestFieldsValidation {
 		if (value instanceof java.util.LinkedHashMap<?, ?> && property instanceof ObjectProperty) {
 			LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) value;
 			Class classType = ((ObjectProperty) property).getObject();
+
+			/*
+			 * check if there is a fieldName= type which means that value of
+			 * this field describes a type class then change the subClass type
+			 * to be the subjectClass
+			 */
+			if (valueObject.containsKey("type") && isobjectValueValidType(classType, valueObject.get("type"))) {
+				Class subClassSubject = classType.getClassTypesList().get(valueObject.get("type").toString());
+				classType = subClassSubject;
+
+				/*
+				 * remove the keyValue pair from htblFIeld to avoid further
+				 * validation eg.(field Validation)
+				 */
+				valueObject.remove("type");
+			}
 
 			/*
 			 * linking subject class with object class by adding a the unique
@@ -334,8 +467,7 @@ public class RequestFieldsValidation {
 				Object fieldValue = valueObject.get(fieldName);
 
 				if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, classList, htblNotFoundFieldValue)) {
-					// System.out.println("====>"+classType.getName() + " : " +
-					// classType.getProperties());
+
 					Property classTypeProperty = classType.getProperties().get(fieldName);
 
 					parseAndConstructFieldValue(classType, classTypeProperty, fieldValue, htblClassPropertyValue,
@@ -373,6 +505,233 @@ public class RequestFieldsValidation {
 		}
 	}
 
+	/*
+	 * it loads dynamic properties of the given classsList in the passed
+	 * application domain and also caches the dynamic properties to improve
+	 * performance
+	 */
+	public Hashtable<String, DynamicConceptModel> getDynamicProperties(String applicationName,
+			ArrayList<Class> classList) {
+
+		/*
+		 * to get the dynamic properties only one time
+		 */
+
+		ArrayList<SqlCondition> orCondtionsFilterList = new ArrayList<>();
+
+		for (Class subjectClass : classList) {
+			orCondtionsFilterList
+					.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), subjectClass.getUri()));
+
+			for (Class superClass : subjectClass.getSuperClassesList()) {
+				orCondtionsFilterList
+						.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), superClass.getUri()));
+
+			}
+		}
+
+		List<DynamicConceptModel> res;
+		try {
+			res = dynamicConceptDao.getConceptsOfApplicationByFilters(applicationName, null, orCondtionsFilterList);
+		} catch (ErrorObjException ex) {
+			throw ex;
+		}
+
+		/*
+		 * populate dynamicProperties hashtable to enhance performance when
+		 * having alot of dynamic properties not cached so to avoid going to the
+		 * database more than one time. I load all the dynamic properties of the
+		 * specified subject and then cache results
+		 * 
+		 * I used hashtable to hold dynamic properties to enhance performance
+		 * when checking for valid property in the loading dynamic properties. I
+		 * did not check in the loop to allow caching all new properties that
+		 * were not cached before without terminating the loop when finding the
+		 * property needed in the dynamicProperties
+		 * 
+		 * Also add dynamic property to property list of the subject class in
+		 * order to improve performance by caching the dynamic properties
+		 */
+		Hashtable<String, DynamicConceptModel> dynamicProperties = new Hashtable<>();
+
+		applicationName = applicationName.replaceAll(" ", "").toUpperCase();
+
+		for (DynamicConceptModel dynamicProperty : res) {
+
+			Class subjectClass = htblAllStaticClasses.get(dynamicProperty.getClass_uri());
+
+			// skip if the property was cached before
+			if (subjectClass.getProperties().contains(dynamicProperty.getProperty_name())) {
+				continue;
+			}
+			// System.out.println(dynamicProperty.getProperty_uri());
+
+			subjectClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
+					dynamicProperty.getProperty_name());
+
+			if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty.toString())) {
+				subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
+						new DataTypeProperty(dynamicProperty.getProperty_name(),
+								getPrefix(dynamicProperty.getProperty_prefix_alias()),
+								getXSDDataTypeEnum(dynamicProperty.getProperty_object_type_uri()), applicationName,
+								dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
+			} else {
+				if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
+					subjectClass.getProperties().put(dynamicProperty.getProperty_name(), new ObjectProperty(
+							dynamicProperty.getProperty_name(), getPrefix(dynamicProperty.getProperty_prefix_alias()),
+							htblAllStaticClasses.get(dynamicProperty.getProperty_object_type_uri()), applicationName,
+							dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
+				}
+			}
+			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
+		}
+
+		return dynamicProperties;
+	}
+
+	/*
+	 * get Prefix enum that maps the String prefixAlias from a dynamicProperty
+	 */
+	private Prefixes getPrefix(String prefixAlias) {
+
+		if (Prefixes.FOAF.getPrefix().equals(prefixAlias)) {
+			return Prefixes.FOAF;
+		}
+
+		if (Prefixes.SSN.getPrefix().equals(prefixAlias)) {
+			return Prefixes.SSN;
+		}
+
+		if (Prefixes.IOT_LITE.getPrefix().equals(prefixAlias)) {
+			return Prefixes.IOT_LITE;
+		}
+
+		if (Prefixes.IOT_PLATFORM.getPrefix().equals(prefixAlias)) {
+			return Prefixes.IOT_PLATFORM;
+		}
+
+		if (Prefixes.GEO.getPrefix().equals(prefixAlias)) {
+			return Prefixes.GEO;
+		}
+
+		if (Prefixes.XSD.getPrefix().equals(prefixAlias)) {
+			return Prefixes.XSD;
+		}
+
+		if (Prefixes.OWL.getPrefix().equals(prefixAlias)) {
+			return Prefixes.OWL;
+		}
+
+		if (Prefixes.RDFS.getPrefix().equals(prefixAlias)) {
+			return Prefixes.RDFS;
+		}
+
+		if (Prefixes.RDF.getPrefix().equals(prefixAlias)) {
+			return Prefixes.RDF;
+		}
+
+		if (Prefixes.QU.getPrefix().equals(prefixAlias)) {
+			return Prefixes.QU;
+		}
+
+		if (Prefixes.DUL.getPrefix().equals(prefixAlias)) {
+			return Prefixes.DUL;
+		}
+
+		return null;
+	}
+
+	/*
+	 * getXSDDataTypeEnum return XsdDataType enum instance
+	 */
+	private XSDDataTypes getXSDDataTypeEnum(String dataType) {
+
+		if (XSDDataTypes.boolean_type.getDataType().equals(dataType)) {
+			return XSDDataTypes.boolean_type;
+		}
+
+		if (XSDDataTypes.decimal_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.decimal_typed;
+		}
+
+		if (XSDDataTypes.float_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.float_typed;
+		}
+
+		if (XSDDataTypes.integer_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.integer_typed;
+		}
+
+		if (XSDDataTypes.string_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.string_typed;
+		}
+
+		if (XSDDataTypes.dateTime_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.dateTime_typed;
+		}
+
+		if (XSDDataTypes.double_typed.getDataType().equals(dataType)) {
+			return XSDDataTypes.double_typed;
+		}
+
+		return null;
+	}
+
+	private void init() {
+		htblAllStaticClasses = new Hashtable<>();
+		htblAllStaticClasses.put("http://iot-platform#Application", new Application());
+		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Person", new Person());
+		htblAllStaticClasses.put("http://iot-platform#Admin", new Admin());
+		htblAllStaticClasses.put("http://iot-platform#Developer", new Developer());
+		htblAllStaticClasses.put("http://iot-platform#NormalUser", new NormalUser());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice",
+				new ActuatingDevice());
+		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Agent", new Agent());
+		htblAllStaticClasses.put("http://iot-platform#Amount", new Amount());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", new Attribute());
+		htblAllStaticClasses.put("http://iot-platform#CommunicatingDevice", new CommunicatingDevice());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Condition", new Condition());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", new Coverage());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Deployment", new Deployment());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess",
+				new DeploymentRelatedProcess());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Device", new Device());
+		htblAllStaticClasses.put("http://iot-platform#DeviceModule", new DeviceModule());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", new FeatureOfInterest());
+		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Group", new Group());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Input", new Input());
+		htblAllStaticClasses.put("http://iot-platform#IOTSystem", new IOTSystem());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability",
+				new MeasurementCapability());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementProperty", new MeasurementProperty());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", new Metadata());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Object", new ObjectClass());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Observation", new Observation());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#ObservationValue", new ObservationValue());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", new OperatingProperty());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingRange", new OperatingRange());
+		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Organization", new Organization());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Output", new Output());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Platform", new Platform());
+		htblAllStaticClasses.put("http://www.w3.org/2003/01/geo/wgs84_pos#Point", new Point());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Process", new Process());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Property",
+				new com.iotplatform.ontology.classes.Property());
+		htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#QuantityKind", new QuantityKind());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensing", new Sensing());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensingDevice", new SensingDevice());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensor", new Sensor());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet", new SensorDataSheet());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensorOutput", new SensorOutput());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service", new Service());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Stimulus", new Stimulus());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", new SurvivalProperty());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", new SurvivalRange());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#System", new SystemClass());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice", new TagDevice());
+		htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#Unit", new Unit());
+	}
+
 	public static void main(String[] args) {
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
 		String szUser = "rdfusr";
@@ -404,10 +763,19 @@ public class RequestFieldsValidation {
 		survivalRange.put("inCondition", condition);
 		survivalRange.put("hasSurvivalProperty", survivalProperty);
 
-		// htblFieldValue.put("id", "2032-3232-2342");
-		htblFieldValue.put("hasSurvivalRange", survivalRange);
+		LinkedHashMap<String, Object> point = new LinkedHashMap<>();
+		point.put("lat", 29.12);
+		point.put("long", -2.31);
 
-		requestFieldsValidation.validateRequestFields(htblFieldValue, new ActuatingDevice());
+		LinkedHashMap<String, Object> coverage = new LinkedHashMap<>();
+		coverage.put("type", "Circle");
+		coverage.put("location", point);
+
+		htblFieldValue.put("hasCoverage", coverage);
+		htblFieldValue.put("hasSurvivalRange", survivalRange);
+		htblFieldValue.put("test", new PropertyValue("2134-2313-242-33332", false));
+
+		requestFieldsValidation.validateRequestFields("TESTAPPLICATION", htblFieldValue, new ActuatingDevice());
 
 	}
 }
