@@ -218,7 +218,9 @@ public class RequestFieldsValidation {
 		}
 
 		/*
-		 * get Dynamic Properties
+		 * get Dynamic Properties of the classes in the classList which contains
+		 * the domain class of the fields in the request that are not mapped to
+		 * static properties
 		 */
 
 		if (classList.size() > 0) {
@@ -266,7 +268,7 @@ public class RequestFieldsValidation {
 						 * value and get prefixedPropertyName then add it to
 						 * returnedPropertyValueList
 						 */
-
+						
 						parseAndConstructFieldValue(dynamicPropertyClass, property, htblNotFoundFieldValue.get(field),
 								htblClassPropertyValue, classList, htblNotFoundFieldValue);
 
@@ -311,7 +313,7 @@ public class RequestFieldsValidation {
 		if (subjectClass.getProperties().containsKey(fieldName)) {
 			return true;
 		} else {
-			System.out.println(fieldName+"  "+value.toString());
+			System.out.println(fieldName + "  " + value.toString());
 
 			classList.add(subjectClass);
 			htblNotFoundFieldValue.put(fieldName, value);
@@ -328,7 +330,8 @@ public class RequestFieldsValidation {
 			Hashtable<Class, ArrayList<PropertyValue>> htblClassPropertyValue, ArrayList<Class> classList,
 			Hashtable<String, Object> htblNotFoundFieldValue) {
 
-//		System.out.println("----->" + subjectClass.getName() + "  " + property.getName() + "   " + value.toString());
+		// System.out.println("----->" + subjectClass.getName() + " " +
+		// property.getName() + " " + value.toString());
 
 		/*
 		 * check if the value is of type primitive datatype
@@ -465,7 +468,6 @@ public class RequestFieldsValidation {
 				 */
 
 				Object fieldValue = valueObject.get(fieldName);
-
 				if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, classList, htblNotFoundFieldValue)) {
 
 					Property classTypeProperty = classType.getProperties().get(fieldName);
@@ -773,7 +775,7 @@ public class RequestFieldsValidation {
 
 		htblFieldValue.put("hasCoverage", coverage);
 		htblFieldValue.put("hasSurvivalRange", survivalRange);
-		htblFieldValue.put("test", new PropertyValue("2134-2313-242-33332", false));
+		htblFieldValue.put("test", "2134-2313-242-33332");
 
 		requestFieldsValidation.validateRequestFields("TESTAPPLICATION", htblFieldValue, new ActuatingDevice());
 
