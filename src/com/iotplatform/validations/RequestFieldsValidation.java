@@ -356,8 +356,8 @@ public class RequestFieldsValidation {
 			System.out.println(" ]");
 		}
 
-		System.out.println("==============================================");
-		System.out.println(htblClassPropertyValue.toString());
+		// System.out.println("==============================================");
+		// System.out.println(htblClassPropertyValue.toString());
 		System.out.println("=======================================");
 		System.out.println(classList.toString());
 		System.out.println("======================================");
@@ -387,7 +387,6 @@ public class RequestFieldsValidation {
 		if (subjectClass.getProperties().containsKey(fieldName)) {
 			return true;
 		} else {
-
 			classList.add(subjectClass);
 			ValueOfFieldNotMappedToStaticProperty notMappedFieldValue = new ValueOfFieldNotMappedToStaticProperty(
 					subjectClass, value, index);
@@ -410,7 +409,8 @@ public class RequestFieldsValidation {
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue, ArrayList<Class> classList,
 			Hashtable<String, ValueOfFieldNotMappedToStaticProperty> htblNotFoundFieldValue, int indexCount,
 			ArrayList<PropertyValue> uniquePropValueList, ArrayList<ValueOfTypeClass> classValueList) {
-		System.out.println(subjectClass.getName() + "    " + property.getName() + "    " + value.toString());
+		// System.out.println(subjectClass.getName() + " " + property.getName()
+		// + " " + value.toString());
 		/*
 		 * check if the value is of type primitive datatype
 		 */
@@ -832,31 +832,31 @@ public class RequestFieldsValidation {
 	 */
 	private XSDDataTypes getXSDDataTypeEnum(String dataType) {
 
-		if (XSDDataTypes.boolean_type.getDataType().equals(dataType)) {
+		if (XSDDataTypes.boolean_type.getXsdTypeURI().equals(dataType)) {
 			return XSDDataTypes.boolean_type;
 		}
 
-		if (XSDDataTypes.decimal_typed.getDataType().equals(dataType)) {
+		if (XSDDataTypes.decimal_typed.getXsdTypeURI().equals(dataType)) {
 			return XSDDataTypes.decimal_typed;
 		}
 
-		if (XSDDataTypes.float_typed.getDataType().equals(dataType)) {
+		if (XSDDataTypes.float_typed.getXsdTypeURI().equals(dataType)) {
 			return XSDDataTypes.float_typed;
 		}
 
-		if (XSDDataTypes.integer_typed.getDataType().equals(dataType)) {
+		if (XSDDataTypes.integer_typed.getXsdTypeURI().equals(dataType)) {
 			return XSDDataTypes.integer_typed;
 		}
 
-		if (XSDDataTypes.string_typed.getDataType().equals(dataType)) {
+		if (XSDDataTypes.string_typed.getXsdTypeURI().equals(dataType)) {
 			return XSDDataTypes.string_typed;
 		}
 
-		if (XSDDataTypes.dateTime_typed.getDataType().equals(dataType)) {
+		if (XSDDataTypes.dateTime_typed.getXsdTypeURI().equals(dataType)) {
 			return XSDDataTypes.dateTime_typed;
 		}
 
-		if (XSDDataTypes.double_typed.getDataType().equals(dataType)) {
+		if (XSDDataTypes.double_typed.getXsdTypeURI().equals(dataType)) {
 			return XSDDataTypes.double_typed;
 		}
 
@@ -869,7 +869,6 @@ public class RequestFieldsValidation {
 	 * 
 	 */
 	private boolean isDataValueValid(DataTypeProperty dataProperty, Object value) {
-		System.out.println(dataProperty.toString());
 		XSDDataTypes xsdDataType = dataProperty.getDataType();
 		switch (xsdDataType) {
 		case boolean_type:
@@ -1119,8 +1118,6 @@ public class RequestFieldsValidation {
 		hatemmorganEmailList.add("hatem.el-sayed@student.guc.edu.eg");
 
 		hatemmorgan.put("mbox", hatemmorganEmailList);
-
-		hatemmorgan.put("developedApplication", "TESTAPPLICATION");
 		hatemmorgan.put("job", "Engineeer");
 
 		// Haytham Ismail
@@ -1141,7 +1138,7 @@ public class RequestFieldsValidation {
 
 		htblFieldValue.put("developedApplication", "TESTAPPLICATION");
 		htblFieldValue.put("knows", hatemmorgan);
-		htblFieldValue.put("hates", hatemmorgan);
+		// htblFieldValue.put("hates", hatemmorgan);
 		htblFieldValue.put("job", "Engineeer");
 
 		try {

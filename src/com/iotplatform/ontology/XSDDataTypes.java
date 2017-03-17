@@ -1,13 +1,13 @@
 package com.iotplatform.ontology;
 
 public enum XSDDataTypes {
-	string_typed("^^xsd:string", "string", "http://www.w3.org/2001/XMLSchema#string"), integer_typed("^^xsd:integer",
-			"integer", "http://www.w3.org/2001/XMLSchema#integer"), decimal_typed("^^xsd:decimal", "decimal",
-					"http://www.w3.org/2001/XMLSchema#string"), float_typed("^^xsd:float", "float",
-							"http://www.w3.org/2001/XMLSchema#string"), double_typed("^^xsd:double", "double",
-									"http://www.w3.org/2001/XMLSchema#string"), boolean_type("^^xsd:boolean", "boolean",
-											"http://www.w3.org/2001/XMLSchema#string"), dateTime_typed("^^xsd:dateTime",
-													"dateTime", "http://www.w3.org/2001/XMLSchema#string");
+	string_typed("^^xsd:string", "string", "http://www.w3.org/2001/XMLSchema#string"), 
+	integer_typed("^^xsd:integer","integer", "http://www.w3.org/2001/XMLSchema#integer"),
+	decimal_typed("^^xsd:decimal", "decimal","http://www.w3.org/2001/XMLSchema#decimal"), 
+	float_typed("^^xsd:float", "float", "http://www.w3.org/2001/XMLSchema#float"), 
+	double_typed("^^xsd:double", "double","http://www.w3.org/2001/XMLSchema#double"), 
+	boolean_type("^^xsd:boolean", "boolean","http://www.w3.org/2001/XMLSchema#boolean"), 
+	dateTime_typed("^^xsd:dateTime", "dateTime","http://www.w3.org/2001/XMLSchema#dateTime");
 
 	private final String xsdType;
 	private final String dataType;
@@ -26,5 +26,11 @@ public enum XSDDataTypes {
 	public String getDataType() {
 		return dataType;
 	}
+
+	public String getXsdTypeURI() {
+		return xsdTypeURI;
+	}
+	
+	
 
 }

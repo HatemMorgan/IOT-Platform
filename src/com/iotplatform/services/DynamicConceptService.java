@@ -16,6 +16,7 @@ import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.PropertyType;
+import com.iotplatform.ontology.XSDDataTypes;
 
 @Service("dynamicConceptService")
 public class DynamicConceptService {
@@ -80,7 +81,7 @@ public class DynamicConceptService {
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			return e.getExceptionHashTable(timeTaken);
 		}
-		
+
 		return null;
 	}
 
@@ -176,6 +177,24 @@ public class DynamicConceptService {
 				|| newConcept.getProperty_type().equals(PropertyType.ObjectProperty.toString()))) {
 			throw new InvalidDynamicConceptException("Invalid propertyObjectTypeURI value. propertyObjectTypeURI field"
 					+ " must have a value either \"DatatypeProperty\" or \"ObjectProperty\" ");
+		}
+
+		/*
+		 * check if DataTypeProperty as a valid datatype
+		 */
+		if (newConcept.getProperty_type().equals(PropertyType.DatatypeProperty.toString()) && validObjectTypeURI) {
+			boolean check = false;
+			for (XSDDataTypes xsdDataType : XSDDataTypes.values()) {
+				if (newConcept.getProperty_object_type_uri().equals(xsdDataType.getXsdTypeURI())) {
+					check = true;
+					break;
+				}
+			}
+
+			if (!check) {
+				throw new InvalidDynamicConceptException(
+						"Invalid DataType for new added DataProperty. Check documentation for more information");
+			}
 		}
 
 		return true;
