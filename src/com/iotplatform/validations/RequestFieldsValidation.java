@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
+import com.iotplatform.exceptions.InvalidTypeValidationException;
 import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
@@ -148,6 +149,15 @@ public class RequestFieldsValidation {
 			 * validation eg.(field Validation)
 			 */
 			htblFieldValue.remove("type");
+		} else {
+
+			/*
+			 * throw an error if the type field value is not a valid type
+			 */
+			if (htblFieldValue.containsKey("type") && !isobjectValueValidType(subjectClass, htblFieldValue.get("type")))
+
+				throw new InvalidTypeValidationException(subjectClass.getName(),
+						subjectClass.getClassTypesList().keySet(), subjectClass.getName());
 		}
 
 		/*
@@ -222,76 +232,69 @@ public class RequestFieldsValidation {
 		 * static properties
 		 */
 
-		// if (classList.size() > 0) {
-		// Hashtable<String, DynamicConceptModel> loadedDynamicProperties =
-		// getDynamicProperties(applicationName,
-		// classList);
-		// /*
-		// * Check that the fields that had no mappings are valid or not
-		// */
-		//
-		// Iterator<String> htblNotFoundFieldValueIterator =
-		// htblNotFoundFieldValue.keySet().iterator();
-		//
-		// while (htblNotFoundFieldValueIterator.hasNext()) {
-		// String field = htblNotFoundFieldValueIterator.next();
-		//
-		// if (!loadedDynamicProperties.containsKey(field)) {
-		// throw new InvalidRequestFieldsException(subjectClass.getName(),
-		// field);
-		// } else {
-		//
-		// /*
-		// * passed field is a static property so add it to
-		// * htblStaticProperty so check that the property is valid
-		// * for this application domain
-		// *
-		// * if the applicationName is null so this field maps a
-		// * property in the main ontology .
-		// *
-		// * if the applicationName is equal to passed applicationName
-		// * so it is a dynamic added property to this application
-		// * domain
-		// *
-		// * else it will be a dynamic property in another application
-		// * domain which will happen rarely
-		// */
-		//
-		// Class dynamicPropertyClass = htblAllStaticClasses
-		// .get(loadedDynamicProperties.get(field).getClass_uri());
-		// Property property = dynamicPropertyClass.getProperties().get(field);
-		//
-		// if (property.getApplicationName() == null
-		// || property.getApplicationName().equals(applicationName.replace(" ",
-		// "").toUpperCase())) {
-		//
-		// /*
-		// * Field is valid dynamic property and has a mapping for
-		// * a dynamic property so we will break any arraylist
-		// * value and get prefixedPropertyName then add it to
-		// * returnedPropertyValueList
-		// */
-		//
-		// parseAndConstructFieldValue(dynamicPropertyClass, property,
-		// htblNotFoundFieldValue.get(field),
-		// htblClassPropertyValue, classList, htblNotFoundFieldValue);
-		//
-		// } else {
-		//
-		// /*
-		// * this means that this class has a property with the
-		// * same name but it is not for the specified application
-		// * domain
-		// */
-		//
-		// throw new InvalidRequestFieldsException(subjectClass.getName(),
-		// field);
-		//
-		// }
-		// }
-		//
-		// }
-		// }
+		if (classList.size() > 0) {
+			Hashtable<String, DynamicConceptModel> loadedDynamicProperties = getDynamicProperties(applicationName,
+					classList);
+			/*
+			 * Check that the fields that had no mappings are valid or not
+			 */
+
+			Iterator<String> htblNotFoundFieldValueIterator = htblNotFoundFieldValue.keySet().iterator();
+
+			while (htblNotFoundFieldValueIterator.hasNext()) {
+				String field = htblNotFoundFieldValueIterator.next();
+
+				if (!loadedDynamicProperties.containsKey(field)) {
+					throw new InvalidRequestFieldsException(subjectClass.getName(), field);
+				} else {
+
+					/*
+					 * passed field is a static property so add it to
+					 * htblStaticProperty so check that the property is valid
+					 * for this application domain
+					 *
+					 * if the applicationName is null so this field maps a
+					 * property in the main ontology .
+					 *
+					 * if the applicationName is equal to passed applicationName
+					 * so it is a dynamic added property to this application
+					 * domain
+					 *
+					 * else it will be a dynamic property in another application
+					 * domain which will happen rarely
+					 */
+
+					Class dynamicPropertyClass = htblAllStaticClasses
+							.get(loadedDynamicProperties.get(field).getClass_uri());
+					Property property = dynamicPropertyClass.getProperties().get(field);
+
+					if (property.getApplicationName() == null
+							|| property.getApplicationName().equals(applicationName.replace(" ", "").toUpperCase())) {
+
+						/*
+						 * Field is valid dynamic property and has a mapping for
+						 * a dynamic property. So I will parse the value and add
+						 * prefixes
+						 */
+
+						parseAndConstructFieldValue(dynamicPropertyClass, property, htblNotFoundFieldValue.get(field),
+								htblClassPropertyValue, classList, htblNotFoundFieldValue, 0);
+
+					} else {
+
+						/*
+						 * this means that this class has a property with the
+						 * same name but it is not for the specified application
+						 * domain
+						 */
+
+						throw new InvalidRequestFieldsException(subjectClass.getName(), field);
+
+					}
+				}
+
+			}
+		}
 
 		Iterator<Class> iterator = htblClassPropertyValue.keySet().iterator();
 		while (iterator.hasNext()) {
@@ -305,12 +308,12 @@ public class RequestFieldsValidation {
 			System.out.println(" ]");
 		}
 
-		// System.out.println("==============================================");
-		// System.out.println(htblClassPropertyValue.toString());
-		// System.out.println("=======================================");
-		// System.out.println(classList.toString());
-		// System.out.println("======================================");
-		// System.out.println(htblNotFoundFieldValue.toString());
+		System.out.println("==============================================");
+		System.out.println(htblClassPropertyValue.toString());
+		System.out.println("=======================================");
+		System.out.println(classList.toString());
+		System.out.println("======================================");
+		System.out.println(htblNotFoundFieldValue.toString());
 		return null;
 	}
 
@@ -440,7 +443,9 @@ public class RequestFieldsValidation {
 			 * 
 			 * indexCount represents the index of the subjectClassInstance
 			 */
-			System.out.println(subjectClass.getName() + "   " + indexCount + "   " + value.toString());
+
+			// System.out.println(subjectClass.getName() + " " + indexCount + "
+			// " + value.toString());
 			htblClassPropertyValue.get(subjectClass).get(indexCount).add(propertyValue);
 
 			/*
@@ -458,6 +463,16 @@ public class RequestFieldsValidation {
 				 * validation eg.(field Validation)
 				 */
 				valueObject.remove("type");
+			} else {
+
+				/*
+				 * throw an error if the type field value is not a valid type
+				 */
+				if (valueObject.containsKey("type") && !isobjectValueValidType(subjectClass, valueObject.get("type")))
+
+					throw new InvalidTypeValidationException(classType.getName(),
+							classType.getClassTypesList().keySet(), subjectClass.getName());
+
 			}
 
 			/*
@@ -929,8 +944,10 @@ public class RequestFieldsValidation {
 		htblFieldValue.put("hasCoverage", coverageList);
 		htblFieldValue.put("hasSurvivalRange", survivalRange);
 		htblFieldValue.put("test", "2134-2313-242-33332");
-
-		requestFieldsValidation.validateRequestFields("TESTAPPLICATION", htblFieldValue, new ActuatingDevice());
-
+		try {
+			requestFieldsValidation.validateRequestFields("TESTAPPLICATION", htblFieldValue, new ActuatingDevice());
+		} catch (ErrorObjException e) {
+			System.out.println(e.getExceptionMessage());
+		}
 	}
 }
