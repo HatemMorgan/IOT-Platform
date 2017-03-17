@@ -72,6 +72,7 @@ import com.iotplatform.ontology.classes.TagDevice;
 import com.iotplatform.ontology.classes.Unit;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SqlCondition;
+import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
 
 /*
  * RequestFieldsValidation class is used to validate post request body and parse it.
@@ -128,7 +129,7 @@ public class RequestFieldsValidation {
 		 * static property mapping and are waited to be checked for mapping
 		 * after loading dynamic properties
 		 */
-		Hashtable<String, Object> htblNotFoundFieldValue = new Hashtable<>();
+		Hashtable<String, ValueOfFieldNotMappedToStaticProperty> htblNotFoundFieldValue = new Hashtable<>();
 
 		/*
 		 * htblClassPropertyValue holds the constructed propertyValue
@@ -217,7 +218,7 @@ public class RequestFieldsValidation {
 			 * htblNotFoundFieldValue
 			 */
 
-			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, classList, htblNotFoundFieldValue)) {
+			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, classList, htblNotFoundFieldValue, 0)) {
 				Property property = subjectClass.getProperties().get(fieldName);
 
 				parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue, classList,
@@ -244,6 +245,11 @@ public class RequestFieldsValidation {
 			while (htblNotFoundFieldValueIterator.hasNext()) {
 				String field = htblNotFoundFieldValueIterator.next();
 
+				/*
+				 * If field does not map to loaded dynamic properties, I will
+				 * throw InvalidRequestFieldsException to indicate the field is
+				 * invalid
+				 */
 				if (!loadedDynamicProperties.containsKey(field)) {
 					throw new InvalidRequestFieldsException(subjectClass.getName(), field);
 				} else {
@@ -277,8 +283,9 @@ public class RequestFieldsValidation {
 						 * prefixes
 						 */
 
-						parseAndConstructFieldValue(dynamicPropertyClass, property, htblNotFoundFieldValue.get(field),
-								htblClassPropertyValue, classList, htblNotFoundFieldValue, 0);
+						parseAndConstructFieldValue(htblNotFoundFieldValue.get(field).getPropertyClass(), property,
+								htblNotFoundFieldValue.get(field).getPropertyValue(), htblClassPropertyValue, classList,
+								htblNotFoundFieldValue, htblNotFoundFieldValue.get(field).getClassInstanceIndex());
 
 					} else {
 
@@ -329,14 +336,17 @@ public class RequestFieldsValidation {
 	 * after laading dynamic properties
 	 */
 	private boolean isFieldMapsToStaticProperty(Class subjectClass, String fieldName, Object value,
-			ArrayList<Class> classList, Hashtable<String, Object> htblNotFoundFieldValue) {
+			ArrayList<Class> classList, Hashtable<String, ValueOfFieldNotMappedToStaticProperty> htblNotFoundFieldValue,
+			int index) {
+
 		if (subjectClass.getProperties().containsKey(fieldName)) {
 			return true;
 		} else {
-			System.out.println(fieldName + "  " + value.toString());
 
 			classList.add(subjectClass);
-			htblNotFoundFieldValue.put(fieldName, value);
+			ValueOfFieldNotMappedToStaticProperty notMappedFieldValue = new ValueOfFieldNotMappedToStaticProperty(
+					subjectClass, value, index);
+			htblNotFoundFieldValue.put(fieldName, notMappedFieldValue);
 			return false;
 		}
 	}
@@ -353,7 +363,7 @@ public class RequestFieldsValidation {
 	 */
 	private void parseAndConstructFieldValue(Class subjectClass, Property property, Object value,
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue, ArrayList<Class> classList,
-			Hashtable<String, Object> htblNotFoundFieldValue, int indexCount) {
+			Hashtable<String, ValueOfFieldNotMappedToStaticProperty> htblNotFoundFieldValue, int indexCount) {
 
 		// System.out.println("----->" + subjectClass.getName() + " " +
 		// property.getName() + " " + value.toString());
@@ -530,7 +540,8 @@ public class RequestFieldsValidation {
 				 */
 
 				Object fieldValue = valueObject.get(fieldName);
-				if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, classList, htblNotFoundFieldValue)) {
+				if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, classList, htblNotFoundFieldValue,
+						classInstanceIndex)) {
 
 					Property classTypeProperty = classType.getProperties().get(fieldName);
 
