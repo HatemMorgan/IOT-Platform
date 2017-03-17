@@ -7,12 +7,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.exceptions.ErrorObjException;
+import com.iotplatform.exceptions.InvalidPropertyValuesException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.exceptions.InvalidTypeValidationException;
 import com.iotplatform.models.DynamicConceptModel;
@@ -73,6 +76,7 @@ import com.iotplatform.ontology.classes.Unit;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SqlCondition;
 import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
+import com.iotplatform.utilities.ValueOfTypeClass;
 
 /*
  * RequestFieldsValidation class is used to validate post request body and parse it.
@@ -137,9 +141,33 @@ public class RequestFieldsValidation {
 		Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = new Hashtable<>();
 
 		/*
+		 * classValueList is list of ValueOfTypeClass instances (holds
+		 * objectValue and its classType). it will be used to check
+		 * dataIntegrity constraints
+		 */
+		ArrayList<ValueOfTypeClass> classValueList = new ArrayList<>();
+
+		/*
+		 * uniquePropValueList is a list of propertyValues instances (holds
+		 * prefixedPropertyName and value). This list will be used to check
+		 * unique constraints
+		 */
+		ArrayList<PropertyValue> uniquePropValueList = new ArrayList<>();
+
+		/*
 		 * check if there is a fieldName= type which means that value of this
 		 * field describes a type class then change the subClass type to be the
 		 * subjectClass
+		 * 
+		 * Here I iterating on the main fields not breaking down object values
+		 * or list values
+		 * 
+		 * calling parseAndConstructFieldValue will do the parsing and breaking
+		 * down object values and list values plus making fieldValidation,
+		 * dataIntegrityValidation and uniqueConstraintValidation and add
+		 * prefixing property and value to be well mapped to application
+		 * ontology to be used after that by DAOs to generate triples and insert
+		 * data
 		 */
 		if (htblFieldValue.containsKey("type") && isobjectValueValidType(subjectClass, htblFieldValue.get("type"))) {
 			Class subClassSubject = subjectClass.getClassTypesList().get(htblFieldValue.get("type").toString());
@@ -190,11 +218,23 @@ public class RequestFieldsValidation {
 			 * add idPropertyValue object to htblClassPropertyValue
 			 */
 
-			ArrayList<ArrayList<PropertyValue>> listPropertyValueList = new ArrayList<>();
+			ArrayList<ArrayList<PropertyValue>> instancesList = new ArrayList<>();
 			ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
-			listPropertyValueList.add(propertyValueList);
-			htblClassPropertyValue.put(subjectClass, listPropertyValueList);
+			instancesList.add(propertyValueList);
+			htblClassPropertyValue.put(subjectClass, instancesList);
 			htblClassPropertyValue.get(subjectClass).get(0).add(idPropertyValue);
+
+		} else {
+
+			/*
+			 * There is a uniqueIdentfier for this subjectClass that is received
+			 * from the user eg. userName for DeveloperClass so add subjectClass
+			 * and a new empty arraylist to hold its instances
+			 */
+			ArrayList<ArrayList<PropertyValue>> instancesList = new ArrayList<>();
+			ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
+			instancesList.add(propertyValueList);
+			htblClassPropertyValue.put(subjectClass, instancesList);
 
 		}
 
@@ -222,7 +262,7 @@ public class RequestFieldsValidation {
 				Property property = subjectClass.getProperties().get(fieldName);
 
 				parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue, classList,
-						htblNotFoundFieldValue, 0);
+						htblNotFoundFieldValue, 0, uniquePropValueList, classValueList);
 			}
 
 		}
@@ -285,7 +325,8 @@ public class RequestFieldsValidation {
 
 						parseAndConstructFieldValue(htblNotFoundFieldValue.get(field).getPropertyClass(), property,
 								htblNotFoundFieldValue.get(field).getPropertyValue(), htblClassPropertyValue, classList,
-								htblNotFoundFieldValue, htblNotFoundFieldValue.get(field).getClassInstanceIndex());
+								htblNotFoundFieldValue, htblNotFoundFieldValue.get(field).getClassInstanceIndex(),
+								uniquePropValueList, classValueList);
 
 					} else {
 
@@ -321,6 +362,10 @@ public class RequestFieldsValidation {
 		System.out.println(classList.toString());
 		System.out.println("======================================");
 		System.out.println(htblNotFoundFieldValue.toString());
+		System.out.println("===============================================");
+		System.out.println(classValueList.toString());
+		System.out.println("===================================================");
+		System.out.println(uniquePropValueList.toString());
 		return null;
 	}
 
@@ -363,16 +408,43 @@ public class RequestFieldsValidation {
 	 */
 	private void parseAndConstructFieldValue(Class subjectClass, Property property, Object value,
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue, ArrayList<Class> classList,
-			Hashtable<String, ValueOfFieldNotMappedToStaticProperty> htblNotFoundFieldValue, int indexCount) {
-
-		// System.out.println("----->" + subjectClass.getName() + " " +
-		// property.getName() + " " + value.toString());
-
+			Hashtable<String, ValueOfFieldNotMappedToStaticProperty> htblNotFoundFieldValue, int indexCount,
+			ArrayList<PropertyValue> uniquePropValueList, ArrayList<ValueOfTypeClass> classValueList) {
+		System.out.println(subjectClass.getName() + "    " + property.getName() + "    " + value.toString());
 		/*
 		 * check if the value is of type primitive datatype
 		 */
 		if ((value instanceof String) || (value instanceof Integer) || (value instanceof Float)
 				|| (value instanceof Double) || (value instanceof Boolean)) {
+
+			/*
+			 * Object property so add it to htblClassValue to send it to
+			 * requestValidationDao
+			 */
+			if (property instanceof ObjectProperty) {
+				classValueList.add(new ValueOfTypeClass(((ObjectProperty) property).getObject(), value));
+
+			} else {
+
+				/*
+				 * check if the datatype is correct or not
+				 */
+				if (!isDataValueValid((DataTypeProperty) property, value)) {
+
+					throw new InvalidPropertyValuesException(subjectClass.getName(), property.getName());
+				}
+
+			}
+
+			/*
+			 * check if the property has unique constraint to add the value and
+			 * the property to uniquePropValueList to be passed to validationDao
+			 * to check the no unique constraint violation occured
+			 */
+			if (property.isUnique()) {
+				uniquePropValueList
+						.add(new PropertyValue(property.getPrefix().getPrefix() + property.getName(), value));
+			}
 
 			/*
 			 * construct a new PropertyValue instance to hold the prefiexed
@@ -440,8 +512,9 @@ public class RequestFieldsValidation {
 			 * (uniqueIdentifier) of the new class instance to construct a
 			 * proper graph nodes with relationships
 			 * 
-			 * so I create a new PropertyValue instance to hold the property and
-			 * the uniqueIdentifier value that represents a unique reference to
+			 * so I create a new PropertyValue instance to hold the
+			 * property(objectProperty that has this objectValue) and the
+			 * uniqueIdentifier value that represents a unique reference to
 			 * objectValue
 			 * 
 			 */
@@ -454,8 +527,6 @@ public class RequestFieldsValidation {
 			 * indexCount represents the index of the subjectClassInstance
 			 */
 
-			// System.out.println(subjectClass.getName() + " " + indexCount + "
-			// " + value.toString());
 			htblClassPropertyValue.get(subjectClass).get(indexCount).add(propertyValue);
 
 			/*
@@ -496,37 +567,49 @@ public class RequestFieldsValidation {
 				ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
 				htblClassPropertyValue.get(classType).add(propertyValueList);
 			} else {
-				ArrayList<ArrayList<PropertyValue>> listPropertyValueList = new ArrayList<>();
+				ArrayList<ArrayList<PropertyValue>> instancesList = new ArrayList<>();
 				ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
-				listPropertyValueList.add(propertyValueList);
-				htblClassPropertyValue.put(classType, listPropertyValueList);
+				instancesList.add(propertyValueList);
+				htblClassPropertyValue.put(classType, instancesList);
 			}
 
 			/*
 			 * add property id for classTypeObject and add generated UUID as the
-			 * object of it
+			 * object of it. I have to check if the classType has no
+			 * uniqueIdentifier which means that the system has to add an id
+			 * property that hold the generated UUID
+			 * 
+			 * I created this here after typeValidation to add the
+			 * idPropertyValue to the instance of the classType eg.(Circle)
 			 */
-			Property idProperty = classType.getProperties().get("id");
-			PropertyValue idPropertyValue = new PropertyValue(idProperty.getPrefix().getPrefix() + idProperty.getName(),
-					"\"" + objectUniqueIdentifier + "\"" + XSDDataTypes.string_typed.getXsdType(), false);
 
-			/*
-			 * add idPropertyValue object to htblClassPropertyValue
-			 * 
-			 * I will always add a new property to the last instanceClass
-			 * represented by an arraylist<PropertyValue> because I finish a
-			 * single object then return back recursively to complete parsing
-			 * other fields
-			 * 
-			 * any new propertyValue added will be for the same instance so it
-			 * will be always exist in the end of the arraylist that represent
-			 * instances of classType. Because I iterate on the fields of the
-			 * new object instance so I will finish the current new instance of
-			 * classType then complete the rest fields
-			 * 
-			 */
 			int classInstanceIndex = htblClassPropertyValue.get(classType).size() - 1;
-			htblClassPropertyValue.get(classType).get(classInstanceIndex).add(idPropertyValue);
+
+			if (!classType.isHasUniqueIdentifierProperty()) {
+				Property idProperty = classType.getProperties().get("id");
+				PropertyValue idPropertyValue = new PropertyValue(
+						idProperty.getPrefix().getPrefix() + idProperty.getName(),
+						"\"" + objectUniqueIdentifier + "\"" + XSDDataTypes.string_typed.getXsdType(), false);
+
+				/*
+				 * add idPropertyValue object to htblClassPropertyValue
+				 * 
+				 * I will always add a new property to the last instanceClass
+				 * represented by an arraylist<PropertyValue> because I finish a
+				 * single object then return back recursively to complete
+				 * parsing other fields
+				 * 
+				 * any new propertyValue added will be for the same instance so
+				 * it will be always exist in the end of the arraylist that
+				 * represent instances of classType. Because I iterate on the
+				 * fields of the new object instance so I will finish the
+				 * current new instance of classType then complete the rest
+				 * fields
+				 * 
+				 */
+
+				htblClassPropertyValue.get(classType).get(classInstanceIndex).add(idPropertyValue);
+			}
 
 			for (String fieldName : valueObject.keySet()) {
 
@@ -546,7 +629,7 @@ public class RequestFieldsValidation {
 					Property classTypeProperty = classType.getProperties().get(fieldName);
 
 					parseAndConstructFieldValue(classType, classTypeProperty, fieldValue, htblClassPropertyValue,
-							classList, htblNotFoundFieldValue, classInstanceIndex);
+							classList, htblNotFoundFieldValue, classInstanceIndex, uniquePropValueList, classValueList);
 				}
 
 			}
@@ -577,7 +660,7 @@ public class RequestFieldsValidation {
 			for (Object singleValue : valueList) {
 
 				parseAndConstructFieldValue(subjectClass, property, singleValue, htblClassPropertyValue, classList,
-						htblNotFoundFieldValue, indexCount);
+						htblNotFoundFieldValue, indexCount, uniquePropValueList, classValueList);
 			}
 		}
 	}
@@ -780,6 +863,63 @@ public class RequestFieldsValidation {
 		return null;
 	}
 
+	/*
+	 * isDataValueValid checks that the datatype of the values passed with the
+	 * property are valid to maintain data integrity and consistency.
+	 * 
+	 */
+	private boolean isDataValueValid(DataTypeProperty dataProperty, Object value) {
+		System.out.println(dataProperty.toString());
+		XSDDataTypes xsdDataType = dataProperty.getDataType();
+		switch (xsdDataType) {
+		case boolean_type:
+			if (value instanceof Boolean) {
+				return true;
+			} else {
+				return false;
+			}
+		case decimal_typed:
+			if (value instanceof Double) {
+				return true;
+			} else {
+				return false;
+			}
+		case float_typed:
+			if (value instanceof Float) {
+				return true;
+			} else {
+				return false;
+			}
+		case integer_typed:
+			if (value instanceof Integer) {
+				return true;
+			} else {
+				return false;
+			}
+		case string_typed:
+			if (value instanceof String) {
+				return true;
+			} else {
+				return false;
+			}
+		case dateTime_typed:
+			if (value instanceof XMLGregorianCalendar) {
+				return true;
+			} else {
+				return false;
+			}
+		case double_typed:
+			if (value instanceof Double) {
+				return true;
+			} else {
+				return false;
+			}
+		default:
+			return false;
+		}
+
+	}
+
 	private void init() {
 		htblAllStaticClasses = new Hashtable<>();
 		htblAllStaticClasses.put("http://iot-platform#Application", new Application());
@@ -881,82 +1021,133 @@ public class RequestFieldsValidation {
 
 		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
 
-		LinkedHashMap<String, Object> condition = new LinkedHashMap<>();
-		condition.put("description", "High Tempreture Condition");
+		// LinkedHashMap<String, Object> condition = new LinkedHashMap<>();
+		// condition.put("description", "High Tempreture Condition");
+		//
+		// LinkedHashMap<String, Object> batteryLifetimeAmount = new
+		// LinkedHashMap<>();
+		// batteryLifetimeAmount.put("hasDataValue", 20.21);
+		//
+		// LinkedHashMap<String, Object> systemLifetimeAmount = new
+		// LinkedHashMap<>();
+		// systemLifetimeAmount.put("hasDataValue", 200.21);
+		//
+		// LinkedHashMap<String, Object> batteryLifetime = new
+		// LinkedHashMap<>();
+		// batteryLifetime.put("type", "BatteryLifetime");
+		// batteryLifetime.put("hasValue", batteryLifetimeAmount);
+		//
+		// LinkedHashMap<String, Object> systemLifetime = new LinkedHashMap<>();
+		// systemLifetime.put("type", "SystemLifetime");
+		// systemLifetime.put("hasValue", systemLifetimeAmount);
+		//
+		// ArrayList<LinkedHashMap<String, Object>> survivalProperties = new
+		// ArrayList<>();
+		// survivalProperties.add(systemLifetime);
+		// survivalProperties.add(batteryLifetime);
+		//
+		// LinkedHashMap<String, Object> survivalRange = new LinkedHashMap<>();
+		// survivalRange.put("inCondition", condition);
+		// survivalRange.put("hasSurvivalProperty", survivalProperties);
+		//
+		// LinkedHashMap<String, Object> point1 = new LinkedHashMap<>();
+		// point1.put("lat", 22.2132);
+		// point1.put("long", -4.31211);
+		//
+		// LinkedHashMap<String, Object> point2 = new LinkedHashMap<>();
+		// point2.put("lat", 29.12);
+		// point2.put("long", -2.31);
+		//
+		// LinkedHashMap<String, Object> point3 = new LinkedHashMap<>();
+		// point3.put("lat", 134.12);
+		// point3.put("long", 20.31);
+		//
+		// ArrayList<LinkedHashMap<String, Object>> coveragePoints = new
+		// ArrayList<>();
+		// coveragePoints.add(point1);
+		// coveragePoints.add(point2);
+		// coveragePoints.add(point3);
+		//
+		// LinkedHashMap<String, Object> coverage = new LinkedHashMap<>();
+		// coverage.put("type", "Circle");
+		// coverage.put("location", coveragePoints);
+		//
+		// ArrayList<LinkedHashMap<String, Object>> coveragePoints2 = new
+		// ArrayList<>();
+		// LinkedHashMap<String, Object> point21 = new LinkedHashMap<>();
+		// point21.put("lat", 9.2112);
+		// point21.put("long", 320.31);
+		//
+		// LinkedHashMap<String, Object> point22 = new LinkedHashMap<>();
+		// point2.put("lat", 62.12);
+		// point2.put("long", -22.31);
+		//
+		// LinkedHashMap<String, Object> point23 = new LinkedHashMap<>();
+		// point3.put("lat", 200.12);
+		// point3.put("long", 23.31);
+		//
+		// coveragePoints2.add(point21);
+		// coveragePoints2.add(point22);
+		// coveragePoints2.add(point23);
+		//
+		// LinkedHashMap<String, Object> coverage2 = new LinkedHashMap<>();
+		// coverage2.put("type", "Circle");
+		// coverage2.put("location", coveragePoints2);
+		//
+		// ArrayList<LinkedHashMap<String, Object>> coverageList = new
+		// ArrayList<>();
+		// coverageList.add(coverage);
+		// coverageList.add(coverage2);
+		//
+		// htblFieldValue.put("hasCoverage", coverageList);
+		// htblFieldValue.put("hasSurvivalRange", survivalRange);
+		// htblFieldValue.put("test", "2134-2313-242-33332");
 
-		LinkedHashMap<String, Object> batteryLifetimeAmount = new LinkedHashMap<>();
-		batteryLifetimeAmount.put("hasDataValue", 20.21);
+		LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
 
-		LinkedHashMap<String, Object> systemLifetimeAmount = new LinkedHashMap<>();
-		systemLifetimeAmount.put("hasDataValue", 200.21);
+		hatemmorgan.put("age", 20);
+		hatemmorgan.put("firstName", "Hatem");
+		hatemmorgan.put("middleName", "ELsayed");
+		hatemmorgan.put("familyName", "Morgan");
+		hatemmorgan.put("birthday", "27/7/1995");
+		hatemmorgan.put("gender", "Male");
+		hatemmorgan.put("title", "Engineer");
+		hatemmorgan.put("userName", "HatemMorgan");
 
-		LinkedHashMap<String, Object> batteryLifetime = new LinkedHashMap<>();
-		batteryLifetime.put("type", "BatteryLifetime");
-		batteryLifetime.put("hasValue", batteryLifetimeAmount);
+		ArrayList<Object> hatemmorganEmailList = new ArrayList<>();
+		hatemmorganEmailList.add("hatemmorgan17@gmail.com");
+		hatemmorganEmailList.add("hatem.el-sayed@student.guc.edu.eg");
 
-		LinkedHashMap<String, Object> systemLifetime = new LinkedHashMap<>();
-		systemLifetime.put("type", "SystemLifetime");
-		systemLifetime.put("hasValue", systemLifetimeAmount);
+		hatemmorgan.put("mbox", hatemmorganEmailList);
 
-		ArrayList<LinkedHashMap<String, Object>> survivalProperties = new ArrayList<>();
-		survivalProperties.add(systemLifetime);
-		survivalProperties.add(batteryLifetime);
+		hatemmorgan.put("developedApplication", "TESTAPPLICATION");
+		hatemmorgan.put("job", "Engineeer");
 
-		LinkedHashMap<String, Object> survivalRange = new LinkedHashMap<>();
-		survivalRange.put("inCondition", condition);
-		survivalRange.put("hasSurvivalProperty", survivalProperties);
+		// Haytham Ismail
+		htblFieldValue.put("age", 21);
+		htblFieldValue.put("firstName", "Haytham");
+		htblFieldValue.put("middleName", "Ismail");
+		htblFieldValue.put("familyName", "Khalf");
+		htblFieldValue.put("birthday", "27/7/1975");
+		htblFieldValue.put("gender", "Male");
+		htblFieldValue.put("title", "Professor");
+		htblFieldValue.put("userName", "HaythamIsmail");
 
-		LinkedHashMap<String, Object> point1 = new LinkedHashMap<>();
-		point1.put("lat", 22.2132);
-		point1.put("long", -4.31211);
+		ArrayList<Object> emailList = new ArrayList<>();
+		emailList.add("haytham.ismail@gmail.com");
+		emailList.add("haytham.ismail@student.guc.edu.eg");
 
-		LinkedHashMap<String, Object> point2 = new LinkedHashMap<>();
-		point2.put("lat", 29.12);
-		point2.put("long", -2.31);
+		htblFieldValue.put("mbox", emailList);
 
-		LinkedHashMap<String, Object> point3 = new LinkedHashMap<>();
-		point3.put("lat", 134.12);
-		point3.put("long", 20.31);
+		htblFieldValue.put("developedApplication", "TESTAPPLICATION");
+		htblFieldValue.put("knows", hatemmorgan);
+		htblFieldValue.put("hates", hatemmorgan);
+		htblFieldValue.put("job", "Engineeer");
 
-		ArrayList<LinkedHashMap<String, Object>> coveragePoints = new ArrayList<>();
-		coveragePoints.add(point1);
-		coveragePoints.add(point2);
-		coveragePoints.add(point3);
-
-		LinkedHashMap<String, Object> coverage = new LinkedHashMap<>();
-		coverage.put("type", "Circle");
-		coverage.put("location", coveragePoints);
-
-		ArrayList<LinkedHashMap<String, Object>> coveragePoints2 = new ArrayList<>();
-		LinkedHashMap<String, Object> point21 = new LinkedHashMap<>();
-		point21.put("lat", 9.2112);
-		point21.put("long", 320.31);
-
-		LinkedHashMap<String, Object> point22 = new LinkedHashMap<>();
-		point2.put("lat", 62.12);
-		point2.put("long", -22.31);
-
-		LinkedHashMap<String, Object> point23 = new LinkedHashMap<>();
-		point3.put("lat", 200.12);
-		point3.put("long", 23.31);
-
-		coveragePoints2.add(point21);
-		coveragePoints2.add(point22);
-		coveragePoints2.add(point23);
-
-		LinkedHashMap<String, Object> coverage2 = new LinkedHashMap<>();
-		coverage2.put("type", "Circle");
-		coverage2.put("location", coveragePoints2);
-
-		ArrayList<LinkedHashMap<String, Object>> coverageList = new ArrayList<>();
-		coverageList.add(coverage);
-		coverageList.add(coverage2);
-
-		htblFieldValue.put("hasCoverage", coverageList);
-		htblFieldValue.put("hasSurvivalRange", survivalRange);
-		htblFieldValue.put("test", "2134-2313-242-33332");
 		try {
-			requestFieldsValidation.validateRequestFields("TESTAPPLICATION", htblFieldValue, new ActuatingDevice());
+			// requestFieldsValidation.validateRequestFields("TESTAPPLICATION",
+			// htblFieldValue, new ActuatingDevice());
+			requestFieldsValidation.validateRequestFields("TESTAPPLICATION", htblFieldValue, new Developer());
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());
 		}

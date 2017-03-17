@@ -55,7 +55,6 @@ public class ValidationDao {
 			ArrayList<PropertyValue> uniquePropValueList, Class subjectClass) {
 		String queryString = constructViolationsCheckQueryStr(applicationName, classValueList, uniquePropValueList,
 				subjectClass);
-		System.out.println(queryString);
 		try {
 			ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
 			resultSet.next();

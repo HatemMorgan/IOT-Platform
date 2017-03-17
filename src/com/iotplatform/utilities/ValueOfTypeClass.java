@@ -29,4 +29,9 @@ public class ValueOfTypeClass {
 		return value;
 	}
 
+	@Override
+	public String toString() {
+		return "ValueOfTypeClass [typeClass=" + typeClass + ", value=" + value + "]";
+	}
+
 }
