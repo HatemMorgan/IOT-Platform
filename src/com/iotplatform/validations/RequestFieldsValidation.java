@@ -373,7 +373,7 @@ public class RequestFieldsValidation {
 			 */
 			int classInstanceIndex = htblClassPropertyValue.get(subjectClass).size() - 1;
 			htblClassPropertyValue.get(subjectClass).get(classInstanceIndex).add(propertyValue);
-			
+
 		}
 
 		// =========================================================================================================
@@ -440,7 +440,7 @@ public class RequestFieldsValidation {
 			 * 
 			 * indexCount represents the index of the subjectClassInstance
 			 */
-			System.out.println(subjectClass.getName()+"   "+indexCount+"   "+value.toString());
+			System.out.println(subjectClass.getName() + "   " + indexCount + "   " + value.toString());
 			htblClassPropertyValue.get(subjectClass).get(indexCount).add(propertyValue);
 
 			/*
@@ -825,6 +825,34 @@ public class RequestFieldsValidation {
 
 		RequestFieldsValidation requestFieldsValidation = new RequestFieldsValidation(dynamicConceptDao);
 
+		// { "hasCoverage":[
+		// {"type":"Circle","location": [
+		//
+		// {"lat":22.2132,"long":-4.31211},{"lat":22.2132,"long": -4.31211},
+		// {"lat":22.2132,"long": -4.31211} ]
+		//
+		// },
+		//
+		// { "type":"Circle","location":[
+		// {"lat":22.2132,"long": -4.31211},{"lat":22.2132,"long": -4.31211},
+		// {"lat":22.2132,"long":-4.31211} ]
+		//
+		// }
+		//
+		// ],
+		//
+		// "hasSurvivalRange":{"inCondition":{"description":"High Tempreture
+		// Condition"},
+		//
+		// "hasSurvivalPorperty":[
+		// {"type":"BatteryLifeTime","hasValue":{"hasDataValue":20.01}},
+		// {"type":"SystemLifeTime","hasValue": {"hasDataValue":200.01}}
+		//
+		// ]
+		//
+		// }
+		// }
+
 		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
 
 		LinkedHashMap<String, Object> condition = new LinkedHashMap<>();
@@ -870,23 +898,33 @@ public class RequestFieldsValidation {
 		coveragePoints.add(point3);
 
 		LinkedHashMap<String, Object> coverage = new LinkedHashMap<>();
-		coverage.put("type", "Circle");		
+		coverage.put("type", "Circle");
 		coverage.put("location", coveragePoints);
 
 		ArrayList<LinkedHashMap<String, Object>> coveragePoints2 = new ArrayList<>();
-		LinkedHashMap<String, Object> point = new LinkedHashMap<>();
-		point.put("lat", 9.2112);
-		point.put("long", 320.31);
-		
-		coveragePoints2.add(point);
-		
+		LinkedHashMap<String, Object> point21 = new LinkedHashMap<>();
+		point21.put("lat", 9.2112);
+		point21.put("long", 320.31);
+
+		LinkedHashMap<String, Object> point22 = new LinkedHashMap<>();
+		point2.put("lat", 62.12);
+		point2.put("long", -22.31);
+
+		LinkedHashMap<String, Object> point23 = new LinkedHashMap<>();
+		point3.put("lat", 200.12);
+		point3.put("long", 23.31);
+
+		coveragePoints2.add(point21);
+		coveragePoints2.add(point22);
+		coveragePoints2.add(point23);
+
 		LinkedHashMap<String, Object> coverage2 = new LinkedHashMap<>();
-		coverage2.put("type", "Circle");		
+		coverage2.put("type", "Circle");
 		coverage2.put("location", coveragePoints2);
-		
+
 		ArrayList<LinkedHashMap<String, Object>> coverageList = new ArrayList<>();
 		coverageList.add(coverage);
-		coverageList.add(coverage);
+		coverageList.add(coverage2);
 
 		htblFieldValue.put("hasCoverage", coverageList);
 		htblFieldValue.put("hasSurvivalRange", survivalRange);
