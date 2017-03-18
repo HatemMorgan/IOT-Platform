@@ -14,8 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.daos.DynamicConceptDao;
+import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidPropertyValuesException;
+import com.iotplatform.exceptions.InvalidRequestBodyException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.exceptions.InvalidTypeValidationException;
 import com.iotplatform.models.DynamicConceptModel;
@@ -78,6 +80,8 @@ import com.iotplatform.utilities.SqlCondition;
 import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
 import com.iotplatform.utilities.ValueOfTypeClass;
 
+import oracle.spatial.rdf.client.jena.Oracle;
+
 /*
  * RequestFieldsValidation class is used to validate post request body and parse it.
  * 
@@ -102,10 +106,12 @@ public class RequestFieldsValidation {
 	 */
 	private DynamicConceptDao dynamicConceptDao;
 	private Hashtable<String, Class> htblAllStaticClasses;
+	private ValidationDao validationDao;
 
 	@Autowired
-	public RequestFieldsValidation(DynamicConceptDao dynamicConceptDao) {
+	public RequestFieldsValidation(DynamicConceptDao dynamicConceptDao, ValidationDao validationDao) {
 		this.dynamicConceptDao = dynamicConceptDao;
+		this.validationDao = validationDao;
 		init();
 	}
 
@@ -115,9 +121,24 @@ public class RequestFieldsValidation {
 	 * object value and also it takes the subjectClass which is the specified
 	 * class in the request url eg. Sensor,ActuatingDevice
 	 * 
+	 * This Method will return Hashtable<Class,
+	 * ArrayList<ArrayList<PropertyValue>>> which contains a Class instance as
+	 * key and a list of all instances of that class (instance is represented by
+	 * an ArrayList<PropertyValue> which holds all the prefixed properties and
+	 * their prefixed values)
+	 * 
+	 * This method is responsible to iterate on the request body and call
+	 * parseAndConstructFieldValue recursive function to parse,breakdown objects
+	 * and list , to prefixing property and its value
+	 * 
+	 * This method creates all need Data Structure instances and pass it by
+	 * reference to avoid racing conditions when running server and handling
+	 * multiple requests because by this way there will not be any shared
+	 * attributes all the Data Structure instances has an internal scope to the
+	 * method
 	 * 
 	 */
-	public Hashtable<Class, ArrayList<PropertyValue>> validateRequestFields(String applicationName,
+	public Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> validateRequestFields(String applicationName,
 			Hashtable<String, Object> htblFieldValue, Class subjectClass) {
 
 		Iterator<String> htblFieldValueIterator = htblFieldValue.keySet().iterator();
@@ -262,7 +283,7 @@ public class RequestFieldsValidation {
 				Property property = subjectClass.getProperties().get(fieldName);
 
 				parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue, classList,
-						htblNotFoundFieldValue, 0, uniquePropValueList, classValueList);
+						htblNotFoundFieldValue, 0, uniquePropValueList, classValueList, subjectClass.getName());
 			}
 
 		}
@@ -326,7 +347,7 @@ public class RequestFieldsValidation {
 						parseAndConstructFieldValue(htblNotFoundFieldValue.get(field).getPropertyClass(), property,
 								htblNotFoundFieldValue.get(field).getPropertyValue(), htblClassPropertyValue, classList,
 								htblNotFoundFieldValue, htblNotFoundFieldValue.get(field).getClassInstanceIndex(),
-								uniquePropValueList, classValueList);
+								uniquePropValueList, classValueList, subjectClass.getName());
 
 					} else {
 
@@ -342,6 +363,29 @@ public class RequestFieldsValidation {
 				}
 
 			}
+		}
+
+		/*
+		 * Call ValidationDao to check for data constraint voilations
+		 * (DataIntegerityConstraint and uniqueConstraint)
+		 * 
+		 */
+		if (classValueList.size() > 0 || uniquePropValueList.size() > 0) {
+
+			/*
+			 * check if there are any constraints violations if there are any
+			 * violations hasConstraintViolations method will throw the
+			 * appropriate error that describes the type of the violation
+			 * 
+			 * if there is no constraints violations a boolean true will be
+			 * returned
+			 */
+
+			if (validationDao.hasNoConstraintViolations(applicationName, classValueList, uniquePropValueList,
+					subjectClass)) {
+				return htblClassPropertyValue;
+			}
+
 		}
 
 		Iterator<Class> iterator = htblClassPropertyValue.keySet().iterator();
@@ -408,7 +452,8 @@ public class RequestFieldsValidation {
 	private void parseAndConstructFieldValue(Class subjectClass, Property property, Object value,
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue, ArrayList<Class> classList,
 			Hashtable<String, ValueOfFieldNotMappedToStaticProperty> htblNotFoundFieldValue, int indexCount,
-			ArrayList<PropertyValue> uniquePropValueList, ArrayList<ValueOfTypeClass> classValueList) {
+			ArrayList<PropertyValue> uniquePropValueList, ArrayList<ValueOfTypeClass> classValueList,
+			String requestClassName) {
 		// System.out.println(subjectClass.getName() + " " + property.getName()
 		// + " " + value.toString());
 		/*
@@ -431,7 +476,7 @@ public class RequestFieldsValidation {
 				 */
 				if (!isDataValueValid((DataTypeProperty) property, value)) {
 
-					throw new InvalidPropertyValuesException(subjectClass.getName(), property.getName());
+					throw new InvalidPropertyValuesException(requestClassName, property.getName());
 				}
 
 			}
@@ -459,211 +504,245 @@ public class RequestFieldsValidation {
 			int classInstanceIndex = htblClassPropertyValue.get(subjectClass).size() - 1;
 			htblClassPropertyValue.get(subjectClass).get(classInstanceIndex).add(propertyValue);
 
-		}
-
-		// =========================================================================================================
-		// Object Value
-		// =========================================================================================================
-
-		/*
-		 * value is a nested object so I will iterate on all the keyValue pairs
-		 * and check if the fields are valid or not and reconstruct them
-		 * 
-		 * eg: hasValue: { hasDataValue : 20.2 }
-		 * 
-		 * { hasDataValue : 20.2 } is an instance of class Amount
-		 * 
-		 */
-		if (value instanceof java.util.LinkedHashMap<?, ?> && property instanceof ObjectProperty) {
-			LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) value;
-			Class classType = ((ObjectProperty) property).getObject();
-
-			/*
-			 * linking subject class with object class by adding a the unique
-			 * identifier as the object value of the property
-			 * 
-			 * if it has unique Identifier this means that a unique property
-			 * value added by the user must be the unique identifier that will
-			 * be the subject of object value and references the object value
-			 * instance to the subject
-			 */
-			String objectUniqueIdentifier;
-			if (classType.isHasUniqueIdentifierProperty()) {
-				Property uniqueIdentifierProperty = classType.getUniqueIdentifierProperty();
-				objectUniqueIdentifier = valueObject.get(uniqueIdentifierProperty.getName()).toString();
-
-			} else {
-				/*
-				 * There is no uniqueIdentfier for this object class so the
-				 * platform has to generate a UUID to be the unique Identifier
-				 * that will be the subject of object value and references the
-				 * object value instance to the subject
-				 */
-
-				objectUniqueIdentifier = UUID.randomUUID().toString();
-
-			}
-
-			/*
-			 * construct a new PropertyValue instance to hold the prefiexed
-			 * propertyName and prefixed value
-			 * 
-			 * Here I am linking the subjectClass with a reference
-			 * (uniqueIdentifier) of the new class instance to construct a
-			 * proper graph nodes with relationships
-			 * 
-			 * so I create a new PropertyValue instance to hold the
-			 * property(objectProperty that has this objectValue) and the
-			 * uniqueIdentifier value that represents a unique reference to
-			 * objectValue
-			 * 
-			 */
-			PropertyValue propertyValue = new PropertyValue(property.getPrefix().getPrefix() + property.getName(),
-					getValue(property, objectUniqueIdentifier), true);
-
-			/*
-			 * add PropertyValue object to htblClassPropertyValue
-			 * 
-			 * indexCount represents the index of the subjectClassInstance
-			 */
-
-			htblClassPropertyValue.get(subjectClass).get(indexCount).add(propertyValue);
-
-			/*
-			 * check if there is a fieldName= type which means that value of
-			 * this field describes a type class then change the subClass type
-			 * to be the subjectClass
-			 */
-
-			if (valueObject.containsKey("type") && isobjectValueValidType(classType, valueObject.get("type"))) {
-				Class subClassSubject = classType.getClassTypesList().get(valueObject.get("type").toString());
-				classType = subClassSubject;
-
-				/*
-				 * remove the keyValue pair from htblFIeld to avoid further
-				 * validation eg.(field Validation)
-				 */
-				valueObject.remove("type");
-			} else {
-
-				/*
-				 * throw an error if the type field value is not a valid type
-				 */
-				if (valueObject.containsKey("type") && !isobjectValueValidType(subjectClass, valueObject.get("type")))
-
-					throw new InvalidTypeValidationException(classType.getName(),
-							classType.getClassTypesList().keySet(), subjectClass.getName());
-
-			}
-
-			/*
-			 * Check if the classType exist in htblClassPropertyValue.
-			 * 
-			 * If it exist, this means that a new class instance of this class
-			 * has to be created and I have to increment the indexCount
-			 */
-
-			if (htblClassPropertyValue.containsKey(classType)) {
-				ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
-				htblClassPropertyValue.get(classType).add(propertyValueList);
-			} else {
-				ArrayList<ArrayList<PropertyValue>> instancesList = new ArrayList<>();
-				ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
-				instancesList.add(propertyValueList);
-				htblClassPropertyValue.put(classType, instancesList);
-			}
-
-			/*
-			 * add property id for classTypeObject and add generated UUID as the
-			 * object of it. I have to check if the classType has no
-			 * uniqueIdentifier which means that the system has to add an id
-			 * property that hold the generated UUID
-			 * 
-			 * I created this here after typeValidation to add the
-			 * idPropertyValue to the instance of the classType eg.(Circle)
-			 */
-
-			int classInstanceIndex = htblClassPropertyValue.get(classType).size() - 1;
-
-			if (!classType.isHasUniqueIdentifierProperty()) {
-				Property idProperty = classType.getProperties().get("id");
-				PropertyValue idPropertyValue = new PropertyValue(
-						idProperty.getPrefix().getPrefix() + idProperty.getName(),
-						"\"" + objectUniqueIdentifier + "\"" + XSDDataTypes.string_typed.getXsdType(), false);
-
-				/*
-				 * add idPropertyValue object to htblClassPropertyValue
-				 * 
-				 * I will always add a new property to the last instanceClass
-				 * represented by an arraylist<PropertyValue> because I finish a
-				 * single object then return back recursively to complete
-				 * parsing other fields
-				 * 
-				 * any new propertyValue added will be for the same instance so
-				 * it will be always exist in the end of the arraylist that
-				 * represent instances of classType. Because I iterate on the
-				 * fields of the new object instance so I will finish the
-				 * current new instance of classType then complete the rest
-				 * fields
-				 * 
-				 */
-
-				htblClassPropertyValue.get(classType).get(classInstanceIndex).add(idPropertyValue);
-			}
-
-			for (String fieldName : valueObject.keySet()) {
-
-				/*
-				 * if it returns true then the field is a valid field (it maps
-				 * to a property in the properties list of passed classs)
-				 * 
-				 * if it return false means that no static mapping so it will
-				 * add the subject class to classList and fieldNameValue pair to
-				 * htblNotFoundFieldValue
-				 */
-
-				Object fieldValue = valueObject.get(fieldName);
-				if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, classList, htblNotFoundFieldValue,
-						classInstanceIndex)) {
-
-					Property classTypeProperty = classType.getProperties().get(fieldName);
-
-					parseAndConstructFieldValue(classType, classTypeProperty, fieldValue, htblClassPropertyValue,
-							classList, htblNotFoundFieldValue, classInstanceIndex, uniquePropValueList, classValueList);
-				}
-
-			}
-		}
-
-		// =========================================================================================================
-		// List Value
-		// =========================================================================================================
-
-		/*
-		 * value is a list values (value may be datatype values or object
-		 * values) so I will iterate on the list of values and recursively parse
-		 * the values and make field validations
-		 * 
-		 * eg: hasSurvivalRange : [ { type: "SystemLifeTime" }, { type:
-		 * "BatteryLifeTime" } ]
-		 * 
-		 * 
-		 * or : mbox: ["hatem@gmail.com","jsid@yahoo.com"]
-		 */
-		if (value instanceof java.util.ArrayList && property.isMulitpleValues()) {
-			ArrayList<Object> valueList = (ArrayList<Object>) value;
-
-			/*
-			 * iterate on the list and do a recursive call to parse and validate
-			 * every single value in the valueList
-			 */
-			for (Object singleValue : valueList) {
-
-				parseAndConstructFieldValue(subjectClass, property, singleValue, htblClassPropertyValue, classList,
-						htblNotFoundFieldValue, indexCount, uniquePropValueList, classValueList);
-			}
 		} else {
 
+			// =========================================================================================================
+			// Object Value
+			// =========================================================================================================
+
+			/*
+			 * value is a nested object so I will iterate on all the keyValue
+			 * pairs and check if the fields are valid or not and reconstruct
+			 * them
+			 * 
+			 * eg: hasValue: { hasDataValue : 20.2 }
+			 * 
+			 * { hasDataValue : 20.2 } is an instance of class Amount
+			 * 
+			 */
+			if (value instanceof java.util.LinkedHashMap<?, ?> && property instanceof ObjectProperty) {
+				LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) value;
+				Class classType = ((ObjectProperty) property).getObject();
+
+				/*
+				 * linking subject class with object class by adding a the
+				 * unique identifier as the object value of the property
+				 * 
+				 * if it has unique Identifier this means that a unique property
+				 * value added by the user must be the unique identifier that
+				 * will be the subject of object value and references the object
+				 * value instance to the subject
+				 */
+				String objectUniqueIdentifier;
+				if (classType.isHasUniqueIdentifierProperty()) {
+					Property uniqueIdentifierProperty = classType.getUniqueIdentifierProperty();
+					objectUniqueIdentifier = valueObject.get(uniqueIdentifierProperty.getName()).toString();
+
+				} else {
+					/*
+					 * There is no uniqueIdentfier for this object class so the
+					 * platform has to generate a UUID to be the unique
+					 * Identifier that will be the subject of object value and
+					 * references the object value instance to the subject
+					 */
+
+					objectUniqueIdentifier = UUID.randomUUID().toString();
+
+				}
+
+				/*
+				 * construct a new PropertyValue instance to hold the prefiexed
+				 * propertyName and prefixed value
+				 * 
+				 * Here I am linking the subjectClass with a reference
+				 * (uniqueIdentifier) of the new class instance to construct a
+				 * proper graph nodes with relationships
+				 * 
+				 * so I create a new PropertyValue instance to hold the
+				 * property(objectProperty that has this objectValue) and the
+				 * uniqueIdentifier value that represents a unique reference to
+				 * objectValue
+				 * 
+				 */
+				PropertyValue propertyValue = new PropertyValue(property.getPrefix().getPrefix() + property.getName(),
+						getValue(property, objectUniqueIdentifier), true);
+
+				/*
+				 * add PropertyValue object to htblClassPropertyValue
+				 * 
+				 * indexCount represents the index of the subjectClassInstance
+				 */
+
+				htblClassPropertyValue.get(subjectClass).get(indexCount).add(propertyValue);
+
+				/*
+				 * check if there is a fieldName= type which means that value of
+				 * this field describes a type class then change the subClass
+				 * type to be the subjectClass
+				 */
+
+				if (valueObject.containsKey("type") && isobjectValueValidType(classType, valueObject.get("type"))) {
+					Class subClassSubject = classType.getClassTypesList().get(valueObject.get("type").toString());
+					classType = subClassSubject;
+
+					/*
+					 * remove the keyValue pair from htblFIeld to avoid further
+					 * validation eg.(field Validation)
+					 */
+					valueObject.remove("type");
+				} else {
+
+					/*
+					 * throw an error if the type field value is not a valid
+					 * type
+					 */
+					if (valueObject.containsKey("type")
+							&& !isobjectValueValidType(subjectClass, valueObject.get("type")))
+
+						throw new InvalidTypeValidationException(requestClassName,
+								classType.getClassTypesList().keySet(), classType.getName());
+
+				}
+
+				/*
+				 * Check if the classType exist in htblClassPropertyValue.
+				 * 
+				 * If it exist, this means that a new class instance of this
+				 * class has to be created and I have to increment the
+				 * indexCount
+				 */
+
+				if (htblClassPropertyValue.containsKey(classType)) {
+					ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
+					htblClassPropertyValue.get(classType).add(propertyValueList);
+				} else {
+					ArrayList<ArrayList<PropertyValue>> instancesList = new ArrayList<>();
+					ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
+					instancesList.add(propertyValueList);
+					htblClassPropertyValue.put(classType, instancesList);
+				}
+
+				/*
+				 * add property id for classTypeObject and add generated UUID as
+				 * the object of it. I have to check if the classType has no
+				 * uniqueIdentifier which means that the system has to add an id
+				 * property that hold the generated UUID
+				 * 
+				 * I created this here after typeValidation to add the
+				 * idPropertyValue to the instance of the classType eg.(Circle)
+				 */
+
+				int classInstanceIndex = htblClassPropertyValue.get(classType).size() - 1;
+
+				if (!classType.isHasUniqueIdentifierProperty()) {
+					Property idProperty = classType.getProperties().get("id");
+					PropertyValue idPropertyValue = new PropertyValue(
+							idProperty.getPrefix().getPrefix() + idProperty.getName(),
+							"\"" + objectUniqueIdentifier + "\"" + XSDDataTypes.string_typed.getXsdType(), false);
+
+					/*
+					 * add idPropertyValue object to htblClassPropertyValue
+					 * 
+					 * I will always add a new property to the last
+					 * instanceClass represented by an arraylist<PropertyValue>
+					 * because I finish a single object then return back
+					 * recursively to complete parsing other fields
+					 * 
+					 * any new propertyValue added will be for the same instance
+					 * so it will be always exist in the end of the arraylist
+					 * that represent instances of classType. Because I iterate
+					 * on the fields of the new object instance so I will finish
+					 * the current new instance of classType then complete the
+					 * rest fields
+					 * 
+					 */
+
+					htblClassPropertyValue.get(classType).get(classInstanceIndex).add(idPropertyValue);
+				}
+
+				for (String fieldName : valueObject.keySet()) {
+
+					/*
+					 * if it returns true then the field is a valid field (it
+					 * maps to a property in the properties list of passed
+					 * classs)
+					 * 
+					 * if it return false means that no static mapping so it
+					 * will add the subject class to classList and
+					 * fieldNameValue pair to htblNotFoundFieldValue
+					 */
+
+					Object fieldValue = valueObject.get(fieldName);
+					if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, classList, htblNotFoundFieldValue,
+							classInstanceIndex)) {
+
+						Property classTypeProperty = classType.getProperties().get(fieldName);
+
+						parseAndConstructFieldValue(classType, classTypeProperty, fieldValue, htblClassPropertyValue,
+								classList, htblNotFoundFieldValue, classInstanceIndex, uniquePropValueList,
+								classValueList, requestClassName);
+					}
+
+				}
+			} else {
+
+				// =========================================================================================================
+				// List Value
+				// =========================================================================================================
+
+				/*
+				 * value is a list values (value may be datatype values or
+				 * object values) so I will iterate on the list of values and
+				 * recursively parse the values and make field validations
+				 * 
+				 * eg: hasSurvivalRange : [ { type: "SystemLifeTime" }, { type:
+				 * "BatteryLifeTime" } ]
+				 * 
+				 * 
+				 * or : mbox: ["hatem@gmail.com","jsid@yahoo.com"]
+				 */
+				if (value instanceof java.util.ArrayList) {
+
+					/*
+					 * check if the property has multiple values or not
+					 */
+					if (property.isMulitpleValues()) {
+						ArrayList<Object> valueList = (ArrayList<Object>) value;
+
+						/*
+						 * iterate on the list and do a recursive call to parse
+						 * and validate every single value in the valueList
+						 */
+						for (Object singleValue : valueList) {
+
+							parseAndConstructFieldValue(subjectClass, property, singleValue, htblClassPropertyValue,
+									classList, htblNotFoundFieldValue, indexCount, uniquePropValueList, classValueList,
+									requestClassName);
+						}
+					} else {
+
+						/*
+						 * if the passed value is a list value and the property
+						 * does not has multiple values then raise
+						 * InvalidRequestBodyException
+						 */
+						throw new InvalidRequestBodyException(property.getName(), "field: " + property.getName()
+								+ " does not have multiple values," + " it must have single value or nested object",
+								requestClassName);
+					}
+				} else {
+
+					/*
+					 * if the value is not a datatype or an object or a list
+					 * then raise InvalidRequestBodyException that tells the
+					 * user that this value has an invalid format
+					 */
+					throw new InvalidRequestBodyException(property.getName(),
+							"field: " + property.getName()
+									+ "has an invalid format. Please Check the documentations for further information.",
+							requestClassName);
+				}
+			}
 		}
 	}
 
@@ -989,8 +1068,11 @@ public class RequestFieldsValidation {
 		dataSource.setPassword(szPasswd);
 
 		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+		ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL, szUser, szPasswd));
 
-		RequestFieldsValidation requestFieldsValidation = new RequestFieldsValidation(dynamicConceptDao);
+		System.out.println("Connected to Database");
+
+		RequestFieldsValidation requestFieldsValidation = new RequestFieldsValidation(dynamicConceptDao, validationDao);
 
 		// { "hasCoverage":[
 		// {"type":"Circle","location": [
@@ -1066,7 +1148,7 @@ public class RequestFieldsValidation {
 
 		LinkedHashMap<String, Object> coverage = new LinkedHashMap<>();
 		coverage.put("type", "Circle");
-		coverage.put("location", coveragePoints);
+		coverage.put("location", point1);
 
 		ArrayList<LinkedHashMap<String, Object>> coveragePoints2 = new ArrayList<>();
 		LinkedHashMap<String, Object> point21 = new LinkedHashMap<>();
@@ -1093,9 +1175,9 @@ public class RequestFieldsValidation {
 		coverageList.add(coverage);
 		coverageList.add(coverage2);
 
-		htblFieldValue.put("hasCoverage", coverageList);
+		htblFieldValue.put("hasCoverage", coverage);
 		htblFieldValue.put("hasSurvivalRange", survivalRange);
-		htblFieldValue.put("test", "2134-2313-242-33332");
+//		htblFieldValue.put("test", "2134-2313-242-33332");
 
 		// LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
 		//

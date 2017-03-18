@@ -39,7 +39,7 @@ public class SurvivalRange extends Property {
 		 * Relation from an SurvivalProperty to a Property.
 		 */
 		super.getProperties().put("hasSurvivalProperty", new ObjectProperty("hasSurvivalProperty", Prefixes.SSN,
-				SurvivalProperty.getSurvivalPropertyInstance(), false, false));
+				SurvivalProperty.getSurvivalPropertyInstance(), true, false));
 
 		/*
 		 * Describes the prevailing environmental conditions for

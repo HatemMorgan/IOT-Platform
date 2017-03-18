@@ -51,7 +51,7 @@ public class ValidationDao {
 	 * constraint
 	 */
 
-	public boolean hasConstraintViolations(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
+	public boolean hasNoConstraintViolations(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
 			ArrayList<PropertyValue> uniquePropValueList, Class subjectClass) {
 		String queryString = constructViolationsCheckQueryStr(applicationName, classValueList, uniquePropValueList,
 				subjectClass);
@@ -323,7 +323,7 @@ public class ValidationDao {
 			// System.out.println(validationDao.constructViolationsCheckQueryStr("test
 			// application", classValueList,
 			// uniquePropValueList, new Person()));
-			System.out.println(validationDao.hasConstraintViolations("testApplication", classValueList,
+			System.out.println(validationDao.hasNoConstraintViolations("testApplication", classValueList,
 					uniquePropValueList, new Person()));
 		} catch (DatabaseException e) {
 			System.out.println(e.getCode());
