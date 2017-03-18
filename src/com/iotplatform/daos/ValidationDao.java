@@ -55,57 +55,9 @@ public class ValidationDao {
 			ArrayList<PropertyValue> uniquePropValueList, Class subjectClass) {
 		long startTime = System.currentTimeMillis();
 
-		// if (classValueList.size() > 0) {
-		// String queryString =
-		// constructIntegrityConstraintCheckSubQuery(classValueList,
-		// applicationName);
-		//
-		// try {
-		// ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
-		// resultSet.next();
-		//
-		// Object integrityCheck = resultSet.getObject("isFound");
-		//
-		// System.out.println("Time Taken: " + ((System.currentTimeMillis() -
-		// startTime) / 1000.0));
-		// if (integrityCheck != null) {
-		// if (Integer.parseInt(integrityCheck.toString()) == 0) {
-		// throw new InvalidPropertyValuesException(subjectClass.getName());
-		// }
-		//
-		// }
-		// } catch (SQLException e) {
-		// throw new DatabaseException(e.getMessage(), "Application");
-		// }
-		//
-		// }
-		// System.out.println("Time Taken: " + ((System.currentTimeMillis() -
-		// startTime) / 1000.0));
-		//
-		// if (uniquePropValueList.size() > 0) {
-		// String queryString =
-		// constructUniqueContstraintCheckSubQueryStr(uniquePropValueList,
-		// subjectClass,
-		// applicationName);
-		// try {
-		// ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
-		// resultSet.next();
-		// Object uniquenessCheck = resultSet.getObject("isUnique");
-		// if (uniquenessCheck != null) {
-		// if (Integer.parseInt(uniquenessCheck.toString()) != 0) {
-		// throw new UniqueConstraintViolationException(subjectClass.getName());
-		// }
-		// }
-		// } catch (SQLException e) {
-		// throw new DatabaseException(e.getMessage(), "Application");
-		// }
-		// }
-		// System.out.println("Time Taken: " + ((System.currentTimeMillis() -
-		// startTime) / 1000.0));
-		// return true;
-
 		String queryString = constructViolationsCheckQueryStr(applicationName, classValueList, uniquePropValueList,
 				subjectClass);
+		System.out.println(queryString);
 		try {
 			ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
 			resultSet.next();
@@ -351,6 +303,63 @@ public class ValidationDao {
 	/*
 	 * Single Queries which executes in between 0.8 to 1 seconds
 	 */
+
+	// public boolean hasNoConstraintViolationsForSinqleQueries(String
+	// applicationName,
+	// ArrayList<ValueOfTypeClass> classValueList, ArrayList<PropertyValue>
+	// uniquePropValueList,
+	// Class subjectClass) {
+	// long startTime = System.currentTimeMillis();
+	//
+	// if (classValueList.size() > 0) {
+	// String queryString =
+	// constructIntegrityConstraintCheckQuery(classValueList, applicationName);
+	//
+	// try {
+	// ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
+	// resultSet.next();
+	//
+	// Object integrityCheck = resultSet.getObject("isFound");
+	//
+	// System.out.println("Time Taken: " + ((System.currentTimeMillis() -
+	// startTime) / 1000.0));
+	// if (integrityCheck != null) {
+	// if (Integer.parseInt(integrityCheck.toString()) == 0) {
+	// throw new InvalidPropertyValuesException(subjectClass.getName());
+	// }
+	//
+	// }
+	// } catch (SQLException e) {
+	// throw new DatabaseException(e.getMessage(), "Application");
+	// }
+	//
+	// }
+	// System.out.println("Time Taken: " + ((System.currentTimeMillis() -
+	// startTime) / 1000.0));
+	//
+	// if (uniquePropValueList.size() > 0) {
+	// String queryString =
+	// constructUniqueContstraintCheckQueryStr(uniquePropValueList,
+	// subjectClass,
+	// applicationName);
+	// try {
+	// ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
+	// resultSet.next();
+	// Object uniquenessCheck = resultSet.getObject("isUnique");
+	// if (uniquenessCheck != null) {
+	// if (Integer.parseInt(uniquenessCheck.toString()) != 0) {
+	// throw new UniqueConstraintViolationException(subjectClass.getName());
+	// }
+	// }
+	// } catch (SQLException e) {
+	// throw new DatabaseException(e.getMessage(), "Application");
+	// }
+	// }
+	// System.out.println("Time Taken: " + ((System.currentTimeMillis() -
+	// startTime) / 1000.0));
+	// return true;
+	//
+	// }
 
 	// private String
 	// constructUniqueContstraintCheckQueryStr(ArrayList<PropertyValue>
