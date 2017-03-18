@@ -54,6 +54,56 @@ public class ValidationDao {
 	public boolean hasNoConstraintViolations(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
 			ArrayList<PropertyValue> uniquePropValueList, Class subjectClass) {
 		long startTime = System.currentTimeMillis();
+
+		// if (classValueList.size() > 0) {
+		// String queryString =
+		// constructIntegrityConstraintCheckSubQuery(classValueList,
+		// applicationName);
+		//
+		// try {
+		// ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
+		// resultSet.next();
+		//
+		// Object integrityCheck = resultSet.getObject("isFound");
+		//
+		// System.out.println("Time Taken: " + ((System.currentTimeMillis() -
+		// startTime) / 1000.0));
+		// if (integrityCheck != null) {
+		// if (Integer.parseInt(integrityCheck.toString()) == 0) {
+		// throw new InvalidPropertyValuesException(subjectClass.getName());
+		// }
+		//
+		// }
+		// } catch (SQLException e) {
+		// throw new DatabaseException(e.getMessage(), "Application");
+		// }
+		//
+		// }
+		// System.out.println("Time Taken: " + ((System.currentTimeMillis() -
+		// startTime) / 1000.0));
+		//
+		// if (uniquePropValueList.size() > 0) {
+		// String queryString =
+		// constructUniqueContstraintCheckSubQueryStr(uniquePropValueList,
+		// subjectClass,
+		// applicationName);
+		// try {
+		// ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
+		// resultSet.next();
+		// Object uniquenessCheck = resultSet.getObject("isUnique");
+		// if (uniquenessCheck != null) {
+		// if (Integer.parseInt(uniquenessCheck.toString()) != 0) {
+		// throw new UniqueConstraintViolationException(subjectClass.getName());
+		// }
+		// }
+		// } catch (SQLException e) {
+		// throw new DatabaseException(e.getMessage(), "Application");
+		// }
+		// }
+		// System.out.println("Time Taken: " + ((System.currentTimeMillis() -
+		// startTime) / 1000.0));
+		// return true;
+
 		String queryString = constructViolationsCheckQueryStr(applicationName, classValueList, uniquePropValueList,
 				subjectClass);
 		try {
@@ -62,7 +112,7 @@ public class ValidationDao {
 
 			Object integrityCheck = resultSet.getObject("isFound");
 			Object uniquenessCheck = resultSet.getObject("isUnique");
-			System.out.println("Time Taken: "+((System.currentTimeMillis() - startTime) / 1000.0));
+			;
 			if (integrityCheck != null) {
 				if (Integer.parseInt(integrityCheck.toString()) == 0) {
 					throw new InvalidPropertyValuesException(subjectClass.getName());
@@ -75,7 +125,7 @@ public class ValidationDao {
 					throw new UniqueConstraintViolationException(subjectClass.getName());
 				}
 			}
-
+			System.out.println("Time Taken: " + ((System.currentTimeMillis() - startTime) / 1000.0));
 			return true;
 
 		} catch (SQLException e) {
@@ -83,6 +133,10 @@ public class ValidationDao {
 
 		}
 	}
+
+	/*
+	 * Subqueries which executes in between 0.6 to 0.7 seconds
+	 */
 
 	/*
 	 * constructQuery used to construct a sparql query String based on input it
@@ -102,7 +156,6 @@ public class ValidationDao {
 	 * .}',sem_models('TESTAPP_MODEL'),null,SEM_ALIASES(SEM_ALIAS('iot-platform'
 	 * ,'http://iot-platform#')),null));
 	 */
-
 	private String constructViolationsCheckQueryStr(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
 			ArrayList<PropertyValue> uniquePropValueList, Class subjectClass) {
 
@@ -116,10 +169,16 @@ public class ValidationDao {
 		if (classValueList.size() > 0)
 			dataIntegrityConstraintVoilationCheckSubQueryStr = constructIntegrityConstraintCheckSubQuery(
 					classValueList);
+		// dataIntegrityConstraintVoilationCheckSubQueryStr =
+		// constructIntegrityConstraintCheckSubQuery(classValueList,
+		// applicationName);
 
 		if (uniquePropValueList.size() > 0)
 			datauniqueConstraintViolationCheckSubQueryStr = constructUniqueContstraintCheckSubQueryStr(
 					uniquePropValueList, subjectClass);
+		// datauniqueConstraintViolationCheckSubQueryStr =
+		// constructUniqueContstraintCheckSubQueryStr(
+		// uniquePropValueList, subjectClass, applicationName);
 
 		stringBuilder.append(dataIntegrityConstraintVoilationCheckSubQueryStr + "  "
 				+ datauniqueConstraintViolationCheckSubQueryStr);
@@ -208,6 +267,7 @@ public class ValidationDao {
 		 */
 
 		stringBuilder.append("{ SELECT (COUNT(*) as ?isUnique ) WHERE { ");
+
 		stringBuilder.append("?subject a <" + subjectClass.getUri() + "> ; ");
 
 		/*
@@ -287,6 +347,208 @@ public class ValidationDao {
 		return stringBuilder.toString();
 
 	}
+
+	/*
+	 * Single Queries which executes in between 0.8 to 1 seconds
+	 */
+
+	// private String
+	// constructUniqueContstraintCheckQueryStr(ArrayList<PropertyValue>
+	// uniquePropValueList,
+	// Class subjectClass,String applicationName) {
+	//
+	// StringBuilder stringBuilder = new StringBuilder();
+	// StringBuilder filterConditionsStringBuilder = new StringBuilder();
+	//
+	// String variableName = "?var";
+	// int variableCount = 0;
+	//
+	// /*
+	// * start of the subQuery
+	// */
+	//
+	// stringBuilder.append("select isUnique from table(sem_match('SELECT
+	// (COUNT(*) as ?isUnique ) WHERE { ");
+	//
+	// stringBuilder.append("?subject a <" + subjectClass.getUri() + "> ; ");
+	//
+	// /*
+	// * start of filter part
+	// */
+	//
+	// filterConditionsStringBuilder.append(" FILTER ( ");
+	//
+	// /*
+	// * iteration on uniquePropValueList to construct graph patterns and
+	// * filter conditions of the subquery
+	// */
+	//
+	// int count = 0;
+	// int size = uniquePropValueList.size();
+	//
+	// for (PropertyValue propertyValue : uniquePropValueList) {
+	// String prefixedPropertyName = propertyValue.getPropertyName();
+	// Object value = propertyValue.getValue();
+	//
+	// if (count < size - 1) {
+	// stringBuilder.append(prefixedPropertyName + " " + variableName +
+	// variableCount + " ; ");
+	//
+	// /*
+	// * check is the value is a string value to make add ""
+	// */
+	//
+	// if (value instanceof String) {
+	// filterConditionsStringBuilder
+	// .append("LCASE(" + variableName + variableCount + ") = \"" +
+	// value.toString() + "\" || ");
+	// } else {
+	// filterConditionsStringBuilder
+	// .append("LCASE(" + variableName + variableCount + ") = " +
+	// value.toString() + " || ");
+	// }
+	//
+	// } else {
+	//
+	// /*
+	// * check if it is the last condition to end the graph patterns
+	// * with a dot
+	// *
+	// * and not adding || for the last filter condition
+	// */
+	//
+	// stringBuilder.append(prefixedPropertyName + " " + variableName +
+	// variableCount + " .");
+	//
+	// /*
+	// * check is the value is a string value to make add ""
+	// */
+	//
+	// if (value instanceof String) {
+	// filterConditionsStringBuilder
+	// .append("LCASE(" + variableName + variableCount + ") = \"" +
+	// value.toString() + "\"");
+	// } else {
+	// filterConditionsStringBuilder
+	// .append("LCASE(" + variableName + variableCount + ") = " +
+	// value.toString());
+	// }
+	//
+	// }
+	//
+	// count++;
+	// variableCount++;
+	// }
+	//
+	// /*
+	// * complete end of the filter part
+	// */
+	//
+	// filterConditionsStringBuilder.append(" )");
+	//
+	// /*
+	// * complete end of the subquery structure
+	// */
+	//
+	//
+	//
+	// stringBuilder.append(" " + filterConditionsStringBuilder.toString() + "
+	// }' ");
+	//
+	// StringBuilder prefixStringBuilder = new StringBuilder();
+	// int counter = 0;
+	// int stop = Prefixes.values().length - 1;
+	// for (Prefixes prefix : Prefixes.values()) {
+	// /*
+	// * 8 because there are only 9 prefixes and the counter started from
+	// * 0
+	// */
+	// if (counter == stop) {
+	// prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','"
+	// + prefix.getUri() + "')");
+	// } else {
+	// prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','"
+	// + prefix.getUri() + "'),");
+	// }
+	//
+	// counter++;
+	// }
+	//
+	// String modelName = applicationName.replaceAll(" ", "").toUpperCase() +
+	// suffix;
+	// stringBuilder.append(" ,sem_models('" + modelName + "'),null,");
+	// stringBuilder.append("SEM_ALIASES(" + prefixStringBuilder.toString() +
+	// "),null))");
+	//
+	// return stringBuilder.toString();
+	//
+	// }
+
+	// private String
+	// constructIntegrityConstraintCheckQuery(ArrayList<ValueOfTypeClass>
+	// classValueList,
+	// String applicationName) {
+	//
+	// StringBuilder stringBuilder = new StringBuilder();
+	//
+	// /*
+	// * start of the subQuery
+	// */
+	//
+	// stringBuilder.append("select isFound from table(sem_match('SELECT
+	// (COUNT(*) as ?isFound ) WHERE { ");
+	//
+	// for (ValueOfTypeClass valueOfTypeClass : classValueList) {
+	// Class valueClassType = valueOfTypeClass.getTypeClass();
+	// Object value = valueOfTypeClass.getValue();
+	//
+	// /*
+	// * any instance created has the prefix of iot-platform so the
+	// * subject will have the iot-platform prefix
+	// */
+	//
+	// String subject = Prefixes.IOT_PLATFORM.getPrefix() +
+	// value.toString().toLowerCase();
+	// String object = valueClassType.getPrefix().getPrefix() +
+	// valueClassType.getName();
+	//
+	// stringBuilder.append(subject + " a " + object + " . ");
+	//
+	// }
+	//
+	// /*
+	// * complete end of the subquery structure
+	// */
+	//
+	// stringBuilder.append(" }' ");
+	//
+	// StringBuilder prefixStringBuilder = new StringBuilder();
+	// int counter = 0;
+	// int stop = Prefixes.values().length - 1;
+	// for (Prefixes prefix : Prefixes.values()) {
+	// /*
+	// * 8 because there are only 9 prefixes and the counter started from
+	// * 0
+	// */
+	// if (counter == stop) {
+	// prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','"
+	// + prefix.getUri() + "')");
+	// } else {
+	// prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','"
+	// + prefix.getUri() + "'),");
+	// }
+	//
+	// counter++;
+	// }
+	//
+	// String modelName = applicationName.replaceAll(" ", "").toUpperCase() +
+	// suffix;
+	// stringBuilder.append(" ,sem_models('" + modelName + "'),null,");
+	// stringBuilder.append("SEM_ALIASES(" + prefixStringBuilder.toString() +
+	// "),null))");
+	//
+	// return stringBuilder.toString();
+	// }
 
 	public static void main(String[] args) {
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";

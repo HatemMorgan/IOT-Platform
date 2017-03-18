@@ -1220,7 +1220,7 @@ public class RequestFieldsValidation {
 
 		htblFieldValue.put("mbox", emailList);
 
-		htblFieldValue.put("developedApplication", "TESTAPPLICATION");
+		htblFieldValue.put("developedApplication", "TESTAPPLICATION2");
 		htblFieldValue.put("knows", hatemmorgan);
 		htblFieldValue.put("hates", hatemmorgan);
 		htblFieldValue.put("job", "Engineeer");
