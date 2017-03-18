@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -295,6 +296,187 @@ public class ValidationDao {
 		 */
 
 		stringBuilder.append(" " + filterConditionsStringBuilder.toString() + " }} ");
+
+		return stringBuilder.toString();
+
+	}
+
+	public String constructUniqueContstraintCheckSubQueryStr2(
+			LinkedHashMap<String, ArrayList<PropertyValue>> htblUniquePropValueList, Class subjectClass) {
+
+		StringBuilder stringBuilder = new StringBuilder();
+		StringBuilder filterConditionsStringBuilder = new StringBuilder();
+
+		/*
+		 * htblClassPropertyPrefixedNames is LinkedHashMap that holds key
+		 * prefixedClassName and value LinkedHashMap<String, String> (which
+		 * contains key prefixedPropertyName and value null if value is not
+		 * object else value objectReference )
+		 * 
+		 * I used this LinkedHashMap to avoid replicating properties in the
+		 * graph pattern part in the query
+		 * 
+		 * eg. avoid having : SELECT (COUNT(*) as ?isUnique ) WHERE { ?subject0
+		 * a iot-platform:Developer ; foaf:mbox ?var0 ; foaf:mbox ?var1.}
+		 */
+		LinkedHashMap<String, LinkedHashMap<String, String>> htblClassPropertyPrefixedNames = new LinkedHashMap<>();
+
+		/*
+		 * htblPrefixedClassNameNodeReference is a LinkedHashMap that contains
+		 * key prefixedClassName and value graphNodeReference which points to
+		 * another class instance
+		 * 
+		 * I used this LinkedHashMap to link objectProperties with their
+		 * nodeReference
+		 * 
+		 * eg. SELECT (COUNT(*) as ?isUnique ) WHERE { ?subject0 a
+		 * iot-platform:Developer ; foaf:knows ?subject1. ?subject1 a
+		 * foaf:Person;foaf:userName ?var4 ;
+		 */
+		LinkedHashMap<String, String> htblPrefixedClassNameNodeReference = new LinkedHashMap<>();
+
+		/*
+		 * give every key prefixedClassName in htblUniquePropValueList a node
+		 * reference
+		 */
+		String subjectName = "?subject";
+		int subjectCount = 0;
+		Iterator<String> htblUniquePropValueListIterator = htblUniquePropValueList.keySet().iterator();
+
+		while (htblUniquePropValueListIterator.hasNext()) {
+			String prefxiedClassName = htblUniquePropValueListIterator.next();
+
+			htblPrefixedClassNameNodeReference.put(prefxiedClassName, subjectName + subjectCount);
+			subjectCount++;
+		}
+
+		String variableName = "?var";
+		int variableCount = 0;
+
+		/*
+		 * start of the subQuery
+		 */
+		stringBuilder.append("{ SELECT (COUNT(*) as ?isUnique ) WHERE { \n");
+
+		/*
+		 * start of filter part
+		 */
+		filterConditionsStringBuilder.append(" FILTER ( ");
+
+		/*
+		 * Iterate over htblUniquePropValueList
+		 */
+		htblUniquePropValueListIterator = htblUniquePropValueList.keySet().iterator();
+		while (htblUniquePropValueListIterator.hasNext()) {
+			String prefixedClassName = htblUniquePropValueListIterator.next();
+			ArrayList<PropertyValue> propertyValuesList = htblUniquePropValueList.get(prefixedClassName);
+
+			stringBuilder.append(htblPrefixedClassNameNodeReference.get(prefixedClassName) + " a " + prefixedClassName);
+
+			/*
+			 * add new row to htblClassPropertyPrefixedNames with new
+			 * prefixedClassName and new htblPropertyName LinkedHashMap to hold
+			 * properties
+			 */
+			LinkedHashMap<String, String> htblPropertyName = new LinkedHashMap<>();
+			htblClassPropertyPrefixedNames.put(prefixedClassName, htblPropertyName);
+
+			/*
+			 * Iterate over propertyValueList of prefixedClassName key and
+			 * construct uniqueConstraintSubQuery
+			 */
+			int size = propertyValuesList.size();
+			for (int i = 0; i < size; i++) {
+				PropertyValue propertyValue = propertyValuesList.get(i);
+
+				String prefixedPropertyName = propertyValue.getPropertyName();
+				Object prefixedPropertyValue = propertyValue.getValue();
+				boolean propertyFound = false;
+
+				/*
+				 * check if the property was added before or not to avoid having
+				 * duplicate properties in the graph pattern as discussed above
+				 * with example
+				 */
+				if (htblClassPropertyPrefixedNames.get(prefixedClassName).containsKey(prefixedPropertyName)) {
+					/*
+					 * set propertyFound flag to true to avoid adding this
+					 * property again to the query
+					 */
+					propertyFound = true;
+
+				} else {
+					/*
+					 * property was not added before
+					 * 
+					 * check if propertyValue isObject (value is an object
+					 * instance of anotherClass) to add the value of the
+					 * property to the valueClassType graph node reference
+					 * 
+					 * else add value = null which indicates that the value was
+					 * not an object (Literal)
+					 */
+					if (propertyValue.isObject()) {
+						subjectCount++;
+
+						/*
+						 * classType of objectValue
+						 */
+						String prefixedValueClassType = propertyValue.getValue().toString();
+						htblClassPropertyPrefixedNames.get(prefixedClassName).put(prefixedPropertyName,
+								htblPrefixedClassNameNodeReference.get(prefixedValueClassType));
+					} else {
+						htblClassPropertyPrefixedNames.get(prefixedClassName).put(prefixedPropertyName, null);
+					}
+
+				}
+
+				/*
+				 * check propertyFound is false to add property to the query
+				 * 
+				 * Construct query
+				 */
+				if (!propertyFound) {
+
+					if (i < size) {
+
+						if (propertyValue.isObject()) {
+							stringBuilder.append(" ; \n" + prefixedPropertyName + "  "
+									+ htblClassPropertyPrefixedNames.get(prefixedClassName).get(prefixedPropertyName));
+
+						} else {
+							stringBuilder.append(" ; \n" + prefixedPropertyName + "  " + variableName + variableCount);
+
+						}
+						variableCount++;
+					} else {
+						if (propertyValue.isObject()) {
+							stringBuilder.append(prefixedPropertyName + "  "
+									+ htblClassPropertyPrefixedNames.get(prefixedClassName).get(prefixedPropertyName));
+
+						} else {
+							stringBuilder.append(prefixedPropertyName + "  " + variableName + variableCount);
+
+						}
+						variableCount++;
+					}
+				}
+
+			}
+
+			stringBuilder.append(" . \n");
+
+		}
+
+		filterConditionsStringBuilder.append(" )");
+
+		/*
+		 * complete end of the subquery structure
+		 */
+
+		stringBuilder.append(" }}");
+		// stringBuilder.append(" " + filterConditionsStringBuilder.toString() +
+		// " }} ");
 
 		return stringBuilder.toString();
 

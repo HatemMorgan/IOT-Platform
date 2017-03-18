@@ -404,20 +404,23 @@ public class RequestFieldsValidation {
 
 		// System.out.println("==============================================");
 		// System.out.println(htblClassPropertyValue.toString());
-		System.out.println("=======================================");
-		System.out.println(classList.toString());
-		System.out.println("======================================");
-		System.out.println(htblNotFoundFieldValue.toString());
-		System.out.println("===============================================");
-		System.out.println(classValueList.toString());
+		// System.out.println("=======================================");
+		// System.out.println(classList.toString());
+		// System.out.println("======================================");
+		// System.out.println(htblNotFoundFieldValue.toString());
+		// System.out.println("===============================================");
+		// System.out.println(classValueList.toString());
 		System.out.println("===================================================");
 		System.out.println(htblUniquePropValueList.toString());
+		System.out.println("====================================================");
+		System.out.println(
+				validationDao.constructUniqueContstraintCheckSubQueryStr2(htblUniquePropValueList, subjectClass));
 		return null;
 	}
 
 	private boolean validateRequestDataConstraint(
 			LinkedHashMap<Class, ArrayList<PropertyValue>> htblUniquePropValueList) {
-		
+
 		return false;
 	}
 
@@ -506,12 +509,17 @@ public class RequestFieldsValidation {
 				if (htblUniquePropValueList
 						.containsKey(subjectClass.getPrefix().getPrefix() + subjectClass.getName())) {
 
+					/*
+					 * add linkage between nestedObjectPropertyValue and its
+					 * outerObjectProperty
+					 */
 					if (objectValueProperty != null && objectValueSubject != null) {
 						htblUniquePropValueList.get(objectValueSubject)
 								.add(new PropertyValue(
 										objectValueProperty.getPrefix().getPrefix() + objectValueProperty.getName(),
 										((ObjectProperty) objectValueProperty).getObject().getPrefix().getPrefix()
-												+ ((ObjectProperty) objectValueProperty).getObject().getName()));
+												+ ((ObjectProperty) objectValueProperty).getObject().getName(),
+										true));
 					}
 
 					htblUniquePropValueList.get(subjectClass.getPrefix().getPrefix() + subjectClass.getName())
@@ -521,13 +529,18 @@ public class RequestFieldsValidation {
 					htblUniquePropValueList.put(subjectClass.getPrefix().getPrefix() + subjectClass.getName(),
 							uniquePropertyValueList);
 
+					/*
+					 * add linkage between nestedObjectPropertyValue and its
+					 * outerObjectProperty
+					 */
 					if (objectValueProperty != null && objectValueSubject != null) {
 
 						htblUniquePropValueList.get(objectValueSubject)
 								.add(new PropertyValue(
 										objectValueProperty.getPrefix().getPrefix() + objectValueProperty.getName(),
 										((ObjectProperty) objectValueProperty).getObject().getPrefix().getPrefix()
-												+ ((ObjectProperty) objectValueProperty).getObject().getName()));
+												+ ((ObjectProperty) objectValueProperty).getObject().getName(),
+										true));
 					}
 					htblUniquePropValueList.get(subjectClass.getPrefix().getPrefix() + subjectClass.getName())
 							.add(new PropertyValue(property.getPrefix().getPrefix() + property.getName(), value));
