@@ -650,7 +650,7 @@ public class RequestFieldsValidation {
 		 * 
 		 * or : mbox: ["hatem@gmail.com","jsid@yahoo.com"]
 		 */
-		if (value instanceof java.util.ArrayList) {
+		if (value instanceof java.util.ArrayList && property.isMulitpleValues()) {
 			ArrayList<Object> valueList = (ArrayList<Object>) value;
 
 			/*
@@ -662,6 +662,8 @@ public class RequestFieldsValidation {
 				parseAndConstructFieldValue(subjectClass, property, singleValue, htblClassPropertyValue, classList,
 						htblNotFoundFieldValue, indexCount, uniquePropValueList, classValueList);
 			}
+		} else {
+
 		}
 	}
 
@@ -1020,131 +1022,124 @@ public class RequestFieldsValidation {
 
 		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
 
-		// LinkedHashMap<String, Object> condition = new LinkedHashMap<>();
-		// condition.put("description", "High Tempreture Condition");
-		//
-		// LinkedHashMap<String, Object> batteryLifetimeAmount = new
-		// LinkedHashMap<>();
-		// batteryLifetimeAmount.put("hasDataValue", 20.21);
-		//
-		// LinkedHashMap<String, Object> systemLifetimeAmount = new
-		// LinkedHashMap<>();
-		// systemLifetimeAmount.put("hasDataValue", 200.21);
-		//
-		// LinkedHashMap<String, Object> batteryLifetime = new
-		// LinkedHashMap<>();
-		// batteryLifetime.put("type", "BatteryLifetime");
-		// batteryLifetime.put("hasValue", batteryLifetimeAmount);
-		//
-		// LinkedHashMap<String, Object> systemLifetime = new LinkedHashMap<>();
-		// systemLifetime.put("type", "SystemLifetime");
-		// systemLifetime.put("hasValue", systemLifetimeAmount);
-		//
-		// ArrayList<LinkedHashMap<String, Object>> survivalProperties = new
-		// ArrayList<>();
-		// survivalProperties.add(systemLifetime);
-		// survivalProperties.add(batteryLifetime);
-		//
-		// LinkedHashMap<String, Object> survivalRange = new LinkedHashMap<>();
-		// survivalRange.put("inCondition", condition);
-		// survivalRange.put("hasSurvivalProperty", survivalProperties);
-		//
-		// LinkedHashMap<String, Object> point1 = new LinkedHashMap<>();
-		// point1.put("lat", 22.2132);
-		// point1.put("long", -4.31211);
-		//
-		// LinkedHashMap<String, Object> point2 = new LinkedHashMap<>();
-		// point2.put("lat", 29.12);
-		// point2.put("long", -2.31);
-		//
-		// LinkedHashMap<String, Object> point3 = new LinkedHashMap<>();
-		// point3.put("lat", 134.12);
-		// point3.put("long", 20.31);
-		//
-		// ArrayList<LinkedHashMap<String, Object>> coveragePoints = new
-		// ArrayList<>();
-		// coveragePoints.add(point1);
-		// coveragePoints.add(point2);
-		// coveragePoints.add(point3);
-		//
-		// LinkedHashMap<String, Object> coverage = new LinkedHashMap<>();
-		// coverage.put("type", "Circle");
-		// coverage.put("location", coveragePoints);
-		//
-		// ArrayList<LinkedHashMap<String, Object>> coveragePoints2 = new
-		// ArrayList<>();
-		// LinkedHashMap<String, Object> point21 = new LinkedHashMap<>();
-		// point21.put("lat", 9.2112);
-		// point21.put("long", 320.31);
-		//
-		// LinkedHashMap<String, Object> point22 = new LinkedHashMap<>();
-		// point2.put("lat", 62.12);
-		// point2.put("long", -22.31);
-		//
-		// LinkedHashMap<String, Object> point23 = new LinkedHashMap<>();
-		// point3.put("lat", 200.12);
-		// point3.put("long", 23.31);
-		//
-		// coveragePoints2.add(point21);
-		// coveragePoints2.add(point22);
-		// coveragePoints2.add(point23);
-		//
-		// LinkedHashMap<String, Object> coverage2 = new LinkedHashMap<>();
-		// coverage2.put("type", "Circle");
-		// coverage2.put("location", coveragePoints2);
-		//
-		// ArrayList<LinkedHashMap<String, Object>> coverageList = new
-		// ArrayList<>();
-		// coverageList.add(coverage);
-		// coverageList.add(coverage2);
-		//
-		// htblFieldValue.put("hasCoverage", coverageList);
-		// htblFieldValue.put("hasSurvivalRange", survivalRange);
-		// htblFieldValue.put("test", "2134-2313-242-33332");
+		LinkedHashMap<String, Object> condition = new LinkedHashMap<>();
+		condition.put("description", "High Tempreture Condition");
 
-		LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
+		LinkedHashMap<String, Object> batteryLifetimeAmount = new LinkedHashMap<>();
+		batteryLifetimeAmount.put("hasDataValue", 20.21);
 
-		hatemmorgan.put("age", 20);
-		hatemmorgan.put("firstName", "Hatem");
-		hatemmorgan.put("middleName", "ELsayed");
-		hatemmorgan.put("familyName", "Morgan");
-		hatemmorgan.put("birthday", "27/7/1995");
-		hatemmorgan.put("gender", "Male");
-		hatemmorgan.put("title", "Engineer");
-		hatemmorgan.put("userName", "HatemMorgan");
+		LinkedHashMap<String, Object> systemLifetimeAmount = new LinkedHashMap<>();
+		systemLifetimeAmount.put("hasDataValue", 200.21);
 
-		ArrayList<Object> hatemmorganEmailList = new ArrayList<>();
-		hatemmorganEmailList.add("hatemmorgan17@gmail.com");
-		hatemmorganEmailList.add("hatem.el-sayed@student.guc.edu.eg");
+		LinkedHashMap<String, Object> batteryLifetime = new LinkedHashMap<>();
+		batteryLifetime.put("type", "BatteryLifetime");
+		batteryLifetime.put("hasValue", batteryLifetimeAmount);
 
-		hatemmorgan.put("mbox", hatemmorganEmailList);
-		hatemmorgan.put("job", "Engineeer");
+		LinkedHashMap<String, Object> systemLifetime = new LinkedHashMap<>();
+		systemLifetime.put("type", "SystemLifetime");
+		systemLifetime.put("hasValue", systemLifetimeAmount);
 
-		// Haytham Ismail
-		htblFieldValue.put("age", 21);
-		htblFieldValue.put("firstName", "Haytham");
-		htblFieldValue.put("middleName", "Ismail");
-		htblFieldValue.put("familyName", "Khalf");
-		htblFieldValue.put("birthday", "27/7/1975");
-		htblFieldValue.put("gender", "Male");
-		htblFieldValue.put("title", "Professor");
-		htblFieldValue.put("userName", "HaythamIsmail");
+		ArrayList<LinkedHashMap<String, Object>> survivalProperties = new ArrayList<>();
+		survivalProperties.add(systemLifetime);
+		survivalProperties.add(batteryLifetime);
 
-		ArrayList<Object> emailList = new ArrayList<>();
-		emailList.add("haytham.ismail@gmail.com");
-		emailList.add("haytham.ismail@student.guc.edu.eg");
+		LinkedHashMap<String, Object> survivalRange = new LinkedHashMap<>();
+		survivalRange.put("inCondition", condition);
+		survivalRange.put("hasSurvivalProperty", survivalProperties);
 
-		htblFieldValue.put("mbox", emailList);
+		LinkedHashMap<String, Object> point1 = new LinkedHashMap<>();
+		point1.put("lat", 22.2132);
+		point1.put("long", -4.31211);
 
-		htblFieldValue.put("developedApplication", "TESTAPPLICATION");
-		htblFieldValue.put("knows", hatemmorgan);
+		LinkedHashMap<String, Object> point2 = new LinkedHashMap<>();
+		point2.put("lat", 29.12);
+		point2.put("long", -2.31);
+
+		LinkedHashMap<String, Object> point3 = new LinkedHashMap<>();
+		point3.put("lat", 134.12);
+		point3.put("long", 20.31);
+
+		ArrayList<LinkedHashMap<String, Object>> coveragePoints = new ArrayList<>();
+		coveragePoints.add(point1);
+		coveragePoints.add(point2);
+		coveragePoints.add(point3);
+
+		LinkedHashMap<String, Object> coverage = new LinkedHashMap<>();
+		coverage.put("type", "Circle");
+		coverage.put("location", coveragePoints);
+
+		ArrayList<LinkedHashMap<String, Object>> coveragePoints2 = new ArrayList<>();
+		LinkedHashMap<String, Object> point21 = new LinkedHashMap<>();
+		point21.put("lat", 9.2112);
+		point21.put("long", 320.31);
+
+		LinkedHashMap<String, Object> point22 = new LinkedHashMap<>();
+		point2.put("lat", 62.12);
+		point2.put("long", -22.31);
+
+		LinkedHashMap<String, Object> point23 = new LinkedHashMap<>();
+		point3.put("lat", 200.12);
+		point3.put("long", 23.31);
+
+		coveragePoints2.add(point21);
+		coveragePoints2.add(point22);
+		coveragePoints2.add(point23);
+
+		LinkedHashMap<String, Object> coverage2 = new LinkedHashMap<>();
+		coverage2.put("type", "Circle");
+		coverage2.put("location", coveragePoints2);
+
+		ArrayList<LinkedHashMap<String, Object>> coverageList = new ArrayList<>();
+		coverageList.add(coverage);
+		coverageList.add(coverage2);
+
+		htblFieldValue.put("hasCoverage", coverageList);
+		htblFieldValue.put("hasSurvivalRange", survivalRange);
+		htblFieldValue.put("test", "2134-2313-242-33332");
+
+		// LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
+		//
+		// hatemmorgan.put("age", 20);
+		// hatemmorgan.put("firstName", "Hatem");
+		// hatemmorgan.put("middleName", "ELsayed");
+		// hatemmorgan.put("familyName", "Morgan");
+		// hatemmorgan.put("birthday", "27/7/1995");
+		// hatemmorgan.put("gender", "Male");
+		// hatemmorgan.put("title", "Engineer");
+		// hatemmorgan.put("userName", "HatemMorgan");
+		//
+		// ArrayList<Object> hatemmorganEmailList = new ArrayList<>();
+		// hatemmorganEmailList.add("hatemmorgan17@gmail.com");
+		// hatemmorganEmailList.add("hatem.el-sayed@student.guc.edu.eg");
+		//
+		// hatemmorgan.put("mbox", hatemmorganEmailList);
+		// hatemmorgan.put("job", "Engineeer");
+		//
+		// // Haytham Ismail
+		// htblFieldValue.put("age", 21);
+		// htblFieldValue.put("firstName", "Haytham");
+		// htblFieldValue.put("middleName", "Ismail");
+		// htblFieldValue.put("familyName", "Khalf");
+		// htblFieldValue.put("birthday", "27/7/1975");
+		// htblFieldValue.put("gender", "Male");
+		// htblFieldValue.put("title", "Professor");
+		// htblFieldValue.put("userName", "HaythamIsmail");
+		//
+		// ArrayList<Object> emailList = new ArrayList<>();
+		// emailList.add("haytham.ismail@gmail.com");
+		// emailList.add("haytham.ismail@student.guc.edu.eg");
+		//
+		// htblFieldValue.put("mbox", emailList);
+		//
+		// htblFieldValue.put("developedApplication", "TESTAPPLICATION");
+		// htblFieldValue.put("knows", hatemmorgan);
 		// htblFieldValue.put("hates", hatemmorgan);
-		htblFieldValue.put("job", "Engineeer");
+		// htblFieldValue.put("job", "Engineeer");
 
 		try {
+			requestFieldsValidation.validateRequestFields("TESTAPPLICATION", htblFieldValue, new ActuatingDevice());
 			// requestFieldsValidation.validateRequestFields("TESTAPPLICATION",
-			// htblFieldValue, new ActuatingDevice());
-			requestFieldsValidation.validateRequestFields("TESTAPPLICATION", htblFieldValue, new Developer());
+			// htblFieldValue, new Developer());
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());
 		}
