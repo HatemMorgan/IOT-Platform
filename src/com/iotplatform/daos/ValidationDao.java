@@ -53,10 +53,9 @@ public class ValidationDao {
 	 */
 
 	public boolean hasNoConstraintViolations(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
-			ArrayList<PropertyValue> uniquePropValueList, Class subjectClass) {
-		long startTime = System.currentTimeMillis();
+			LinkedHashMap<String, ArrayList<PropertyValue>> htblUniquePropValueList, Class subjectClass) {
 
-		String queryString = constructViolationsCheckQueryStr(applicationName, classValueList, uniquePropValueList,
+		String queryString = constructViolationsCheckQueryStr(applicationName, classValueList, htblUniquePropValueList,
 				subjectClass);
 		System.out.println(queryString);
 		try {
@@ -65,7 +64,10 @@ public class ValidationDao {
 
 			Object integrityCheck = resultSet.getObject("isFound");
 			Object uniquenessCheck = resultSet.getObject("isUnique");
-			;
+
+			System.out.println(integrityCheck.toString());
+			System.out.println(uniquenessCheck.toString());
+
 			if (integrityCheck != null) {
 				if (Integer.parseInt(integrityCheck.toString()) == 0) {
 					throw new InvalidPropertyValuesException(subjectClass.getName());
@@ -78,7 +80,7 @@ public class ValidationDao {
 					throw new UniqueConstraintViolationException(subjectClass.getName());
 				}
 			}
-			System.out.println("Time Taken: " + ((System.currentTimeMillis() - startTime) / 1000.0));
+
 			return true;
 
 		} catch (SQLException e) {
@@ -110,7 +112,7 @@ public class ValidationDao {
 	 * ,'http://iot-platform#')),null));
 	 */
 	private String constructViolationsCheckQueryStr(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
-			ArrayList<PropertyValue> uniquePropValueList, Class subjectClass) {
+			LinkedHashMap<String, ArrayList<PropertyValue>> htblUniquePropValueList, Class subjectClass) {
 
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("select isFound,isUnique from table(sem_match('select ?isFound ?isUnique where{ ");
@@ -122,16 +124,10 @@ public class ValidationDao {
 		if (classValueList.size() > 0)
 			dataIntegrityConstraintVoilationCheckSubQueryStr = constructIntegrityConstraintCheckSubQuery(
 					classValueList);
-		// dataIntegrityConstraintVoilationCheckSubQueryStr =
-		// constructIntegrityConstraintCheckSubQuery(classValueList,
-		// applicationName);
 
-		if (uniquePropValueList.size() > 0)
-			datauniqueConstraintViolationCheckSubQueryStr = constructUniqueContstraintCheckSubQueryStr(
-					uniquePropValueList, subjectClass);
-		// datauniqueConstraintViolationCheckSubQueryStr =
-		// constructUniqueContstraintCheckSubQueryStr(
-		// uniquePropValueList, subjectClass, applicationName);
+		if (htblUniquePropValueList.size() > 0)
+			datauniqueConstraintViolationCheckSubQueryStr = constructUniqueContstraintCheckSubQueryStr2(
+					htblUniquePropValueList, subjectClass);
 
 		stringBuilder.append(dataIntegrityConstraintVoilationCheckSubQueryStr + "  "
 				+ datauniqueConstraintViolationCheckSubQueryStr);
@@ -249,11 +245,11 @@ public class ValidationDao {
 				 */
 
 				if (value instanceof String) {
-					filterConditionsStringBuilder
-							.append("LCASE(" + variableName + variableCount + ") = \"" + value.toString() + "\" ||  ");
+					filterConditionsStringBuilder.append("LCASE(" + variableName + variableCount + ") = \""
+							+ value.toString().toLowerCase() + "\" ||  ");
 				} else {
-					filterConditionsStringBuilder
-							.append("LCASE(" + variableName + variableCount + ") = " + value.toString() + " ||  ");
+					filterConditionsStringBuilder.append("LCASE(" + variableName + variableCount + ") = "
+							+ value.toString().toLowerCase() + " ||  ");
 				}
 
 			} else {
@@ -272,11 +268,11 @@ public class ValidationDao {
 				 */
 
 				if (value instanceof String) {
-					filterConditionsStringBuilder
-							.append("LCASE(" + variableName + variableCount + ") = \"" + value.toString() + "\"");
+					filterConditionsStringBuilder.append(
+							"LCASE(" + variableName + variableCount + ") = \"" + value.toString().toLowerCase() + "\"");
 				} else {
 					filterConditionsStringBuilder
-							.append("LCASE(" + variableName + variableCount + ") = " + value.toString());
+							.append("LCASE(" + variableName + variableCount + ") = " + value.toString().toLowerCase());
 				}
 
 			}
@@ -367,6 +363,8 @@ public class ValidationDao {
 		 * Iterate over htblUniquePropValueList
 		 */
 		htblUniquePropValueListIterator = htblUniquePropValueList.keySet().iterator();
+
+		boolean start = true;
 		while (htblUniquePropValueListIterator.hasNext()) {
 			String prefixedClassName = htblUniquePropValueListIterator.next();
 			ArrayList<PropertyValue> propertyValuesList = htblUniquePropValueList.get(prefixedClassName);
@@ -448,7 +446,7 @@ public class ValidationDao {
 							stringBuilder.append(" ; \n" + prefixedPropertyName + "  " + variableName + variableCount);
 
 						}
-						variableCount++;
+
 					} else {
 						if (propertyValue.isObject()) {
 							stringBuilder.append(prefixedPropertyName + "  "
@@ -458,8 +456,64 @@ public class ValidationDao {
 							stringBuilder.append(prefixedPropertyName + "  " + variableName + variableCount);
 
 						}
-						variableCount++;
+
 					}
+					variableCount++;
+				}
+
+				/*
+				 * if property was an objectProperty so do not add it to the
+				 * filter because its value is a nodeReference
+				 * 
+				 * check if the value was replicated to remove any duplicate
+				 * filter condition
+				 * 
+				 * It will not work with multiple value property because it will
+				 * need further computation because the propertyName is a key so
+				 * it must be unique so its value will be overwrote so it will
+				 * be duplicated eg. mbox (property for Agent class and all its
+				 * subClasses eg. Person)
+				 */
+				if (!propertyValue.isObject()
+						&& (htblClassPropertyPrefixedNames.get(prefixedClassName).get(prefixedPropertyName) == null
+								|| !htblClassPropertyPrefixedNames.get(prefixedClassName).get(prefixedPropertyName)
+										.equals(prefixedPropertyValue))) {
+
+					htblClassPropertyPrefixedNames.get(prefixedClassName).put(prefixedPropertyName,
+							prefixedPropertyValue.toString());
+
+					if (i < size && (i != 0 || !start)) {
+
+						/*
+						 * check is the value is a string value to make add ""
+						 */
+						if (prefixedPropertyValue instanceof String) {
+							filterConditionsStringBuilder.append(" ||  \n LCASE(" + variableName + (variableCount - 1)
+									+ ") = \"" + prefixedPropertyValue.toString().toLowerCase() + "\" ");
+						} else {
+							filterConditionsStringBuilder.append("|| \n LCASE(" + variableName + (variableCount - 1)
+									+ ") = " + prefixedPropertyValue.toString().toLowerCase());
+						}
+					} else {
+
+						/*
+						 * check is the value is a string value to make add ""
+						 */
+
+						if (prefixedPropertyValue instanceof String) {
+							filterConditionsStringBuilder.append(" \n LCASE(" + variableName + (variableCount - 1)
+									+ ") = \"" + prefixedPropertyValue.toString().toLowerCase() + "\" ");
+						} else {
+							filterConditionsStringBuilder.append(" \n  LCASE(" + variableName + (variableCount - 1)
+									+ ") = " + prefixedPropertyValue.toString().toLowerCase());
+						}
+						/*
+						 * start flag is used to dynamically avoid adding ||
+						 * before the first filter condition
+						 */
+						start = false;
+					}
+
 				}
 
 			}
@@ -474,9 +528,28 @@ public class ValidationDao {
 		 * complete end of the subquery structure
 		 */
 
-		stringBuilder.append(" }}");
-		// stringBuilder.append(" " + filterConditionsStringBuilder.toString() +
-		// " }} ");
+		// stringBuilder.append(" }}");
+		stringBuilder.append(" " + filterConditionsStringBuilder.toString() + " }} ");
+
+		// Iterator<String> iterator =
+		// htblClassPropertyPrefixedNames.keySet().iterator();
+		// while (iterator.hasNext()) {
+		// String className = iterator.next();
+		// System.out.println(className + " [ \n");
+		//
+		// LinkedHashMap<String, String> x =
+		// htblClassPropertyPrefixedNames.get(className);
+		//
+		// Iterator<String> iterator2 = x.keySet().iterator();
+		// while (iterator2.hasNext()) {
+		// String property = iterator2.next();
+		// String value = x.get(property);
+		//
+		// System.out.println("{ " + property + " : " + value + " } \n");
+		// }
+		//
+		// System.out.println(" ] \n");
+		// }
 
 		return stringBuilder.toString();
 
@@ -741,49 +814,58 @@ public class ValidationDao {
 	// return stringBuilder.toString();
 	// }
 
-	public static void main(String[] args) {
-		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
-		String szUser = "rdfusr";
-		String szPasswd = "rdfusr";
-
-		ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL, szUser, szPasswd));
-
-		ArrayList<PropertyValue> uniquePropValueList = new ArrayList<>();
-
-		// those will not voilate any constraints
-		uniquePropValueList.add(new PropertyValue("foaf:userName", "HatemMorgans"));
-		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatemmorgan17s@gmail.com"));
-		uniquePropValueList.add(new PropertyValue("foaf:mbox", "hatem.el-sayedl@student.guc.edu.eg"));
-
-		// those will violate uniqueness constraint
-		// uniquePropValueList.add(new PropertyValue("foaf:userName",
-		// "HatemMorgan"));
-		// uniquePropValueList.add(new PropertyValue("foaf:mbox",
-		// "hatemmorgan17@gmail.com"));
-		// uniquePropValueList.add(new PropertyValue("foaf:mbox",
-		// "hatem.el-sayed--@student.guc.edu.eg"));
-
-		ArrayList<ValueOfTypeClass> classValueList = new ArrayList<>();
-		classValueList.add(new ValueOfTypeClass(new Application(), "testapplication"));
-		classValueList.add(new ValueOfTypeClass(new Person(), "hatemmorgan"));
-
-		// this will fail the check
-		// classValueList.add(new ValueOfTypeClass(new Person(), "hatem"));
-		try {
-			// System.out.println(validationDao.constructIntegrityConstraintCheckSubQuery(classValueList));
-			// System.out.println(
-			// validationDao.constructUniqueContstraintCheckSubQueryStr(uniquePropValueList,
-			// new Person()));
-			// System.out.println(validationDao.constructViolationsCheckQueryStr("test
-			// application", classValueList,
-			// uniquePropValueList, new Person()));
-			System.out.println(validationDao.hasNoConstraintViolations("testApplication", classValueList,
-					uniquePropValueList, new Person()));
-		} catch (DatabaseException e) {
-			System.out.println(e.getCode());
-			System.out.println(e.getMessage());
-			System.out.println(e.getExceptionMessage());
-		}
-
-	}
+	// public static void main(String[] args) {
+	// String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+	// String szUser = "rdfusr";
+	// String szPasswd = "rdfusr";
+	//
+	// ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL,
+	// szUser, szPasswd));
+	//
+	// ArrayList<PropertyValue> uniquePropValueList = new ArrayList<>();
+	//
+	// // those will not voilate any constraints
+	// uniquePropValueList.add(new PropertyValue("foaf:userName",
+	// "HatemMorgans"));
+	// uniquePropValueList.add(new PropertyValue("foaf:mbox",
+	// "hatemmorgan17s@gmail.com"));
+	// uniquePropValueList.add(new PropertyValue("foaf:mbox",
+	// "hatem.el-sayedl@student.guc.edu.eg"));
+	//
+	// // those will violate uniqueness constraint
+	// // uniquePropValueList.add(new PropertyValue("foaf:userName",
+	// // "HatemMorgan"));
+	// // uniquePropValueList.add(new PropertyValue("foaf:mbox",
+	// // "hatemmorgan17@gmail.com"));
+	// // uniquePropValueList.add(new PropertyValue("foaf:mbox",
+	// // "hatem.el-sayed--@student.guc.edu.eg"));
+	//
+	// ArrayList<ValueOfTypeClass> classValueList = new ArrayList<>();
+	// classValueList.add(new ValueOfTypeClass(new Application(),
+	// "testapplication"));
+	// classValueList.add(new ValueOfTypeClass(new Person(), "hatemmorgan"));
+	//
+	// // this will fail the check
+	// // classValueList.add(new ValueOfTypeClass(new Person(), "hatem"));
+	// try {
+	// //
+	// System.out.println(validationDao.constructIntegrityConstraintCheckSubQuery(classValueList));
+	// // System.out.println(
+	// //
+	// validationDao.constructUniqueContstraintCheckSubQueryStr(uniquePropValueList,
+	// // new Person()));
+	// //
+	// System.out.println(validationDao.constructViolationsCheckQueryStr("test
+	// // application", classValueList,
+	// // uniquePropValueList, new Person()));
+	// System.out.println(validationDao.hasNoConstraintViolations("testApplication",
+	// classValueList,
+	// uniquePropValueList, new Person()));
+	// } catch (DatabaseException e) {
+	// System.out.println(e.getCode());
+	// System.out.println(e.getMessage());
+	// System.out.println(e.getExceptionMessage());
+	// }
+	//
+	// }
 }

@@ -494,10 +494,11 @@ public class SingleClassRequestValidation {
 			 * returned
 			 */
 
-			if (validationDao.hasNoConstraintViolations(applicationName, classValueList, uniquePropValueList,
-					subjectClass)) {
-				return prefixedPropertyValueList;
-			}
+			// if (validationDao.hasNoConstraintViolations(applicationName,
+			// classValueList, uniquePropValueList,
+			// subjectClass)) {
+			// return prefixedPropertyValueList;
+			// }
 
 		}
 

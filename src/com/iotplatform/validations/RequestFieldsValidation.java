@@ -382,24 +382,11 @@ public class RequestFieldsValidation {
 			 * returned
 			 */
 
-			// if (validationDao.hasNoConstraintViolations(applicationName,
-			// classValueList, uniquePropValueList,
-			// subjectClass)) {
-			// return htblClassPropertyValue;
-			// }
-
-		}
-
-		Iterator<Class> iterator = htblClassPropertyValue.keySet().iterator();
-		while (iterator.hasNext()) {
-			Class clss = iterator.next();
-			System.out.println(clss.getName() + "[ ");
-			ArrayList<ArrayList<PropertyValue>> list = htblClassPropertyValue.get(clss);
-			for (ArrayList<PropertyValue> arrayList : list) {
-				System.out.print(arrayList);
-				System.out.println();
+			if (validationDao.hasNoConstraintViolations(applicationName, classValueList, htblUniquePropValueList,
+					subjectClass)) {
+				return htblClassPropertyValue;
 			}
-			System.out.println(" ]");
+
 		}
 
 		// System.out.println("==============================================");
@@ -412,16 +399,11 @@ public class RequestFieldsValidation {
 		// System.out.println(classValueList.toString());
 		System.out.println("===================================================");
 		System.out.println(htblUniquePropValueList.toString());
-		System.out.println("====================================================");
-		System.out.println(
-				validationDao.constructUniqueContstraintCheckSubQueryStr2(htblUniquePropValueList, subjectClass));
-		return null;
-	}
-
-	private boolean validateRequestDataConstraint(
-			LinkedHashMap<Class, ArrayList<PropertyValue>> htblUniquePropValueList) {
-
-		return false;
+		// System.out.println("====================================================");
+		// System.out.println(
+		// validationDao.constructUniqueContstraintCheckSubQueryStr2(htblUniquePropValueList,
+		// subjectClass));
+		return htblClassPropertyValue;
 	}
 
 	/*
@@ -1280,7 +1262,7 @@ public class RequestFieldsValidation {
 		hatemmorgan.put("userName", "HatemMorgans");
 
 		ArrayList<Object> hatemmorganEmailList = new ArrayList<>();
-		hatemmorganEmailList.add("hatemmorgan17s@gmail.com");
+		hatemmorganEmailList.add("hatemmorgan17@gmail.com");
 		hatemmorganEmailList.add("hatem.el-sayeds@student.guc.edu.eg");
 
 		hatemmorgan.put("mbox", hatemmorganEmailList);
@@ -1308,9 +1290,26 @@ public class RequestFieldsValidation {
 		htblFieldValue.put("job", "Engineeer");
 
 		try {
+			long startTime = System.currentTimeMillis();
 			// requestFieldsValidation.validateRequestFields("TESTAPPLICATION",
 			// htblFieldValue, new ActuatingDevice());
-			requestFieldsValidation.validateRequestFields("TESTAPPLICATION", htblFieldValue, new Developer());
+			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
+					.validateRequestFields("TESTAPPLICATION", htblFieldValue, new Developer());
+
+			System.out.println("Time Taken: " + ((System.currentTimeMillis() - startTime) / 1000.0));
+
+			Iterator<Class> iterator = htblClassPropertyValue.keySet().iterator();
+			while (iterator.hasNext()) {
+				Class clss = iterator.next();
+				System.out.println(clss.getName() + "[ ");
+				ArrayList<ArrayList<PropertyValue>> list = htblClassPropertyValue.get(clss);
+				for (ArrayList<PropertyValue> arrayList : list) {
+					System.out.print(arrayList);
+					System.out.println();
+				}
+				System.out.println(" ]");
+			}
+
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());
 		}
