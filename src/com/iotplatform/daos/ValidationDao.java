@@ -53,6 +53,7 @@ public class ValidationDao {
 
 	public boolean hasNoConstraintViolations(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
 			ArrayList<PropertyValue> uniquePropValueList, Class subjectClass) {
+		long startTime = System.currentTimeMillis();
 		String queryString = constructViolationsCheckQueryStr(applicationName, classValueList, uniquePropValueList,
 				subjectClass);
 		try {
@@ -61,7 +62,7 @@ public class ValidationDao {
 
 			Object integrityCheck = resultSet.getObject("isFound");
 			Object uniquenessCheck = resultSet.getObject("isUnique");
-
+			System.out.println("Time Taken: "+((System.currentTimeMillis() - startTime) / 1000.0));
 			if (integrityCheck != null) {
 				if (Integer.parseInt(integrityCheck.toString()) == 0) {
 					throw new InvalidPropertyValuesException(subjectClass.getName());
