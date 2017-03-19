@@ -14,6 +14,7 @@ import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.exceptions.InvalidPropertyValuesException;
 import com.iotplatform.exceptions.UniqueConstraintViolationException;
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Person;
@@ -294,6 +295,115 @@ public class ValidationDao {
 		stringBuilder.append(" " + filterConditionsStringBuilder.toString() + " }} ");
 
 		return stringBuilder.toString();
+
+	}
+
+	public String constructUniqueContstraintCheckSubQueryStr3(
+			LinkedHashMap<String, ArrayList<PropertyValue>> htblUniquePropValueList, String mainClassPrefixedName) {
+
+		StringBuilder queryBuilder = new StringBuilder();
+		StringBuilder filterConditionsBuilder = new StringBuilder();
+
+		StringBuilder currentGraphPatternBuilder = new StringBuilder();
+
+		ArrayList<PropertyValue> currentClassPropertyValueList = htblUniquePropValueList.get(mainClassPrefixedName);
+
+		queryBuilder.append("?subject0" + " a " + mainClassPrefixedName);
+		int vairableNum = 0;
+		int subjectNum = 1;
+		for (PropertyValue propertyValue : currentClassPropertyValueList) {
+
+			helper(htblUniquePropValueList, mainClassPrefixedName, queryBuilder, filterConditionsBuilder,
+					currentGraphPatternBuilder, propertyValue, vairableNum, subjectNum);
+
+			if (propertyValue.isObject()) {
+				subjectNum++;
+			} else {
+				vairableNum++;
+			}
+
+		}
+		queryBuilder.append(" . \n");
+		queryBuilder.append(currentGraphPatternBuilder.toString());
+		return queryBuilder.toString();
+	}
+
+	public void helper(LinkedHashMap<String, ArrayList<PropertyValue>> htblUniquePropValueList,
+			String currentClassPrefixedName, StringBuilder queryBuilder, StringBuilder filterConditionsBuilder,
+			StringBuilder currentGraphPatternBuilder, PropertyValue propertyValue, int vairableNum, int subjectNum) {
+
+		/*
+		 * The property is an objectProperty and the value is a nestedObject(new
+		 * class object instance that has its own properties and values)
+		 */
+		if (propertyValue.isObject()) {
+			/*
+			 * add property and reference to graph node the represent the object
+			 * value node
+			 * 
+			 * eg. SELECT (COUNT(*) as ?isUnique ) WHERE { ?subject0 a
+			 * iot-platform:Developer ; foaf:knows ?subject1. ?subject1 a
+			 * foaf:Person.
+			 * 
+			 * ?subject1 is the object node reference and is linked to main node
+			 * (?subject0) with objectProperty (foaf:knows)
+			 */
+
+			queryBuilder.append(" ; \n" + propertyValue.getPropertyName() + "  ?subject" + subjectNum);
+
+			/*
+			 * get the value classType which is stored in the value of the
+			 * propertyValue this classType represent the prefiexedClassName of
+			 * the value class type and it was added by RequestValidation class
+			 */
+			String objectClassTypeName = propertyValue.getValue().toString();
+			ArrayList<PropertyValue> propertyValueList = htblUniquePropValueList.get(objectClassTypeName);
+
+			StringBuilder tempBuilder = new StringBuilder();
+
+			tempBuilder.append("?subject" + subjectNum + " a " + objectClassTypeName);
+			subjectNum++;
+
+			for (PropertyValue objectPropertyValue : propertyValueList) {
+				System.out.println(objectPropertyValue.getPropertyName() + "    " + objectPropertyValue.getValue());
+				helper(htblUniquePropValueList, objectClassTypeName, tempBuilder, filterConditionsBuilder,
+						currentGraphPatternBuilder, objectPropertyValue, vairableNum, subjectNum);
+				vairableNum++;
+			}
+			System.out.println("===========================");
+//			System.out.println(tempBuilder.toString());
+//			System.out.println("============================");
+
+			currentGraphPatternBuilder.append(tempBuilder.toString());
+			tempBuilder = new StringBuilder();
+
+		} else {
+			/*
+			 * The property is not an objectProperty it is property that has a
+			 * literal value (the value can be datatype value (eg.
+			 * string,int,float) or a reference to an existed object instance
+			 */
+
+			if (htblUniquePropValueList.get(currentClassPrefixedName)
+					.indexOf(propertyValue) < htblUniquePropValueList.get(currentClassPrefixedName).size() - 1) {
+
+				/*
+				 * it is not the last property so we will end the previous
+				 * triple pattern with ;
+				 */
+
+				queryBuilder.append(" ; \n" + propertyValue.getPropertyName() + "  ?var" + vairableNum);
+
+			} else {
+				/*
+				 * it is the last property so we will end the previous triple
+				 * pattern with ; and this one with .
+				 */
+				queryBuilder.append(" ; \n" + propertyValue.getPropertyName() + "  ?var" + vairableNum + " . \n");
+
+			}
+
+		}
 
 	}
 
