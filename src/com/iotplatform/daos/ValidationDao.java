@@ -54,10 +54,11 @@ public class ValidationDao {
 	 */
 
 	public boolean hasNoConstraintViolations(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
-			LinkedHashMap<String, ArrayList<PropertyValue>> htblUniquePropValueList, Class subjectClass) {
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<PropertyValue>>> htblUniquePropValueList,
+			Class subjectClass, String mainInstanceUniqueIdentifier) {
 
 		String queryString = constructViolationsCheckQueryStr(applicationName, classValueList, htblUniquePropValueList,
-				subjectClass);
+				subjectClass.getPrefix().getPrefix() + subjectClass.getName(), mainInstanceUniqueIdentifier);
 		System.out.println(queryString);
 		try {
 			ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
@@ -113,7 +114,8 @@ public class ValidationDao {
 	 * ,'http://iot-platform#')),null));
 	 */
 	private String constructViolationsCheckQueryStr(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
-			LinkedHashMap<String, ArrayList<PropertyValue>> htblUniquePropValueList, Class subjectClass) {
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<PropertyValue>>> htblUniquePropValueList,
+			String mainClassPrefixedName, String mainInstanceUniqueIdentifier) {
 
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("select isFound,isUnique from table(sem_match('select ?isFound ?isUnique where{ ");
@@ -127,8 +129,8 @@ public class ValidationDao {
 					classValueList);
 
 		if (htblUniquePropValueList.size() > 0)
-			datauniqueConstraintViolationCheckSubQueryStr = constructUniqueContstraintCheckSubQueryStr2(
-					htblUniquePropValueList, subjectClass);
+			datauniqueConstraintViolationCheckSubQueryStr = constructUniqueContstraintCheckSubQueryStr3(
+					htblUniquePropValueList, mainClassPrefixedName, mainInstanceUniqueIdentifier);
 
 		stringBuilder.append(dataIntegrityConstraintVoilationCheckSubQueryStr + "  "
 				+ datauniqueConstraintViolationCheckSubQueryStr);
@@ -326,6 +328,16 @@ public class ValidationDao {
 				.get(mainInstanceUniqueIdentifier);
 
 		/*
+		 * htblPropValue has key prefiexedPropertyName and value
+		 * valueOfProperty.
+		 * 
+		 * It is used to avoid duplicating same triple patterns eg: mbox when
+		 * person has more the one email so I want to add foaf:mbox ?var only
+		 * one time for this instance
+		 */
+		Hashtable<String, Object> htblPropValue = new Hashtable<>();
+
+		/*
 		 * start of the subQuery
 		 */
 		queryBuilder.append("{ SELECT (COUNT(*) as ?isUnique ) WHERE { \n");
@@ -359,12 +371,14 @@ public class ValidationDao {
 		for (PropertyValue propertyValue : currentClassPropertyValueList) {
 
 			helper(htblUniquePropValueList, queryBuilder, filterConditionsBuilder, endGraphPatternBuilder,
-					mainClassPrefixedName, mainInstanceUniqueIdentifier, propertyValue, vairableNum, subjectNum);
+					mainClassPrefixedName, mainInstanceUniqueIdentifier, propertyValue, htblPropValue, vairableNum,
+					subjectNum);
 
 			if (propertyValue.isObject()) {
 				subjectNum[0]++;
 			} else {
-				vairableNum[0]++;
+				if (!htblPropValue.containsKey(propertyValue.getPropertyName()))
+					vairableNum[0]++;
 			}
 
 		}
@@ -404,7 +418,7 @@ public class ValidationDao {
 	public void helper(LinkedHashMap<String, LinkedHashMap<String, ArrayList<PropertyValue>>> htblUniquePropValueList,
 			StringBuilder queryBuilder, StringBuilder filterConditionsBuilder, StringBuilder endGraphPatternBuilder,
 			String currentClassPrefixedName, String currentClassInstanceUniqueIdentifier, PropertyValue propertyValue,
-			int[] vairableNum, int[] subjectNum) {
+			Hashtable<String, Object> htblPropValue, int[] vairableNum, int[] subjectNum) {
 
 		/*
 		 * The property is an objectProperty and the value is a nestedObject(new
@@ -458,11 +472,26 @@ public class ValidationDao {
 			tempBuilder.append("?subject" + subjectNum[0] + " a " + objectClassTypeName);
 			subjectNum[0]++;
 
+			/*
+			 * objectValueHtblPropValue is the same htblPropValue but for this
+			 * objectValueInstance I doing this to keep every instance
+			 * independent from other instance even if more than one instance
+			 * have the same ontology class type
+			 * 
+			 * objectValueHtblPropValue has key prefiexedPropertyName and value
+			 * valueOfProperty.
+			 * 
+			 * It is used to avoid duplicating same triple patterns eg: mbox
+			 * when person has more the one email so I want to add foaf:mbox
+			 * ?var only one time for this instance
+			 */
+			Hashtable<String, Object> objectValueHtblPropValue = new Hashtable<>();
+
 			for (PropertyValue objectPropertyValue : propertyValueList) {
 
 				helper(htblUniquePropValueList, tempBuilder, filterConditionsBuilder, endGraphPatternBuilder,
-						objectClassTypeName, objectVaueUniqueIdentifier, objectPropertyValue, vairableNum, subjectNum);
-				vairableNum[0]++;
+						objectClassTypeName, objectVaueUniqueIdentifier, objectPropertyValue, objectValueHtblPropValue,
+						vairableNum, subjectNum);
 			}
 
 			/*
@@ -479,29 +508,127 @@ public class ValidationDao {
 			tempBuilder = new StringBuilder();
 
 		} else {
+
 			/*
 			 * The property is not an objectProperty it is property that has a
 			 * literal value (the value can be datatype value (eg.
 			 * string,int,float) or a reference to an existed object instance
 			 */
-
 			if (htblUniquePropValueList.get(currentClassPrefixedName).get(currentClassInstanceUniqueIdentifier)
 					.indexOf(propertyValue) < htblUniquePropValueList.get(currentClassPrefixedName)
 							.get(currentClassInstanceUniqueIdentifier).size() - 1) {
 
 				/*
-				 * it is not the last property so we will end the previous
-				 * triple pattern with ;
+				 * Check if the prefixedPropertyName of this instance was added
+				 * before
+				 */
+				if (!htblPropValue.containsKey(propertyValue.getPropertyName())) {
+
+					/*
+					 * if we add a new graph pattern (by checking if the
+					 * prefixedPropertyName was not added before for this
+					 * current instance) then increment the variableNum[0]
+					 * 
+					 * add prifixedPropertyName to htblPropValue to avoid
+					 * duplicating it again for this instance
+					 * 
+					 * I do this after adding filter condition and graph pattern
+					 * to maintain the same variableNames between graph pattern
+					 * added and condtion
+					 */
+					if (!htblPropValue.containsKey(propertyValue.getPropertyName())) {
+						htblPropValue.put(propertyValue.getPropertyName(), "?var" + vairableNum[0]);
+						vairableNum[0]++;
+					}
+
+					/*
+					 * it is not the last property so we will end the previous
+					 * triple pattern with ;
+					 */
+					queryBuilder.append(" ; \n" + propertyValue.getPropertyName() + "  "
+							+ htblPropValue.get(propertyValue.getPropertyName()));
+
+				}
+
+				/*
+				 * I will add condition for every value no duplicate removing
+				 * here even if there are more than value for a property of the
+				 * same instance
+				 * 
+				 * eg. foaf:mbox ?var0 ; FILTER ( || LCASE( ?var0) =
+				 * "haytham.ismails@gmail.com" || LCASE( ?var0) =
+				 * "haytham.ismails@student.guc.edu.eg")
+				 * 
+				 * check is the value is a string value to make add ""
 				 */
 
-				queryBuilder.append(" ; \n" + propertyValue.getPropertyName() + "  ?var" + vairableNum[0]);
+				if (propertyValue.getPropertyName() instanceof String) {
+					filterConditionsBuilder.append(" \n LCASE( " + htblPropValue.get(propertyValue.getPropertyName())
+							+ ") = \"" + propertyValue.getValue().toString().toLowerCase() + "\" || ");
+				} else {
+					filterConditionsBuilder.append(" \n  LCASE( " + htblPropValue.get(propertyValue.getPropertyName())
+							+ ") = " + propertyValue.getValue().toString().toLowerCase() + " ||");
+				}
 
 			} else {
+
+				if (!htblPropValue.containsKey(propertyValue.getPropertyName())) {
+
+					/*
+					 * if we add a new graph pattern (by checking if the
+					 * prefixedPropertyName was not added before for this
+					 * current instance) then increment the variableNum[0]
+					 * 
+					 * add prifixedPropertyName to htblPropValue to avoid
+					 * duplicating it again for this instance
+					 * 
+					 * I do this after adding filter condition and graph pattern
+					 * to maintain the same variableNames between graph pattern
+					 * added and condtion
+					 */
+					if (!htblPropValue.containsKey(propertyValue.getPropertyName())) {
+						htblPropValue.put(propertyValue.getPropertyName(), "?var" + vairableNum[0]);
+						vairableNum[0]++;
+					}
+
+					/*
+					 * it is the last property so we will end the previous
+					 * triple pattern with ; and this one with .
+					 */
+					queryBuilder.append(" ; \n" + propertyValue.getPropertyName() + "  "
+							+ htblPropValue.get(propertyValue.getPropertyName()) + " . \n");
+
+				} else {
+
+					/*
+					 * end the previous triple pattern with .
+					 * 
+					 * Because after checking it was found that the end
+					 * prefixedPropertyName was added before to this instance's
+					 * graph patterns
+					 */
+					queryBuilder.append(" . \n");
+				}
+
 				/*
-				 * it is the last property so we will end the previous triple
-				 * pattern with ; and this one with .
+				 * I will add condition for every value no duplicate removing
+				 * here even if there are more than value for a property of the
+				 * same instance
+				 * 
+				 * eg. foaf:mbox ?var0 ; FILTER ( || LCASE( ?var0) =
+				 * "haytham.ismails@gmail.com" || LCASE( ?var0) =
+				 * "haytham.ismails@student.guc.edu.eg")
+				 * 
+				 * check is the value is a string value to make add ""
 				 */
-				queryBuilder.append(" ; \n" + propertyValue.getPropertyName() + "  ?var" + vairableNum[0] + " . \n");
+
+				if (propertyValue.getPropertyName() instanceof String) {
+					filterConditionsBuilder.append(" \n LCASE( " + htblPropValue.get(propertyValue.getPropertyName())
+							+ ") = \"" + propertyValue.getValue().toString().toLowerCase() + "\" ");
+				} else {
+					filterConditionsBuilder.append(" \n  LCASE( " + htblPropValue.get(propertyValue.getPropertyName())
+							+ ") = " + propertyValue.getValue().toString().toLowerCase());
+				}
 
 			}
 
