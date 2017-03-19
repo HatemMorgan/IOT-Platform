@@ -14,22 +14,31 @@ public class ValueOfFieldNotMappedToStaticProperty {
 	 * properties and waiting to be checked against dynamic properties after
 	 * being loaded)
 	 */
-	Class propertyClass;
+	private Class propertyClass;
 
 	/*
 	 * value of the notMappedField
 	 */
-	Object propertyValue;
+	private Object propertyValue;
 
 	/*
 	 * index of instance in the propertyClass instancesList
 	 */
-	int classInstanceIndex;
+	private int classInstanceIndex;
 
-	public ValueOfFieldNotMappedToStaticProperty(Class propertyClass, Object propertyValue, int classInstanceIndex) {
+	/*
+	 * randomID is a random generated ID to represent the subjectInstance of
+	 * this property this randomID is used in uniqueConstraint Validation to
+	 * reference the uniquePropertyValues of the instance that has this property
+	 */
+	private String randomID;
+
+	public ValueOfFieldNotMappedToStaticProperty(Class propertyClass, Object propertyValue, int classInstanceIndex,
+			String randomID) {
 		this.propertyClass = propertyClass;
 		this.propertyValue = propertyValue;
 		this.classInstanceIndex = classInstanceIndex;
+		this.randomID = randomID;
 	}
 
 	public Class getPropertyClass() {
@@ -42,6 +51,10 @@ public class ValueOfFieldNotMappedToStaticProperty {
 
 	public int getClassInstanceIndex() {
 		return classInstanceIndex;
+	}
+
+	public String getRandomID() {
+		return randomID;
 	}
 
 }

@@ -1,7 +1,5 @@
 package com.iotplatform.utilities;
 
-import com.iotplatform.ontology.Class;
-
 /*
  * PropertyValue class is used to create instances which has a propertyName and an object value and a boolean isObject which
  * specifies if the value was object or just a datatype value (eg. string,int,etc.)
@@ -15,7 +13,10 @@ import com.iotplatform.ontology.Class;
 
 public class PropertyValue {
 
-	private Class subjectClass;
+	/*
+	 * the prefixedName of objectValue class type
+	 */
+	private String prefixedObjectValueClassName;
 	private String propertyName;
 	private Object value;
 	private boolean isObject;
@@ -32,6 +33,13 @@ public class PropertyValue {
 	}
 
 	public PropertyValue(Object value, boolean isObject) {
+		this.value = value;
+		this.isObject = isObject;
+	}
+
+	public PropertyValue(String prefixedObjectValueClassName, String propertyName, Object value, boolean isObject) {
+		this.prefixedObjectValueClassName = prefixedObjectValueClassName;
+		this.propertyName = propertyName;
 		this.value = value;
 		this.isObject = isObject;
 	}
@@ -56,22 +64,18 @@ public class PropertyValue {
 		return isObject;
 	}
 
-	public Class getSubjectClass() {
-		return subjectClass;
-	}
-
-	public void setSubjectClass(Class subjectClass) {
-		this.subjectClass = subjectClass;
-	}
-
 	public void setObject(boolean isObject) {
 		this.isObject = isObject;
 	}
 
+	public String getPrefixedObjectValueClassName() {
+		return prefixedObjectValueClassName;
+	}
+
 	@Override
 	public String toString() {
-		return "PropertyValue [subjectClass=" + subjectClass + ", propertyName=" + propertyName + ", value=" + value
-				+ ", isObject=" + isObject + "]";
+		return "PropertyValue [prefixedClassName=" + prefixedObjectValueClassName + ", propertyName=" + propertyName
+				+ ", value=" + value + ", isObject=" + isObject + "]";
 	}
 
 }
