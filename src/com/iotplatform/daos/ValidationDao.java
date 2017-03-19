@@ -299,44 +299,119 @@ public class ValidationDao {
 	}
 
 	public String constructUniqueContstraintCheckSubQueryStr3(
-			LinkedHashMap<String, ArrayList<PropertyValue>> htblUniquePropValueList, String mainClassPrefixedName) {
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<PropertyValue>>> htblUniquePropValueList,
+			String mainClassPrefixedName, String mainInstanceUniqueIdentifier) {
 
+		/*
+		 * main builder for dynamically building the query
+		 */
 		StringBuilder queryBuilder = new StringBuilder();
+
+		/*
+		 * filterConditionsBuilder is for building filter conditions
+		 */
 		StringBuilder filterConditionsBuilder = new StringBuilder();
 
-		StringBuilder currentGraphPatternBuilder = new StringBuilder();
+		/*
+		 * endGraphPatternBuilder is for building other graph nodes and patterns
+		 * and add them to the end of the main graph pattern
+		 */
+		StringBuilder endGraphPatternBuilder = new StringBuilder();
 
-		ArrayList<PropertyValue> currentClassPropertyValueList = htblUniquePropValueList.get(mainClassPrefixedName);
+		/*
+		 * Getting propertyList of the main subject(this list constructs the
+		 * main graph pattern)
+		 */
+		ArrayList<PropertyValue> currentClassPropertyValueList = htblUniquePropValueList.get(mainClassPrefixedName)
+				.get(mainInstanceUniqueIdentifier);
 
+		/*
+		 * start of the subQuery
+		 */
+		queryBuilder.append("{ SELECT (COUNT(*) as ?isUnique ) WHERE { \n");
+
+		/*
+		 * start of filter part
+		 */
+		filterConditionsBuilder.append(" FILTER ( ");
+
+		/*
+		 * start of the query graph patterns (this triple pattern minimize
+		 * search area because of specifing that the first subject variable
+		 * (?subject0) is of type certin class )
+		 */
 		queryBuilder.append("?subject0" + " a " + mainClassPrefixedName);
-		int vairableNum = 0;
-		int subjectNum = 1;
+
+		/*
+		 * counters that are used to assign different variables .
+		 * 
+		 * They must be arrays of integers in order to be able to pass by
+		 * reference
+		 */
+		int[] vairableNum = { 0 };
+		int[] subjectNum = { 1 };
+
+		/*
+		 * iterating on the propertyList of the main subject to construct the
+		 * main graph pattern and break through values recursively to construct
+		 * other graph nodes and patterns using endGraphPatternBuilder
+		 */
 		for (PropertyValue propertyValue : currentClassPropertyValueList) {
 
-			helper(htblUniquePropValueList, mainClassPrefixedName, queryBuilder, filterConditionsBuilder,
-					currentGraphPatternBuilder, propertyValue, vairableNum, subjectNum);
+			helper(htblUniquePropValueList, queryBuilder, filterConditionsBuilder, endGraphPatternBuilder,
+					mainClassPrefixedName, mainInstanceUniqueIdentifier, propertyValue, vairableNum, subjectNum);
 
 			if (propertyValue.isObject()) {
-				subjectNum++;
+				subjectNum[0]++;
 			} else {
-				vairableNum++;
+				vairableNum[0]++;
 			}
 
 		}
+
+		/*
+		 * end of the main graph pattern
+		 */
 		queryBuilder.append(" . \n");
-		queryBuilder.append(currentGraphPatternBuilder.toString());
+
+		/*
+		 * Appending the endGraphPatternBuilder to the end of the queryBuilder
+		 */
+		queryBuilder.append(endGraphPatternBuilder.toString());
+
+		filterConditionsBuilder.append(" )");
+
+		/*
+		 * complete end of the subquery structure
+		 */
+		queryBuilder.append(" " + filterConditionsBuilder.toString() + " \n }} ");
+
 		return queryBuilder.toString();
 	}
 
-	public void helper(LinkedHashMap<String, ArrayList<PropertyValue>> htblUniquePropValueList,
-			String currentClassPrefixedName, StringBuilder queryBuilder, StringBuilder filterConditionsBuilder,
-			StringBuilder currentGraphPatternBuilder, PropertyValue propertyValue, int vairableNum, int subjectNum) {
+	/*
+	 * A recursive method that construct the uniqueConstraintCheck query
+	 * 
+	 * it takes the reference of
+	 * htblUniquePropValueList,queryBuilder,filterConditionsBuilder and
+	 * endGraphPatternBuilder to construct query
+	 * 
+	 * It also recursively take propertyValue and currentClassPrefixedName to
+	 * breakdown all values and construct a proper graph patterns and filter in
+	 * the query
+	 * 
+	 */
+	public void helper(LinkedHashMap<String, LinkedHashMap<String, ArrayList<PropertyValue>>> htblUniquePropValueList,
+			StringBuilder queryBuilder, StringBuilder filterConditionsBuilder, StringBuilder endGraphPatternBuilder,
+			String currentClassPrefixedName, String currentClassInstanceUniqueIdentifier, PropertyValue propertyValue,
+			int[] vairableNum, int[] subjectNum) {
 
 		/*
 		 * The property is an objectProperty and the value is a nestedObject(new
 		 * class object instance that has its own properties and values)
 		 */
 		if (propertyValue.isObject()) {
+
 			/*
 			 * add property and reference to graph node the represent the object
 			 * value node
@@ -348,33 +423,59 @@ public class ValidationDao {
 			 * ?subject1 is the object node reference and is linked to main node
 			 * (?subject0) with objectProperty (foaf:knows)
 			 */
-
-			queryBuilder.append(" ; \n" + propertyValue.getPropertyName() + "  ?subject" + subjectNum);
+			queryBuilder.append(" ; \n" + propertyValue.getPropertyName() + "  ?subject" + subjectNum[0]);
 
 			/*
-			 * get the value classType which is stored in the value of the
-			 * propertyValue this classType represent the prefiexedClassName of
-			 * the value class type and it was added by RequestValidation class
+			 * get the value classType which is stored in the
+			 * prefixedObjectValueClassName of the propertyValue this classType
+			 * represent the prefiexedClassName of the value class type and it
+			 * was added by RequestValidation class
 			 */
-			String objectClassTypeName = propertyValue.getValue().toString();
-			ArrayList<PropertyValue> propertyValueList = htblUniquePropValueList.get(objectClassTypeName);
+			String objectClassTypeName = propertyValue.getPrefixedObjectValueClassName();
 
+			/*
+			 * get the uniqueIdentifer of the objectProperty inOrder to
+			 * breakDown the nestedObject to construct Recursively the query
+			 */
+			String objectVaueUniqueIdentifier = propertyValue.getValue().toString();
+
+			/*
+			 * get the objectValueInstance's propertyValueList
+			 */
+			ArrayList<PropertyValue> propertyValueList = htblUniquePropValueList.get(objectClassTypeName)
+					.get(objectVaueUniqueIdentifier);
+
+			/*
+			 * is for building other graph nodes and patterns and add them to
+			 * the end of the main graph pattern ( graph pattern with node
+			 * representing the subjectClassInstance of the nestedObjectValue )
+			 */
 			StringBuilder tempBuilder = new StringBuilder();
 
-			tempBuilder.append("?subject" + subjectNum + " a " + objectClassTypeName);
-			subjectNum++;
+			/*
+			 * start the new graph pattern that will be added to the end
+			 */
+			tempBuilder.append("?subject" + subjectNum[0] + " a " + objectClassTypeName);
+			subjectNum[0]++;
 
 			for (PropertyValue objectPropertyValue : propertyValueList) {
-				System.out.println(objectPropertyValue.getPropertyName() + "    " + objectPropertyValue.getValue());
-				helper(htblUniquePropValueList, objectClassTypeName, tempBuilder, filterConditionsBuilder,
-						currentGraphPatternBuilder, objectPropertyValue, vairableNum, subjectNum);
-				vairableNum++;
-			}
-			System.out.println("===========================");
-//			System.out.println(tempBuilder.toString());
-//			System.out.println("============================");
 
-			currentGraphPatternBuilder.append(tempBuilder.toString());
+				helper(htblUniquePropValueList, tempBuilder, filterConditionsBuilder, endGraphPatternBuilder,
+						objectClassTypeName, objectVaueUniqueIdentifier, objectPropertyValue, vairableNum, subjectNum);
+				vairableNum[0]++;
+			}
+
+			/*
+			 * append tempBuilder to endGraphPatternBuilder to add the
+			 * nestedObject Patterns to the end of its main patterns (above
+			 * graph node that has relation to nestedObject node)
+			 */
+			endGraphPatternBuilder.append(tempBuilder.toString());
+
+			/*
+			 * ReIntialize tempBuilder to remove all what was builded on it to
+			 * be used again
+			 */
 			tempBuilder = new StringBuilder();
 
 		} else {
@@ -384,22 +485,23 @@ public class ValidationDao {
 			 * string,int,float) or a reference to an existed object instance
 			 */
 
-			if (htblUniquePropValueList.get(currentClassPrefixedName)
-					.indexOf(propertyValue) < htblUniquePropValueList.get(currentClassPrefixedName).size() - 1) {
+			if (htblUniquePropValueList.get(currentClassPrefixedName).get(currentClassInstanceUniqueIdentifier)
+					.indexOf(propertyValue) < htblUniquePropValueList.get(currentClassPrefixedName)
+							.get(currentClassInstanceUniqueIdentifier).size() - 1) {
 
 				/*
 				 * it is not the last property so we will end the previous
 				 * triple pattern with ;
 				 */
 
-				queryBuilder.append(" ; \n" + propertyValue.getPropertyName() + "  ?var" + vairableNum);
+				queryBuilder.append(" ; \n" + propertyValue.getPropertyName() + "  ?var" + vairableNum[0]);
 
 			} else {
 				/*
 				 * it is the last property so we will end the previous triple
 				 * pattern with ; and this one with .
 				 */
-				queryBuilder.append(" ; \n" + propertyValue.getPropertyName() + "  ?var" + vairableNum + " . \n");
+				queryBuilder.append(" ; \n" + propertyValue.getPropertyName() + "  ?var" + vairableNum[0] + " . \n");
 
 			}
 

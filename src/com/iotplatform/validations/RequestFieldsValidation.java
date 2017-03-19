@@ -410,11 +410,10 @@ public class RequestFieldsValidation {
 
 			System.out.println("===============================================");
 			System.out.println(htblUniquePropValueList);
-			// String s =
-			// validationDao.constructUniqueContstraintCheckSubQueryStr3(htblUniquePropValueList,
-			// subjectClass.getPrefix().getPrefix() + subjectClass.getName());
-			// System.out.println("===============================================");
-			// System.out.println(s);
+			String s = validationDao.constructUniqueContstraintCheckSubQueryStr3(htblUniquePropValueList,
+					subjectClass.getPrefix().getPrefix() + subjectClass.getName(), randomID);
+			System.out.println("===============================================");
+			System.out.println(s);
 
 		}
 
@@ -593,6 +592,15 @@ public class RequestFieldsValidation {
 					 * object instance
 					 */
 					if (objectValueProperty != null && objectValueSubject != null) {
+
+						/*
+						 * new PropertyValue instance created has the
+						 * prefixedClassTypeName of the objectValue, the
+						 * prefiexedPropertyName, uniqueIdentfier of
+						 * objectValueInstance and setting that the value was an
+						 * object to be treated that there is a nestedObject for
+						 * this property
+						 */
 						htblUniquePropValueList.get(objectValueSubject).get(objectValueUniqueIdentifier)
 								.add(new PropertyValue(
 										((ObjectProperty) objectValueProperty).getObject().getPrefix().getPrefix()
