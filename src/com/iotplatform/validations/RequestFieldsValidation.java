@@ -402,11 +402,10 @@ public class RequestFieldsValidation {
 			 * returned
 			 */
 
-			// if (validationDao.hasNoConstraintViolations(applicationName,
-			// classValueList, htblUniquePropValueList,
-			// subjectClass)) {
-			// return htblClassPropertyValue;
-			// }
+//			if (validationDao.hasNoConstraintViolations(applicationName, classValueList, htblUniquePropValueList,
+//					subjectClass,randomID)) {
+//				return htblClassPropertyValue;
+//			}
 
 			System.out.println("===============================================");
 			System.out.println(htblUniquePropValueList);
@@ -1029,7 +1028,7 @@ public class RequestFieldsValidation {
 			}
 			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
 		}
-
+		System.out.println(dynamicProperties.toString());
 		return dynamicProperties;
 	}
 

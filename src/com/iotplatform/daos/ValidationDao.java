@@ -343,11 +343,6 @@ public class ValidationDao {
 		queryBuilder.append("{ SELECT (COUNT(*) as ?isUnique ) WHERE { \n");
 
 		/*
-		 * start of filter part
-		 */
-		filterConditionsBuilder.append(" FILTER ( ");
-
-		/*
 		 * start of the query graph patterns (this triple pattern minimize
 		 * search area because of specifing that the first subject variable
 		 * (?subject0) is of type certin class )
@@ -550,26 +545,6 @@ public class ValidationDao {
 
 				}
 
-				/*
-				 * I will add condition for every value no duplicate removing
-				 * here even if there are more than value for a property of the
-				 * same instance
-				 * 
-				 * eg. foaf:mbox ?var0 ; FILTER ( || LCASE( ?var0) =
-				 * "haytham.ismails@gmail.com" || LCASE( ?var0) =
-				 * "haytham.ismails@student.guc.edu.eg")
-				 * 
-				 * check is the value is a string value to make add ""
-				 */
-
-				if (propertyValue.getPropertyName() instanceof String) {
-					filterConditionsBuilder.append(" \n LCASE( " + htblPropValue.get(propertyValue.getPropertyName())
-							+ ") = \"" + propertyValue.getValue().toString().toLowerCase() + "\" || ");
-				} else {
-					filterConditionsBuilder.append(" \n  LCASE( " + htblPropValue.get(propertyValue.getPropertyName())
-							+ ") = " + propertyValue.getValue().toString().toLowerCase() + " ||");
-				}
-
 			} else {
 
 				if (!htblPropValue.containsKey(propertyValue.getPropertyName())) {
@@ -610,6 +585,15 @@ public class ValidationDao {
 					queryBuilder.append(" . \n");
 				}
 
+			}
+
+			if (filterConditionsBuilder.length() == 0) {
+
+				/*
+				 * start of filter part
+				 */
+				filterConditionsBuilder.append(" FILTER ( ");
+
 				/*
 				 * I will add condition for every value no duplicate removing
 				 * here even if there are more than value for a property of the
@@ -624,14 +608,20 @@ public class ValidationDao {
 
 				if (propertyValue.getPropertyName() instanceof String) {
 					filterConditionsBuilder.append(" \n LCASE( " + htblPropValue.get(propertyValue.getPropertyName())
-							+ ") = \"" + propertyValue.getValue().toString().toLowerCase() + "\" ");
+							+ ") = \"" + propertyValue.getValue().toString().toLowerCase() + "\"");
 				} else {
 					filterConditionsBuilder.append(" \n  LCASE( " + htblPropValue.get(propertyValue.getPropertyName())
 							+ ") = " + propertyValue.getValue().toString().toLowerCase());
 				}
-
+			} else {
+				if (propertyValue.getPropertyName() instanceof String) {
+					filterConditionsBuilder.append("|| \n LCASE( " + htblPropValue.get(propertyValue.getPropertyName())
+							+ ") = \"" + propertyValue.getValue().toString().toLowerCase() + "\"");
+				} else {
+					filterConditionsBuilder.append("|| \n  LCASE( " + htblPropValue.get(propertyValue.getPropertyName())
+							+ ") = " + propertyValue.getValue().toString().toLowerCase());
+				}
 			}
-
 		}
 
 	}
