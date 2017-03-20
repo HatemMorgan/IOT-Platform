@@ -24,8 +24,9 @@ public class Person extends Agent {
 	 * the parameter String nothing will be passed always with null
 	 * 
 	 * I have done this overloaded constructor to instantiate the static
-	 * systemInstance to avoid java.lang.StackOverflowError exception that Occur
-	 * when calling init() to add properties to systemInstance
+	 * personInstance to avoid java.lang.StackOverflowError exception that Occur
+	 * when calling init() to add properties to PersonInstance (because knows
+	 * property has domain Person and range Person also)
 	 * 
 	 */
 	public Person(String nothing) {
@@ -82,6 +83,10 @@ public class Person extends Agent {
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "knows", "knows");
 
 		this.getSuperClassesList().add(Agent.getAgentInstance());
+
+		this.getClassTypesList().put("Developer", Developer.getDeveloperInstance());
+		this.getClassTypesList().put("Admin", Admin.getAdminInstance());
+		this.getClassTypesList().put("MaintenanceSchedule", maintenanceSchedule);
 
 	}
 

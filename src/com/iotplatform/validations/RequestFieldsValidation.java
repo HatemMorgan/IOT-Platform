@@ -402,17 +402,17 @@ public class RequestFieldsValidation {
 			 * returned
 			 */
 
-//			if (validationDao.hasNoConstraintViolations(applicationName, classValueList, htblUniquePropValueList,
-//					subjectClass,randomID)) {
-//				return htblClassPropertyValue;
-//			}
+			if (validationDao.hasNoConstraintViolations(applicationName, classValueList, htblUniquePropValueList,
+					subjectClass, randomID)) {
+				return htblClassPropertyValue;
+			}
 
-			System.out.println("===============================================");
-			System.out.println(htblUniquePropValueList);
-			String s = validationDao.constructUniqueContstraintCheckSubQueryStr3(htblUniquePropValueList,
-					subjectClass.getPrefix().getPrefix() + subjectClass.getName(), randomID);
-			System.out.println("===============================================");
-			System.out.println(s);
+//			System.out.println("===============================================");
+//			System.out.println(htblUniquePropValueList);
+//			String s = validationDao.constructUniqueContstraintCheckSubQueryStr3(htblUniquePropValueList,
+//					subjectClass.getPrefix().getPrefix() + subjectClass.getName(), randomID);
+//			System.out.println("===============================================");
+//			System.out.println(s);
 
 		}
 
@@ -1409,20 +1409,18 @@ public class RequestFieldsValidation {
 					.validateRequestFields("TESTAPPLICATION", htblFieldValue, new Developer());
 
 			System.out.println("Time Taken: " + ((System.currentTimeMillis() - startTime) / 1000.0));
-			//
-			// Iterator<Class> iterator =
-			// htblClassPropertyValue.keySet().iterator();
-			// while (iterator.hasNext()) {
-			// Class clss = iterator.next();
-			// System.out.println(clss.getName() + "[ ");
-			// ArrayList<ArrayList<PropertyValue>> list =
-			// htblClassPropertyValue.get(clss);
-			// for (ArrayList<PropertyValue> arrayList : list) {
-			// System.out.print(arrayList);
-			// System.out.println();
-			// }
-			// System.out.println(" ]");
-			// }
+
+			Iterator<Class> iterator = htblClassPropertyValue.keySet().iterator();
+			while (iterator.hasNext()) {
+				Class clss = iterator.next();
+				System.out.println(clss.getName() + "[ ");
+				ArrayList<ArrayList<PropertyValue>> list = htblClassPropertyValue.get(clss);
+				for (ArrayList<PropertyValue> arrayList : list) {
+					System.out.print(arrayList);
+					System.out.println();
+				}
+				System.out.println(" ]");
+			}
 
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());

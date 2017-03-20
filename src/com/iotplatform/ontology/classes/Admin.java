@@ -12,10 +12,47 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class Admin extends Person {
 
+	private static Admin adminInstance;
+
 	public Admin() {
 		super("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM);
 
-		this.getProperties().put("adminOf", new ObjectProperty("adminOf", Prefixes.IOT_PLATFORM,
+		init();
+	}
+
+	/*
+	 * This constructor is used to perform overloading constructor technique and
+	 * the parameter String nothing will be passed always with null
+	 * 
+	 * I have done this overloaded constructor to instantiate the static
+	 * adminInstance to avoid java.lang.StackOverflowError exception that Occur
+	 * when calling init() to add properties to adminInstance
+	 * 
+	 */
+	public Admin(String nothing) {
+		super("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM);
+	}
+
+	public synchronized static Admin getAdminInstance() {
+		if (adminInstance == null) {
+			adminInstance = new Admin(null);
+			initAdminStaticInstance(adminInstance);
+		}
+
+		return adminInstance;
+	}
+
+	private static void initAdminStaticInstance(Admin adminInstance) {
+		adminInstance.getProperties().put("adminOf", new ObjectProperty("adminOf", Prefixes.IOT_PLATFORM,
+				Application.getApplicationInstance(), false, false));
+
+		adminInstance.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "adminOf", "adminOf");
+
+		adminInstance.getSuperClassesList().add(Person.getPersonInstance());
+	}
+
+	private void init() {
+		super.getProperties().put("adminOf", new ObjectProperty("adminOf", Prefixes.IOT_PLATFORM,
 				Application.getApplicationInstance(), false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "adminOf", "adminOf");
