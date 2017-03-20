@@ -16,8 +16,8 @@ public class Admin extends Person {
 
 	public Admin() {
 		super("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM);
-
-		init();
+		super.initPerson();
+		initAdmin();
 	}
 
 	/*
@@ -51,7 +51,7 @@ public class Admin extends Person {
 		adminInstance.getSuperClassesList().add(Person.getPersonInstance());
 	}
 
-	private void init() {
+	private void initAdmin() {
 		super.getProperties().put("adminOf", new ObjectProperty("adminOf", Prefixes.IOT_PLATFORM,
 				Application.getApplicationInstance(), false, false));
 

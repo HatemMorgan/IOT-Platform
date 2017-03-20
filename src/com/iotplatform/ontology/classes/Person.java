@@ -16,7 +16,8 @@ public class Person extends Agent {
 	public Person() {
 		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF,
 				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
-		init();
+		super.init();
+		initPerson();
 	}
 
 	/*
@@ -32,12 +33,14 @@ public class Person extends Agent {
 	public Person(String nothing) {
 		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF,
 				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		super.init();
 	}
 
 	public Person(String name, String uri, Prefixes prefix) {
 		super(name, uri, prefix,
 				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
-		init();
+		super.init();
+		initPerson();
 
 	}
 
@@ -51,7 +54,7 @@ public class Person extends Agent {
 		return personInstance;
 	}
 
-	private void init() {
+	public void initPerson() {
 
 		this.getProperties().put("age",
 				new DataTypeProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed, false, false));
@@ -86,7 +89,7 @@ public class Person extends Agent {
 
 		this.getClassTypesList().put("Developer", Developer.getDeveloperInstance());
 		this.getClassTypesList().put("Admin", Admin.getAdminInstance());
-		this.getClassTypesList().put("MaintenanceSchedule", maintenanceSchedule);
+		this.getClassTypesList().put("NormalUser", NormalUser.getNormalUserInstance());
 
 	}
 
@@ -121,6 +124,10 @@ public class Person extends Agent {
 		personInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "knows", "knows");
 
 		personInstance.getSuperClassesList().add(Agent.getAgentInstance());
+
+		personInstance.getClassTypesList().put("Developer", Developer.getDeveloperInstance());
+		personInstance.getClassTypesList().put("Admin", Admin.getAdminInstance());
+		personInstance.getClassTypesList().put("NormalUser", NormalUser.getNormalUserInstance());
 	}
 
 }

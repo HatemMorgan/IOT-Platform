@@ -16,7 +16,8 @@ public class NormalUser extends Person {
 
 	public NormalUser() {
 		super("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM);
-		init();
+		super.initPerson();
+		initNormalUser();
 	}
 
 	/*
@@ -51,7 +52,7 @@ public class NormalUser extends Person {
 		normalUserInstance.getSuperClassesList().add(Person.getPersonInstance());
 	}
 
-	private void init() {
+	private void initNormalUser() {
 		super.getProperties().put("usesApplication", new ObjectProperty("usesApplication", Prefixes.IOT_PLATFORM,
 				Application.getApplicationInstance(), false, false));
 

@@ -15,10 +15,23 @@ import com.iotplatform.ontology.XSDDataTypes;
 @Component
 public class Group extends Agent {
 
+	private static Group groupInstance;
+
 	public Group() {
 		super("Group", "http://xmlns.com/foaf/0.1/Group", Prefixes.FOAF,
 				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		initGroup();
+	}
 
+	public synchronized static Group getGroupInstance() {
+		if (groupInstance == null) {
+			groupInstance = new Group();
+		}
+
+		return groupInstance;
+	}
+
+	private void initGroup() {
 		super.getProperties().put("name",
 				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
 		super.getProperties().put("description",
@@ -31,7 +44,6 @@ public class Group extends Agent {
 		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "member", "member");
 
 		super.getSuperClassesList().add(Agent.getAgentInstance());
-
 	}
 
 }

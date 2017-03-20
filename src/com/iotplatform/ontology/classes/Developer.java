@@ -18,7 +18,8 @@ public class Developer extends Person {
 
 	public Developer() {
 		super("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM);
-		init();
+		super.initPerson();
+		initDeveloper();
 	}
 
 	/*
@@ -53,7 +54,7 @@ public class Developer extends Person {
 		developerInstance.getSuperClassesList().add(Person.getPersonInstance());
 	}
 
-	private void init() {
+	private void initDeveloper() {
 		super.getProperties().put("developedApplication", new ObjectProperty("developedApplication",
 				Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
