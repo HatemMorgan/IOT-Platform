@@ -49,6 +49,7 @@ public class Person extends Agent {
 	public synchronized static Person getPersonInstance() {
 
 		if (personInstance == null) {
+			System.out.println("heree");
 			personInstance = new Person(null);
 			initPersonStaticInstance(personInstance);
 			initPersonStaticInstanceTypeClasses(personInstance);
@@ -180,8 +181,10 @@ public class Person extends Agent {
 
 	public static void main(String[] args) {
 		Person person = new Person();
-		System.out.println(Person.getPersonInstance().getProperties().size());
-		System.out.println(person.getProperties().size());
+		
+		
+		// System.out.println(Person.getPersonInstance().getProperties().size());
+		// System.out.println(person.getProperties().size());
 
 		// System.out.println(person.getClassTypesList().get("NormalUser").getProperties().size());
 		// System.out.println(Person.getPersonInstance().getClassTypesList().get("NormalUser").getProperties().size());

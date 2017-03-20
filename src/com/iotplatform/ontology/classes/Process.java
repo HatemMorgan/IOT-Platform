@@ -17,9 +17,19 @@ import com.iotplatform.ontology.XSDDataTypes;
 @Component
 public class Process extends Class {
 
+	private static Process processInstance;
+
 	public Process(String name, String uri, Prefixes prefix) {
 		super(name, uri, prefix, null);
 		init();
+	}
+
+	public synchronized static Process getProcessInstance() {
+		if (processInstance == null) {
+			processInstance = new Process();
+		}
+
+		return processInstance;
 	}
 
 	public Process() {

@@ -16,9 +16,19 @@ import com.iotplatform.ontology.XSDDataTypes;
 @Component
 public class ObjectClass extends Class {
 
+	private static ObjectClass objectClassInstance;
+
 	public ObjectClass() {
 		super("Object", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Object", Prefixes.IOT_LITE, null);
 		init();
+	}
+
+	public synchronized static ObjectClass getObjectClassInstance() {
+		if (objectClassInstance == null) {
+			objectClassInstance = new ObjectClass();
+		}
+
+		return objectClassInstance;
 	}
 
 	private void init() {

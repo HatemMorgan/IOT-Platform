@@ -16,10 +16,18 @@ import com.iotplatform.ontology.XSDDataTypes;
 @Component
 public class Input extends Class {
 
+	private static Input inputInstance;
+
 	public Input() {
-		super("Input", "http://purl.oclc.org/NET/ssnx/ssn#Input", Prefixes.SSN,
-				null);
+		super("Input", "http://purl.oclc.org/NET/ssnx/ssn#Input", Prefixes.SSN, null);
 		init();
+	}
+
+	public synchronized static Input getInputInstance() {
+		if (inputInstance == null)
+			inputInstance = new Input();
+
+		return inputInstance;
 	}
 
 	private void init() {

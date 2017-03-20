@@ -16,9 +16,19 @@ import com.iotplatform.ontology.XSDDataTypes;
 @Component
 public class Output extends Class {
 
+	private static Output outputInstance;
+
 	public Output() {
 		super("Output", "http://purl.oclc.org/NET/ssnx/ssn#Output", Prefixes.SSN, null);
 		init();
+	}
+
+	public synchronized static Output getOutputInstance() {
+		if (outputInstance == null) {
+			outputInstance = new Output();
+		}
+
+		return outputInstance;
 	}
 
 	private void init() {

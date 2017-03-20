@@ -17,10 +17,20 @@ import com.iotplatform.ontology.XSDDataTypes;
 @Component
 public class ObservationValue extends Class {
 
+	private static ObservationValue observationValueInstance;
+
 	public ObservationValue() {
 		super("ObservationValue", "http://purl.oclc.org/NET/ssnx/ssn#ObservationValue", Prefixes.SSN, null);
 		init();
 
+	}
+
+	public synchronized static ObservationValue getObservationValueInstance() {
+		if (observationValueInstance == null) {
+			observationValueInstance = new ObservationValue();
+		}
+
+		return observationValueInstance;
 	}
 
 	private void init() {

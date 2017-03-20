@@ -13,8 +13,17 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class TagDevice extends Device {
 
+	private static TagDevice tagDeviceInstance;
+
 	public TagDevice() {
 		super("TagDevice", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice", Prefixes.IOT_LITE);
+	}
+
+	public synchronized static TagDevice getTagDeviceInstance() {
+		if (tagDeviceInstance == null) {
+			tagDeviceInstance = new TagDevice();
+		}
+		return tagDeviceInstance;
 	}
 
 }

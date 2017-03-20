@@ -23,9 +23,18 @@ import com.iotplatform.ontology.XSDDataTypes;
 @Component
 public class SensorDataSheet extends Class {
 
+	private static SensorDataSheet sensorDataSheetInstance;
+
 	public SensorDataSheet() {
 		super("SensorDataSheet", "http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet", Prefixes.SSN, null);
 		init();
+	}
+
+	public synchronized static SensorDataSheet getSensorDataSheetInstance() {
+		if (sensorDataSheetInstance == null) {
+			sensorDataSheetInstance = new SensorDataSheet();
+		}
+		return sensorDataSheetInstance;
 	}
 
 	private void init() {

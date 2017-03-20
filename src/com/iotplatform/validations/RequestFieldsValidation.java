@@ -407,12 +407,14 @@ public class RequestFieldsValidation {
 				return htblClassPropertyValue;
 			}
 
-//			System.out.println("===============================================");
-//			System.out.println(htblUniquePropValueList);
-//			String s = validationDao.constructUniqueContstraintCheckSubQueryStr3(htblUniquePropValueList,
-//					subjectClass.getPrefix().getPrefix() + subjectClass.getName(), randomID);
-//			System.out.println("===============================================");
-//			System.out.println(s);
+			// System.out.println("===============================================");
+			// System.out.println(htblUniquePropValueList);
+			// String s =
+			// validationDao.constructUniqueContstraintCheckSubQueryStr3(htblUniquePropValueList,
+			// subjectClass.getPrefix().getPrefix() + subjectClass.getName(),
+			// randomID);
+			// System.out.println("===============================================");
+			// System.out.println(s);
 
 		}
 
@@ -651,7 +653,7 @@ public class RequestFieldsValidation {
 			if (value instanceof java.util.LinkedHashMap<?, ?> && property instanceof ObjectProperty) {
 				LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) value;
 				Class classType = ((ObjectProperty) property).getObject();
-
+				System.out.println(property.getName() + "   " + classType);
 				/*
 				 * linking subject class with object class by adding a the
 				 * unique identifier as the object value of the property
@@ -1178,57 +1180,73 @@ public class RequestFieldsValidation {
 
 	private void init() {
 		htblAllStaticClasses = new Hashtable<>();
-		htblAllStaticClasses.put("http://iot-platform#Application", new Application());
-		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Person", new Person());
-		htblAllStaticClasses.put("http://iot-platform#Admin", new Admin());
-		htblAllStaticClasses.put("http://iot-platform#Developer", new Developer());
-		htblAllStaticClasses.put("http://iot-platform#NormalUser", new NormalUser());
+		htblAllStaticClasses.put("http://iot-platform#Application", Application.getApplicationInstance());
+		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Person", Person.getPersonInstance());
+		htblAllStaticClasses.put("http://iot-platform#Admin", Admin.getAdminInstance());
+		htblAllStaticClasses.put("http://iot-platform#Developer", Developer.getDeveloperInstance());
+		htblAllStaticClasses.put("http://iot-platform#NormalUser", NormalUser.getNormalUserInstance());
 		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice",
-				new ActuatingDevice());
-		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Agent", new Agent());
-		htblAllStaticClasses.put("http://iot-platform#Amount", new Amount());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", new Attribute());
-		htblAllStaticClasses.put("http://iot-platform#CommunicatingDevice", new CommunicatingDevice());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Condition", new Condition());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", new Coverage());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Deployment", new Deployment());
+				ActuatingDevice.getActuatingDeviceInstance());
+		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Agent", Agent.getAgentInstance());
+		htblAllStaticClasses.put("http://iot-platform#Amount", Amount.getAmountInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute",
+				Attribute.getAttributeInstance());
+		htblAllStaticClasses.put("http://iot-platform#CommunicatingDevice",
+				CommunicatingDevice.getCommunicatingDeviceInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Condition", Condition.getConditionInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage",
+				Coverage.getCoverageInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Deployment", Deployment.getDeploymentInstance());
 		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess",
-				new DeploymentRelatedProcess());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Device", new Device());
-		htblAllStaticClasses.put("http://iot-platform#DeviceModule", new DeviceModule());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", new FeatureOfInterest());
-		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Group", new Group());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Input", new Input());
-		htblAllStaticClasses.put("http://iot-platform#IOTSystem", new IOTSystem());
+				DeploymentRelatedProcess.getDeploymentRelatedProcessInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Device", Device.getDeviceInstance());
+		htblAllStaticClasses.put("http://iot-platform#DeviceModule", DeviceModule.getDeviceModuleInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest",
+				FeatureOfInterest.getFeatureOfInterestInstance());
+		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Group", Group.getGroupInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Input", Input.getInputInstance());
+		htblAllStaticClasses.put("http://iot-platform#IOTSystem", IOTSystem.getIOTSystemInstance());
 		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability",
-				new MeasurementCapability());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementProperty", new MeasurementProperty());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", new Metadata());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Object", new ObjectClass());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Observation", new Observation());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#ObservationValue", new ObservationValue());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", new OperatingProperty());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingRange", new OperatingRange());
-		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Organization", new Organization());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Output", new Output());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Platform", new Platform());
-		htblAllStaticClasses.put("http://www.w3.org/2003/01/geo/wgs84_pos#Point", new Point());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Process", new Process());
+				MeasurementCapability.getMeasurementCapabilityInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementProperty",
+				MeasurementProperty.getMeasurementPropertyInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata",
+				Metadata.getMetadataInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Object",
+				ObjectClass.getObjectClassInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Observation", Observation.getObservationInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#ObservationValue",
+				ObservationValue.getObservationValueInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty",
+				OperatingProperty.getOperatingPropertyInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingRange",
+				OperatingRange.getOperatingRangeInstance());
+		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Organization", Organization.getOrganizationInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Output", Output.getOutputInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Platform", Platform.getPlatformInstance());
+		htblAllStaticClasses.put("http://www.w3.org/2003/01/geo/wgs84_pos#Point", Point.getPointInstacne());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Process", Process.getProcessInstance());
 		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Property",
-				new com.iotplatform.ontology.classes.Property());
-		htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#QuantityKind", new QuantityKind());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensing", new Sensing());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensingDevice", new SensingDevice());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensor", new Sensor());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet", new SensorDataSheet());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensorOutput", new SensorOutput());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service", new Service());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Stimulus", new Stimulus());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", new SurvivalProperty());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", new SurvivalRange());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#System", new SystemClass());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice", new TagDevice());
-		htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#Unit", new Unit());
+				com.iotplatform.ontology.classes.Property.getPropertyInstance());
+		htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#QuantityKind", QuantityKind.getQuantityKindInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensing", Sensing.getSensingInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensingDevice",
+				SensingDevice.getSensingDeviceInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensor", Sensor.getSensorInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet",
+				SensorDataSheet.getSensorDataSheetInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensorOutput",
+				SensorOutput.getSensorOutputInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service", Service.getServiceInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Stimulus.getStimulusInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty",
+				SurvivalProperty.getSurvivalPropertyInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange",
+				SurvivalRange.getSurvivalRangeInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#System", SystemClass.getSystemInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice",
+				TagDevice.getTagDeviceInstance());
+		htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#Unit", Unit.getUnitInstance());
 	}
 
 	public static void main(String[] args) {
@@ -1421,6 +1439,8 @@ public class RequestFieldsValidation {
 				}
 				System.out.println(" ]");
 			}
+
+			// System.out.println(htblClassPropertyValue.toString());
 
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());

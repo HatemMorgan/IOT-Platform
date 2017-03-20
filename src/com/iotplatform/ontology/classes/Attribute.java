@@ -17,9 +17,19 @@ import com.iotplatform.ontology.XSDDataTypes;
 @Component
 public class Attribute extends Class {
 
+	private static Attribute attributeInstance;
+
 	public Attribute() {
 		super("Attribute", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", Prefixes.IOT_LITE, null);
 		init();
+	}
+
+	public synchronized static Attribute getAttributeInstance() {
+		if (attributeInstance == null) {
+			attributeInstance = new Attribute();
+		}
+
+		return attributeInstance;
 	}
 
 	private void init() {
