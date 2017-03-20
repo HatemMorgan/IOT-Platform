@@ -1,5 +1,6 @@
 package com.iotplatform.ontology.classes;
 
+import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
@@ -16,8 +17,7 @@ public class Person extends Agent {
 	public Person() {
 		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF,
 				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
-		super.init();
-		initPerson();
+		init();
 	}
 
 	/*
@@ -29,18 +29,20 @@ public class Person extends Agent {
 	 * when calling init() to add properties to PersonInstance (because knows
 	 * property has domain Person and range Person also)
 	 * 
+	 * I added null to tell the agentSuperClass constructor to not call its init
+	 * method I will make person class instance inherit properties of agentClass
+	 * by calling Agnet.initAgentStaticInstanc(Class agentInstance) method to
+	 * add agentProperties to it
 	 */
 	public Person(String nothing) {
 		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
-		super.init();
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), null);
 	}
 
 	public Person(String name, String uri, Prefixes prefix) {
 		super(name, uri, prefix,
 				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
-		super.init();
-		initPerson();
+		init();
 
 	}
 
@@ -49,12 +51,14 @@ public class Person extends Agent {
 		if (personInstance == null) {
 			personInstance = new Person(null);
 			initPersonStaticInstance(personInstance);
+			initPersonStaticInstanceTypeClasses(personInstance);
+			Agent.initAgentStaticInstanc(personInstance);
 		}
 
 		return personInstance;
 	}
 
-	public void initPerson() {
+	private void init() {
 
 		this.getProperties().put("age",
 				new DataTypeProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed, false, false));
@@ -87,13 +91,61 @@ public class Person extends Agent {
 
 		this.getSuperClassesList().add(Agent.getAgentInstance());
 
-		this.getClassTypesList().put("Developer", Developer.getDeveloperInstance());
-		this.getClassTypesList().put("Admin", Admin.getAdminInstance());
-		this.getClassTypesList().put("NormalUser", NormalUser.getNormalUserInstance());
+		initPersonTypeClasses();
 
 	}
 
-	private static void initPersonStaticInstance(Person personInstance) {
+	private void initPersonTypeClasses() {
+		Class admin = new Class("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM,
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		Admin.initAdminStaticInstance(admin);
+		Person.initPersonStaticInstance(admin);
+		Agent.initAgentStaticInstanc(admin);
+
+		Class developer = new Class("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM,
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		Developer.initDeveloperStaticInstance(developer);
+		Person.initPersonStaticInstance(developer);
+		Agent.initAgentStaticInstanc(developer);
+
+		Class normalUser = new Class("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM,
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		NormalUser.initNormalUserStaticInstance(normalUser);
+		Person.initPersonStaticInstance(normalUser);
+		Agent.initAgentStaticInstanc(normalUser);
+
+		this.getClassTypesList().put("Developer", developer);
+		this.getClassTypesList().put("Admin", admin);
+		this.getClassTypesList().put("NormalUser", normalUser);
+
+	}
+
+	public static void initPersonStaticInstanceTypeClasses(Class personInstance) {
+		Class admin = new Class("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM,
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		Admin.initAdminStaticInstance(admin);
+		Person.initPersonStaticInstance(admin);
+		Agent.initAgentStaticInstanc(admin);
+
+		Class developer = new Class("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM,
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		Developer.initDeveloperStaticInstance(developer);
+		Person.initPersonStaticInstance(developer);
+		Agent.initAgentStaticInstanc(developer);
+
+		Class normalUser = new Class("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM,
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		NormalUser.initNormalUserStaticInstance(normalUser);
+		Person.initPersonStaticInstance(normalUser);
+		Agent.initAgentStaticInstanc(normalUser);
+
+		personInstance.getClassTypesList().put("Developer", developer);
+		personInstance.getClassTypesList().put("Admin", admin);
+		personInstance.getClassTypesList().put("NormalUser", normalUser);
+
+	}
+
+	public static void initPersonStaticInstance(Class personInstance) {
 		personInstance.getProperties().put("age",
 				new DataTypeProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed, false, false));
 		personInstance.getProperties().put("birthday",
@@ -124,10 +176,14 @@ public class Person extends Agent {
 		personInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "knows", "knows");
 
 		personInstance.getSuperClassesList().add(Agent.getAgentInstance());
-
-		personInstance.getClassTypesList().put("Developer", Developer.getDeveloperInstance());
-		personInstance.getClassTypesList().put("Admin", Admin.getAdminInstance());
-		personInstance.getClassTypesList().put("NormalUser", NormalUser.getNormalUserInstance());
 	}
 
+	public static void main(String[] args) {
+		Person person = new Person();
+		System.out.println(Person.getPersonInstance().getProperties().size());
+		System.out.println(person.getProperties().size());
+
+		// System.out.println(person.getClassTypesList().get("NormalUser").getProperties().size());
+		// System.out.println(Person.getPersonInstance().getClassTypesList().get("NormalUser").getProperties().size());
+	}
 }

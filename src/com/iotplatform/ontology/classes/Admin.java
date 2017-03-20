@@ -2,6 +2,7 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 
@@ -16,8 +17,7 @@ public class Admin extends Person {
 
 	public Admin() {
 		super("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM);
-		super.initPerson();
-		initAdmin();
+		init();
 	}
 
 	/*
@@ -42,7 +42,7 @@ public class Admin extends Person {
 		return adminInstance;
 	}
 
-	private static void initAdminStaticInstance(Admin adminInstance) {
+	public static void initAdminStaticInstance(Class adminInstance) {
 		adminInstance.getProperties().put("adminOf", new ObjectProperty("adminOf", Prefixes.IOT_PLATFORM,
 				Application.getApplicationInstance(), false, false));
 
@@ -51,13 +51,19 @@ public class Admin extends Person {
 		adminInstance.getSuperClassesList().add(Person.getPersonInstance());
 	}
 
-	private void initAdmin() {
+	private void init() {
 		super.getProperties().put("adminOf", new ObjectProperty("adminOf", Prefixes.IOT_PLATFORM,
 				Application.getApplicationInstance(), false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "adminOf", "adminOf");
 
 		super.getSuperClassesList().add(Person.getPersonInstance());
+	}
+
+	public static void main(String[] args) {
+		Admin admin = new Admin();
+		System.out.println(admin.getProperties().size());
+		System.out.println(Admin.getAdminInstance().getProperties().size());
 	}
 
 }

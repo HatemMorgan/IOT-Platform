@@ -2,6 +2,7 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
@@ -20,18 +21,48 @@ public class Group extends Agent {
 	public Group() {
 		super("Group", "http://xmlns.com/foaf/0.1/Group", Prefixes.FOAF,
 				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
-		initGroup();
+		init();
+	}
+
+	/*
+	 * This constructor is used to perform overloading constructor technique and
+	 * the parameter String nothing will be passed always with null
+	 * 
+	 * I have done this overloaded constructor to instantiate the static
+	 * groupInstance to avoid java.lang.StackOverflowError exception that Occur
+	 * when calling init() to add properties to groupInstance
+	 * 
+	 */
+	public Group(String nothing) {
+		super("Group", "http://xmlns.com/foaf/0.1/Group", Prefixes.FOAF,
+				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
 	}
 
 	public synchronized static Group getGroupInstance() {
 		if (groupInstance == null) {
-			groupInstance = new Group();
+			groupInstance = new Group(null);
+			initAgentStaticInstance(groupInstance);
 		}
 
 		return groupInstance;
 	}
 
-	private void initGroup() {
+	public static void initAgentStaticInstance(Class groupInstance) {
+		groupInstance.getProperties().put("name",
+				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		groupInstance.getProperties().put("description",
+				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+		groupInstance.getProperties().put("member",
+				new ObjectProperty("member", Prefixes.FOAF, Agent.getAgentInstance(), true, false));
+
+		groupInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
+		groupInstance.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
+		groupInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "member", "member");
+
+		groupInstance.getSuperClassesList().add(Agent.getAgentInstance());
+	}
+
+	private void init() {
 		super.getProperties().put("name",
 				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
 		super.getProperties().put("description",
@@ -46,4 +77,10 @@ public class Group extends Agent {
 		super.getSuperClassesList().add(Agent.getAgentInstance());
 	}
 
+	public static void main(String[] args) {
+		Group group = new Group();
+		System.out.println(group.getProperties().size());
+		System.out.println(Group.getGroupInstance().getProperties().size());
+	}
 }
+

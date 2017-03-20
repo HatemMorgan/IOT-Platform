@@ -2,10 +2,9 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.ontology.DataTypeProperty;
+import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  *  This class maps the Developer class in the ontology
@@ -18,8 +17,7 @@ public class Developer extends Person {
 
 	public Developer() {
 		super("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM);
-		super.initPerson();
-		initDeveloper();
+		init();
 	}
 
 	/*
@@ -44,7 +42,7 @@ public class Developer extends Person {
 		return developerInstance;
 	}
 
-	private static void initDeveloperStaticInstance(Developer developerInstance) {
+	public static void initDeveloperStaticInstance(Class developerInstance) {
 		developerInstance.getProperties().put("developedApplication", new ObjectProperty("developedApplication",
 				Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
@@ -54,13 +52,19 @@ public class Developer extends Person {
 		developerInstance.getSuperClassesList().add(Person.getPersonInstance());
 	}
 
-	private void initDeveloper() {
+	private void init() {
 		super.getProperties().put("developedApplication", new ObjectProperty("developedApplication",
 				Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "developedApplication", "developedApplication");
 
 		super.getSuperClassesList().add(Person.getPersonInstance());
+	}
+	
+	public static void main(String[] args) {
+		Developer developer = new Developer();
+		System.out.println(developer.getProperties().size());
+		System.out.println(Developer.getDeveloperInstance().getProperties().size());
 	}
 
 }

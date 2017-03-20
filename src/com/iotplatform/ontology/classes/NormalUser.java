@@ -2,6 +2,7 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 
@@ -16,8 +17,7 @@ public class NormalUser extends Person {
 
 	public NormalUser() {
 		super("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM);
-		super.initPerson();
-		initNormalUser();
+		init();
 	}
 
 	/*
@@ -42,7 +42,7 @@ public class NormalUser extends Person {
 		return normalUserInstance;
 	}
 
-	private static void initNormalUserStaticInstance(NormalUser normalUserInstance) {
+	public static void initNormalUserStaticInstance(Class normalUserInstance) {
 		normalUserInstance.getProperties().put("usesApplication", new ObjectProperty("usesApplication",
 				Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
@@ -52,7 +52,7 @@ public class NormalUser extends Person {
 		normalUserInstance.getSuperClassesList().add(Person.getPersonInstance());
 	}
 
-	private void initNormalUser() {
+	private void init() {
 		super.getProperties().put("usesApplication", new ObjectProperty("usesApplication", Prefixes.IOT_PLATFORM,
 				Application.getApplicationInstance(), false, false));
 
@@ -61,4 +61,9 @@ public class NormalUser extends Person {
 		super.getSuperClassesList().add(Person.getPersonInstance());
 	}
 
+	public static void main(String[] args) {
+		NormalUser normalUser = new NormalUser();
+		System.out.println(normalUser.getProperties().size());
+		System.out.println(NormalUser.getNormalUserInstance().getProperties().size());
+	}
 }
