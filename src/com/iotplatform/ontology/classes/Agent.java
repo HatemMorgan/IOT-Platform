@@ -21,19 +21,17 @@ public class Agent extends Class {
 
 	/*
 	 * This constructor is used to perform overloading constructor technique and
-	 * the parameter String nothing will be passed always with null and this
-	 * constructor is used to initialize staticInstance for Person class
+	 * the parameter String nothing will be passed always with null
 	 * 
 	 * I have done this overloaded constructor to instantiate the static
-	 * personStaticInstance to avoid java.lang.StackOverflowError exception that
-	 * Occur when calling init() to add properties to personStaticInstance
-	 * because person class has knows property which has range
-	 * personClassInstance so this cause infinitely calling constructor
-	 * Person(String nothing) because every time this constructor is called init
-	 * method in the above constructor is called so by changing
-	 * personStaticInstanceConstructor to call this constructor by only passing
-	 * null as value of String nothing (so init will not be called)
+	 * agentInstance to avoid java.lang.StackOverflowError exception that Occur
+	 * when calling init() to add properties to PersonInstance (because knows
+	 * property has domain Person and range Person also)
 	 * 
+	 * I added null to tell the agentSuperClass constructor to not call its init
+	 * method I will make person class instance inherit properties of agentClass
+	 * by calling Agnet.initAgentStaticInstanc(Class agentInstance) method to
+	 * add agentProperties to it
 	 */
 	public Agent(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty, String nothing,
 			boolean hasTypeClasses) {

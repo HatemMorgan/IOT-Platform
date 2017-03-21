@@ -57,5 +57,7 @@ public class OperatingRange extends Property {
 
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingProperty", "hasOperatingProperty");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
+
+		super.getSuperClassesList().add(Property.getPropertyInstance());
 	}
 }

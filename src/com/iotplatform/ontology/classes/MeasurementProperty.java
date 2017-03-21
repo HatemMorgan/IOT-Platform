@@ -190,6 +190,8 @@ public class MeasurementProperty extends Property {
 		sensitivity.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("Sensitivity", sensitivity);
 
+		this.getSuperClassesList().add(Property.getPropertyInstance());
+		
 	}
 
 	private static void initMeasurmentPropertyStaticInstance(MeasurementProperty measurementPropertyInstance) {
@@ -336,6 +338,8 @@ public class MeasurementProperty extends Property {
 		sensitivity.setProperties(measurementPropertyInstance.getProperties());
 		sensitivity.setHtblPropUriName(measurementPropertyInstance.getHtblPropUriName());
 		measurementPropertyInstance.getClassTypesList().put("Sensitivity", sensitivity);
+		
+		measurementPropertyInstance.getSuperClassesList().add(Property.getPropertyInstance());
 	}
 
 }

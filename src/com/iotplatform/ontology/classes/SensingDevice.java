@@ -12,7 +12,7 @@ import com.iotplatform.ontology.Prefixes;
  */
 
 @Component
-public class SensingDevice extends Device {
+public class SensingDevice extends Sensor {
 
 	private static SensingDevice sensingDeviceInstance;
 

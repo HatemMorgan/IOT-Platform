@@ -82,5 +82,7 @@ public class CommunicatingDevice extends Device {
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "rangeOfTransmission", "rangeOfTransmission");
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "dutyCycle", "dutyCycle");
 
+		super.getSuperClassesList().add(Device.getDeviceInstance());
+		
 	}
 }

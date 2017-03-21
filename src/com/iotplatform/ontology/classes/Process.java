@@ -1,5 +1,7 @@
 package com.iotplatform.ontology.classes;
 
+import java.security.Provider;
+
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
@@ -20,9 +22,15 @@ public class Process extends Class {
 
 	private static Process processInstance;
 
-	public Process(String name, String uri, Prefixes prefix,Property uniqueIdentifierProperty,boolean hasTypeClasses) {
-		super(name, uri, prefix, uniqueIdentifierProperty,hasTypeClasses);
+	public Process(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty,
+			boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
 		init();
+	}
+
+	public Process(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty, boolean hasTypeClasses,
+			String nothing) {
+		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
 	}
 
 	public synchronized static Process getProcessInstance() {
@@ -34,7 +42,7 @@ public class Process extends Class {
 	}
 
 	public Process() {
-		super("Process", "http://purl.oclc.org/NET/ssnx/ssn#Process", Prefixes.SSN, null,true);
+		super("Process", "http://purl.oclc.org/NET/ssnx/ssn#Process", Prefixes.SSN, null, true);
 		init();
 	}
 
@@ -43,5 +51,28 @@ public class Process extends Class {
 				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+
+		if (this.isHasTypeClasses()) {
+			super.getClassTypesList().put("Sensing", Sensing.getSensingInstance());
+		}
+	}
+
+	public static void initProcessStaticInstance(Process processInstance) {
+		processInstance.getProperties().put("id",
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+
+		processInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+
+		if (processInstance.isHasTypeClasses()) {
+			processInstance.getClassTypesList().put("Sensing", Sensing.getSensingInstance());
+		}
+	}
+
+	public static void main(String[] args) {
+		Process process = new Process();
+
+		System.out.println(process.getSuperClassesList());
+		System.out.println(Process.getProcessInstance().getSuperClassesList());
+		System.out.println(Process.getProcessInstance().getClassTypesList().get("Sensing").getSuperClassesList());
 	}
 }

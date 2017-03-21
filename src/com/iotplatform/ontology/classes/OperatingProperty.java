@@ -82,6 +82,7 @@ public class OperatingProperty extends Property {
 		operatingPowerRange.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("OperatingPowerRange", operatingPowerRange);
 
+		this.getSuperClassesList().add(Property.getPropertyInstance());
 	}
 
 	private static void initOperatingPropertyStaticInstance(OperatingProperty operatingPropertyInstance) {
@@ -119,6 +120,8 @@ public class OperatingProperty extends Property {
 		operatingPowerRange.setProperties(operatingPropertyInstance.getProperties());
 		operatingPowerRange.setHtblPropUriName(operatingPropertyInstance.getHtblPropUriName());
 		operatingPropertyInstance.getClassTypesList().put("OperatingPowerRange", operatingPowerRange);
+
+		operatingPropertyInstance.getSuperClassesList().add(Property.getPropertyInstance());
 	}
 
 }

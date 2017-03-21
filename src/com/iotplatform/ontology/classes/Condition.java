@@ -43,7 +43,7 @@ public class Condition extends Property {
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
 		
-		super.getSuperClassesList().add(Property.getPropertyInstance())
+		super.getSuperClassesList().add(Property.getPropertyInstance());
 
 	}
 }

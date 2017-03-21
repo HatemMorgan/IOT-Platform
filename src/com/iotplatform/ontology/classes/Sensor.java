@@ -24,6 +24,10 @@ public class Sensor extends Device {
 		init();
 	}
 
+	public Sensor(String nothing) {
+		super("Sensor", "http://purl.oclc.org/NET/ssnx/ssn#Sensor", Prefixes.SSN, null, false);
+	}
+
 	public Sensor(String name, String uri, Prefixes prefix, com.iotplatform.ontology.Property uniqueIdentifierProperty,
 			boolean hasTypeClasses) {
 		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
@@ -32,9 +36,10 @@ public class Sensor extends Device {
 	}
 
 	public synchronized static Sensor getSensorInstance() {
-		if (sensorInstance == null)
-			sensorInstance = new Sensor();
-
+		if (sensorInstance == null) {
+			sensorInstance = new Sensor(null);
+			initSensorInstance(sensorInstance);
+		}
 		return sensorInstance;
 	}
 
@@ -122,7 +127,114 @@ public class Sensor extends Device {
 		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasMeasurementCapability", "hasMeasurementCapability");
 		this.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasCommunicatingDevice",
 				"hasCommunicatingDevice");
-		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasSensingDevice", "hasSensingDevice");
+//		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasSensingDevice", "hasSensingDevice");
 
 	}
+
+	public static void initSensorInstance(Sensor sensorInstance) {
+		/*
+		 * Add Device as superClass for sensor in superClassList
+		 */
+
+		sensorInstance.getSuperClassesList().add(Device.getDeviceInstance());
+
+		// Add properties of Sensor Class
+
+		/*
+		 * Links a sensor or an attribute with the quantity kind it measures
+		 * (e.g. A sensor -sensor1- measures temperature: sensor1
+		 * hasQuantityKind temperature). It is one to one relationship because a
+		 * sensor has only one qunatityKind
+		 */
+		sensorInstance.getProperties().put("hasQuantityKind", new ObjectProperty("hasQuantityKind", Prefixes.IOT_LITE,
+				QuantityKind.getQuantityKindInstance(), false, false));
+
+		/*
+		 * A relation between an entity that implements a method in some
+		 * executable way and the description of an algorithm, procedure or
+		 * method. For example, between a Sensor and the scientific measuring
+		 * method that the Sensor uses to observe a Property.
+		 */
+		sensorInstance.getProperties().put("implements",
+				new ObjectProperty("implements", Prefixes.SSN, Sensing.getSensingInstance(), false, false));
+
+		/*
+		 * Relation between a producer and a produced entity: for example,
+		 * between a sensor and the produced output. it is one to many
+		 * relationship
+		 */
+		sensorInstance.getProperties().put("isProducedBy",
+				new ObjectProperty("isProducedBy", Prefixes.SSN, SensorOutput.getSensorOutputInstance(), true, false));
+
+		/*
+		 * Relation between a Sensor and a Property that the sensor can observe.
+		 * It points to a property observed by a sensor (e.g., temperature,
+		 * acceleration, wind speed). it is a one to many relationship
+		 */
+		sensorInstance.getProperties().put("observes",
+				new ObjectProperty("observes", Prefixes.SSN, Property.getPropertyInstance(), true, false));
+
+		/*
+		 * A relation from a sensor to the Stimulus that the sensor can detect.
+		 * The Stimulus itself will be serving as a proxy for (see isProxyOf)
+		 * some observable property. It is a one to many relationship
+		 */
+		sensorInstance.getProperties().put("detects",
+				new ObjectProperty("detects", Prefixes.SSN, Stimulus.getStimulusInstance(), true, false));
+
+		/*
+		 * Relation from a Sensor to a MeasurementCapability describing the
+		 * measurement properties of the sensor. it is one to many relationship
+		 */
+		sensorInstance.getProperties().put("hasMeasurementCapability", new ObjectProperty("hasMeasurementCapability",
+				Prefixes.SSN, MeasurementCapability.getMeasurementCapabilityInstance(), true, false));
+
+		/*
+		 * It describes the relation that a device can has attached
+		 * communicating device . ie: A module (device) has communicating device
+		 * BLE (communicating device) attached to it . it is one to one
+		 * relationship
+		 */
+		sensorInstance.getProperties().put("hasCommunicatingDevice", new ObjectProperty("hasCommunicatingDevice",
+				Prefixes.IOT_PLATFORM, CommunicatingDevice.getCommunicatingDeviceInstance(), false, true));
+
+		/*
+		 * It describes the relation that a device can has attached snesing
+		 * device (sensor) . ie: A module (device) has sensing device Tempreture
+		 * sensor (sensing device )attached to it .
+		 */
+		// this.getProperties().put("hasSensingDevice", new
+		// ObjectProperty("hasSensingDevice", Prefixes.IOT_LITE,
+		// SensingDevice.getSensingDeviceInstance(), false, true));
+
+		sensorInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasQuantityKind", "hasQuantityKind");
+		sensorInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "implements", "implements");
+		sensorInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "isProducedBy", "isProducedBy");
+		sensorInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "observes", "observes");
+		sensorInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "detects", "detects");
+		sensorInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasMeasurementCapability",
+				"hasMeasurementCapability");
+		sensorInstance.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasCommunicatingDevice",
+				"hasCommunicatingDevice");
+//		sensorInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasSensingDevice", "hasSensingDevice");
+		
+	}
+
+	public static void main(String[] args) {
+		Sensor sensor = new Sensor();
+		
+		System.out.println(sensor.getProperties().size());
+		System.out.println(Sensor.getSensorInstance().getProperties().size());
+		
+		System.out.println(sensor.getHtblPropUriName().size());
+		System.out.println(Sensor.getSensorInstance().getHtblPropUriName().size());
+		
+		System.out.println(sensor.getSuperClassesList());
+		System.out.println(Sensor.getSensorInstance().getSuperClassesList());
+		
+		System.out.println(sensor.getClassTypesList());
+		System.out.println(Sensor.getSensorInstance().getClassTypesList());
+		
+	}
+	
 }

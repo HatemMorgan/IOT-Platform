@@ -43,6 +43,6 @@ public class MeasurementCapability extends Property {
 	}
 
 	private void init() {
-
+		this.getSuperClassesList().add(Property.getPropertyInstance());
 	}
 }

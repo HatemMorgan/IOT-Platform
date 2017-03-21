@@ -57,10 +57,32 @@ public class SystemClass extends Class {
 		init();
 	}
 
+	/*
+	 * This constructor is used to perform overloading constructor technique and
+	 * the parameter String nothing will be passed always with null and this
+	 * constructor is used to initialize staticInstance for Person class
+	 * 
+	 * I added this overloaded constructor to allow subClasses of SystemClass to
+	 * create their own static instance and also reference them here in
+	 * typeClassList
+	 * 
+	 * It cause java.lang.StackOverflowError exception when calling the above
+	 * constructor because it calls init method
+	 * 
+	 */
+	public SystemClass(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty,
+			boolean hasTypeClasses, String nothing) {
+		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
+	}
+
 	public synchronized static SystemClass getSystemInstance() {
 		if (systemInstance == null) {
 			systemInstance = new SystemClass(null);
 			initSystemStaticInstance(systemInstance);
+
+			if (systemInstance.isHasTypeClasses()) {
+				systemInstance.getClassTypesList().put("Device", Device.getDeviceInstance());
+			}
 		}
 
 		return systemInstance;
@@ -72,7 +94,7 @@ public class SystemClass extends Class {
 		/*
 		 * id which must be unique
 		 */
-		super.getProperties().put("id",
+		this.getProperties().put("id",
 				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		/*
@@ -80,14 +102,14 @@ public class SystemClass extends Class {
 		 * can have many subsystems so multipleValues is enabled (one to many
 		 * relation)
 		 */
-		super.getProperties().put("hasSubSystem",
+		this.getProperties().put("hasSubSystem",
 				new ObjectProperty("hasSubSystem", Prefixes.SSN, SystemClass.getSystemInstance(), true, false));
 
 		/*
 		 * A Relation from a System to a SurvivalRange. It is a one to one
 		 * relationShip because a system/device has only one survivalRange
 		 */
-		super.getProperties().put("hasSurvivalRange", new ObjectProperty("hasSurvivalRange", Prefixes.SSN,
+		this.getProperties().put("hasSurvivalRange", new ObjectProperty("hasSurvivalRange", Prefixes.SSN,
 				SurvivalRange.getSurvivalRangeInstance(), true, false));
 
 		/*
@@ -95,14 +117,17 @@ public class SystemClass extends Class {
 		 * operating environment of the System. It is one to one relationShip
 		 * because a system/device has only one operatingRange
 		 */
-		super.getProperties().put("hasOperatingRange", new ObjectProperty("hasOperatingRange", Prefixes.SSN,
+		this.getProperties().put("hasOperatingRange", new ObjectProperty("hasOperatingRange", Prefixes.SSN,
 				OperatingRange.getOperatingRangeInstance(), true, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSubSystem", "hasSubSystem");
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalRange", "hasSurvivalRange");
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingRange", "hasOperatingRange");
+		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSubSystem", "hasSubSystem");
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalRange", "hasSurvivalRange");
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingRange", "hasOperatingRange");
 
+		if (this.isHasTypeClasses()) {
+			this.getClassTypesList().put("Device", Device.getDeviceInstance());
+		}
 	}
 
 	public static void initSystemStaticInstance(SystemClass systemInstance) {
@@ -139,10 +164,11 @@ public class SystemClass extends Class {
 		systemInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSubSystem", "hasSubSystem");
 		systemInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalRange", "hasSurvivalRange");
 		systemInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingRange", "hasOperatingRange");
+
 	}
 
-	// public static void main(String[] args) {
-	// SystemClass system = new SystemClass();
-	// System.out.println(system.getProperties().toString());
-	// }
+	public static void main(String[] args) {
+		SystemClass system = new SystemClass();
+		System.out.println(system.getProperties().toString());
+	}
 }
