@@ -151,15 +151,27 @@ public class Agent extends Class {
 	public static void main(String[] args) {
 		Agent agent = new Agent();
 		agent.init();
+		System.out.println(agent.getClassTypesList().get("Person").getClassTypesList().get("Developer").getProperties()
+				.toString());
 		System.out.println(
-				agent.getClassTypesList().get("Person").getClassTypesList().get("Developer").getProperties().size());
-		System.out.println(
-				agent.getClassTypesList().get("Person").getClassTypesList().get("Admin").getProperties().size());
-		System.out.println(
-				agent.getClassTypesList().get("Person").getClassTypesList().get("NormalUser").getProperties().size());
-		System.out.println(agent.getClassTypesList().get("Person").getProperties().size());
-		System.out.println(agent.getClassTypesList().get("Group").getProperties().size());
-		System.out.println(agent.getClassTypesList().get("Organization").getProperties().size());
+				agent.getClassTypesList().get("Person").getClassTypesList().get("Admin").getProperties().toString());
+		System.out.println(agent.getClassTypesList().get("Person").getClassTypesList().get("NormalUser").getProperties()
+				.toString());
+		System.out.println(agent.getClassTypesList().get("Person").getProperties().toString());
+		System.out.println(agent.getClassTypesList().get("Group").getProperties().toString());
+		System.out.println(agent.getClassTypesList().get("Organization").getProperties().toString());
+
+		System.out.println("=========================================================================");
+
+		System.out.println(Agent.getAgentInstance().getClassTypesList().get("Person").getClassTypesList()
+				.get("Developer").getProperties().toString());
+		System.out.println(Agent.getAgentInstance().getClassTypesList().get("Person").getClassTypesList().get("Admin")
+				.getProperties().toString());
+		System.out.println(Agent.getAgentInstance().getClassTypesList().get("Person").getClassTypesList()
+				.get("NormalUser").getProperties().toString());
+		System.out.println(Agent.getAgentInstance().getClassTypesList().get("Person").getProperties().toString());
+		System.out.println(Agent.getAgentInstance().getClassTypesList().get("Group").getProperties().toString());
+		System.out.println(Agent.getAgentInstance().getClassTypesList().get("Organization").getProperties().toString());
 	}
 
 }

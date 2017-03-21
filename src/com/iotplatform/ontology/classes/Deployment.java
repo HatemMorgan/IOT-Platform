@@ -22,15 +22,21 @@ public class Deployment extends DeploymentRelatedProcess {
 	private static Deployment deploymentInstance;
 
 	public Deployment() {
-		super("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment", Prefixes.SSN,null,false);
+		super("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment", Prefixes.SSN, null, false);
 		init();
+	}
+
+	public Deployment(String nothing) {
+		super("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment", Prefixes.SSN, null, false, null);
+
 	}
 
 	public synchronized static Deployment getDeploymentInstance() {
 		if (deploymentInstance == null) {
-			deploymentInstance = new Deployment();
+			deploymentInstance = new Deployment(null);
+			initDeploymentStaticInstance(deploymentInstance);
+			DeploymentRelatedProcess.initDeploymentRelatedProccessStaticInstance(deploymentInstance);
 		}
-
 		return deploymentInstance;
 
 	}
@@ -47,6 +53,25 @@ public class Deployment extends DeploymentRelatedProcess {
 
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deployedOnPlatform", "deployedOnPlatform");
 
+	}
+
+	private static void initDeploymentStaticInstance(Deployment deploymentInstance) {
+
+		/*
+		 * Relation between a deployment and the platform on which the system
+		 * was deployed. one to one relation because a deployment will be in one
+		 * place (which is the place of the platform)
+		 */
+		deploymentInstance.getProperties().put("deployedOnPlatform",
+				new ObjectProperty("deployedOnPlatform", Prefixes.SSN, Platform.getPlatformInstance(), false, false));
+
+		deploymentInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deployedOnPlatform", "deployedOnPlatform");
+
+	}
+	
+	public static void main(String[] args) {
+		Deployment deployment = new Deployment();
+		System.out.println(deployment.getProperties());
 	}
 
 }

@@ -81,7 +81,10 @@ public class Coverage extends Class {
 
 		circle.setProperties(super.getProperties());
 		circle.setHtblPropUriName(super.getHtblPropUriName());
+		
 		circle.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "radius", "radius");
+		circle.getProperties().put("radius",
+				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
 
 		/*
 		 * adding coverage class to superClassesList to tell the dao to add
@@ -154,9 +157,6 @@ public class Coverage extends Class {
 		 */
 		Class circle = new Class("Circle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Circle", Prefixes.IOT_LITE,
 				null, false);
-		circle.getProperties().put("radius",
-				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
-		circle.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "radius", "radius");
 
 		/*
 		 * adding coverage class to superClassesList to tell the dao to add
@@ -166,6 +166,10 @@ public class Coverage extends Class {
 		circle.getSuperClassesList().add(Coverage.getCoverageInstance());
 		circle.setProperties(coverageInstance.getProperties());
 		circle.setHtblPropUriName(coverageInstance.getHtblPropUriName());
+
+		circle.getProperties().put("radius",
+				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
+		circle.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "radius", "radius");
 
 		coverageInstance.getClassTypesList().put("Circle", circle);
 
@@ -203,4 +207,10 @@ public class Coverage extends Class {
 
 	}
 
+	public static void main(String[] args) {
+		Coverage coverage = new Coverage();
+		System.out.println(coverage.getClassTypesList().get("Circle").getProperties());
+		System.out.println(coverage.getClassTypesList().get("Rectangle").getProperties());
+		System.out.println(coverage.getClassTypesList().get("Polygon").getProperties());
+	}
 }

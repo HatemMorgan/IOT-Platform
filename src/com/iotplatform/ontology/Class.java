@@ -109,11 +109,11 @@ public class Class {
 	}
 
 	public void setProperties(Hashtable<String, Property> properties) {
-		this.properties = properties;
+		this.properties.putAll(properties);
 	}
 
 	public void setHtblPropUriName(Hashtable<String, String> htblPropUriName) {
-		this.htblPropUriName = htblPropUriName;
+		this.htblPropUriName.putAll(htblPropUriName);
 	}
 
 }

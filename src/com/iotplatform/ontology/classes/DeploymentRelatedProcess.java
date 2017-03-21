@@ -31,6 +31,24 @@ public class DeploymentRelatedProcess extends Class {
 		init();
 	}
 
+	/*
+	 * This constructor is used to perform overloading constructor technique and
+	 * the parameter String nothing will be passed always with null
+	 * 
+	 * I use this constructor to create any subClassStaticInstance of
+	 * DeploymentRelatedProcess. This constructor does not call init method so
+	 * by this way I will be able to create a static instance from any of
+	 * subClasses of DeploymentRelatedProcess and avoid throwing
+	 * java.lang.StackOverflowError exception
+	 * 
+	 * I will use subClassesStaticInstances to add them to typeClassesList of
+	 * DeploymentRelatedProcess
+	 */
+	public DeploymentRelatedProcess(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty,
+			boolean hasTypeClasses, String nothing) {
+		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
+	}
+
 	public DeploymentRelatedProcess() {
 		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN,
 				null, true);
@@ -48,13 +66,14 @@ public class DeploymentRelatedProcess extends Class {
 	 */
 	public DeploymentRelatedProcess(String nothing) {
 		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN,
-				null,true);
+				null, true);
 	}
 
 	public synchronized static DeploymentRelatedProcess getDeploymentRelatedProcessInstance() {
 		if (deploymentRelatedProcessInstance == null) {
 			deploymentRelatedProcessInstance = new DeploymentRelatedProcess(null);
 			initDeploymentRelatedProccessStaticInstance(deploymentRelatedProcessInstance);
+			inittDeploymentRelatedProcessStaticInstanceTypeClasses(deploymentRelatedProcessInstance);
 		}
 		return deploymentRelatedProcessInstance;
 	}
@@ -83,9 +102,20 @@ public class DeploymentRelatedProcess extends Class {
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deploymentProcessPart", "deploymentProcessPart");
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 
+		initDeploymentRelatedProcessTypeClasses();
+
 	}
 
-	private static void initDeploymentRelatedProccessStaticInstance(
+	private void initDeploymentRelatedProcessTypeClasses() {
+		this.getClassTypesList().put("Deployment", Deployment.getDeploymentInstance());
+	}
+
+	private static void inittDeploymentRelatedProcessStaticInstanceTypeClasses(
+			DeploymentRelatedProcess deploymentRelatedProcessInstance) {
+		deploymentRelatedProcessInstance.getClassTypesList().put("Deployment", Deployment.getDeploymentInstance());
+	}
+
+	public static void initDeploymentRelatedProccessStaticInstance(
 			DeploymentRelatedProcess deploymentRelatedProcessInstance) {
 		/*
 		 * relation between a deployment process and its constituent processes.
@@ -110,5 +140,10 @@ public class DeploymentRelatedProcess extends Class {
 		deploymentRelatedProcessInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deploymentProcessPart",
 				"deploymentProcessPart");
 		deploymentRelatedProcessInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+	}
+
+	public static void main(String[] args) {
+		DeploymentRelatedProcess deploymentRelatedProcess = new DeploymentRelatedProcess();
+		System.out.println(deploymentRelatedProcess.getClassTypesList().get("Deployment").getProperties());
 	}
 }
