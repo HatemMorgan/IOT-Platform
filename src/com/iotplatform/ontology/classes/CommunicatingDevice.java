@@ -19,7 +19,7 @@ public class CommunicatingDevice extends Device {
 	private static CommunicatingDevice communicatingDeviceInstance;
 
 	public CommunicatingDevice() {
-		super("CommunicatingDevice", "http://iot-platform#CommunicatingDevice", Prefixes.IOT_PLATFORM);
+		super("CommunicatingDevice", "http://iot-platform#CommunicatingDevice", Prefixes.IOT_PLATFORM, null, false);
 		init();
 	}
 

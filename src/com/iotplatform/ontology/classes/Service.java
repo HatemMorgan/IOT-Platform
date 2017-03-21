@@ -21,7 +21,7 @@ public class Service extends Class {
 
 	
 	public Service() {
-		super("Service", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service", Prefixes.IOT_LITE, null);
+		super("Service", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service", Prefixes.IOT_LITE, null,false);
 		init();
 	}
 

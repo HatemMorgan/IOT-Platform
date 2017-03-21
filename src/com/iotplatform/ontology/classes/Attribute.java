@@ -20,7 +20,7 @@ public class Attribute extends Class {
 	private static Attribute attributeInstance;
 
 	public Attribute() {
-		super("Attribute", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", Prefixes.IOT_LITE, null);
+		super("Attribute", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", Prefixes.IOT_LITE, null,false);
 		init();
 	}
 

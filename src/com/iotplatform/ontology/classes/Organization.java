@@ -18,7 +18,7 @@ public class Organization extends Agent {
 
 	public Organization() {
 		super("Organization", "http://xmlns.com/foaf/0.1/Organization", Prefixes.FOAF,
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
 
 		init();
 	}
@@ -34,7 +34,7 @@ public class Organization extends Agent {
 	 */
 	public Organization(String nothing) {
 		super("Organization", "http://xmlns.com/foaf/0.1/Organization", Prefixes.FOAF,
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), null, false);
 	}
 
 	public synchronized static Organization getOrganizationInstance() {
@@ -42,6 +42,7 @@ public class Organization extends Agent {
 		if (organizationInstance == null) {
 			organizationInstance = new Organization(null);
 			initOrganizationStaticInstance(organizationInstance);
+			initAgentStaticInstanc(organizationInstance);
 		}
 		return organizationInstance;
 	}
@@ -71,7 +72,6 @@ public class Organization extends Agent {
 		super.getSuperClassesList().add(Agent.getAgentInstance());
 	}
 
-	
 	public static void main(String[] args) {
 		Organization organization = new Organization();
 		System.out.println(organization.getProperties().size());

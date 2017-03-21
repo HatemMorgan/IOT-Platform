@@ -16,7 +16,8 @@ public class ActuatingDevice extends Device {
 	private static ActuatingDevice actuatingDeviceInstance;
 
 	public ActuatingDevice() {
-		super("ActuatingDevice", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice", Prefixes.IOT_LITE);
+		super("ActuatingDevice", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice", Prefixes.IOT_LITE,
+				null, false);
 
 	}
 

@@ -20,7 +20,7 @@ public class Amount extends Class {
 	private static Amount amountInstance;
 
 	public Amount() {
-		super("Amount", "http://iot-platform#Amount", Prefixes.IOT_PLATFORM, null);
+		super("Amount", "http://iot-platform#Amount", Prefixes.IOT_PLATFORM, null,false);
 		init();
 	}
 

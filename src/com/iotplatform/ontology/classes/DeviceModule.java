@@ -18,7 +18,7 @@ public class DeviceModule extends Class {
 	private static DeviceModule deviceModuleInstance;
 
 	public DeviceModule() {
-		super("DeviceModule", "http://iot-platform#DeviceModule", Prefixes.IOT_PLATFORM, null);
+		super("DeviceModule", "http://iot-platform#DeviceModule", Prefixes.IOT_PLATFORM, null,true);
 		init();
 	}
 

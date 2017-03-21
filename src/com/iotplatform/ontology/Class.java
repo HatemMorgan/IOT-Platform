@@ -53,19 +53,6 @@ public class Class {
 	 */
 	private Hashtable<String, Class> classTypesList;
 
-	public Class(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty) {
-		this.name = name;
-		this.uri = uri;
-		this.prefix = prefix;
-		this.htblPropUriName = new Hashtable<>();
-		properties = new Hashtable<>();
-		superClassesList = new ArrayList<>();
-
-		this.uniqueIdentifierProperty = uniqueIdentifierProperty;
-		hasUniqueIdentifierProperty = uniqueIdentifierProperty == null ? false : true;
-
-	}
-
 	public Class(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty, boolean hasTypeClasses) {
 		this.name = name;
 		this.uri = uri;
@@ -74,7 +61,7 @@ public class Class {
 		this.uniqueIdentifierProperty = uniqueIdentifierProperty;
 		this.hasTypeClasses = hasTypeClasses;
 
-		this.classTypesList = hasTypeClasses == true ? new Hashtable<>() : null;
+		this.classTypesList = new Hashtable<>();
 		this.properties = new Hashtable<>();
 		this.superClassesList = new ArrayList<>();
 		this.hasUniqueIdentifierProperty = uniqueIdentifierProperty == null ? false : true;

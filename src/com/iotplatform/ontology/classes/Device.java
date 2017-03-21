@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Property;
 
 /*
  * This class maps the ssn:Device class in the ontology
@@ -18,12 +19,12 @@ public class Device extends SystemClass {
 	private static Device deviceInstance;
 
 	public Device() {
-		super("Device", "http://purl.oclc.org/NET/ssnx/ssn#Device", Prefixes.SSN);
+		super("Device", "http://purl.oclc.org/NET/ssnx/ssn#Device", Prefixes.SSN, null, false);
 		init();
 	}
 
-	public Device(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix);
+	public Device(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty, boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
 		init();
 	}
 

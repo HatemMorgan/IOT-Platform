@@ -21,7 +21,7 @@ public class Sensing extends Process {
 	private static Sensing sensingInstance;
 
 	public Sensing() {
-		super("Sensing", "http://purl.oclc.org/NET/ssnx/ssn#Sensing", Prefixes.SSN);
+		super("Sensing", "http://purl.oclc.org/NET/ssnx/ssn#Sensing", Prefixes.SSN, null, false);
 		init();
 	}
 

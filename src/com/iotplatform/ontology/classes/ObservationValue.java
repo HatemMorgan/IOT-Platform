@@ -21,7 +21,7 @@ public class ObservationValue extends Class {
 
 	
 	public ObservationValue() {
-		super("ObservationValue", "http://purl.oclc.org/NET/ssnx/ssn#ObservationValue", Prefixes.SSN, null);
+		super("ObservationValue", "http://purl.oclc.org/NET/ssnx/ssn#ObservationValue", Prefixes.SSN, null,false);
 		init();
 
 	}

@@ -20,7 +20,7 @@ public class Group extends Agent {
 
 	public Group() {
 		super("Group", "http://xmlns.com/foaf/0.1/Group", Prefixes.FOAF,
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
 		init();
 	}
 
@@ -35,19 +35,20 @@ public class Group extends Agent {
 	 */
 	public Group(String nothing) {
 		super("Group", "http://xmlns.com/foaf/0.1/Group", Prefixes.FOAF,
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), null, false);
 	}
 
 	public synchronized static Group getGroupInstance() {
 		if (groupInstance == null) {
 			groupInstance = new Group(null);
-			initAgentStaticInstance(groupInstance);
+			initGroupStaticInstance(groupInstance);
+			initAgentStaticInstanc(groupInstance);
 		}
 
 		return groupInstance;
 	}
 
-	public static void initAgentStaticInstance(Class groupInstance) {
+	public static void initGroupStaticInstance(Class groupInstance) {
 		groupInstance.getProperties().put("name",
 				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
 		groupInstance.getProperties().put("description",
@@ -83,4 +84,3 @@ public class Group extends Agent {
 		System.out.println(Group.getGroupInstance().getProperties().size());
 	}
 }
-

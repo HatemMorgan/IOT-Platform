@@ -19,7 +19,7 @@ public class Input extends Class {
 	private static Input inputInstance;
 
 	public Input() {
-		super("Input", "http://purl.oclc.org/NET/ssnx/ssn#Input", Prefixes.SSN, null);
+		super("Input", "http://purl.oclc.org/NET/ssnx/ssn#Input", Prefixes.SSN, null,false);
 		init();
 	}
 

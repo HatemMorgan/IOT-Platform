@@ -26,7 +26,7 @@ public class SensorDataSheet extends Class {
 	private static SensorDataSheet sensorDataSheetInstance;
 
 	public SensorDataSheet() {
-		super("SensorDataSheet", "http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet", Prefixes.SSN, null);
+		super("SensorDataSheet", "http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet", Prefixes.SSN, null,false);
 		init();
 	}
 

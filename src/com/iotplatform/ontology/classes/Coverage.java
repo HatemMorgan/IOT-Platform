@@ -75,7 +75,7 @@ public class Coverage extends Class {
 		 * which is the superClass
 		 */
 		Class circle = new Class("Circle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Circle", Prefixes.IOT_LITE,
-				null);
+				null, false);
 		circle.getProperties().put("radius",
 				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
 
@@ -95,7 +95,7 @@ public class Coverage extends Class {
 		 * Add iot-lite:Rectange Class to coverageTypesList
 		 */
 		Class rectangle = new Class("Rectangle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Rectangle",
-				Prefixes.IOT_LITE, null);
+				Prefixes.IOT_LITE, null, false);
 
 		/*
 		 * adding coverage class to superClassesList to tell the dao to add
@@ -111,7 +111,7 @@ public class Coverage extends Class {
 		 * Add iot-lite:Polygon Class to coverageTypesList
 		 */
 		Class polygon = new Class("Polygon", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Polygon", Prefixes.IOT_LITE,
-				null);
+				null, false);
 
 		/*
 		 * adding coverage class to superClassesList to tell the dao to add
@@ -153,7 +153,7 @@ public class Coverage extends Class {
 		 * which is the superClass
 		 */
 		Class circle = new Class("Circle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Circle", Prefixes.IOT_LITE,
-				null);
+				null, false);
 		circle.getProperties().put("radius",
 				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
 		circle.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "radius", "radius");
@@ -173,7 +173,7 @@ public class Coverage extends Class {
 		 * Add iot-lite:Rectange Class to coverageTypesList
 		 */
 		Class rectangle = new Class("Rectangle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Rectangle",
-				Prefixes.IOT_LITE, null);
+				Prefixes.IOT_LITE, null, false);
 
 		/*
 		 * adding coverage class to superClassesList to tell the dao to add
@@ -189,7 +189,7 @@ public class Coverage extends Class {
 		 * Add iot-lite:Polygon Class to coverageTypesList
 		 */
 		Class polygon = new Class("Polygon", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Polygon", Prefixes.IOT_LITE,
-				null);
+				null, false);
 
 		/*
 		 * adding coverage class to superClassesList to tell the dao to add

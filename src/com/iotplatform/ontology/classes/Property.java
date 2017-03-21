@@ -21,13 +21,14 @@ public class Property extends Class {
 
 	private static Property propertyInstance;
 
-	public Property(String name, String uri, Prefixes prefix, boolean hasTypeClasses) {
-		super(name, uri, prefix, null,hasTypeClasses);
+	public Property(String name, String uri, Prefixes prefix,
+			com.iotplatform.ontology.Property uniqueIdentifierProperty, boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
 		init();
 	}
 
 	public Property() {
-		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN, null);
+		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN, null,true);
 		init();
 	}
 

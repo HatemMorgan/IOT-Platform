@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -19,8 +20,8 @@ public class Process extends Class {
 
 	private static Process processInstance;
 
-	public Process(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix, null);
+	public Process(String name, String uri, Prefixes prefix,Property uniqueIdentifierProperty,boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierProperty,hasTypeClasses);
 		init();
 	}
 
@@ -33,7 +34,7 @@ public class Process extends Class {
 	}
 
 	public Process() {
-		super("Process", "http://purl.oclc.org/NET/ssnx/ssn#Process", Prefixes.SSN, null);
+		super("Process", "http://purl.oclc.org/NET/ssnx/ssn#Process", Prefixes.SSN, null,true);
 		init();
 	}
 

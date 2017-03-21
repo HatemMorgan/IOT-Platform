@@ -14,8 +14,8 @@ public class Agent extends Class {
 
 	private static Agent agentInstance;
 
-	public Agent(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty) {
-		super(name, uri, prefix, uniqueIdentifierProperty, true);
+	public Agent(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty, boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
 		init();
 	}
 
@@ -35,8 +35,9 @@ public class Agent extends Class {
 	 * null as value of String nothing (so init will not be called)
 	 * 
 	 */
-	public Agent(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty, String nothing) {
-		super(name, uri, prefix, uniqueIdentifierProperty, true);
+	public Agent(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty, String nothing,
+			boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
 	}
 
 	public Agent() {
@@ -86,21 +87,11 @@ public class Agent extends Class {
 	}
 
 	private void initAgentTypeClasses() {
-		Class person = new Class("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
-		person = Person.getPersonInstance();
-		// Person.initPersonStaticInstance(person);
-		// Person.initPersonStaticInstanceTypeClasses(person);
+		Class person = Person.getPersonInstance();
 
-		Class group = new Class("Group", "http://xmlns.com/foaf/0.1/Group", Prefixes.FOAF,
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
-		Group.initAgentStaticInstance(group);
-		Agent.initAgentStaticInstanc(group);
+		Class group = Group.getGroupInstance();
 
-		Class organization = new Class("Organization", "http://xmlns.com/foaf/0.1/Organization", Prefixes.FOAF,
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
-		Organization.initOrganizationStaticInstance(organization);
-		Agent.initAgentStaticInstanc(organization);
+		Class organization = Organization.getOrganizationInstance();
 
 		this.getClassTypesList().put("Person", person);
 		this.getClassTypesList().put("Group", group);
@@ -109,22 +100,12 @@ public class Agent extends Class {
 	}
 
 	private static void initAgentStaticInstanceTypeClasses(Class agentInstance) {
-		Class person = new Class("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
 
-		person = Person.getPersonInstance();
-		// Person.initPersonStaticInstance(person);
-		// Person.initPersonStaticInstanceTypeClasses(person);
+		Class person = Person.getPersonInstance();
 
-		Class group = new Class("Group", "http://xmlns.com/foaf/0.1/Group", Prefixes.FOAF,
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
-		Group.initAgentStaticInstance(group);
-		Agent.initAgentStaticInstanc(group);
+		Class group = Group.getGroupInstance();
 
-		Class organization = new Class("Organization", "http://xmlns.com/foaf/0.1/Organization", Prefixes.FOAF,
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
-		Organization.initOrganizationStaticInstance(organization);
-		Agent.initAgentStaticInstanc(organization);
+		Class organization = Organization.getOrganizationInstance();
 
 		agentInstance.getClassTypesList().put("Person", person);
 		agentInstance.getClassTypesList().put("Group", group);
@@ -170,18 +151,15 @@ public class Agent extends Class {
 	public static void main(String[] args) {
 		Agent agent = new Agent();
 		agent.init();
-		System.out.println(agent.getClassTypesList().get("Person").getClassTypesList().get("Developer").getProperties()
-				.size());
-		System.out.println(agent.getClassTypesList().get("Person").getClassTypesList().get("Admin").getProperties()
-				.size());
-		System.out.println(agent.getClassTypesList().get("Person").getClassTypesList().get("NormalUser").getProperties()
-				.size());
-		System.out.println(agent.getClassTypesList().get("Person").getProperties()
-				.size());
-		System.out.println(agent.getClassTypesList().get("Group").getProperties()
-				.size());
-		System.out.println(agent.getClassTypesList().get("Organization").getProperties()
-				.size());
+		System.out.println(
+				agent.getClassTypesList().get("Person").getClassTypesList().get("Developer").getProperties().size());
+		System.out.println(
+				agent.getClassTypesList().get("Person").getClassTypesList().get("Admin").getProperties().size());
+		System.out.println(
+				agent.getClassTypesList().get("Person").getClassTypesList().get("NormalUser").getProperties().size());
+		System.out.println(agent.getClassTypesList().get("Person").getProperties().size());
+		System.out.println(agent.getClassTypesList().get("Group").getProperties().size());
+		System.out.println(agent.getClassTypesList().get("Organization").getProperties().size());
 	}
 
 }

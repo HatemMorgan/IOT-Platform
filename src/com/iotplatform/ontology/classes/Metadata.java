@@ -21,7 +21,7 @@ public class Metadata extends Class {
 	private static Metadata metadataInstance;
 
 	public Metadata() {
-		super("Metadata", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefixes.IOT_LITE, null);
+		super("Metadata", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefixes.IOT_LITE, null,false);
 		init();
 	}
 

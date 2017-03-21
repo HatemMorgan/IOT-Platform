@@ -22,7 +22,7 @@ public class Deployment extends DeploymentRelatedProcess {
 	private static Deployment deploymentInstance;
 
 	public Deployment() {
-		super("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment", Prefixes.SSN);
+		super("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment", Prefixes.SSN,null,false);
 		init();
 	}
 

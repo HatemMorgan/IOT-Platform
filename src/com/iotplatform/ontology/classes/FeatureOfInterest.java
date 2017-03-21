@@ -26,7 +26,7 @@ public class FeatureOfInterest extends Class {
 	private static FeatureOfInterest featureOfInterestInstance;
 
 	public FeatureOfInterest() {
-		super("FeatureOfInterest", "http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN, null);
+		super("FeatureOfInterest", "http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN, null,false);
 		init();
 	}
 

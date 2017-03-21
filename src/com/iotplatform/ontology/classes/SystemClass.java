@@ -6,6 +6,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -25,14 +26,13 @@ import com.iotplatform.ontology.XSDDataTypes;
  * 
  */
 
-
 @Component
 public class SystemClass extends Class {
 
 	private static SystemClass systemInstance;
 
 	public SystemClass() {
-		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN,null);
+		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN, null, true);
 
 		init();
 
@@ -48,11 +48,12 @@ public class SystemClass extends Class {
 	 * 
 	 */
 	public SystemClass(String nothing) {
-		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN,null);
+		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN, null, true);
 	}
 
-	public SystemClass(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix,null);
+	public SystemClass(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty,
+			boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
 		init();
 	}
 

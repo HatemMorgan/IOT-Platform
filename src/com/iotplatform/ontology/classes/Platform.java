@@ -28,7 +28,7 @@ public class Platform extends Class {
 
 	
 	public Platform() {
-		super("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform", Prefixes.SSN, null);
+		super("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform", Prefixes.SSN, null,false);
 		init();
 	}
 

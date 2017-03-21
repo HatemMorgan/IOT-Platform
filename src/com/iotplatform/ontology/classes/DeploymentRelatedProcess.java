@@ -8,6 +8,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -24,14 +25,15 @@ public class DeploymentRelatedProcess extends Class {
 
 	private static DeploymentRelatedProcess deploymentRelatedProcessInstance;
 
-	public DeploymentRelatedProcess(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix, null);
+	public DeploymentRelatedProcess(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty,
+			boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
 		init();
 	}
 
 	public DeploymentRelatedProcess() {
 		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN,
-				null);
+				null, true);
 		init();
 	}
 
@@ -46,7 +48,7 @@ public class DeploymentRelatedProcess extends Class {
 	 */
 	public DeploymentRelatedProcess(String nothing) {
 		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN,
-				null);
+				null,true);
 	}
 
 	public synchronized static DeploymentRelatedProcess getDeploymentRelatedProcessInstance() {

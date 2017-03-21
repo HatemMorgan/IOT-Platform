@@ -20,7 +20,7 @@ public class ObjectClass extends Class {
 	private static ObjectClass objectClassInstance;
 
 	public ObjectClass() {
-		super("Object", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Object", Prefixes.IOT_LITE, null);
+		super("Object", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Object", Prefixes.IOT_LITE, null,false);
 		init();
 	}
 

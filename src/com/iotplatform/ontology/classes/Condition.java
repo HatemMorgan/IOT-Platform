@@ -21,7 +21,7 @@ public class Condition extends Property {
 	private static Condition conditionInstance;
 
 	public Condition() {
-		super("Condition", "http://purl.oclc.org/NET/ssnx/ssn#Condition", Prefixes.SSN,false);
+		super("Condition", "http://purl.oclc.org/NET/ssnx/ssn#Condition", Prefixes.SSN, null, false);
 		init();
 	}
 

@@ -25,7 +25,7 @@ public class QuantityKind extends Class {
 
 	
 	public QuantityKind() {
-		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU, null);
+		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU, null,false);
 
 		init();
 	}

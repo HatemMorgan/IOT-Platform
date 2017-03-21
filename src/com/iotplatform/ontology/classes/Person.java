@@ -4,6 +4,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -16,7 +17,7 @@ public class Person extends Agent {
 
 	public Person() {
 		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), true);
 		init();
 	}
 
@@ -36,12 +37,11 @@ public class Person extends Agent {
 	 */
 	public Person(String nothing) {
 		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), null);
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), null, true);
 	}
 
-	public Person(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+	public Person(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty, boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
 		init();
 
 	}
@@ -97,19 +97,19 @@ public class Person extends Agent {
 
 	private void initPersonTypeClasses() {
 		Class admin = new Class("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
 		Admin.initAdminStaticInstance(admin);
 		Person.initPersonStaticInstance(admin);
 		Agent.initAgentStaticInstanc(admin);
 
 		Class developer = new Class("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
 		Developer.initDeveloperStaticInstance(developer);
 		Person.initPersonStaticInstance(developer);
 		Agent.initAgentStaticInstanc(developer);
 
 		Class normalUser = new Class("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
 		NormalUser.initNormalUserStaticInstance(normalUser);
 		Person.initPersonStaticInstance(normalUser);
 		Agent.initAgentStaticInstanc(normalUser);
@@ -122,19 +122,19 @@ public class Person extends Agent {
 
 	public static void initPersonStaticInstanceTypeClasses(Class personInstance) {
 		Class admin = new Class("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
 		Admin.initAdminStaticInstance(admin);
 		Person.initPersonStaticInstance(admin);
 		Agent.initAgentStaticInstanc(admin);
 
 		Class developer = new Class("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
 		Developer.initDeveloperStaticInstance(developer);
 		Person.initPersonStaticInstance(developer);
 		Agent.initAgentStaticInstanc(developer);
 
 		Class normalUser = new Class("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
 		NormalUser.initNormalUserStaticInstance(normalUser);
 		Person.initPersonStaticInstance(normalUser);
 		Agent.initAgentStaticInstanc(normalUser);

@@ -16,11 +16,10 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class OperatingProperty extends Property {
 
-	
 	private static OperatingProperty operatingPropertyInstance;
 
 	public OperatingProperty() {
-		super("OperatingProperty", "http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", Prefixes.SSN, true);
+		super("OperatingProperty", "http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", Prefixes.SSN, null, true);
 		init();
 	}
 
@@ -34,7 +33,7 @@ public class OperatingProperty extends Property {
 	 * 
 	 */
 	public OperatingProperty(String nothing) {
-		super("OperatingProperty", "http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", Prefixes.SSN, true);
+		super("OperatingProperty", "http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty", Prefixes.SSN, null, true);
 	}
 
 	public static OperatingProperty getOperatingPropertyInstance() {
@@ -53,7 +52,7 @@ public class OperatingProperty extends Property {
 		 * conditions.
 		 */
 		Class maintenanceSchedule = new Class("MaintenanceSchedule",
-				"http://purl.oclc.org/NET/ssnx/ssn#MaintenanceSchedule", Prefixes.SSN, null);
+				"http://purl.oclc.org/NET/ssnx/ssn#MaintenanceSchedule", Prefixes.SSN, null, false);
 
 		/*
 		 * adding ssn:OperatingProperty class to superClassesList to tell the
@@ -70,7 +69,7 @@ public class OperatingProperty extends Property {
 		 * Power range in which system/sensor is expected to operate.
 		 */
 		Class operatingPowerRange = new Class("OperatingPowerRange",
-				"http://purl.oclc.org/NET/ssnx/ssn#OperatingPowerRange", Prefixes.SSN, null);
+				"http://purl.oclc.org/NET/ssnx/ssn#OperatingPowerRange", Prefixes.SSN, null, false);
 
 		/*
 		 * adding ssn:OperatingProperty class to superClassesList to tell the
@@ -91,7 +90,7 @@ public class OperatingProperty extends Property {
 		 * conditions.
 		 */
 		Class maintenanceSchedule = new Class("MaintenanceSchedule",
-				"http://purl.oclc.org/NET/ssnx/ssn#MaintenanceSchedule", Prefixes.SSN, null);
+				"http://purl.oclc.org/NET/ssnx/ssn#MaintenanceSchedule", Prefixes.SSN, null, false);
 
 		/*
 		 * adding ssn:OperatingProperty class to superClassesList to tell the
@@ -108,7 +107,7 @@ public class OperatingProperty extends Property {
 		 * Power range in which system/sensor is expected to operate.
 		 */
 		Class operatingPowerRange = new Class("OperatingPowerRange",
-				"http://purl.oclc.org/NET/ssnx/ssn#OperatingPowerRange", Prefixes.SSN, null);
+				"http://purl.oclc.org/NET/ssnx/ssn#OperatingPowerRange", Prefixes.SSN, null, false);
 
 		/*
 		 * adding ssn:OperatingProperty class to superClassesList to tell the

@@ -17,7 +17,7 @@ public class SensingDevice extends Device {
 	private static SensingDevice sensingDeviceInstance;
 
 	public SensingDevice() {
-		super("SensingDevice", "http://purl.oclc.org/NET/ssnx/ssn#SensingDevice", Prefixes.SSN);
+		super("SensingDevice", "http://purl.oclc.org/NET/ssnx/ssn#SensingDevice", Prefixes.SSN,null,false);
 		init();
 	}
 

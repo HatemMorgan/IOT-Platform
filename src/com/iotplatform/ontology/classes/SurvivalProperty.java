@@ -19,9 +19,8 @@ public class SurvivalProperty extends Property {
 
 	private static SurvivalProperty survivalPropertyInstance;
 
-
 	public SurvivalProperty() {
-		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN, true);
+		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN, null, true);
 		init();
 	}
 
@@ -35,7 +34,7 @@ public class SurvivalProperty extends Property {
 	 * 
 	 */
 	public SurvivalProperty(String nothing) {
-		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN, true);
+		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN, null, true);
 	}
 
 	public synchronized static SurvivalProperty getSurvivalPropertyInstance() {
@@ -53,7 +52,7 @@ public class SurvivalProperty extends Property {
 		 * Total useful life of a battery.
 		 */
 		Class batteryLifetime = new Class("BatteryLifetime", "http://purl.oclc.org/NET/ssnx/ssn#BatteryLifetime",
-				Prefixes.SSN, null);
+				Prefixes.SSN, null, false);
 
 		/*
 		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
@@ -71,7 +70,7 @@ public class SurvivalProperty extends Property {
 		 */
 
 		Class systemLifetime = new Class("SystemLifetime", "http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime",
-				Prefixes.SSN, null);
+				Prefixes.SSN, null, false);
 
 		/*
 		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
@@ -90,7 +89,7 @@ public class SurvivalProperty extends Property {
 		 * Total useful life of a battery.
 		 */
 		Class batteryLifetime = new Class("BatteryLifetime", "http://purl.oclc.org/NET/ssnx/ssn#BatteryLifetime",
-				Prefixes.SSN, null);
+				Prefixes.SSN, null, false);
 
 		/*
 		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
@@ -108,7 +107,7 @@ public class SurvivalProperty extends Property {
 		 */
 
 		Class systemLifetime = new Class("SystemLifetime", "http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime",
-				Prefixes.SSN, null);
+				Prefixes.SSN, null, false);
 
 		/*
 		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao

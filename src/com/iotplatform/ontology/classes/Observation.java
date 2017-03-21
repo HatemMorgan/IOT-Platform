@@ -24,7 +24,7 @@ public class Observation extends Class {
 	private static Observation observationInstance;
 
 	public Observation() {
-		super("Observation", "http://purl.oclc.org/NET/ssnx/ssn#Observation", Prefixes.SSN, null);
+		super("Observation", "http://purl.oclc.org/NET/ssnx/ssn#Observation", Prefixes.SSN, null,false);
 		init();
 	}
 

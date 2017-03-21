@@ -16,7 +16,7 @@ public class TagDevice extends Device {
 	private static TagDevice tagDeviceInstance;
 
 	public TagDevice() {
-		super("TagDevice", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice", Prefixes.IOT_LITE);
+		super("TagDevice", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice", Prefixes.IOT_LITE, null, false);
 	}
 
 	public synchronized static TagDevice getTagDeviceInstance() {

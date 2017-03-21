@@ -36,7 +36,7 @@ public class Stimulus extends Class {
 	private static Stimulus stimulusInstance;
 
 	public Stimulus() {
-		super("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Prefixes.SSN, null);
+		super("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Prefixes.SSN, null,false);
 		init();
 	}
 

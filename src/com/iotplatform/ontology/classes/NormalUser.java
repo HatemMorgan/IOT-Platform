@@ -3,8 +3,10 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  *  This class maps the NormalUser class in the ontology
@@ -16,7 +18,8 @@ public class NormalUser extends Person {
 	private static NormalUser normalUserInstance;
 
 	public NormalUser() {
-		super("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM);
+		super("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM,
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
 		init();
 	}
 
@@ -30,7 +33,8 @@ public class NormalUser extends Person {
 	 * 
 	 */
 	public NormalUser(String nothing) {
-		super("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM);
+		super("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM,
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
 	}
 
 	public synchronized static NormalUser getNormalUserInstance() {

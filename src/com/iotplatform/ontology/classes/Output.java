@@ -20,7 +20,7 @@ public class Output extends Class {
 
 	public Output() {
 		
-		super("Output", "http://purl.oclc.org/NET/ssnx/ssn#Output", Prefixes.SSN, null);
+		super("Output", "http://purl.oclc.org/NET/ssnx/ssn#Output", Prefixes.SSN, null,false);
 		init();
 	}
 

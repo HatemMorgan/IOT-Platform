@@ -3,8 +3,10 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  *  This class maps the Developer class in the ontology
@@ -16,7 +18,8 @@ public class Developer extends Person {
 	private static Developer developerInstance;
 
 	public Developer() {
-		super("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM);
+		super("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM,
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
 		init();
 	}
 
@@ -30,7 +33,8 @@ public class Developer extends Person {
 	 * 
 	 */
 	public Developer(String nothing) {
-		super("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM);
+		super("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM,
+				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
 	}
 
 	public synchronized static Developer getDeveloperInstance() {
@@ -60,7 +64,7 @@ public class Developer extends Person {
 
 		super.getSuperClassesList().add(Person.getPersonInstance());
 	}
-	
+
 	public static void main(String[] args) {
 		Developer developer = new Developer();
 		System.out.println(developer.getProperties().size());

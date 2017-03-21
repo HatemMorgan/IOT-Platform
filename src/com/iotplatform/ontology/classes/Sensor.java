@@ -20,12 +20,13 @@ public class Sensor extends Device {
 	private static Sensor sensorInstance;
 
 	public Sensor() {
-		super("Sensor", "http://purl.oclc.org/NET/ssnx/ssn#Sensor", Prefixes.SSN);
+		super("Sensor", "http://purl.oclc.org/NET/ssnx/ssn#Sensor", Prefixes.SSN, null, false);
 		init();
 	}
 
-	public Sensor(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix);
+	public Sensor(String name, String uri, Prefixes prefix, com.iotplatform.ontology.Property uniqueIdentifierProperty,
+			boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
 		init();
 
 	}
