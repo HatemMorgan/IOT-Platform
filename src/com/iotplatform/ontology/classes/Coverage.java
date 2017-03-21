@@ -81,7 +81,7 @@ public class Coverage extends Class {
 
 		circle.setProperties(super.getProperties());
 		circle.setHtblPropUriName(super.getHtblPropUriName());
-		
+
 		circle.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "radius", "radius");
 		circle.getProperties().put("radius",
 				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
@@ -212,5 +212,11 @@ public class Coverage extends Class {
 		System.out.println(coverage.getClassTypesList().get("Circle").getProperties());
 		System.out.println(coverage.getClassTypesList().get("Rectangle").getProperties());
 		System.out.println(coverage.getClassTypesList().get("Polygon").getProperties());
+
+		System.out.println("==================================================================");
+
+		System.out.println(Coverage.getCoverageInstance().getClassTypesList().get("Circle").getProperties());
+		System.out.println(Coverage.getCoverageInstance().getClassTypesList().get("Rectangle").getProperties());
+		System.out.println(Coverage.getCoverageInstance().getClassTypesList().get("Polygon").getProperties());
 	}
 }

@@ -2,10 +2,8 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  * This Class maps the Deployment Class in the ontology
@@ -68,7 +66,7 @@ public class Deployment extends DeploymentRelatedProcess {
 		deploymentInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deployedOnPlatform", "deployedOnPlatform");
 
 	}
-	
+
 	public static void main(String[] args) {
 		Deployment deployment = new Deployment();
 		System.out.println(deployment.getProperties());

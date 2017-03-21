@@ -1,7 +1,5 @@
 package com.iotplatform.ontology.classes;
 
-import java.util.Hashtable;
-
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
