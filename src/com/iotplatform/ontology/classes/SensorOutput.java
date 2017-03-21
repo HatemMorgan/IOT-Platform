@@ -20,6 +20,7 @@ public class SensorOutput extends Class {
 	private static SensorOutput sensorOutputInstance;
 
 	public SensorOutput() {
+
 		super("SensorOutput", " http://purl.oclc.org/NET/ssnx/ssn#SensorOutput", Prefixes.SSN, null);
 		init();
 	}

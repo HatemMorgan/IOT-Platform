@@ -28,7 +28,6 @@ import com.iotplatform.ontology.XSDDataTypes;
  * its behavior in order to make the environment more satisfactory. For instance, 1- hunger motivates animals
  * to seek food, 2- predators stimulate prey to run away or hide, and 3- falling temperatures encourage creatures
  * to seek shelter or find warmth in other ways
- * 
  */
 
 @Component

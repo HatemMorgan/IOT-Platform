@@ -19,6 +19,7 @@ public class SurvivalProperty extends Property {
 
 	private static SurvivalProperty survivalPropertyInstance;
 
+
 	public SurvivalProperty() {
 		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN, true);
 		init();

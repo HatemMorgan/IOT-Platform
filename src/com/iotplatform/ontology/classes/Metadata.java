@@ -17,6 +17,7 @@ import com.iotplatform.ontology.XSDDataTypes;
 @Component
 public class Metadata extends Class {
 
+	
 	private static Metadata metadataInstance;
 
 	public Metadata() {

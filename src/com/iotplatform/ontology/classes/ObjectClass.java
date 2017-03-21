@@ -16,6 +16,7 @@ import com.iotplatform.ontology.XSDDataTypes;
 @Component
 public class ObjectClass extends Class {
 
+	
 	private static ObjectClass objectClassInstance;
 
 	public ObjectClass() {

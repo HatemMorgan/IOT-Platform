@@ -129,5 +129,4 @@ public class Class {
 		this.htblPropUriName = htblPropUriName;
 	}
 
-	
 }

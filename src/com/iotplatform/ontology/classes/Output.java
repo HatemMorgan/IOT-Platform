@@ -19,6 +19,7 @@ public class Output extends Class {
 	private static Output outputInstance;
 
 	public Output() {
+		
 		super("Output", "http://purl.oclc.org/NET/ssnx/ssn#Output", Prefixes.SSN, null);
 		init();
 	}

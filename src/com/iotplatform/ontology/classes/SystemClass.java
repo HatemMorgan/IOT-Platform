@@ -25,6 +25,7 @@ import com.iotplatform.ontology.XSDDataTypes;
  * 
  */
 
+
 @Component
 public class SystemClass extends Class {
 

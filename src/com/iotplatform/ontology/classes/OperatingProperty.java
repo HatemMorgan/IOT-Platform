@@ -16,6 +16,7 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class OperatingProperty extends Property {
 
+	
 	private static OperatingProperty operatingPropertyInstance;
 
 	public OperatingProperty() {

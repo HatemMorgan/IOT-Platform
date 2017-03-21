@@ -19,6 +19,7 @@ public class Service extends Class {
 
 	private static Service serviceInstance;
 
+	
 	public Service() {
 		super("Service", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service", Prefixes.IOT_LITE, null);
 		init();

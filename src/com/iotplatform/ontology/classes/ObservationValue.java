@@ -19,6 +19,7 @@ public class ObservationValue extends Class {
 
 	private static ObservationValue observationValueInstance;
 
+	
 	public ObservationValue() {
 		super("ObservationValue", "http://purl.oclc.org/NET/ssnx/ssn#ObservationValue", Prefixes.SSN, null);
 		init();

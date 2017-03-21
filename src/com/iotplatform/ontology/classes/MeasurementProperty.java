@@ -60,6 +60,7 @@ public class MeasurementProperty extends Property {
 		 * The closeness of agreement between the value of an observation and
 		 * the true value of the observed quality.
 		 */
+
 		Class accuracy = new Class("Accuracy", "http://purl.oclc.org/NET/ssnx/ssn#Accuracy", Prefixes.SSN, null);
 		accuracy.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
 		accuracy.setProperties(super.getProperties());

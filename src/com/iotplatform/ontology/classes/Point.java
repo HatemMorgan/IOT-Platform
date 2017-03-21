@@ -22,6 +22,7 @@ import com.iotplatform.ontology.XSDDataTypes;
 @Component
 public class Point extends Class {
 
+	
 	private static Point pointInstance;
 
 	public Point() {

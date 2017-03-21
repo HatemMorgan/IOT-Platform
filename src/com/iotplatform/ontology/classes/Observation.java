@@ -20,6 +20,7 @@ import com.iotplatform.ontology.XSDDataTypes;
 @Component
 public class Observation extends Class {
 
+	
 	private static Observation observationInstance;
 
 	public Observation() {
