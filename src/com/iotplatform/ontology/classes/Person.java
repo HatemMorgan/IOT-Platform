@@ -1,5 +1,7 @@
 package com.iotplatform.ontology.classes;
 
+import java.util.Hashtable;
+
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
@@ -91,7 +93,10 @@ public class Person extends Agent {
 
 		this.getSuperClassesList().add(Agent.getAgentInstance());
 
-		initPersonTypeClasses();
+		if (this.isHasTypeClasses()) {
+			this.setClassTypesList(new Hashtable<>());
+			initPersonTypeClasses();
+		}
 
 	}
 
@@ -180,9 +185,9 @@ public class Person extends Agent {
 
 	public static void main(String[] args) {
 		Person person = new Person();
-
+		System.out.println(person.getClassTypesList());
 		// System.out.println(Person.getPersonInstance().getProperties().size());
-		// System.out.println(person.getProperties().size());
+		 System.out.println(person.getProperties().size());
 
 		// System.out.println(person.getClassTypesList().get("NormalUser").getProperties().size());
 		// System.out.println(Person.getPersonInstance().getClassTypesList().get("NormalUser").getProperties().size());

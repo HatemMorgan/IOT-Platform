@@ -145,12 +145,15 @@ public class Agent extends Class {
 
 		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "topic_interest", "topic_interest");
 
-		initAgentTypeClasses();
+		if (this.isHasTypeClasses()) {
+			initAgentTypeClasses();
+		}
 	}
 
 	public static void main(String[] args) {
 		Agent agent = new Agent();
-		agent.init();
+		System.out.println(agent.getProperties().size());
+		
 		System.out.println(agent.getClassTypesList().get("Person").getClassTypesList().get("Developer").getProperties()
 				.toString());
 		System.out.println(

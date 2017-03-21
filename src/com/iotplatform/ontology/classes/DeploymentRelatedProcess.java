@@ -100,7 +100,9 @@ public class DeploymentRelatedProcess extends Class {
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deploymentProcessPart", "deploymentProcessPart");
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 
-		initDeploymentRelatedProcessTypeClasses();
+		if (this.isHasTypeClasses()) {
+			initDeploymentRelatedProcessTypeClasses();
+		}
 
 	}
 
@@ -142,6 +144,14 @@ public class DeploymentRelatedProcess extends Class {
 
 	public static void main(String[] args) {
 		DeploymentRelatedProcess deploymentRelatedProcess = new DeploymentRelatedProcess();
-		System.out.println(deploymentRelatedProcess.getClassTypesList().get("Deployment").getProperties());
+
+		System.out.println(deploymentRelatedProcess.getClassTypesList());
+
+		System.out.println(DeploymentRelatedProcess.getDeploymentRelatedProcessInstance().getClassTypesList());
+
+		System.out.println(deploymentRelatedProcess.getClassTypesList().get("Deployment").getClassTypesList());
+
+		System.out.println(DeploymentRelatedProcess.getDeploymentRelatedProcessInstance().getClassTypesList()
+				.get("Deployment").getClassTypesList());
 	}
 }

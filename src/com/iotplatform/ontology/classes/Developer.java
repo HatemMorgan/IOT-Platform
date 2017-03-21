@@ -69,6 +69,8 @@ public class Developer extends Person {
 		Developer developer = new Developer();
 		System.out.println(developer.getProperties().size());
 		System.out.println(Developer.getDeveloperInstance().getProperties().size());
+		System.out.println(developer.getClassTypesList());
+		System.out.println(Developer.getDeveloperInstance().getClassTypesList());
 	}
 
 }

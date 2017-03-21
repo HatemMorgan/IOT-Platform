@@ -46,10 +46,12 @@ public class Deployment extends DeploymentRelatedProcess {
 		 * was deployed. one to one relation because a deployment will be in one
 		 * place (which is the place of the platform)
 		 */
-		this.getProperties().put("deployedOnPlatform",
+		super.getProperties().put("deployedOnPlatform",
 				new ObjectProperty("deployedOnPlatform", Prefixes.SSN, Platform.getPlatformInstance(), false, false));
 
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deployedOnPlatform", "deployedOnPlatform");
+
+		super.getSuperClassesList().add(DeploymentRelatedProcess.getDeploymentRelatedProcessInstance());
 
 	}
 
@@ -65,11 +67,15 @@ public class Deployment extends DeploymentRelatedProcess {
 
 		deploymentInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deployedOnPlatform", "deployedOnPlatform");
 
+		deploymentInstance.getSuperClassesList().add(DeploymentRelatedProcess.getDeploymentRelatedProcessInstance());
+
 	}
 
 	public static void main(String[] args) {
 		Deployment deployment = new Deployment();
 		System.out.println(deployment.getProperties());
+		System.out.println(deployment.getClassTypesList());
+		System.out.println(Deployment.getDeploymentInstance().getProperties());
 	}
 
 }

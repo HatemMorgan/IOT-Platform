@@ -116,4 +116,8 @@ public class Class {
 		this.htblPropUriName.putAll(htblPropUriName);
 	}
 
+	public void setClassTypesList(Hashtable<String, Class> classTypesList) {
+		this.classTypesList = classTypesList;
+	}
+
 }
