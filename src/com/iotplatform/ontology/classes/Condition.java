@@ -25,9 +25,16 @@ public class Condition extends Property {
 		init();
 	}
 
+	public Condition(String nothing) {
+		super("Condition", "http://purl.oclc.org/NET/ssnx/ssn#Condition", Prefixes.SSN, null, false, null);
+	}
+
 	public static Condition getConditionInstance() {
-		if (conditionInstance == null)
-			conditionInstance = new Condition();
+		if (conditionInstance == null) {
+			conditionInstance = new Condition(null);
+			Property.initPropertyStaticInstance(conditionInstance);
+			initConditionStaticInstance(conditionInstance);
+		}
 
 		return conditionInstance;
 	}
@@ -42,6 +49,19 @@ public class Condition extends Property {
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
 
 		super.getSuperClassesList().add(Property.getPropertyInstance());
+
+	}
+
+	private static void initConditionStaticInstance(Condition conditionInstance) {
+
+		/*
+		 * Condition description
+		 */
+		conditionInstance.getProperties().put("description",
+				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+		conditionInstance.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
+
+		conditionInstance.getSuperClassesList().add(Property.getPropertyInstance());
 
 	}
 

@@ -35,14 +35,25 @@ public class MeasurementCapability extends Property {
 		init();
 	}
 
-	public synchronized static MeasurementCapability getMeasurementCapabilityInstance() {
-		if (measurementCapabilityInstance == null)
-			measurementCapabilityInstance = new MeasurementCapability();
+	public MeasurementCapability(String nothing) {
+		super("MeasurementCapability", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefixes.SSN, null,
+				false, null);
+	}
 
+	public synchronized static MeasurementCapability getMeasurementCapabilityInstance() {
+		if (measurementCapabilityInstance == null) {
+			measurementCapabilityInstance = new MeasurementCapability(null);
+			Property.initPropertyStaticInstance(measurementCapabilityInstance);
+			initMeasurementCapabilityStaticInstance(measurementCapabilityInstance);
+		}
 		return measurementCapabilityInstance;
 	}
 
 	private void init() {
 		this.getSuperClassesList().add(Property.getPropertyInstance());
+	}
+
+	private static void initMeasurementCapabilityStaticInstance(MeasurementCapability measurementCapabilityInstance) {
+		measurementCapabilityInstance.getSuperClassesList().add(Property.getPropertyInstance());
 	}
 }

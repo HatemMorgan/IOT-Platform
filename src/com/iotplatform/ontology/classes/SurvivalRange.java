@@ -23,14 +23,20 @@ public class SurvivalRange extends Property {
 	private static SurvivalRange survivalRangeInstance;
 
 	public SurvivalRange() {
-		super("SurvivalRange", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefixes.SSN,null,false);
+		super("SurvivalRange", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefixes.SSN, null, false);
 		init();
 	}
 
-	public synchronized static SurvivalRange getSurvivalRangeInstance() {
-		if (survivalRangeInstance == null)
-			survivalRangeInstance = new SurvivalRange();
+	public SurvivalRange(String nothing) {
+		super("SurvivalRange", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefixes.SSN, null, false, null);
+	}
 
+	public synchronized static SurvivalRange getSurvivalRangeInstance() {
+		if (survivalRangeInstance == null) {
+			survivalRangeInstance = new SurvivalRange();
+			initPropertyStaticInstance(survivalRangeInstance);
+			initSurvivalRangeStaticInstance(survivalRangeInstance);
+		}
 		return survivalRangeInstance;
 	}
 
@@ -52,7 +58,30 @@ public class SurvivalRange extends Property {
 
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalProperty", "hasSurvivalProperty");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
-		
+
 		super.getSuperClassesList().add(Property.getPropertyInstance());
+	}
+
+	private static void initSurvivalRangeStaticInstance(SurvivalRange survivalRangeInstance) {
+		/*
+		 * Relation from an SurvivalProperty to a Property.
+		 */
+		survivalRangeInstance.getProperties().put("hasSurvivalProperty", new ObjectProperty("hasSurvivalProperty",
+				Prefixes.SSN, SurvivalProperty.getSurvivalPropertyInstance(), true, false));
+
+		/*
+		 * Describes the prevailing environmental conditions for
+		 * MeasurementCapabilites, OperatingConditions and SurvivalRanges. Used
+		 * for example to say that a sensor has a particular accuracy in
+		 * particular conditions. (see also MeasurementCapability)
+		 */
+		survivalRangeInstance.getProperties().put("inCondition",
+				new ObjectProperty("inCondition", Prefixes.SSN, Condition.getConditionInstance(), false, false));
+
+		survivalRangeInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalProperty",
+				"hasSurvivalProperty");
+		survivalRangeInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
+
+		survivalRangeInstance.getSuperClassesList().add(Property.getPropertyInstance());
 	}
 }

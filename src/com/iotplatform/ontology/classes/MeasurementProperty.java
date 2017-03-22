@@ -33,12 +33,14 @@ public class MeasurementProperty extends Property {
 	 * 
 	 */
 	public MeasurementProperty(String nothing) {
-		super("MeasurementProperty", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementProperty", Prefixes.SSN, null, true);
+		super("MeasurementProperty", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementProperty", Prefixes.SSN, null, true,
+				null);
 	}
 
 	public synchronized static MeasurementProperty getMeasurementPropertyInstance() {
 		if (measurementPropertyInstance == null) {
 			measurementPropertyInstance = new MeasurementProperty(null);
+			initPropertyStaticInstance(measurementPropertyInstance);
 			initMeasurmentPropertyStaticInstance(measurementPropertyInstance);
 		}
 

@@ -30,10 +30,16 @@ public class OperatingRange extends Property {
 		init();
 	}
 
-	public synchronized static OperatingRange getOperatingRangeInstance() {
-		if (operatingRangeInstance == null)
-			operatingRangeInstance = new OperatingRange();
+	public OperatingRange(String nothing) {
+		super("OperatingRange", "http://purl.oclc.org/NET/ssnx/ssn#OperatingRange", Prefixes.SSN, null, false, null);
+	}
 
+	public synchronized static OperatingRange getOperatingRangeInstance() {
+		if (operatingRangeInstance == null) {
+			operatingRangeInstance = new OperatingRange();
+			initOperatingRangeStaticInstance(operatingRangeInstance);
+			initPropertyStaticInstance(operatingRangeInstance);
+		}
 		return operatingRangeInstance;
 	}
 
@@ -60,7 +66,32 @@ public class OperatingRange extends Property {
 
 		this.getSuperClassesList().add(Property.getPropertyInstance());
 	}
-	
+
+	private static void initOperatingRangeStaticInstance(OperatingRange operatingRangeInstance) {
+
+		/*
+		 * Relation from an OperatingRange to a Property. For example, to a
+		 * battery lifetime.
+		 */
+		operatingRangeInstance.getProperties().put("hasOperatingProperty", new ObjectProperty("hasOperatingProperty",
+				Prefixes.SSN, OperatingProperty.getOperatingPropertyInstance(), false, false));
+
+		/*
+		 * Describes the prevailing environmental conditions for
+		 * MeasurementCapabilites, OperatingConditions and SurvivalRanges. Used
+		 * for example to say that a sensor has a particular accuracy in
+		 * particular conditions. (see also MeasurementCapability)
+		 */
+		operatingRangeInstance.getProperties().put("inCondition",
+				new ObjectProperty("inCondition", Prefixes.SSN, Condition.getConditionInstance(), false, false));
+
+		operatingRangeInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingProperty",
+				"hasOperatingProperty");
+		operatingRangeInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
+
+		operatingRangeInstance.getSuperClassesList().add(Property.getPropertyInstance());
+	}
+
 	public static void main(String[] args) {
 		OperatingRange operatingRange = new OperatingRange();
 

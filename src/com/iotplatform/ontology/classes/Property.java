@@ -27,15 +27,48 @@ public class Property extends Class {
 		init();
 	}
 
+	/*
+	 * This constructor is used to perform overloading constructor technique and
+	 * the parameter String nothing will be passed always with null
+	 * 
+	 * I use this constructor to create any subClassStaticInstance of Property.
+	 * This constructor does not call init method so by this way I will be able
+	 * to create a static instance from any of subClasses of Property and avoid
+	 * throwing java.lang.StackOverflowError exception
+	 * 
+	 * I will use subClassesStaticInstances to add them to typeClassesList of
+	 * Property
+	 */
+	public Property(String name, String uri, Prefixes prefix,
+			com.iotplatform.ontology.Property uniqueIdentifierProperty, boolean hasTypeClasses, String nothing) {
+		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
+	}
+
 	public Property() {
 		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN, null, true);
 		init();
 	}
 
-	public synchronized static Property getPropertyInstance() {
-		if (propertyInstance == null)
-			propertyInstance = new Property();
+	/*
+	 * This constructor is used to perform overloading constructor technique and
+	 * the parameter String nothing will be passed always with null
+	 * 
+	 * I use this constructor to create Static Instance of propertyClass to be
+	 * used by other subClasses
+	 * 
+	 * I created this constructor to remove calling init() method because it
+	 * cause throwing java.lang.StackOverflowError exception when any of the
+	 * subClasses want to point to PropertyClass as their superClass
+	 */
+	public Property(String nothing) {
+		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN, null, true);
+	}
 
+	public synchronized static Property getPropertyInstance() {
+		if (propertyInstance == null) {
+			propertyInstance = new Property(null);
+			initPropertyStaticInstance(propertyInstance);
+		}
 		return propertyInstance;
 	}
 
@@ -79,5 +112,59 @@ public class Property extends Class {
 			this.getClassTypesList().putAll(SurvivalRange.getSurvivalRangeInstance().getClassTypesList());
 		}
 
+	}
+
+	public static void initPropertyStaticInstance(Property propertyInstance) {
+
+		/*
+		 * relation between a Property and its value of type Amount
+		 */
+		propertyInstance.getProperties().put("hasValue",
+				new ObjectProperty("hasValue", Prefixes.SSN, Amount.getAmountInstance(), false, false));
+
+		propertyInstance.getProperties().put("id",
+				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+
+		propertyInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		propertyInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasValue", "hasValue");
+
+		if (propertyInstance.isHasTypeClasses()) {
+
+			propertyInstance.getClassTypesList().put("Condition", Condition.getConditionInstance());
+			propertyInstance.getClassTypesList().putAll(Condition.getConditionInstance().getClassTypesList());
+
+			propertyInstance.getClassTypesList().put("MeasurementProperty",
+					MeasurementProperty.getMeasurementPropertyInstance());
+			propertyInstance.getClassTypesList()
+					.putAll(MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList());
+
+			propertyInstance.getClassTypesList().put("MeasurementCapability",
+					MeasurementCapability.getMeasurementCapabilityInstance());
+			propertyInstance.getClassTypesList()
+					.putAll(MeasurementCapability.getMeasurementCapabilityInstance().getClassTypesList());
+
+			propertyInstance.getClassTypesList().put("OperatingRange", OperatingRange.getOperatingRangeInstance());
+			propertyInstance.getClassTypesList().putAll(OperatingRange.getOperatingRangeInstance().getClassTypesList());
+
+			propertyInstance.getClassTypesList().put("OperatingProperty",
+					OperatingProperty.getOperatingPropertyInstance());
+			propertyInstance.getClassTypesList()
+					.putAll(OperatingProperty.getOperatingPropertyInstance().getClassTypesList());
+
+			propertyInstance.getClassTypesList().put("SurvivalProperty",
+					SurvivalProperty.getSurvivalPropertyInstance());
+			propertyInstance.getClassTypesList()
+					.putAll(SurvivalProperty.getSurvivalPropertyInstance().getClassTypesList());
+
+			propertyInstance.getClassTypesList().put("SurvivalRange", SurvivalRange.getSurvivalRangeInstance());
+			propertyInstance.getClassTypesList().putAll(SurvivalRange.getSurvivalRangeInstance().getClassTypesList());
+		}
+
+	}
+
+	public static void main(String[] args) {
+		Property property = new Property();
+		System.out.println(property.getClassTypesList().size());
+		System.out.println(Property.getPropertyInstance().getClassTypesList().size());
 	}
 }

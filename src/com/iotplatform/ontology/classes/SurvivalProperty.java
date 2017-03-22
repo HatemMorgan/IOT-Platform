@@ -36,12 +36,13 @@ public class SurvivalProperty extends Property {
 	 * 
 	 */
 	public SurvivalProperty(String nothing) {
-		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN, null, true);
+		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN, null, true, null);
 	}
 
 	public synchronized static SurvivalProperty getSurvivalPropertyInstance() {
 		if (survivalPropertyInstance == null) {
 			survivalPropertyInstance = new SurvivalProperty(null);
+			initPropertyStaticInstance(survivalPropertyInstance);
 			initSurvivalPropertyStaticInstance(survivalPropertyInstance);
 		}
 
