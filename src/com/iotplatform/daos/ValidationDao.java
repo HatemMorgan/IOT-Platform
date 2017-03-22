@@ -67,9 +67,6 @@ public class ValidationDao {
 			Object integrityCheck = resultSet.getObject("isFound");
 			Object uniquenessCheck = resultSet.getObject("isUnique");
 
-			System.out.println(integrityCheck.toString());
-			System.out.println(uniquenessCheck.toString());
-
 			if (integrityCheck != null) {
 				if (Integer.parseInt(integrityCheck.toString()) == 0) {
 					throw new InvalidPropertyValuesException(subjectClass.getName());

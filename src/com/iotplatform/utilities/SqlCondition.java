@@ -25,4 +25,9 @@ public class SqlCondition {
 		return colValue;
 	}
 
+	@Override
+	public String toString() {
+		return "SqlCondition [colName=" + colName + ", colValue=" + colValue + "]";
+	}
+
 }

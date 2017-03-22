@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 
+import javax.security.auth.Subject;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.daos.DynamicConceptDao;
+import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidPropertyValuesException;
@@ -147,7 +149,7 @@ public class RequestFieldsValidation {
 		 * List of classes that need to get their dynamic properties to check if
 		 * the fields maps to one of them or these fields are invalid fields
 		 */
-		ArrayList<Class> classList = new ArrayList<>();
+		Hashtable<String, Class> htblNotMappedFieldsClasses = new Hashtable();
 
 		/*
 		 * htblNotFoundFieldValue holds fieldsValue pairs that do not have a
@@ -223,12 +225,6 @@ public class RequestFieldsValidation {
 			String id = UUID.randomUUID().toString();
 
 			/*
-			 * prefixing objectUniqueIdentifier
-			 */
-
-			id = "\"" + id + "\"" + XSDDataTypes.string_typed.getXsdType();
-
-			/*
 			 * add property id for classTypeObject and add generated UUID as the
 			 * object of it
 			 */
@@ -296,13 +292,13 @@ public class RequestFieldsValidation {
 			 * htblNotFoundFieldValue
 			 */
 
-			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, classList, htblNotFoundFieldValue, 0,
-					randomID)) {
+			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, htblNotMappedFieldsClasses,
+					htblNotFoundFieldValue, 0, randomID)) {
 				Property property = subjectClass.getProperties().get(fieldName);
 
-				parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue, classList,
-						htblNotFoundFieldValue, 0, htblUniquePropValueList, classValueList, subjectClass.getName(),
-						null, null, randomID, randomID);
+				parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue,
+						htblNotMappedFieldsClasses, htblNotFoundFieldValue, 0, htblUniquePropValueList, classValueList,
+						subjectClass.getName(), null, null, randomID, randomID);
 			}
 
 		}
@@ -313,9 +309,9 @@ public class RequestFieldsValidation {
 		 * static properties
 		 */
 
-		if (classList.size() > 0) {
+		if (htblNotMappedFieldsClasses.size() > 0) {
 			Hashtable<String, DynamicConceptModel> loadedDynamicProperties = getDynamicProperties(applicationName,
-					classList);
+					htblNotMappedFieldsClasses);
 			/*
 			 * Check that the fields that had no mappings are valid or not
 			 */
@@ -364,9 +360,10 @@ public class RequestFieldsValidation {
 						 */
 
 						parseAndConstructFieldValue(htblNotFoundFieldValue.get(field).getPropertyClass(), property,
-								htblNotFoundFieldValue.get(field).getPropertyValue(), htblClassPropertyValue, classList,
-								htblNotFoundFieldValue, htblNotFoundFieldValue.get(field).getClassInstanceIndex(),
-								htblUniquePropValueList, classValueList, subjectClass.getName(), null, null,
+								htblNotFoundFieldValue.get(field).getPropertyValue(), htblClassPropertyValue,
+								htblNotMappedFieldsClasses, htblNotFoundFieldValue,
+								htblNotFoundFieldValue.get(field).getClassInstanceIndex(), htblUniquePropValueList,
+								classValueList, subjectClass.getName(), null, null,
 								htblNotFoundFieldValue.get(field).getRandomID(),
 								htblNotFoundFieldValue.get(field).getRandomID());
 
@@ -451,13 +448,14 @@ public class RequestFieldsValidation {
 	 * instance
 	 */
 	private boolean isFieldMapsToStaticProperty(Class subjectClass, String fieldName, Object value,
-			ArrayList<Class> classList, Hashtable<String, ValueOfFieldNotMappedToStaticProperty> htblNotFoundFieldValue,
-			int index, String uniqueIdentifer) {
+			Hashtable<String, Class> htblNotMappedFieldsClasses,
+			Hashtable<String, ValueOfFieldNotMappedToStaticProperty> htblNotFoundFieldValue, int index,
+			String uniqueIdentifer) {
 
 		if (subjectClass.getProperties().containsKey(fieldName)) {
 			return true;
 		} else {
-			classList.add(subjectClass);
+			htblNotMappedFieldsClasses.put(subjectClass.getUri(), subjectClass);
 			ValueOfFieldNotMappedToStaticProperty notMappedFieldValue = new ValueOfFieldNotMappedToStaticProperty(
 					subjectClass, value, index, uniqueIdentifer);
 			htblNotFoundFieldValue.put(fieldName, notMappedFieldValue);
@@ -491,7 +489,8 @@ public class RequestFieldsValidation {
 	 * this objectValue
 	 */
 	private void parseAndConstructFieldValue(Class subjectClass, Property property, Object value,
-			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue, ArrayList<Class> classList,
+			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue,
+			Hashtable<String, Class> htblNotMappedFieldsClasses,
 			Hashtable<String, ValueOfFieldNotMappedToStaticProperty> htblNotFoundFieldValue, int indexCount,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<PropertyValue>>> htblUniquePropValueList,
 			ArrayList<ValueOfTypeClass> classValueList, String requestClassName, String objectValueSubject,
@@ -620,13 +619,23 @@ public class RequestFieldsValidation {
 				}
 
 			}
-
 			/*
-			 * construct a new PropertyValue instance to hold the prefiexed
-			 * propertyName and prefixed value
+			 * check if the property is not the uniqueIdentifierProperty of this
+			 * subjectClass in order to not pefixing value to be used by the
+			 * MainDao to generate proper triples
 			 */
-			PropertyValue propertyValue = new PropertyValue(property.getPrefix().getPrefix() + property.getName(),
-					getValue(property, value), false);
+			PropertyValue propertyValue;
+			if (subjectClass.isHasUniqueIdentifierProperty()
+					&& subjectClass.getUniqueIdentifierProperty().getName().equals(property.getName())) {
+				propertyValue = new PropertyValue(property.getPrefix().getPrefix() + property.getName(), value, false);
+			} else {
+				/*
+				 * construct a new PropertyValue instance to hold the prefiexed
+				 * propertyName and prefixed value
+				 */
+				propertyValue = new PropertyValue(property.getPrefix().getPrefix() + property.getName(),
+						getValue(property, value), false);
+			}
 
 			/*
 			 * add PropertyValue object to htblClassPropertyValue
@@ -653,7 +662,7 @@ public class RequestFieldsValidation {
 			if (value instanceof java.util.LinkedHashMap<?, ?> && property instanceof ObjectProperty) {
 				LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) value;
 				Class classType = ((ObjectProperty) property).getObject();
-				System.out.println(property.getName() + "   " + classType);
+
 				/*
 				 * linking subject class with object class by adding a the
 				 * unique identifier as the object value of the property
@@ -664,8 +673,9 @@ public class RequestFieldsValidation {
 				 * value instance to the subject
 				 */
 				String objectUniqueIdentifier;
+				Property uniqueIdentifierProperty = null;
 				if (classType.isHasUniqueIdentifierProperty()) {
-					Property uniqueIdentifierProperty = classType.getUniqueIdentifierProperty();
+					uniqueIdentifierProperty = classType.getUniqueIdentifierProperty();
 					objectUniqueIdentifier = valueObject.get(uniqueIdentifierProperty.getName()).toString();
 
 				} else {
@@ -767,8 +777,7 @@ public class RequestFieldsValidation {
 				if (!classType.isHasUniqueIdentifierProperty()) {
 					Property idProperty = classType.getProperties().get("id");
 					PropertyValue idPropertyValue = new PropertyValue(
-							idProperty.getPrefix().getPrefix() + idProperty.getName(),
-							"\"" + objectUniqueIdentifier + "\"" + XSDDataTypes.string_typed.getXsdType(), false);
+							idProperty.getPrefix().getPrefix() + idProperty.getName(), objectUniqueIdentifier, false);
 
 					/*
 					 * add idPropertyValue object to htblClassPropertyValue
@@ -818,8 +827,8 @@ public class RequestFieldsValidation {
 					 */
 
 					Object fieldValue = valueObject.get(fieldName);
-					if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, classList, htblNotFoundFieldValue,
-							classInstanceIndex, randomID)) {
+					if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, htblNotMappedFieldsClasses,
+							htblNotFoundFieldValue, classInstanceIndex, randomID)) {
 
 						Property classTypeProperty = classType.getProperties().get(fieldName);
 
@@ -841,8 +850,8 @@ public class RequestFieldsValidation {
 						 */
 						if (property instanceof ObjectProperty) {
 							parseAndConstructFieldValue(classType, classTypeProperty, fieldValue,
-									htblClassPropertyValue, classList, htblNotFoundFieldValue, classInstanceIndex,
-									htblUniquePropValueList, classValueList, requestClassName,
+									htblClassPropertyValue, htblNotMappedFieldsClasses, htblNotFoundFieldValue,
+									classInstanceIndex, htblUniquePropValueList, classValueList, requestClassName,
 									subjectClass.getPrefix().getPrefix() + subjectClass.getName(), property,
 									uniqueIdentifier, randomID);
 						} else {
@@ -855,9 +864,9 @@ public class RequestFieldsValidation {
 							 * is an object value
 							 */
 							parseAndConstructFieldValue(classType, classTypeProperty, fieldValue,
-									htblClassPropertyValue, classList, htblNotFoundFieldValue, classInstanceIndex,
-									htblUniquePropValueList, classValueList, requestClassName, null, null,
-									uniqueIdentifier, randomID);
+									htblClassPropertyValue, htblNotMappedFieldsClasses, htblNotFoundFieldValue,
+									classInstanceIndex, htblUniquePropValueList, classValueList, requestClassName, null,
+									null, uniqueIdentifier, randomID);
 						}
 					}
 
@@ -894,8 +903,9 @@ public class RequestFieldsValidation {
 						for (Object singleValue : valueList) {
 
 							parseAndConstructFieldValue(subjectClass, property, singleValue, htblClassPropertyValue,
-									classList, htblNotFoundFieldValue, indexCount, htblUniquePropValueList,
-									classValueList, requestClassName, null, null, uniqueIdentifier, uniqueIdentifier);
+									htblNotMappedFieldsClasses, htblNotFoundFieldValue, indexCount,
+									htblUniquePropValueList, classValueList, requestClassName, null, null,
+									uniqueIdentifier, uniqueIdentifier);
 						}
 					} else {
 
@@ -956,7 +966,7 @@ public class RequestFieldsValidation {
 	 * performance
 	 */
 	public Hashtable<String, DynamicConceptModel> getDynamicProperties(String applicationName,
-			ArrayList<Class> classList) {
+			Hashtable<String, Class> htblNotMappedFieldsClasses) {
 
 		/*
 		 * to get the dynamic properties only one time
@@ -964,17 +974,36 @@ public class RequestFieldsValidation {
 
 		ArrayList<SqlCondition> orCondtionsFilterList = new ArrayList<>();
 
-		for (Class subjectClass : classList) {
-			orCondtionsFilterList
-					.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), subjectClass.getUri()));
+		Iterator<String> htblNotMappedFieldsClassesIterator = htblNotMappedFieldsClasses.keySet().iterator();
+
+		/*
+		 * htblClassNameCheckList maintains that no duplicate classNames enters
+		 * in the conditionList
+		 */
+		Hashtable<String, String> htblClassNameCheckList = new Hashtable<>();
+
+		/*
+		 * creating conditionsList
+		 */
+		while (htblNotMappedFieldsClassesIterator.hasNext()) {
+			String classUri = htblNotMappedFieldsClassesIterator.next();
+			Class subjectClass = htblNotMappedFieldsClasses.get(classUri);
+
+			if (!htblClassNameCheckList.containsKey(classUri)) {
+				orCondtionsFilterList
+						.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), subjectClass.getUri()));
+				htblClassNameCheckList.put(classUri, "");
+			}
 
 			for (Class superClass : subjectClass.getSuperClassesList()) {
-				orCondtionsFilterList
-						.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), superClass.getUri()));
+				if (!htblClassNameCheckList.containsKey(superClass.getUri())) {
+					orCondtionsFilterList
+							.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), superClass.getUri()));
 
+					htblClassNameCheckList.put(superClass.getUri(), "");
+				}
 			}
 		}
-
 		List<DynamicConceptModel> res;
 		try {
 			res = dynamicConceptDao.getConceptsOfApplicationByFilters(applicationName, null, orCondtionsFilterList);
@@ -1005,33 +1034,94 @@ public class RequestFieldsValidation {
 
 			Class subjectClass = htblAllStaticClasses.get(dynamicProperty.getClass_uri());
 
-			// skip if the property was cached before
-			if (subjectClass.getProperties().contains(dynamicProperty.getProperty_name())) {
-				continue;
-			}
-			// System.out.println(dynamicProperty.getProperty_uri());
+			cacheLoadedDynamicProperty(dynamicProperty, subjectClass, applicationName);
+
+			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
+		}
+		System.out.println(dynamicProperties.toString());
+		System.out.println("-->" + htblNotMappedFieldsClasses.get("http://xmlns.com/foaf/0.1/Person").getProperties());
+		System.out.println("-->" + htblNotMappedFieldsClasses.get("http://iot-platform#Developer").getProperties());
+		System.out.println("-->" + htblNotMappedFieldsClasses.get("http://xmlns.com/foaf/0.1/Person")
+				.getClassTypesList().get("Developer").getProperties());
+		return dynamicProperties;
+	}
+
+	/*
+	 * cacheLoadedDynamicProperty method is used to cache a loaded dynamic
+	 * property by adding it to subclass's propertiesList and add it to any of
+	 * the subjectClass's subClasses' propertiesList (Properties inheritance)
+	 */
+	private void cacheLoadedDynamicProperty(DynamicConceptModel dynamicProperty, Class subjectClass,
+			String applicationName) {
+
+		// check if the property was cached before
+		if (!subjectClass.getProperties().contains(dynamicProperty.getProperty_name())) {
 
 			subjectClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
 					dynamicProperty.getProperty_name());
 
 			if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty.toString())) {
-				subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
+				htblAllStaticClasses.get(subjectClass.getUri()).getProperties().put(dynamicProperty.getProperty_name(),
 						new DataTypeProperty(dynamicProperty.getProperty_name(),
 								getPrefix(dynamicProperty.getProperty_prefix_alias()),
 								getXSDDataTypeEnum(dynamicProperty.getProperty_object_type_uri()), applicationName,
 								dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
 			} else {
 				if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
-					subjectClass.getProperties().put(dynamicProperty.getProperty_name(), new ObjectProperty(
-							dynamicProperty.getProperty_name(), getPrefix(dynamicProperty.getProperty_prefix_alias()),
-							htblAllStaticClasses.get(dynamicProperty.getProperty_object_type_uri()), applicationName,
-							dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
+					htblAllStaticClasses.get(subjectClass.getUri()).getProperties().put(
+							dynamicProperty.getProperty_name(),
+							new ObjectProperty(dynamicProperty.getProperty_name(),
+									getPrefix(dynamicProperty.getProperty_prefix_alias()),
+									htblAllStaticClasses.get(dynamicProperty.getProperty_object_type_uri()),
+									applicationName, dynamicProperty.getHasMultipleValues(),
+									dynamicProperty.getIsUnique()));
 				}
 			}
-			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
 		}
-		System.out.println(dynamicProperties.toString());
-		return dynamicProperties;
+		/*
+		 * Check if the subjectClass has subClasses(Type Classes)
+		 */
+		if (!subjectClass.isHasTypeClasses()) {
+			return;
+		}
+
+		/*
+		 * caching property into subClasses after made sure that it has
+		 * typeClasses(SubClasses)
+		 */
+		Iterator<String> htblSubClassesIterator = subjectClass.getClassTypesList().keySet().iterator();
+
+		while (htblSubClassesIterator.hasNext()) {
+			String subClassName = htblSubClassesIterator.next();
+			Class subClass = subjectClass.getClassTypesList().get(subClassName);
+
+			// check if the property was cached before
+			if (!subClass.getProperties().contains(dynamicProperty.getProperty_name())) {
+
+				subClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
+						dynamicProperty.getProperty_name());
+
+				if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty.toString())) {
+					htblAllStaticClasses.get(subClass.getUri()).getProperties().put(dynamicProperty.getProperty_name(),
+							new DataTypeProperty(dynamicProperty.getProperty_name(),
+									getPrefix(dynamicProperty.getProperty_prefix_alias()),
+									getXSDDataTypeEnum(dynamicProperty.getProperty_object_type_uri()), applicationName,
+									dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
+				} else {
+					if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
+						htblAllStaticClasses.get(subClass.getUri()).getProperties().put(
+								dynamicProperty.getProperty_name(),
+								new ObjectProperty(dynamicProperty.getProperty_name(),
+										getPrefix(dynamicProperty.getProperty_prefix_alias()),
+										htblAllStaticClasses.get(dynamicProperty.getProperty_object_type_uri()),
+										applicationName, dynamicProperty.getHasMultipleValues(),
+										dynamicProperty.getIsUnique()));
+					}
+				}
+			}
+
+		}
+
 	}
 
 	/*
@@ -1378,7 +1468,7 @@ public class RequestFieldsValidation {
 		//
 		// htblFieldValue.put("hasCoverage", coverage);
 		// htblFieldValue.put("hasSurvivalRange", survivalRange);
-		// // htblFieldValue.put("test", "2134-2313-242-33332");
+		// htblFieldValue.put("test", "2134-2313-242-33332");
 
 		LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
 
@@ -1392,7 +1482,7 @@ public class RequestFieldsValidation {
 		hatemmorgan.put("userName", "HatemMorgans");
 
 		ArrayList<Object> hatemmorganEmailList = new ArrayList<>();
-		hatemmorganEmailList.add("hatemmorgan17@gmail.com");
+		hatemmorganEmailList.add("hatemmorgan17s@gmail.com");
 		hatemmorganEmailList.add("hatem.el-sayeds@student.guc.edu.eg");
 
 		hatemmorgan.put("mbox", hatemmorganEmailList);
@@ -1421,6 +1511,8 @@ public class RequestFieldsValidation {
 
 		try {
 			long startTime = System.currentTimeMillis();
+			// Hashtable<Class, ArrayList<ArrayList<PropertyValue>>>
+			// htblClassPropertyValue =
 			// requestFieldsValidation.validateRequestFields("TESTAPPLICATION",
 			// htblFieldValue, new ActuatingDevice());
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
@@ -1440,7 +1532,7 @@ public class RequestFieldsValidation {
 				System.out.println(" ]");
 			}
 
-			// System.out.println(htblClassPropertyValue.toString());
+			System.out.println(MainDao.constructInsertQuery("TESTAPPLICATION", htblClassPropertyValue));
 
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());
