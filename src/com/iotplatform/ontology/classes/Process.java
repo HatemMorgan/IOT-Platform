@@ -71,6 +71,8 @@ public class Process extends Class {
 	public static void main(String[] args) {
 		Process process = new Process();
 
+		System.out.println(process.getClassTypesList());
+		System.out.println(Process.getProcessInstance().getClassTypesList());
 		System.out.println(process.getSuperClassesList());
 		System.out.println(Process.getProcessInstance().getSuperClassesList());
 		System.out.println(Process.getProcessInstance().getClassTypesList().get("Sensing").getSuperClassesList());

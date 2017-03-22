@@ -43,7 +43,7 @@ public class OperatingRange extends Property {
 		 * Relation from an OperatingRange to a Property. For example, to a
 		 * battery lifetime.
 		 */
-		super.getProperties().put("hasOperatingProperty", new ObjectProperty("hasOperatingProperty", Prefixes.SSN,
+		this.getProperties().put("hasOperatingProperty", new ObjectProperty("hasOperatingProperty", Prefixes.SSN,
 				OperatingProperty.getOperatingPropertyInstance(), false, false));
 
 		/*
@@ -52,12 +52,29 @@ public class OperatingRange extends Property {
 		 * for example to say that a sensor has a particular accuracy in
 		 * particular conditions. (see also MeasurementCapability)
 		 */
-		super.getProperties().put("inCondition",
+		this.getProperties().put("inCondition",
 				new ObjectProperty("inCondition", Prefixes.SSN, Condition.getConditionInstance(), false, false));
 
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingProperty", "hasOperatingProperty");
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingProperty", "hasOperatingProperty");
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
 
-		super.getSuperClassesList().add(Property.getPropertyInstance());
+		this.getSuperClassesList().add(Property.getPropertyInstance());
+	}
+	
+	public static void main(String[] args) {
+		OperatingRange operatingRange = new OperatingRange();
+
+		System.out.println(operatingRange.getProperties());
+		System.out.println(OperatingRange.getOperatingRangeInstance().getProperties());
+
+		System.out.println(operatingRange.getHtblPropUriName().size());
+		System.out.println(OperatingRange.getOperatingRangeInstance().getHtblPropUriName().size());
+
+		System.out.println(operatingRange.getSuperClassesList());
+		System.out.println(OperatingRange.getOperatingRangeInstance().getSuperClassesList());
+
+		System.out.println(operatingRange.getClassTypesList());
+		System.out.println(OperatingRange.getOperatingRangeInstance().getClassTypesList());
+
 	}
 }

@@ -1,5 +1,7 @@
 package com.iotplatform.ontology.classes;
 
+import java.util.Hashtable;
+
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
@@ -48,6 +50,13 @@ public class SurvivalProperty extends Property {
 
 	private void init() {
 
+		this.getSuperClassesList().add(Property.getPropertyInstance());
+
+		/*
+		 * emptying classTypelist
+		 */
+		this.setClassTypesList(new Hashtable<>());
+
 		/*
 		 * Total useful life of a battery.
 		 */
@@ -60,6 +69,7 @@ public class SurvivalProperty extends Property {
 		 * ssn:BatteryLifetime is also an instance of class ssn:SurvivalProperty
 		 */
 		batteryLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
+		batteryLifetime.getSuperClassesList().addAll(SurvivalProperty.getPropertyInstance().getSuperClassesList());
 		batteryLifetime.setProperties(super.getProperties());
 		batteryLifetime.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("BatteryLifetime", batteryLifetime);
@@ -78,6 +88,7 @@ public class SurvivalProperty extends Property {
 		 * ssn:SystemLifetime is also an instance of class ssn:SurvivalProperty
 		 */
 		systemLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
+		systemLifetime.getSuperClassesList().addAll(SurvivalProperty.getPropertyInstance().getSuperClassesList());
 		systemLifetime.setProperties(super.getProperties());
 		systemLifetime.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("SystemLifetime", systemLifetime);
@@ -85,6 +96,14 @@ public class SurvivalProperty extends Property {
 	}
 
 	private static void initSurvivalPropertyStaticInstance(SurvivalProperty survivalPropertyInstance) {
+
+		survivalPropertyInstance.getSuperClassesList().add(Property.getPropertyInstance());
+
+		/*
+		 * emptying classTypelist
+		 */
+		survivalPropertyInstance.setClassTypesList(new Hashtable<>());
+
 		/*
 		 * Total useful life of a battery.
 		 */
@@ -97,6 +116,7 @@ public class SurvivalProperty extends Property {
 		 * ssn:BatteryLifetime is also an instance of class ssn:SurvivalProperty
 		 */
 		batteryLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
+		batteryLifetime.getSuperClassesList().addAll(SurvivalProperty.getPropertyInstance().getSuperClassesList());
 		batteryLifetime.setProperties(survivalPropertyInstance.getProperties());
 		batteryLifetime.setHtblPropUriName(survivalPropertyInstance.getHtblPropUriName());
 		survivalPropertyInstance.getClassTypesList().put("BatteryLifetime", batteryLifetime);
@@ -115,9 +135,12 @@ public class SurvivalProperty extends Property {
 		 * ssn:SystemLifetime is also an instance of class ssn:SurvivalProperty
 		 */
 		systemLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
+		systemLifetime.getSuperClassesList().addAll(SurvivalProperty.getPropertyInstance().getSuperClassesList());
 		systemLifetime.setProperties(survivalPropertyInstance.getProperties());
 		systemLifetime.setHtblPropUriName(survivalPropertyInstance.getHtblPropUriName());
 		survivalPropertyInstance.getClassTypesList().put("SystemLifetime", systemLifetime);
+
+		survivalPropertyInstance.getSuperClassesList().add(Property.getPropertyInstance());
 	}
 
 }

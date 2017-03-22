@@ -28,7 +28,7 @@ public class Property extends Class {
 	}
 
 	public Property() {
-		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN, null,true);
+		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN, null, true);
 		init();
 	}
 
@@ -44,13 +44,40 @@ public class Property extends Class {
 		/*
 		 * relation between a Property and its value of type Amount
 		 */
-		super.getProperties().put("hasValue",
+		this.getProperties().put("hasValue",
 				new ObjectProperty("hasValue", Prefixes.SSN, Amount.getAmountInstance(), false, false));
 
-		super.getProperties().put("id",
+		this.getProperties().put("id",
 				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasValue", "hasValue");
+		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasValue", "hasValue");
+
+		if (this.isHasTypeClasses()) {
+
+			this.getClassTypesList().put("Condition", Condition.getConditionInstance());
+			this.getClassTypesList().putAll(Condition.getConditionInstance().getClassTypesList());
+
+			this.getClassTypesList().put("MeasurementProperty", MeasurementProperty.getMeasurementPropertyInstance());
+			this.getClassTypesList().putAll(MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList());
+
+			this.getClassTypesList().put("MeasurementCapability",
+					MeasurementCapability.getMeasurementCapabilityInstance());
+			this.getClassTypesList()
+					.putAll(MeasurementCapability.getMeasurementCapabilityInstance().getClassTypesList());
+
+			this.getClassTypesList().put("OperatingRange", OperatingRange.getOperatingRangeInstance());
+			this.getClassTypesList().putAll(OperatingRange.getOperatingRangeInstance().getClassTypesList());
+
+			this.getClassTypesList().put("OperatingProperty", OperatingProperty.getOperatingPropertyInstance());
+			this.getClassTypesList().putAll(OperatingProperty.getOperatingPropertyInstance().getClassTypesList());
+
+			this.getClassTypesList().put("SurvivalProperty", SurvivalProperty.getSurvivalPropertyInstance());
+			this.getClassTypesList().putAll(SurvivalProperty.getSurvivalPropertyInstance().getClassTypesList());
+
+			this.getClassTypesList().put("SurvivalRange", SurvivalRange.getSurvivalRangeInstance());
+			this.getClassTypesList().putAll(SurvivalRange.getSurvivalRangeInstance().getClassTypesList());
+		}
+
 	}
 }

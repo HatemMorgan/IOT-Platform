@@ -52,5 +52,7 @@ public class SurvivalRange extends Property {
 
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalProperty", "hasSurvivalProperty");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
+		
+		super.getSuperClassesList().add(Property.getPropertyInstance());
 	}
 }

@@ -39,11 +39,27 @@ public class Condition extends Property {
 		 */
 		super.getProperties().put("description",
 				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
-
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
-		
+
 		super.getSuperClassesList().add(Property.getPropertyInstance());
 
 	}
+
+	public static void main(String[] args) {
+		Condition condition = new Condition();
+
+		System.out.println(condition.getProperties());
+		System.out.println(Condition.getConditionInstance().getProperties());
+
+		System.out.println(condition.getHtblPropUriName().size());
+		System.out.println(Condition.getConditionInstance().getHtblPropUriName().size());
+
+		System.out.println(condition.getSuperClassesList());
+		System.out.println(Condition.getConditionInstance().getSuperClassesList());
+
+		System.out.println(condition.getClassTypesList());
+		System.out.println(Condition.getConditionInstance().getClassTypesList());
+
+	}
+
 }

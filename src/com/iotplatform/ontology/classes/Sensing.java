@@ -51,5 +51,15 @@ public class Sensing extends Process {
 	public static void main(String[] args) {
 		Sensing sensing = new Sensing();
 		System.out.println(sensing.getHtblPropUriName());
+		System.out.println(sensing.getProperties());
+		System.out.println(sensing.getSuperClassesList());
+		System.out.println(sensing.getClassTypesList());
+
+		System.out.println("===========================================");
+
+		System.out.println(Sensing.getSensingInstance().getHtblPropUriName());
+		System.out.println(Sensing.getSensingInstance().getProperties());
+		System.out.println(Sensing.getSensingInstance().getSuperClassesList());
+		System.out.println(Sensing.getSensingInstance().getClassTypesList());
 	}
 }

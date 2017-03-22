@@ -1,5 +1,7 @@
 package com.iotplatform.ontology.classes;
 
+import java.util.Hashtable;
+
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
@@ -45,6 +47,14 @@ public class MeasurementProperty extends Property {
 
 	private void init() {
 
+		this.getSuperClassesList().add(Property.getPropertyInstance());
+
+		/*
+		 * emptying classTypelist
+		 */
+
+		this.setClassTypesList(new Hashtable<>());
+
 		/*
 		 * set type classes properties list and htblPropUriName so coverage ones
 		 * inOrder to make them have access on the properties list and
@@ -61,6 +71,8 @@ public class MeasurementProperty extends Property {
 
 		Class accuracy = new Class("Accuracy", "http://purl.oclc.org/NET/ssnx/ssn#Accuracy", Prefixes.SSN, null, false);
 		accuracy.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		accuracy.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		accuracy.setProperties(super.getProperties());
 		accuracy.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("Accuracy", accuracy);
@@ -74,6 +86,8 @@ public class MeasurementProperty extends Property {
 		Class detectionLimit = new Class("DetectionLimit", "http://purl.oclc.org/NET/ssnx/ssn#DetectionLimit",
 				Prefixes.SSN, null, false);
 		detectionLimit.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		detectionLimit.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		detectionLimit.setProperties(super.getProperties());
 		detectionLimit.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("DetectionLimit", detectionLimit);
@@ -85,6 +99,7 @@ public class MeasurementProperty extends Property {
 
 		Class drift = new Class("Drift", "http://purl.oclc.org/NET/ssnx/ssn#Drift", Prefixes.SSN, null, false);
 		drift.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		drift.getSuperClassesList().addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		drift.setProperties(super.getProperties());
 		drift.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("Drift", drift);
@@ -96,6 +111,8 @@ public class MeasurementProperty extends Property {
 		Class frequency = new Class("Frequency", "http://purl.oclc.org/NET/ssnx/ssn#Frequency", Prefixes.SSN, null,
 				false);
 		frequency.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		frequency.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		frequency.setProperties(super.getProperties());
 		frequency.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("Frequency", frequency);
@@ -107,6 +124,8 @@ public class MeasurementProperty extends Property {
 
 		Class latency = new Class("Latency", "http://purl.oclc.org/NET/ssnx/ssn#Latency", Prefixes.SSN, null, false);
 		latency.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		latency.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		latency.setProperties(super.getProperties());
 		latency.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("Latency", latency);
@@ -122,6 +141,8 @@ public class MeasurementProperty extends Property {
 		Class measurmentRange = new Class("MeasurementRange", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementRange",
 				Prefixes.SSN, null, false);
 		measurmentRange.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		measurmentRange.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		measurmentRange.setProperties(super.getProperties());
 		measurmentRange.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("MeasurementRange", measurmentRange);
@@ -135,6 +156,8 @@ public class MeasurementProperty extends Property {
 		Class precision = new Class("Precision", "http://purl.oclc.org/NET/ssnx/ssn#Precision", Prefixes.SSN, null,
 				false);
 		precision.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		precision.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		precision.setProperties(super.getProperties());
 		precision.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("Precision", precision);
@@ -147,6 +170,8 @@ public class MeasurementProperty extends Property {
 		Class resolution = new Class("Resolution", "http://purl.oclc.org/NET/ssnx/ssn#Resolution", Prefixes.SSN, null,
 				false);
 		resolution.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		resolution.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		resolution.setProperties(super.getProperties());
 		resolution.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("Resolution", resolution);
@@ -160,6 +185,8 @@ public class MeasurementProperty extends Property {
 		Class responseTime = new Class("ResponseTime", "http://purl.oclc.org/NET/ssnx/ssn#ResponseTime", Prefixes.SSN,
 				null, false);
 		responseTime.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		responseTime.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		responseTime.setProperties(super.getProperties());
 		responseTime.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("ResponseTime", responseTime);
@@ -174,6 +201,8 @@ public class MeasurementProperty extends Property {
 		Class selectivity = new Class("Selectivity", "http://purl.oclc.org/NET/ssnx/ssn#Selectivity", Prefixes.SSN,
 				null, false);
 		selectivity.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		selectivity.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		selectivity.setProperties(super.getProperties());
 		selectivity.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("Selectivity", selectivity);
@@ -186,15 +215,22 @@ public class MeasurementProperty extends Property {
 		Class sensitivity = new Class("Sensitivity", "http://purl.oclc.org/NET/ssnx/ssn#Sensitivity", Prefixes.SSN,
 				null, false);
 		sensitivity.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		sensitivity.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		sensitivity.setProperties(super.getProperties());
 		sensitivity.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("Sensitivity", sensitivity);
 
-		this.getSuperClassesList().add(Property.getPropertyInstance());
-		
 	}
 
 	private static void initMeasurmentPropertyStaticInstance(MeasurementProperty measurementPropertyInstance) {
+
+		measurementPropertyInstance.getSuperClassesList().add(Property.getPropertyInstance());
+		/*
+		 * emptying classTypeList
+		 */
+		measurementPropertyInstance.setClassTypesList(new Hashtable<>());
+
 		/*
 		 * set type classes properties list and htblPropUriName so coverage ones
 		 * inOrder to make them have access on the properties list and
@@ -210,6 +246,8 @@ public class MeasurementProperty extends Property {
 		 */
 		Class accuracy = new Class("Accuracy", "http://purl.oclc.org/NET/ssnx/ssn#Accuracy", Prefixes.SSN, null, false);
 		accuracy.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		accuracy.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		accuracy.setProperties(measurementPropertyInstance.getProperties());
 		accuracy.setHtblPropUriName(measurementPropertyInstance.getHtblPropUriName());
 		measurementPropertyInstance.getClassTypesList().put("Accuracy", accuracy);
@@ -223,6 +261,8 @@ public class MeasurementProperty extends Property {
 		Class detectionLimit = new Class("DetectionLimit", "http://purl.oclc.org/NET/ssnx/ssn#DetectionLimit",
 				Prefixes.SSN, null, false);
 		detectionLimit.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		detectionLimit.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		detectionLimit.setProperties(measurementPropertyInstance.getProperties());
 		detectionLimit.setHtblPropUriName(measurementPropertyInstance.getHtblPropUriName());
 		measurementPropertyInstance.getClassTypesList().put("DetectionLimit", detectionLimit);
@@ -234,6 +274,7 @@ public class MeasurementProperty extends Property {
 
 		Class drift = new Class("Drift", "http://purl.oclc.org/NET/ssnx/ssn#Drift", Prefixes.SSN, null, false);
 		drift.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		drift.getSuperClassesList().addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		drift.setProperties(measurementPropertyInstance.getProperties());
 		drift.setHtblPropUriName(measurementPropertyInstance.getHtblPropUriName());
 		measurementPropertyInstance.getClassTypesList().put("Drift", drift);
@@ -245,6 +286,8 @@ public class MeasurementProperty extends Property {
 		Class frequency = new Class("Frequency", "http://purl.oclc.org/NET/ssnx/ssn#Frequency", Prefixes.SSN, null,
 				false);
 		frequency.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		frequency.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		frequency.setProperties(measurementPropertyInstance.getProperties());
 		frequency.setHtblPropUriName(measurementPropertyInstance.getHtblPropUriName());
 		measurementPropertyInstance.getClassTypesList().put("Frequency", frequency);
@@ -256,6 +299,8 @@ public class MeasurementProperty extends Property {
 
 		Class latency = new Class("Latency", "http://purl.oclc.org/NET/ssnx/ssn#Latency", Prefixes.SSN, null, false);
 		latency.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		latency.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		latency.setProperties(measurementPropertyInstance.getProperties());
 		latency.setHtblPropUriName(measurementPropertyInstance.getHtblPropUriName());
 		measurementPropertyInstance.getClassTypesList().put("Latency", latency);
@@ -271,6 +316,8 @@ public class MeasurementProperty extends Property {
 		Class measurmentRange = new Class("MeasurementRange", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementRange",
 				Prefixes.SSN, null, false);
 		measurmentRange.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		measurmentRange.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		measurmentRange.setProperties(measurementPropertyInstance.getProperties());
 		measurmentRange.setHtblPropUriName(measurementPropertyInstance.getHtblPropUriName());
 		measurementPropertyInstance.getClassTypesList().put("MeasurementRange", measurmentRange);
@@ -284,6 +331,8 @@ public class MeasurementProperty extends Property {
 		Class precision = new Class("Precision", "http://purl.oclc.org/NET/ssnx/ssn#Precision", Prefixes.SSN, null,
 				false);
 		precision.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		precision.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		precision.setProperties(measurementPropertyInstance.getProperties());
 		precision.setHtblPropUriName(measurementPropertyInstance.getHtblPropUriName());
 		measurementPropertyInstance.getClassTypesList().put("Precision", precision);
@@ -296,6 +345,8 @@ public class MeasurementProperty extends Property {
 		Class resolution = new Class("Resolution", "http://purl.oclc.org/NET/ssnx/ssn#Resolution", Prefixes.SSN, null,
 				false);
 		resolution.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		resolution.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		resolution.setProperties(measurementPropertyInstance.getProperties());
 		resolution.setHtblPropUriName(measurementPropertyInstance.getHtblPropUriName());
 		measurementPropertyInstance.getClassTypesList().put("Resolution", resolution);
@@ -309,6 +360,8 @@ public class MeasurementProperty extends Property {
 		Class responseTime = new Class("ResponseTime", "http://purl.oclc.org/NET/ssnx/ssn#ResponseTime", Prefixes.SSN,
 				null, false);
 		responseTime.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		responseTime.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		responseTime.setProperties(measurementPropertyInstance.getProperties());
 		responseTime.setHtblPropUriName(measurementPropertyInstance.getHtblPropUriName());
 		measurementPropertyInstance.getClassTypesList().put("ResponseTime", responseTime);
@@ -323,6 +376,8 @@ public class MeasurementProperty extends Property {
 		Class selectivity = new Class("Selectivity", "http://purl.oclc.org/NET/ssnx/ssn#Selectivity", Prefixes.SSN,
 				null, false);
 		selectivity.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		selectivity.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		selectivity.setProperties(measurementPropertyInstance.getProperties());
 		selectivity.setHtblPropUriName(measurementPropertyInstance.getHtblPropUriName());
 		measurementPropertyInstance.getClassTypesList().put("Selectivity", selectivity);
@@ -335,11 +390,12 @@ public class MeasurementProperty extends Property {
 		Class sensitivity = new Class("Sensitivity", "http://purl.oclc.org/NET/ssnx/ssn#Sensitivity", Prefixes.SSN,
 				null, false);
 		sensitivity.getSuperClassesList().add(MeasurementProperty.getMeasurementPropertyInstance());
+		sensitivity.getSuperClassesList()
+				.addAll(MeasurementProperty.getMeasurementPropertyInstance().getSuperClassesList());
 		sensitivity.setProperties(measurementPropertyInstance.getProperties());
 		sensitivity.setHtblPropUriName(measurementPropertyInstance.getHtblPropUriName());
 		measurementPropertyInstance.getClassTypesList().put("Sensitivity", sensitivity);
-		
-		measurementPropertyInstance.getSuperClassesList().add(Property.getPropertyInstance());
+
 	}
 
 }

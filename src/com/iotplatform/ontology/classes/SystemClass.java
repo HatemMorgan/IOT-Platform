@@ -82,6 +82,7 @@ public class SystemClass extends Class {
 
 			if (systemInstance.isHasTypeClasses()) {
 				systemInstance.getClassTypesList().put("Device", Device.getDeviceInstance());
+				systemInstance.getClassTypesList().putAll(Device.getDeviceInstance().getClassTypesList());
 			}
 		}
 
@@ -127,6 +128,7 @@ public class SystemClass extends Class {
 
 		if (this.isHasTypeClasses()) {
 			this.getClassTypesList().put("Device", Device.getDeviceInstance());
+			this.getClassTypesList().putAll(Device.getDeviceInstance().getClassTypesList());
 		}
 	}
 
@@ -170,5 +172,96 @@ public class SystemClass extends Class {
 	public static void main(String[] args) {
 		SystemClass system = new SystemClass();
 		System.out.println(system.getProperties().toString());
+		System.out.println(system.getClassTypesList());
+		System.out.println(system.getSuperClassesList());
+		System.out.println(system.getHtblPropUriName());
+
+		System.out.println("==================================================================");
+
+		System.out.println(SystemClass.getSystemInstance().getProperties().toString());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList());
+		System.out.println(SystemClass.getSystemInstance().getHtblPropUriName());
+		System.out.println(SystemClass.getSystemInstance().getSuperClassesList());
+
+		System.out.println("===========================Device==========================================");
+
+		System.out.println(system.getClassTypesList().get("Device").getProperties().toString());
+		System.out.println(system.getClassTypesList().get("Device").getClassTypesList());
+		System.out.println(system.getClassTypesList().get("Device").getSuperClassesList());
+		System.out.println(system.getClassTypesList().get("Device").getHtblPropUriName());
+
+		System.out.println("==================================================================");
+
+		System.out
+				.println(SystemClass.getSystemInstance().getClassTypesList().get("Device").getProperties().toString());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("Device").getClassTypesList());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("Device").getHtblPropUriName());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("Device").getSuperClassesList());
+
+		System.out.println("===========================Sensor==========================================");
+
+		System.out.println(system.getClassTypesList().get("Sensor").getProperties().toString());
+		System.out.println(system.getClassTypesList().get("Sensor").getClassTypesList());
+		System.out.println(system.getClassTypesList().get("Sensor").getSuperClassesList());
+		System.out.println(system.getClassTypesList().get("Sensor").getHtblPropUriName());
+
+		System.out.println("==================================================================");
+
+		System.out
+				.println(SystemClass.getSystemInstance().getClassTypesList().get("Sensor").getProperties().toString());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("Sensor").getClassTypesList());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("Sensor").getHtblPropUriName());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("Sensor").getSuperClassesList());
+
+		System.out.println("===========================ActuatingDevice==========================================");
+
+		System.out.println(system.getClassTypesList().get("ActuatingDevice").getProperties().toString());
+		System.out.println(system.getClassTypesList().get("ActuatingDevice").getClassTypesList());
+		System.out.println(system.getClassTypesList().get("ActuatingDevice").getSuperClassesList());
+		System.out.println(system.getClassTypesList().get("ActuatingDevice").getHtblPropUriName());
+
+		System.out.println("==================================================================");
+
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("ActuatingDevice").getProperties().toString());
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("ActuatingDevice").getClassTypesList());
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("ActuatingDevice").getHtblPropUriName());
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("ActuatingDevice").getSuperClassesList());
+
+		System.out.println("===========================TagDevice==========================================");
+
+		System.out.println(system.getClassTypesList().get("TagDevice").getProperties().toString());
+		System.out.println(system.getClassTypesList().get("TagDevice").getClassTypesList());
+		System.out.println(system.getClassTypesList().get("TagDevice").getSuperClassesList());
+		System.out.println(system.getClassTypesList().get("TagDevice").getHtblPropUriName());
+
+		System.out.println("==================================================================");
+
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("TagDevice").getProperties().toString());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("TagDevice").getClassTypesList());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("TagDevice").getHtblPropUriName());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("TagDevice").getSuperClassesList());
+
+		System.out.println("===========================CommunicatingDevice==========================================");
+
+		System.out.println(system.getClassTypesList().get("CommunicatingDevice").getProperties().toString());
+		System.out.println(system.getClassTypesList().get("CommunicatingDevice").getClassTypesList());
+		System.out.println(system.getClassTypesList().get("CommunicatingDevice").getSuperClassesList());
+		System.out.println(system.getClassTypesList().get("CommunicatingDevice").getHtblPropUriName());
+
+		System.out.println("==================================================================");
+
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("CommunicatingDevice")
+				.getProperties().toString());
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("CommunicatingDevice").getClassTypesList());
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("CommunicatingDevice").getHtblPropUriName());
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("CommunicatingDevice").getSuperClassesList());
 	}
 }

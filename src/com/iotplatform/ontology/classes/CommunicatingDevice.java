@@ -83,6 +83,23 @@ public class CommunicatingDevice extends Device {
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "dutyCycle", "dutyCycle");
 
 		super.getSuperClassesList().add(Device.getDeviceInstance());
-		
+
+	}
+
+	public static void main(String[] args) {
+		CommunicatingDevice communicatingDevice = new CommunicatingDevice();
+
+		System.out.println(communicatingDevice.getProperties().size());
+		System.out.println(CommunicatingDevice.getCommunicatingDeviceInstance().getProperties().size());
+
+		System.out.println(communicatingDevice.getHtblPropUriName().size());
+		System.out.println(CommunicatingDevice.getCommunicatingDeviceInstance().getHtblPropUriName().size());
+
+		System.out.println(communicatingDevice.getSuperClassesList());
+		System.out.println(CommunicatingDevice.getCommunicatingDeviceInstance().getSuperClassesList());
+
+		System.out.println(communicatingDevice.getClassTypesList());
+		System.out.println(CommunicatingDevice.getCommunicatingDeviceInstance().getClassTypesList());
+
 	}
 }

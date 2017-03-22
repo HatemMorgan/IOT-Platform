@@ -17,6 +17,7 @@ public class TagDevice extends Device {
 
 	public TagDevice() {
 		super("TagDevice", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice", Prefixes.IOT_LITE, null, false);
+		super.getSuperClassesList().add(Device.getDeviceInstance());
 	}
 
 	public synchronized static TagDevice getTagDeviceInstance() {
@@ -24,6 +25,23 @@ public class TagDevice extends Device {
 			tagDeviceInstance = new TagDevice();
 		}
 		return tagDeviceInstance;
+	}
+
+	public static void main(String[] args) {
+		TagDevice tagDevice = new TagDevice();
+
+		System.out.println(tagDevice.getProperties().size());
+		System.out.println(TagDevice.getTagDeviceInstance().getProperties().size());
+
+		System.out.println(tagDevice.getHtblPropUriName().size());
+		System.out.println(TagDevice.getTagDeviceInstance().getHtblPropUriName().size());
+
+		System.out.println(tagDevice.getSuperClassesList());
+		System.out.println(TagDevice.getTagDeviceInstance().getSuperClassesList());
+
+		System.out.println(tagDevice.getClassTypesList());
+		System.out.println(TagDevice.getTagDeviceInstance().getClassTypesList());
+
 	}
 
 }

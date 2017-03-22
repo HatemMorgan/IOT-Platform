@@ -1,5 +1,7 @@
 package com.iotplatform.ontology.classes;
 
+import java.util.Hashtable;
+
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
@@ -46,6 +48,12 @@ public class OperatingProperty extends Property {
 	}
 
 	private void init() {
+		this.getSuperClassesList().add(Property.getPropertyInstance());
+
+		/*
+		 * emptying classTypelist
+		 */
+		this.setClassTypesList(new Hashtable<>());
 
 		/*
 		 * Schedule of maintenance for a system/sensor in the specified
@@ -61,6 +69,8 @@ public class OperatingProperty extends Property {
 		 * ssn:OperatingProperty
 		 */
 		maintenanceSchedule.getSuperClassesList().add(OperatingProperty.getOperatingPropertyInstance());
+		maintenanceSchedule.getSuperClassesList()
+		.addAll(OperatingProperty.getOperatingPropertyInstance().getSuperClassesList());
 		maintenanceSchedule.setProperties(super.getProperties());
 		maintenanceSchedule.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("MaintenanceSchedule", maintenanceSchedule);
@@ -78,6 +88,8 @@ public class OperatingProperty extends Property {
 		 * ssn:OperatingProperty
 		 */
 		operatingPowerRange.getSuperClassesList().add(OperatingProperty.getOperatingPropertyInstance());
+		operatingPowerRange.getSuperClassesList()
+		.addAll(OperatingProperty.getOperatingPropertyInstance().getSuperClassesList());
 		operatingPowerRange.setProperties(super.getProperties());
 		operatingPowerRange.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("OperatingPowerRange", operatingPowerRange);
@@ -86,6 +98,14 @@ public class OperatingProperty extends Property {
 	}
 
 	private static void initOperatingPropertyStaticInstance(OperatingProperty operatingPropertyInstance) {
+
+		operatingPropertyInstance.getSuperClassesList().add(Property.getPropertyInstance());
+		
+		/*
+		 * emptying classTypelist
+		 */
+		operatingPropertyInstance.setClassTypesList(new Hashtable<>());
+
 		/*
 		 * Schedule of maintenance for a system/sensor in the specified
 		 * conditions.
@@ -100,6 +120,8 @@ public class OperatingProperty extends Property {
 		 * ssn:OperatingProperty
 		 */
 		maintenanceSchedule.getSuperClassesList().add(OperatingProperty.getOperatingPropertyInstance());
+		maintenanceSchedule.getSuperClassesList()
+				.addAll(OperatingProperty.getOperatingPropertyInstance().getSuperClassesList());
 		maintenanceSchedule.setProperties(operatingPropertyInstance.getProperties());
 		maintenanceSchedule.setHtblPropUriName(operatingPropertyInstance.getHtblPropUriName());
 		operatingPropertyInstance.getClassTypesList().put("MaintenanceSchedule", maintenanceSchedule);
@@ -117,11 +139,30 @@ public class OperatingProperty extends Property {
 		 * ssn:OperatingProperty
 		 */
 		operatingPowerRange.getSuperClassesList().add(OperatingProperty.getOperatingPropertyInstance());
+		operatingPowerRange.getSuperClassesList()
+				.addAll(OperatingProperty.getOperatingPropertyInstance().getSuperClassesList());
 		operatingPowerRange.setProperties(operatingPropertyInstance.getProperties());
 		operatingPowerRange.setHtblPropUriName(operatingPropertyInstance.getHtblPropUriName());
 		operatingPropertyInstance.getClassTypesList().put("OperatingPowerRange", operatingPowerRange);
 
-		operatingPropertyInstance.getSuperClassesList().add(Property.getPropertyInstance());
+		
+	}
+
+	public static void main(String[] args) {
+		OperatingProperty operatingProperty = new OperatingProperty();
+
+		System.out.println(operatingProperty.getProperties());
+		System.out.println(OperatingProperty.getOperatingPropertyInstance().getProperties());
+
+		System.out.println(operatingProperty.getHtblPropUriName().size());
+		System.out.println(OperatingProperty.getOperatingPropertyInstance().getHtblPropUriName().size());
+
+		System.out.println(operatingProperty.getSuperClassesList());
+		System.out.println(OperatingProperty.getOperatingPropertyInstance().getSuperClassesList());
+
+		System.out.println(operatingProperty.getClassTypesList().get("MaintenanceSchedule").getSuperClassesList());
+		System.out.println(OperatingProperty.getOperatingPropertyInstance().getClassTypesList());
+
 	}
 
 }

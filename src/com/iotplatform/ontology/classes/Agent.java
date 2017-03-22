@@ -94,6 +94,9 @@ public class Agent extends Class {
 		this.getClassTypesList().put("Person", person);
 		this.getClassTypesList().put("Group", group);
 		this.getClassTypesList().put("Organization", organization);
+		this.getClassTypesList().putAll(Person.getPersonInstance().getClassTypesList());
+		this.getClassTypesList().putAll(Group.getGroupInstance().getClassTypesList());
+		this.getClassTypesList().putAll(Organization.getOrganizationInstance().getClassTypesList());
 
 	}
 
@@ -108,6 +111,10 @@ public class Agent extends Class {
 		agentInstance.getClassTypesList().put("Person", person);
 		agentInstance.getClassTypesList().put("Group", group);
 		agentInstance.getClassTypesList().put("Organization", organization);
+
+		agentInstance.getClassTypesList().putAll(Person.getPersonInstance().getClassTypesList());
+		agentInstance.getClassTypesList().putAll(Group.getGroupInstance().getClassTypesList());
+		agentInstance.getClassTypesList().putAll(Organization.getOrganizationInstance().getClassTypesList());
 
 	}
 
@@ -150,8 +157,11 @@ public class Agent extends Class {
 
 	public static void main(String[] args) {
 		Agent agent = new Agent();
+
+		System.out.println(agent.getClassTypesList());
+
 		System.out.println(agent.getProperties().size());
-		
+
 		System.out.println(agent.getClassTypesList().get("Person").getClassTypesList().get("Developer").getProperties()
 				.toString());
 		System.out.println(
