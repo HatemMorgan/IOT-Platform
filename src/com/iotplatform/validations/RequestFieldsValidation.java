@@ -143,13 +143,19 @@ public class RequestFieldsValidation {
 	public Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> validateRequestFields(String applicationName,
 			Hashtable<String, Object> htblFieldValue, Class subjectClass) {
 
+		/*
+		 * set subClass to its static instace
+		 */
+
+		subjectClass = htblAllStaticClasses.get(subjectClass.getUri());
+
 		Iterator<String> htblFieldValueIterator = htblFieldValue.keySet().iterator();
 
 		/*
 		 * List of classes that need to get their dynamic properties to check if
 		 * the fields maps to one of them or these fields are invalid fields
 		 */
-		Hashtable<String, Class> htblNotMappedFieldsClasses = new Hashtable();
+		Hashtable<String, Class> htblNotMappedFieldsClasses = new Hashtable<>();
 
 		/*
 		 * htblNotFoundFieldValue holds fieldsValue pairs that do not have a
@@ -1038,11 +1044,6 @@ public class RequestFieldsValidation {
 
 			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
 		}
-		System.out.println(dynamicProperties.toString());
-		System.out.println("-->" + htblNotMappedFieldsClasses.get("http://xmlns.com/foaf/0.1/Person").getProperties());
-		System.out.println("-->" + htblNotMappedFieldsClasses.get("http://iot-platform#Developer").getProperties());
-		System.out.println("-->" + htblNotMappedFieldsClasses.get("http://xmlns.com/foaf/0.1/Person")
-				.getClassTypesList().get("Developer").getProperties());
 		return dynamicProperties;
 	}
 

@@ -101,52 +101,18 @@ public class Person extends Agent {
 	}
 
 	private void initPersonTypeClasses() {
-		Class admin = new Class("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
-		Admin.initAdminStaticInstance(admin);
-		Person.initPersonStaticInstance(admin);
-		Agent.initAgentStaticInstanc(admin);
 
-		Class developer = new Class("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
-		Developer.initDeveloperStaticInstance(developer);
-		Person.initPersonStaticInstance(developer);
-		Agent.initAgentStaticInstanc(developer);
-
-		Class normalUser = new Class("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
-		NormalUser.initNormalUserStaticInstance(normalUser);
-		Person.initPersonStaticInstance(normalUser);
-		Agent.initAgentStaticInstanc(normalUser);
-
-		this.getClassTypesList().put("Developer", developer);
-		this.getClassTypesList().put("Admin", admin);
-		this.getClassTypesList().put("NormalUser", normalUser);
+		this.getClassTypesList().put("Developer", Developer.getDeveloperInstance());
+		this.getClassTypesList().put("Admin", Admin.getAdminInstance());
+		this.getClassTypesList().put("NormalUser", NormalUser.getNormalUserInstance());
 
 	}
 
 	public static void initPersonStaticInstanceTypeClasses(Class personInstance) {
-		Class admin = new Class("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
-		Admin.initAdminStaticInstance(admin);
-		Person.initPersonStaticInstance(admin);
-		Agent.initAgentStaticInstanc(admin);
 
-		Class developer = new Class("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
-		Developer.initDeveloperStaticInstance(developer);
-		Person.initPersonStaticInstance(developer);
-		Agent.initAgentStaticInstanc(developer);
-
-		Class normalUser = new Class("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
-		NormalUser.initNormalUserStaticInstance(normalUser);
-		Person.initPersonStaticInstance(normalUser);
-		Agent.initAgentStaticInstanc(normalUser);
-
-		personInstance.getClassTypesList().put("Developer", developer);
-		personInstance.getClassTypesList().put("Admin", admin);
-		personInstance.getClassTypesList().put("NormalUser", normalUser);
+		personInstance.getClassTypesList().put("Developer", Developer.getDeveloperInstance());
+		personInstance.getClassTypesList().put("Admin", Admin.getAdminInstance());
+		personInstance.getClassTypesList().put("NormalUser", NormalUser.getNormalUserInstance());
 
 	}
 
@@ -187,7 +153,7 @@ public class Person extends Agent {
 		Person person = new Person();
 		System.out.println(person.getClassTypesList());
 		// System.out.println(Person.getPersonInstance().getProperties().size());
-		 System.out.println(person.getProperties().size());
+		System.out.println(person.getProperties().size());
 
 		// System.out.println(person.getClassTypesList().get("NormalUser").getProperties().size());
 		// System.out.println(Person.getPersonInstance().getClassTypesList().get("NormalUser").getProperties().size());
