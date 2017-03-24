@@ -33,12 +33,18 @@ public class ValueOfFieldNotMappedToStaticProperty {
 	 */
 	private String randomID;
 
+	/*
+	 * fieldName holds field name that has no static mapping to a property
+	 */
+	private String fieldName;
+
 	public ValueOfFieldNotMappedToStaticProperty(Class propertyClass, Object propertyValue, int classInstanceIndex,
-			String randomID) {
+			String randomID, String fieldName) {
 		this.propertyClass = propertyClass;
 		this.propertyValue = propertyValue;
 		this.classInstanceIndex = classInstanceIndex;
 		this.randomID = randomID;
+		this.fieldName = fieldName;
 	}
 
 	public Class getPropertyClass() {
@@ -55,6 +61,17 @@ public class ValueOfFieldNotMappedToStaticProperty {
 
 	public String getRandomID() {
 		return randomID;
+	}
+
+	public String getFieldName() {
+		return fieldName;
+	}
+
+	@Override
+	public String toString() {
+		return "ValueOfFieldNotMappedToStaticProperty [propertyClass=" + propertyClass + ", propertyValue="
+				+ propertyValue + ", classInstanceIndex=" + classInstanceIndex + ", randomID=" + randomID
+				+ ", fieldName=" + fieldName + "]";
 	}
 
 }

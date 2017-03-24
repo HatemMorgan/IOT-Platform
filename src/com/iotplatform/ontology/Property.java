@@ -1,5 +1,11 @@
 package com.iotplatform.ontology;
 
+import java.util.Hashtable;
+
+import com.iotplatform.ontology.classes.Developer;
+import com.iotplatform.ontology.classes.Device;
+import com.iotplatform.ontology.classes.Person;
+
 /*
  *  An Abstract class that describe the representation of a property in triples
  *  A property must have a subject which must be an instance of a Class
