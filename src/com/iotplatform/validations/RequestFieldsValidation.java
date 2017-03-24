@@ -891,7 +891,8 @@ public class RequestFieldsValidation {
 			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<PropertyValue>>> htblUniquePropValueList,
 			ArrayList<ValueOfTypeClass> classValueList) {
-		System.out.println("--------> hereeee");
+		// System.out.println("in parseAndConstructNotMappedFieldsValues
+		// method");
 		/*
 		 * get Dynamic Properties of the classes in the classList which contains
 		 * the domain class of the fields in the request that are not mapped to
@@ -923,14 +924,19 @@ public class RequestFieldsValidation {
 				ValueOfFieldNotMappedToStaticProperty notFoundFieldValue = notFoundFieldValueList.get(i);
 
 				String field = notFoundFieldValue.getFieldName();
-				System.out.println("=====>>> " + notFoundFieldValue.getFieldName() + "   "
-						+ notFoundFieldValue.getPropertyValue().toString());
+
+				// System.out.println("=====>>> " +
+				// notFoundFieldValue.getFieldName() + " "
+				// + notFoundFieldValue.getPropertyValue().toString());
+
 				/*
-				 * If field does not map to loaded dynamic properties, I will
-				 * throw InvalidRequestFieldsException to indicate the field is
-				 * invalid
+				 * After loading dynamic Properties, I am caching all the loaded
+				 * properties so If field does not mapped to one of the
+				 * properties(contains static ones and cached dynamic ones) of
+				 * the subjectClass , I will throw InvalidRequestFieldsException
+				 * to indicate the field is invalid
 				 */
-				if (!loadedDynamicProperties.containsKey(field)) {
+				if (!notFoundFieldValue.getPropertyClass().getProperties().containsKey(field)) {
 					throw new InvalidRequestFieldsException(subjectClass.getName(), field);
 				} else {
 
@@ -1152,6 +1158,7 @@ public class RequestFieldsValidation {
 			 * make sure that there are conditions
 			 */
 			if (orCondtionsFilterList.size() > 0) {
+				System.out.println("loading dynamic properties");
 				res = dynamicConceptDao.getConceptsOfApplicationByFilters(applicationName, null, orCondtionsFilterList);
 			} else {
 				return new Hashtable<>();
@@ -1651,11 +1658,11 @@ public class RequestFieldsValidation {
 		hatemmorganEmailList.add("hatem.el-sayeds@student.guc.edu.eg");
 
 		hatemmorgan.put("mbox", hatemmorganEmailList);
-//		hatemmorgan.put("job", "Computer Engineeer");
+		hatemmorgan.put("job", "Computer Engineeer");
 
 		LinkedHashMap<String, Object> hatemmorgan2 = new LinkedHashMap<>();
 
-		hatemmorgan2.put("type", "Developer");
+		 hatemmorgan2.put("type", "Developer");
 		hatemmorgan2.put("age", 20);
 		hatemmorgan2.put("firstName", "Hatem");
 		hatemmorgan2.put("middleName", "ELsayed");
@@ -1670,7 +1677,7 @@ public class RequestFieldsValidation {
 		hatemmorgan2EmailList.add("hatem.el-sayeds@student.guc.edu.eg");
 
 		hatemmorgan2.put("mbox", hatemmorgan2EmailList);
-//		hatemmorgan2.put("job", "Computer Engineeer");
+		 hatemmorgan2.put("job", "Computer Engineeer");
 
 		// Haytham Ismail
 		htblFieldValue.put("age", 21);
@@ -1690,11 +1697,12 @@ public class RequestFieldsValidation {
 
 		htblFieldValue.put("developedApplication", "TESTAPPLICATION");
 		htblFieldValue.put("knows", hatemmorgan);
-//		htblFieldValue.put("hates", hatemmorgan2);
-//		ArrayList<LinkedHashMap<String, Object>> loveList = new ArrayList<>();
-//		loveList.add(hatemmorgan2);
-//		loveList.add(hatemmorgan);
-//		htblFieldValue.put("love", loveList);
+		htblFieldValue.put("hates", hatemmorgan2);
+		// ArrayList<LinkedHashMap<String, Object>> loveList = new
+		// ArrayList<>();
+		// loveList.add(hatemmorgan2);
+		// loveList.add(hatemmorgan);
+		// htblFieldValue.put("love", loveList);
 		htblFieldValue.put("job", "Engineeer");
 
 		try {
@@ -1720,11 +1728,17 @@ public class RequestFieldsValidation {
 				System.out.println(" ]");
 			}
 
-//			System.out.println(MainDao.constructInsertQuery("TESTAPPLICATION", htblClassPropertyValue));
-//			System.out.println(
-//					requestFieldsValidation.htblAllStaticClasses.get("http://iot-platform#Developer").getProperties());
-//			System.out.println(requestFieldsValidation.htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person")
-//					.getProperties());
+			System.out.println(requestFieldsValidation.htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person")
+					.getProperties());
+			System.out.println(
+					requestFieldsValidation.htblAllStaticClasses.get("http://iot-platform#Developer").getProperties());
+
+			// System.out.println(MainDao.constructInsertQuery("TESTAPPLICATION",
+			// htblClassPropertyValue));
+			// System.out.println(
+			// requestFieldsValidation.htblAllStaticClasses.get("http://iot-platform#Developer").getProperties());
+			// System.out.println(requestFieldsValidation.htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person")
+			// .getProperties());
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());
 		}
