@@ -1,11 +1,5 @@
 package com.iotplatform.ontology;
 
-import java.util.Hashtable;
-
-import com.iotplatform.ontology.classes.Developer;
-import com.iotplatform.ontology.classes.Device;
-import com.iotplatform.ontology.classes.Person;
-
 /*
  *  An Abstract class that describe the representation of a property in triples
  *  A property must have a subject which must be an instance of a Class
@@ -25,6 +19,7 @@ public abstract class Property {
 		this.applicationName = null;
 		this.mulitpleValues = mulitpleValues;
 		this.unique = unique;
+		this.subjectClass = subjectClass;
 	}
 
 	public Property(Class subjectClass, String name, Prefixes prefix, String applicationName, int mulitpleValues,
@@ -33,6 +28,7 @@ public abstract class Property {
 		this.name = name;
 		this.prefix = prefix;
 		this.applicationName = applicationName;
+		this.subjectClass = subjectClass;
 
 		if (mulitpleValues == 1) {
 			this.mulitpleValues = true;

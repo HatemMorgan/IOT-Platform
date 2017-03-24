@@ -73,7 +73,7 @@ public class Agent extends Class {
 			agentSubjectClass = new Class("Agent", "http://xmlns.com/foaf/0.1/Agent", Prefixes.FOAF, null, true);
 		}
 
-		return agentInstance;
+		return agentSubjectClass;
 	}
 
 	private static void initAgentStaticInstance(Agent agentInstance) {
@@ -166,7 +166,7 @@ public class Agent extends Class {
 
 	public static void main(String[] args) {
 		Agent agent = new Agent();
-
+		System.out.println(agent.getProperties());
 		System.out.println(agent.getClassTypesList());
 
 		System.out.println(agent.getProperties().size());
