@@ -34,10 +34,18 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Stimulus extends Class {
 
 	private static Stimulus stimulusInstance;
+	private Class stimulusSubjectClassInstance;
 
 	public Stimulus() {
-		super("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Prefixes.SSN, null,false);
+		super("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Prefixes.SSN, null, false);
 		init();
+	}
+
+	private Class getStimulusSubjectClassInstance() {
+		if (stimulusSubjectClassInstance == null)
+			stimulusSubjectClassInstance = new Class("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus",
+					Prefixes.SSN, null, false);
+		return stimulusSubjectClassInstance;
 	}
 
 	public synchronized static Stimulus getStimulusInstance() {
@@ -48,8 +56,8 @@ public class Stimulus extends Class {
 	}
 
 	private void init() {
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("id", new DataTypeProperty(getStimulusSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+				XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}

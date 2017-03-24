@@ -18,6 +18,7 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Coverage extends Class {
 
 	private static Coverage coverageInstance;
+	private Class coverageSubjectClassinstance;
 
 	public Coverage() {
 		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE, null, true);
@@ -37,6 +38,14 @@ public class Coverage extends Class {
 		super("Coverage", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE, null, true);
 	}
 
+	private Class getCoverageSubjectClassinstance() {
+		if (coverageSubjectClassinstance == null)
+			coverageSubjectClassinstance = new Class("Coverage",
+					"http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage", Prefixes.IOT_LITE, null, true);
+
+		return coverageSubjectClassinstance;
+	}
+
 	public synchronized static Coverage getCoverageInstance() {
 		if (coverageInstance == null) {
 			coverageInstance = new Coverage(null);
@@ -52,11 +61,11 @@ public class Coverage extends Class {
 		 * Relation between coverage and its physical location described by
 		 * point class
 		 */
-		super.getProperties().put("location",
-				new ObjectProperty("location", Prefixes.GEO, Point.getPointInstacne(), false, false));
+		super.getProperties().put("location", new ObjectProperty(getCoverageSubjectClassinstance(), "location",
+				Prefixes.GEO, Point.getPointInstacne(), false, false));
 
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("id", new DataTypeProperty(getCoverageSubjectClassinstance(), "id", Prefixes.IOT_LITE,
+				XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.GEO.getUri() + "location", "location");
@@ -76,15 +85,13 @@ public class Coverage extends Class {
 		 */
 		Class circle = new Class("Circle", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Circle", Prefixes.IOT_LITE,
 				null, false);
-		circle.getProperties().put("radius",
-				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
 
 		circle.setProperties(super.getProperties());
 		circle.setHtblPropUriName(super.getHtblPropUriName());
 
 		circle.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "radius", "radius");
 		circle.getProperties().put("radius",
-				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
+				new DataTypeProperty(circle, "radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
 
 		/*
 		 * adding coverage class to superClassesList to tell the dao to add
@@ -135,10 +142,12 @@ public class Coverage extends Class {
 		 * point class
 		 */
 		coverageInstance.getProperties().put("location",
-				new ObjectProperty("location", Prefixes.GEO, Point.getPointInstacne(), false, false));
+				new ObjectProperty(coverageInstance.getCoverageSubjectClassinstance(), "location", Prefixes.GEO,
+						Point.getPointInstacne(), false, false));
 
 		coverageInstance.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				new DataTypeProperty(coverageInstance.getCoverageSubjectClassinstance(), "id", Prefixes.IOT_LITE,
+						XSDDataTypes.string_typed, false, false));
 
 		coverageInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		coverageInstance.getHtblPropUriName().put(Prefixes.GEO.getUri() + "location", "location");
@@ -168,7 +177,7 @@ public class Coverage extends Class {
 		circle.setHtblPropUriName(coverageInstance.getHtblPropUriName());
 
 		circle.getProperties().put("radius",
-				new DataTypeProperty("radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
+				new DataTypeProperty(circle, "radius", Prefixes.IOT_LITE, XSDDataTypes.double_typed, false, false));
 		circle.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "radius", "radius");
 
 		coverageInstance.getClassTypesList().put("Circle", circle);

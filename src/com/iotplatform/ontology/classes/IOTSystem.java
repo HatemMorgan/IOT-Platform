@@ -18,12 +18,20 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class IOTSystem extends Class {
 
 	private static IOTSystem iotSystemInstance;
+	private Class iotSystemSubjectClassInstance;
 
 	public IOTSystem() {
-		super("IOTSystem", "http://iot-platform#IOTSystem", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true),true);
+		super("IOTSystem", "http://iot-platform#IOTSystem", Prefixes.IOT_PLATFORM, "name", true);
 
 		init();
+	}
+
+	private Class getIotSystemSubjectClassInstance() {
+		if (iotSystemSubjectClassInstance == null)
+			iotSystemSubjectClassInstance = new Class("IOTSystem", "http://iot-platform#IOTSystem",
+					Prefixes.IOT_PLATFORM, "name", true);
+
+		return iotSystemSubjectClassInstance;
 	}
 
 	public synchronized static IOTSystem getIOTSystemInstance() {
@@ -37,14 +45,14 @@ public class IOTSystem extends Class {
 
 		// IOT System Name which must be unique
 
-		super.getProperties().put("name",
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		super.getProperties().put("name", new DataTypeProperty(getIotSystemSubjectClassInstance(), "name",
+				Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
 
 		/*
 		 * IOT System Description
 		 */
-		super.getProperties().put("description",
-				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("description", new DataTypeProperty(getIotSystemSubjectClassInstance(), "description",
+				Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * Describes the relation between an IOTSystem and DeviceModule.
@@ -52,8 +60,8 @@ public class IOTSystem extends Class {
 		 * An IOTSystem instance can have more than one DeviceModule (one to
 		 * many relationship)
 		 */
-		super.getProperties().put("hasDeviceModule", new ObjectProperty("hasDeviceModule", Prefixes.IOT_PLATFORM,
-				DeviceModule.getDeviceModuleInstance(), true, false));
+		super.getProperties().put("hasDeviceModule", new ObjectProperty(getIotSystemSubjectClassInstance(),
+				"hasDeviceModule", Prefixes.IOT_PLATFORM, DeviceModule.getDeviceModuleInstance(), true, false));
 
 		/*
 		 * Relation between a IOTSystem and a Deployment, recording that the
@@ -61,8 +69,8 @@ public class IOTSystem extends Class {
 		 * relationshiip
 		 */
 
-		super.getProperties().put("hasDeployment",
-				new ObjectProperty("hasDeployment", Prefixes.SSN, Deployment.getDeploymentInstance(), false, false));
+		super.getProperties().put("hasDeployment", new ObjectProperty(getIotSystemSubjectClassInstance(),
+				"hasDeployment", Prefixes.SSN, Deployment.getDeploymentInstance(), false, false));
 
 		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");

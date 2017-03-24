@@ -25,11 +25,19 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Platform extends Class {
 
 	private static Platform platformInstance;
+	private Class platformSubjectClassInstance;
 
-	
 	public Platform() {
-		super("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform", Prefixes.SSN, null,false);
+		super("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform", Prefixes.SSN, null, false);
 		init();
+	}
+
+	private Class getPlatformSubjectClassInstance() {
+		if (platformSubjectClassInstance == null)
+			platformSubjectClassInstance = new Class("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform",
+					Prefixes.SSN, null, false);
+
+		return platformSubjectClassInstance;
 	}
 
 	public synchronized static Platform getPlatformInstance() {
@@ -44,22 +52,22 @@ public class Platform extends Class {
 		/*
 		 * DeviceModule id which must be unique
 		 */
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("id", new DataTypeProperty(getPlatformSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+				XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * Relation between Platform and its physical location described by
 		 * point class
 		 */
-		super.getProperties().put("location",
-				new ObjectProperty("location", Prefixes.GEO, Point.getPointInstacne(), false, false));
+		super.getProperties().put("location", new ObjectProperty(getPlatformSubjectClassInstance(), "location",
+				Prefixes.GEO, Point.getPointInstacne(), false, false));
 
 		/*
 		 * Describes if the platform is moving . ie: fish (A fish is a type of
 		 * platform because a sensor can be attached to it)
 		 */
-		super.getProperties().put("isMobile",
-				new DataTypeProperty("isMobile", Prefixes.IOT_LITE, XSDDataTypes.boolean_type, false, false));
+		super.getProperties().put("isMobile", new DataTypeProperty(getPlatformSubjectClassInstance(), "isMobile",
+				Prefixes.IOT_LITE, XSDDataTypes.boolean_type, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.GEO.getUri() + "hasLocation", "hasLocation");

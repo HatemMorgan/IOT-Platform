@@ -3,10 +3,8 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  *  This class maps the Developer class in the ontology
@@ -16,10 +14,10 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Developer extends Person {
 
 	private static Developer developerInstance;
+	private Class developerSubjectClassInstance;
 
 	public Developer() {
-		super("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
+		super("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM, "userName", false);
 		init();
 	}
 
@@ -33,8 +31,15 @@ public class Developer extends Person {
 	 * 
 	 */
 	public Developer(String nothing) {
-		super("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
+		super("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM, "userName", false);
+	}
+
+	private Class getDeveloperSubjectClassInstance() {
+		if (developerSubjectClassInstance == null)
+			developerSubjectClassInstance = new Class("Developer", "http://iot-platform#Developer",
+					Prefixes.IOT_PLATFORM, "userName", false);
+
+		return developerSubjectClassInstance;
 	}
 
 	public synchronized static Developer getDeveloperInstance() {
@@ -46,9 +51,10 @@ public class Developer extends Person {
 		return developerInstance;
 	}
 
-	public static void initDeveloperStaticInstance(Class developerInstance) {
-		developerInstance.getProperties().put("developedApplication", new ObjectProperty("developedApplication",
-				Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
+	public static void initDeveloperStaticInstance(Developer developerInstance) {
+		developerInstance.getProperties().put("developedApplication",
+				new ObjectProperty(developerInstance.getDeveloperSubjectClassInstance(), "developedApplication",
+						Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
 		developerInstance.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "developedApplication",
 				"developedApplication");
@@ -57,8 +63,8 @@ public class Developer extends Person {
 	}
 
 	private void init() {
-		super.getProperties().put("developedApplication", new ObjectProperty("developedApplication",
-				Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
+		super.getProperties().put("developedApplication", new ObjectProperty(getDeveloperSubjectClassInstance(),
+				"developedApplication", Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "developedApplication", "developedApplication");
 

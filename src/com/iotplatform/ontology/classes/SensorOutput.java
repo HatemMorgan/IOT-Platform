@@ -18,11 +18,20 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class SensorOutput extends Class {
 
 	private static SensorOutput sensorOutputInstance;
+	private Class sensorOutputSubjectClassInstance;
 
 	public SensorOutput() {
 
-		super("SensorOutput", " http://purl.oclc.org/NET/ssnx/ssn#SensorOutput", Prefixes.SSN, null,false);
+		super("SensorOutput", " http://purl.oclc.org/NET/ssnx/ssn#SensorOutput", Prefixes.SSN, null, false);
 		init();
+	}
+
+	private Class getSensorOutputSubjectClassInstance() {
+		if (sensorOutputSubjectClassInstance == null)
+			sensorOutputSubjectClassInstance = new Class("SensorOutput",
+					" http://purl.oclc.org/NET/ssnx/ssn#SensorOutput", Prefixes.SSN, null, false);
+
+		return sensorOutputSubjectClassInstance;
 	}
 
 	public synchronized static SensorOutput getSensorOutputInstance() {
@@ -33,8 +42,8 @@ public class SensorOutput extends Class {
 	}
 
 	private void init() {
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("id", new DataTypeProperty(getSensorOutputSubjectClassInstance(), "id",
+				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}

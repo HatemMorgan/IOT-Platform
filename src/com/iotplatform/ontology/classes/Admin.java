@@ -3,10 +3,8 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  *  This class maps the Admin class in the ontology
@@ -16,10 +14,10 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Admin extends Person {
 
 	private static Admin adminInstance;
+	private Class adminSubjectClassInstance;
 
 	public Admin() {
-		super("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
+		super("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM, "userName", false);
 		init();
 	}
 
@@ -33,8 +31,15 @@ public class Admin extends Person {
 	 * 
 	 */
 	public Admin(String nothing) {
-		super("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
+		super("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM, "userName", false);
+	}
+
+	public Class getAdminSubjectClassInstance() {
+		if (adminSubjectClassInstance == null) {
+			adminSubjectClassInstance = new Class("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM,
+					"userName", false);
+		}
+		return adminSubjectClassInstance;
 	}
 
 	public synchronized static Admin getAdminInstance() {
@@ -46,9 +51,9 @@ public class Admin extends Person {
 		return adminInstance;
 	}
 
-	public static void initAdminStaticInstance(Class adminInstance) {
-		adminInstance.getProperties().put("adminOf", new ObjectProperty("adminOf", Prefixes.IOT_PLATFORM,
-				Application.getApplicationInstance(), false, false));
+	public static void initAdminStaticInstance(Admin adminInstance) {
+		adminInstance.getProperties().put("adminOf", new ObjectProperty(adminInstance.getAdminSubjectClassInstance(),
+				"adminOf", Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
 		adminInstance.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "adminOf", "adminOf");
 
@@ -56,8 +61,8 @@ public class Admin extends Person {
 	}
 
 	private void init() {
-		super.getProperties().put("adminOf", new ObjectProperty("adminOf", Prefixes.IOT_PLATFORM,
-				Application.getApplicationInstance(), false, false));
+		super.getProperties().put("adminOf", new ObjectProperty(getAdminSubjectClassInstance(), "adminOf",
+				Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "adminOf", "adminOf");
 

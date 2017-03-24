@@ -17,11 +17,20 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Output extends Class {
 
 	private static Output outputInstance;
+	private Class outputSubjectClassInstance;
 
 	public Output() {
-		
-		super("Output", "http://purl.oclc.org/NET/ssnx/ssn#Output", Prefixes.SSN, null,false);
+
+		super("Output", "http://purl.oclc.org/NET/ssnx/ssn#Output", Prefixes.SSN, null, false);
 		init();
+	}
+
+	private Class getOutputSubjectClassInstance() {
+		if (outputSubjectClassInstance == null)
+			outputSubjectClassInstance = new Class("Output", "http://purl.oclc.org/NET/ssnx/ssn#Output", Prefixes.SSN,
+					null, false);
+
+		return outputSubjectClassInstance;
 	}
 
 	public synchronized static Output getOutputInstance() {
@@ -33,8 +42,8 @@ public class Output extends Class {
 	}
 
 	private void init() {
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("id", new DataTypeProperty(getOutputSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+				XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}

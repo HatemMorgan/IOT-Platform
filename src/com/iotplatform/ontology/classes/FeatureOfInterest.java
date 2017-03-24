@@ -24,10 +24,19 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class FeatureOfInterest extends Class {
 
 	private static FeatureOfInterest featureOfInterestInstance;
+	private Class featureOfInterestSubjectClassInstance;
 
 	public FeatureOfInterest() {
-		super("FeatureOfInterest", "http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN, null,false);
+		super("FeatureOfInterest", "http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN, null, false);
 		init();
+	}
+
+	private Class getFeatureOfInterestSubjectClassInstance() {
+		if (featureOfInterestSubjectClassInstance == null)
+			featureOfInterestSubjectClassInstance = new Class("FeatureOfInterest",
+					"http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN, null, false);
+		
+		return featureOfInterestSubjectClassInstance;
 	}
 
 	public synchronized static FeatureOfInterest getFeatureOfInterestInstance() {
@@ -39,7 +48,7 @@ public class FeatureOfInterest extends Class {
 
 	private void init() {
 		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				new DataTypeProperty(getFeatureOfInterestSubjectClassInstance(),"id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}

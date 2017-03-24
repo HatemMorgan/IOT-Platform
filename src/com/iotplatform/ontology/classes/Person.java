@@ -16,10 +16,10 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Person extends Agent {
 
 	private static Person personInstance;
+	private Class personSubjectClassInstance;
 
 	public Person() {
-		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), true);
+		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF, "userName", true);
 		init();
 	}
 
@@ -38,14 +38,22 @@ public class Person extends Agent {
 	 * add agentProperties to it
 	 */
 	public Person(String nothing) {
-		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), null, true);
+		super("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF, "userName", null, true);
 	}
 
-	public Person(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty, boolean hasTypeClasses) {
-		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
+	public Person(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+			boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 		init();
 
+	}
+
+	private Class getPersonSubjectClassInstance() {
+		if (personSubjectClassInstance == null) {
+			personSubjectClassInstance = new Class("Person", "http://xmlns.com/foaf/0.1/Person", Prefixes.FOAF,
+					"userName", true);
+		}
+		return personSubjectClassInstance;
 	}
 
 	public synchronized static Person getPersonInstance() {
@@ -62,24 +70,24 @@ public class Person extends Agent {
 
 	private void init() {
 
-		this.getProperties().put("age",
-				new DataTypeProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed, false, false));
-		this.getProperties().put("birthday",
-				new DataTypeProperty("birthday", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
-		this.getProperties().put("familyName",
-				new DataTypeProperty("familyName", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
-		this.getProperties().put("firstName",
-				new DataTypeProperty("firstName", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
-		this.getProperties().put("middleName",
-				new DataTypeProperty("middleName", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
-		this.getProperties().put("gender",
-				new DataTypeProperty("gender", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
-		this.getProperties().put("title",
-				new DataTypeProperty("title", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
-		this.getProperties().put("userName",
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
-		this.getProperties().put("knows",
-				new ObjectProperty("knows", Prefixes.FOAF, Person.getPersonInstance(), true, false));
+		this.getProperties().put("age", new DataTypeProperty(getPersonSubjectClassInstance(), "age", Prefixes.FOAF,
+				XSDDataTypes.integer_typed, false, false));
+		this.getProperties().put("birthday", new DataTypeProperty(getPersonSubjectClassInstance(), "birthday",
+				Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+		this.getProperties().put("familyName", new DataTypeProperty(getPersonSubjectClassInstance(), "familyName",
+				Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+		this.getProperties().put("firstName", new DataTypeProperty(getPersonSubjectClassInstance(), "firstName",
+				Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+		this.getProperties().put("middleName", new DataTypeProperty(getPersonSubjectClassInstance(), "middleName",
+				Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+		this.getProperties().put("gender", new DataTypeProperty(getPersonSubjectClassInstance(), "gender",
+				Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+		this.getProperties().put("title", new DataTypeProperty(getPersonSubjectClassInstance(), "title", Prefixes.FOAF,
+				XSDDataTypes.string_typed, false, false));
+		this.getProperties().put("userName", new DataTypeProperty(getPersonSubjectClassInstance(), "userName",
+				Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+		this.getProperties().put("knows", new ObjectProperty(getPersonSubjectClassInstance(), "knows", Prefixes.FOAF,
+				Person.getPersonInstance(), true, false));
 
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "age", "age");
 		this.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "birthday", "birthday");
@@ -116,25 +124,31 @@ public class Person extends Agent {
 
 	}
 
-	public static void initPersonStaticInstance(Class personInstance) {
-		personInstance.getProperties().put("age",
-				new DataTypeProperty("age", Prefixes.FOAF, XSDDataTypes.integer_typed, false, false));
+	public static void initPersonStaticInstance(Person personInstance) {
+		personInstance.getProperties().put("age", new DataTypeProperty(personInstance.getPersonSubjectClassInstance(),
+				"age", Prefixes.FOAF, XSDDataTypes.integer_typed, false, false));
 		personInstance.getProperties().put("birthday",
-				new DataTypeProperty("birthday", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+				new DataTypeProperty(personInstance.getPersonSubjectClassInstance(), "birthday", Prefixes.FOAF,
+						XSDDataTypes.string_typed, false, false));
 		personInstance.getProperties().put("familyName",
-				new DataTypeProperty("familyName", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+				new DataTypeProperty(personInstance.getPersonSubjectClassInstance(), "familyName", Prefixes.FOAF,
+						XSDDataTypes.string_typed, false, false));
 		personInstance.getProperties().put("firstName",
-				new DataTypeProperty("firstName", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+				new DataTypeProperty(personInstance.getPersonSubjectClassInstance(), "firstName", Prefixes.FOAF,
+						XSDDataTypes.string_typed, false, false));
 		personInstance.getProperties().put("middleName",
-				new DataTypeProperty("middleName", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+				new DataTypeProperty(personInstance.getPersonSubjectClassInstance(), "middleName", Prefixes.FOAF,
+						XSDDataTypes.string_typed, false, false));
 		personInstance.getProperties().put("gender",
-				new DataTypeProperty("gender", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
-		personInstance.getProperties().put("title",
-				new DataTypeProperty("title", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+				new DataTypeProperty(personInstance.getPersonSubjectClassInstance(), "gender", Prefixes.FOAF,
+						XSDDataTypes.string_typed, false, false));
+		personInstance.getProperties().put("title", new DataTypeProperty(personInstance.getPersonSubjectClassInstance(),
+				"title", Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
 		personInstance.getProperties().put("userName",
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
-		personInstance.getProperties().put("knows",
-				new ObjectProperty("knows", Prefixes.FOAF, Person.getPersonInstance(), true, false));
+				new DataTypeProperty(personInstance.getPersonSubjectClassInstance(), "userName", Prefixes.FOAF,
+						XSDDataTypes.string_typed, false, true));
+		personInstance.getProperties().put("knows", new ObjectProperty(personInstance.getPersonSubjectClassInstance(),
+				"knows", Prefixes.FOAF, Person.getPersonInstance(), true, false));
 
 		personInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "age", "age");
 		personInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "birthday", "birthday");

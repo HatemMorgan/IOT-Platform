@@ -22,12 +22,20 @@ import com.iotplatform.ontology.XSDDataTypes;
 @Component
 public class Point extends Class {
 
-	
 	private static Point pointInstance;
+	private Class pointSubjectClassInstance;
 
 	public Point() {
-		super("Point", "http://www.w3.org/2003/01/geo/wgs84_pos#Point", Prefixes.GEO, null,false);
+		super("Point", "http://www.w3.org/2003/01/geo/wgs84_pos#Point", Prefixes.GEO, null, false);
 		init();
+	}
+
+	private Class getPointSubjectClassInstance() {
+		if (pointSubjectClassInstance == null)
+			pointSubjectClassInstance = new Class("Point", "http://www.w3.org/2003/01/geo/wgs84_pos#Point",
+					Prefixes.GEO, null, false);
+
+		return pointSubjectClassInstance;
 	}
 
 	public synchronized static Point getPointInstacne() {
@@ -42,26 +50,26 @@ public class Point extends Class {
 		/*
 		 * point id which must be unique
 		 */
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("id", new DataTypeProperty(getPointSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+				XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * point latitude
 		 */
-		super.getProperties().put("lat",
-				new DataTypeProperty("lat", Prefixes.GEO, XSDDataTypes.double_typed, false, false));
+		super.getProperties().put("lat", new DataTypeProperty(getPointSubjectClassInstance(), "lat", Prefixes.GEO,
+				XSDDataTypes.double_typed, false, false));
 
 		/*
 		 * point longitude
 		 */
-		super.getProperties().put("long",
-				new DataTypeProperty("long", Prefixes.GEO, XSDDataTypes.double_typed, false, false));
+		super.getProperties().put("long", new DataTypeProperty(getPointSubjectClassInstance(), "long", Prefixes.GEO,
+				XSDDataTypes.double_typed, false, false));
 
 		/*
 		 * point google maps url
 		 */
-		super.getProperties().put("googleMapsUrl",
-				new DataTypeProperty("googleMapsUrl", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("googleMapsUrl", new DataTypeProperty(getPointSubjectClassInstance(), "googleMapsUrl",
+				Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.GEO.getUri() + "lat", "lat");

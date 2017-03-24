@@ -2,6 +2,7 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 
@@ -21,10 +22,19 @@ import com.iotplatform.ontology.Prefixes;
 public class SurvivalRange extends Property {
 
 	private static SurvivalRange survivalRangeInstance;
+	private Class survivalRangeSubjectClassInstance;
 
 	public SurvivalRange() {
 		super("SurvivalRange", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefixes.SSN, null, false);
 		init();
+	}
+
+	private Class getSurvivalRangeSubjectClassInstance() {
+		if (survivalRangeSubjectClassInstance == null)
+			survivalRangeSubjectClassInstance = new Class("SurvivalRange",
+					"http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefixes.SSN, null, false);
+
+		return survivalRangeSubjectClassInstance;
 	}
 
 	public SurvivalRange(String nothing) {
@@ -44,8 +54,8 @@ public class SurvivalRange extends Property {
 		/*
 		 * Relation from an SurvivalProperty to a Property.
 		 */
-		super.getProperties().put("hasSurvivalProperty", new ObjectProperty("hasSurvivalProperty", Prefixes.SSN,
-				SurvivalProperty.getSurvivalPropertyInstance(), true, false));
+		super.getProperties().put("hasSurvivalProperty", new ObjectProperty(getSurvivalRangeSubjectClassInstance(),
+				"hasSurvivalProperty", Prefixes.SSN, SurvivalProperty.getSurvivalPropertyInstance(), true, false));
 
 		/*
 		 * Describes the prevailing environmental conditions for
@@ -53,8 +63,8 @@ public class SurvivalRange extends Property {
 		 * for example to say that a sensor has a particular accuracy in
 		 * particular conditions. (see also MeasurementCapability)
 		 */
-		super.getProperties().put("inCondition",
-				new ObjectProperty("inCondition", Prefixes.SSN, Condition.getConditionInstance(), false, false));
+		super.getProperties().put("inCondition", new ObjectProperty(getSurvivalRangeSubjectClassInstance(),
+				"inCondition", Prefixes.SSN, Condition.getConditionInstance(), false, false));
 
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalProperty", "hasSurvivalProperty");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
@@ -66,8 +76,9 @@ public class SurvivalRange extends Property {
 		/*
 		 * Relation from an SurvivalProperty to a Property.
 		 */
-		survivalRangeInstance.getProperties().put("hasSurvivalProperty", new ObjectProperty("hasSurvivalProperty",
-				Prefixes.SSN, SurvivalProperty.getSurvivalPropertyInstance(), true, false));
+		survivalRangeInstance.getProperties().put("hasSurvivalProperty",
+				new ObjectProperty(survivalRangeInstance.getSurvivalRangeSubjectClassInstance(), "hasSurvivalProperty",
+						Prefixes.SSN, SurvivalProperty.getSurvivalPropertyInstance(), true, false));
 
 		/*
 		 * Describes the prevailing environmental conditions for
@@ -76,7 +87,8 @@ public class SurvivalRange extends Property {
 		 * particular conditions. (see also MeasurementCapability)
 		 */
 		survivalRangeInstance.getProperties().put("inCondition",
-				new ObjectProperty("inCondition", Prefixes.SSN, Condition.getConditionInstance(), false, false));
+				new ObjectProperty(survivalRangeInstance.getSurvivalRangeSubjectClassInstance(), "inCondition",
+						Prefixes.SSN, Condition.getConditionInstance(), false, false));
 
 		survivalRangeInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalProperty",
 				"hasSurvivalProperty");

@@ -3,7 +3,6 @@ package com.iotplatform.ontology.classes;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -13,9 +12,11 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Agent extends Class {
 
 	private static Agent agentInstance;
+	private Class agentSubjectClass;
 
-	public Agent(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty, boolean hasTypeClasses) {
-		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
+	public Agent(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+			boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 		init();
 	}
 
@@ -33,9 +34,9 @@ public class Agent extends Class {
 	 * by calling Agnet.initAgentStaticInstanc(Class agentInstance) method to
 	 * add agentProperties to it
 	 */
-	public Agent(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty, String nothing,
+	public Agent(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName, String nothing,
 			boolean hasTypeClasses) {
-		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
+		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 	}
 
 	public Agent() {
@@ -67,9 +68,17 @@ public class Agent extends Class {
 		return agentInstance;
 	}
 
+	private Class getAgentSubjectClass() {
+		if (agentSubjectClass == null) {
+			agentSubjectClass = new Class("Agent", "http://xmlns.com/foaf/0.1/Agent", Prefixes.FOAF, null, true);
+		}
+
+		return agentInstance;
+	}
+
 	private static void initAgentStaticInstance(Agent agentInstance) {
-		agentInstance.getProperties().put("mbox",
-				new DataTypeProperty("mbox", Prefixes.FOAF, XSDDataTypes.string_typed, true, true));
+		agentInstance.getProperties().put("mbox", new DataTypeProperty(agentInstance.getAgentSubjectClass(), "mbox",
+				Prefixes.FOAF, XSDDataTypes.string_typed, true, true));
 
 		agentInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "mbox", "mbox");
 
@@ -77,8 +86,8 @@ public class Agent extends Class {
 		 * A thing of interest to this person.
 		 */
 
-		agentInstance.getProperties().put("topic_interest",
-				new DataTypeProperty("topic_interest", Prefixes.FOAF, XSDDataTypes.string_typed, true, false));
+		agentInstance.getProperties().put("topic_interest", new DataTypeProperty(agentInstance.getAgentSubjectClass(),
+				"topic_interest", Prefixes.FOAF, XSDDataTypes.string_typed, true, false));
 
 		agentInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "topic_interest", "topic_interest");
 
@@ -118,9 +127,9 @@ public class Agent extends Class {
 
 	}
 
-	public static void initAgentStaticInstanc(Class agentInstance) {
-		agentInstance.getProperties().put("mbox",
-				new DataTypeProperty("mbox", Prefixes.FOAF, XSDDataTypes.string_typed, true, true));
+	public static void initAgentStaticInstanc(Agent agentInstance) {
+		agentInstance.getProperties().put("mbox", new DataTypeProperty(agentInstance.getAgentSubjectClass(), "mbox",
+				Prefixes.FOAF, XSDDataTypes.string_typed, true, true));
 
 		agentInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "mbox", "mbox");
 
@@ -128,16 +137,16 @@ public class Agent extends Class {
 		 * A thing of interest to this person.
 		 */
 
-		agentInstance.getProperties().put("topic_interest",
-				new DataTypeProperty("topic_interest", Prefixes.FOAF, XSDDataTypes.string_typed, true, false));
+		agentInstance.getProperties().put("topic_interest", new DataTypeProperty(agentInstance.getAgentSubjectClass(),
+				"topic_interest", Prefixes.FOAF, XSDDataTypes.string_typed, true, false));
 
 		agentInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "topic_interest", "topic_interest");
 	}
 
 	private void init() {
 
-		super.getProperties().put("mbox",
-				new DataTypeProperty("mbox", Prefixes.FOAF, XSDDataTypes.string_typed, true, true));
+		super.getProperties().put("mbox", new DataTypeProperty(getAgentSubjectClass(), "mbox", Prefixes.FOAF,
+				XSDDataTypes.string_typed, true, true));
 
 		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "mbox", "mbox");
 
@@ -145,8 +154,8 @@ public class Agent extends Class {
 		 * A thing of interest to this person.
 		 */
 
-		super.getProperties().put("topic_interest",
-				new DataTypeProperty("topic_interest", Prefixes.FOAF, XSDDataTypes.string_typed, true, false));
+		super.getProperties().put("topic_interest", new DataTypeProperty(getAgentSubjectClass(), "topic_interest",
+				Prefixes.FOAF, XSDDataTypes.string_typed, true, false));
 
 		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "topic_interest", "topic_interest");
 

@@ -18,7 +18,7 @@ public class Class {
 	 * or it will have a value if uniqueIdentifier is a current property of the
 	 * class instance where the value will be passed by the user
 	 */
-	private Property uniqueIdentifierProperty;
+	private String uniqueIdentifierPropertyName;
 
 	/*
 	 * boolean represents if uniqueIdentifierProperty is null or not
@@ -53,23 +53,24 @@ public class Class {
 	 */
 	private Hashtable<String, Class> classTypesList;
 
-	public Class(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty, boolean hasTypeClasses) {
+	public Class(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+			boolean hasTypeClasses) {
 		this.name = name;
 		this.uri = uri;
 		this.prefix = prefix;
 		this.htblPropUriName = new Hashtable<>();
-		this.uniqueIdentifierProperty = uniqueIdentifierProperty;
+		this.uniqueIdentifierPropertyName = uniqueIdentifierPropertyName;
 		this.hasTypeClasses = hasTypeClasses;
 
 		this.classTypesList = new Hashtable<>();
 		this.properties = new Hashtable<>();
 		this.superClassesList = new ArrayList<>();
-		this.hasUniqueIdentifierProperty = uniqueIdentifierProperty == null ? false : true;
+		this.hasUniqueIdentifierProperty = uniqueIdentifierPropertyName == null ? false : true;
 
 	}
 
-	public Property getUniqueIdentifierProperty() {
-		return uniqueIdentifierProperty;
+	public String getUniqueIdentifierPropertyName() {
+		return uniqueIdentifierPropertyName;
 	}
 
 	public boolean isHasUniqueIdentifierProperty() {

@@ -3,10 +3,8 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  *  This class maps the NormalUser class in the ontology
@@ -16,11 +14,19 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class NormalUser extends Person {
 
 	private static NormalUser normalUserInstance;
+	private Class normalUserSubjectClassInstance;
 
 	public NormalUser() {
-		super("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
+		super("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM, "userName", false);
 		init();
+	}
+
+	private Class getNormalUserSubjectClassInstance() {
+		if (normalUserSubjectClassInstance == null)
+			normalUserSubjectClassInstance = new Class("NormalUser", "http://iot-platform#NormalUser",
+					Prefixes.IOT_PLATFORM, "userName", false);
+
+		return normalUserSubjectClassInstance;
 	}
 
 	/*
@@ -33,8 +39,7 @@ public class NormalUser extends Person {
 	 * 
 	 */
 	public NormalUser(String nothing) {
-		super("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM,
-				new DataTypeProperty("userName", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
+		super("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM, "userName", false);
 	}
 
 	public synchronized static NormalUser getNormalUserInstance() {
@@ -46,9 +51,10 @@ public class NormalUser extends Person {
 		return normalUserInstance;
 	}
 
-	public static void initNormalUserStaticInstance(Class normalUserInstance) {
-		normalUserInstance.getProperties().put("usesApplication", new ObjectProperty("usesApplication",
-				Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
+	public static void initNormalUserStaticInstance(NormalUser normalUserInstance) {
+		normalUserInstance.getProperties().put("usesApplication",
+				new ObjectProperty(normalUserInstance.getNormalUserSubjectClassInstance(), "usesApplication",
+						Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
 		normalUserInstance.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "usesApplication",
 				"usesApplication");
@@ -57,8 +63,8 @@ public class NormalUser extends Person {
 	}
 
 	private void init() {
-		super.getProperties().put("usesApplication", new ObjectProperty("usesApplication", Prefixes.IOT_PLATFORM,
-				Application.getApplicationInstance(), false, false));
+		super.getProperties().put("usesApplication", new ObjectProperty(getNormalUserSubjectClassInstance(),
+				"usesApplication", Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "usesApplication", "usesApplication");
 

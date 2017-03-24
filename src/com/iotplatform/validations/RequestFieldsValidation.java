@@ -510,7 +510,6 @@ public class RequestFieldsValidation {
 						String classTypePrefixName = getObjectClassTypePrefixName(
 								((ObjectProperty) objectValueProperty).getObject(),
 								(ObjectProperty) objectValueProperty, objectValue);
-						System.out.println("heasas---> " + classTypePrefixName + "  " + objectValueProperty.getName());
 						htblUniquePropValueList.get(objectValueSubject).get(objectValueUniqueIdentifier)
 								.add(new PropertyValue(classTypePrefixName,
 										objectValueProperty.getPrefix().getPrefix() + objectValueProperty.getName(),
@@ -550,7 +549,6 @@ public class RequestFieldsValidation {
 						String classTypePrefixName = getObjectClassTypePrefixName(
 								((ObjectProperty) objectValueProperty).getObject(),
 								(ObjectProperty) objectValueProperty, objectValue);
-						System.out.println("heasas---> " + classTypePrefixName + "  " + objectValueProperty.getName());
 						htblUniquePropValueList.get(objectValueSubject).get(objectValueUniqueIdentifier)
 								.add(new PropertyValue(classTypePrefixName,
 										objectValueProperty.getPrefix().getPrefix() + objectValueProperty.getName(),
@@ -574,7 +572,7 @@ public class RequestFieldsValidation {
 			 */
 			PropertyValue propertyValue;
 			if (subjectClass.isHasUniqueIdentifierProperty()
-					&& subjectClass.getUniqueIdentifierProperty().getName().equals(property.getName())) {
+					&& subjectClass.getUniqueIdentifierPropertyName().equals(property.getName())) {
 				propertyValue = new PropertyValue(property.getPrefix().getPrefix() + property.getName(), value, false);
 			} else {
 				/*
@@ -622,10 +620,9 @@ public class RequestFieldsValidation {
 				 * value instance to the subject
 				 */
 				String objectUniqueIdentifier;
-				Property uniqueIdentifierProperty = null;
+
 				if (classType.isHasUniqueIdentifierProperty()) {
-					uniqueIdentifierProperty = classType.getUniqueIdentifierProperty();
-					objectUniqueIdentifier = valueObject.get(uniqueIdentifierProperty.getName()).toString();
+					objectUniqueIdentifier = valueObject.get(classType.getUniqueIdentifierPropertyName()).toString();
 
 				} else {
 					/*
@@ -1221,7 +1218,8 @@ public class RequestFieldsValidation {
 
 			if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty.toString())) {
 				htblAllStaticClasses.get(subjectClass.getUri()).getProperties().put(dynamicProperty.getProperty_name(),
-						new DataTypeProperty(dynamicProperty.getProperty_name(),
+						new DataTypeProperty(htblAllStaticClasses.get(dynamicProperty.getClass_uri()),
+								dynamicProperty.getProperty_name(),
 								getPrefix(dynamicProperty.getProperty_prefix_alias()),
 								getXSDDataTypeEnum(dynamicProperty.getProperty_object_type_uri()), applicationName,
 								dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
@@ -1229,7 +1227,8 @@ public class RequestFieldsValidation {
 				if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
 					htblAllStaticClasses.get(subjectClass.getUri()).getProperties().put(
 							dynamicProperty.getProperty_name(),
-							new ObjectProperty(dynamicProperty.getProperty_name(),
+							new ObjectProperty(htblAllStaticClasses.get(dynamicProperty.getClass_uri()),
+									dynamicProperty.getProperty_name(),
 									getPrefix(dynamicProperty.getProperty_prefix_alias()),
 									htblAllStaticClasses.get(dynamicProperty.getProperty_object_type_uri()),
 									applicationName, dynamicProperty.getHasMultipleValues(),
@@ -1262,7 +1261,8 @@ public class RequestFieldsValidation {
 
 				if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty.toString())) {
 					htblAllStaticClasses.get(subClass.getUri()).getProperties().put(dynamicProperty.getProperty_name(),
-							new DataTypeProperty(dynamicProperty.getProperty_name(),
+							new DataTypeProperty(htblAllStaticClasses.get(dynamicProperty.getClass_uri()),
+									dynamicProperty.getProperty_name(),
 									getPrefix(dynamicProperty.getProperty_prefix_alias()),
 									getXSDDataTypeEnum(dynamicProperty.getProperty_object_type_uri()), applicationName,
 									dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
@@ -1270,7 +1270,8 @@ public class RequestFieldsValidation {
 					if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
 						htblAllStaticClasses.get(subClass.getUri()).getProperties().put(
 								dynamicProperty.getProperty_name(),
-								new ObjectProperty(dynamicProperty.getProperty_name(),
+								new ObjectProperty(htblAllStaticClasses.get(dynamicProperty.getClass_uri()),
+										dynamicProperty.getProperty_name(),
 										getPrefix(dynamicProperty.getProperty_prefix_alias()),
 										htblAllStaticClasses.get(dynamicProperty.getProperty_object_type_uri()),
 										applicationName, dynamicProperty.getHasMultipleValues(),

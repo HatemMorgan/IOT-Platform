@@ -16,8 +16,9 @@ public abstract class Property {
 	private String applicationName;
 	private boolean mulitpleValues;
 	private boolean unique;
+	private Class subjectClass;
 
-	public Property(String name, Prefixes prefix, boolean mulitpleValues, boolean unique) {
+	public Property(Class subjectClass, String name, Prefixes prefix, boolean mulitpleValues, boolean unique) {
 
 		this.name = name;
 		this.prefix = prefix;
@@ -26,7 +27,8 @@ public abstract class Property {
 		this.unique = unique;
 	}
 
-	public Property(String name, Prefixes prefix, String applicationName, int mulitpleValues, int unique) {
+	public Property(Class subjectClass, String name, Prefixes prefix, String applicationName, int mulitpleValues,
+			int unique) {
 
 		this.name = name;
 		this.prefix = prefix;
@@ -63,6 +65,10 @@ public abstract class Property {
 
 	public boolean isUnique() {
 		return unique;
+	}
+
+	public Class getSubjectClass() {
+		return subjectClass;
 	}
 
 }

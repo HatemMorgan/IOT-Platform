@@ -60,7 +60,8 @@ public class MainDao {
 			 */
 			Property uniqueIdentifierProperty;
 			if (subjectClass.isHasUniqueIdentifierProperty()) {
-				uniqueIdentifierProperty = subjectClass.getUniqueIdentifierProperty();
+				uniqueIdentifierProperty = subjectClass.getProperties()
+						.get(subjectClass.getUniqueIdentifierPropertyName());
 
 			} else {
 				uniqueIdentifierProperty = subjectClass.getProperties().get("id");

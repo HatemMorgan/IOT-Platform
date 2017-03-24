@@ -1,13 +1,10 @@
 package com.iotplatform.ontology.classes;
 
-import java.security.Provider;
-
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -21,16 +18,25 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Process extends Class {
 
 	private static Process processInstance;
+	private Class processSubjectClassInstance;
 
-	public Process(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty,
+	public Process(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
 			boolean hasTypeClasses) {
-		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
+		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 		init();
 	}
 
-	public Process(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty, boolean hasTypeClasses,
-			String nothing) {
-		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
+	private Class getProcessSubjectClassInstance() {
+		if (processSubjectClassInstance == null)
+			processSubjectClassInstance = new Class("Process", "http://purl.oclc.org/NET/ssnx/ssn#Process",
+					Prefixes.SSN, null, true);
+
+		return processSubjectClassInstance;
+	}
+
+	public Process(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+			boolean hasTypeClasses, String nothing) {
+		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 	}
 
 	public synchronized static Process getProcessInstance() {
@@ -47,8 +53,8 @@ public class Process extends Class {
 	}
 
 	private void init() {
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("id", new DataTypeProperty(getProcessSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+				XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 
@@ -58,8 +64,8 @@ public class Process extends Class {
 	}
 
 	public static void initProcessStaticInstance(Process processInstance) {
-		processInstance.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+		processInstance.getProperties().put("id", new DataTypeProperty(processInstance.getProcessSubjectClassInstance(),
+				"id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		processInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 

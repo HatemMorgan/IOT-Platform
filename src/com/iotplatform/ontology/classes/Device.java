@@ -19,19 +19,29 @@ import com.iotplatform.ontology.Property;
 public class Device extends SystemClass {
 
 	private static Device deviceInstance;
+	private com.iotplatform.ontology.Class systemSubjectClassInstance;
 
 	public Device() {
 		super("Device", "http://purl.oclc.org/NET/ssnx/ssn#Device", Prefixes.SSN, null, true);
 		init();
 	}
 
-	public Device(String name, String uri, Prefixes prefix, Property uniqueIdentifierProperty, boolean hasTypeClasses) {
-		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
+	public Device(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+			boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 		init();
 	}
 
 	public Device(String nothing) {
 		super("Device", "http://purl.oclc.org/NET/ssnx/ssn#Device", Prefixes.SSN, null, true, null);
+	}
+
+	private com.iotplatform.ontology.Class getSystemSubjectClassInstance() {
+		if (systemSubjectClassInstance == null)
+			systemSubjectClassInstance = new com.iotplatform.ontology.Class("Device",
+					"http://purl.oclc.org/NET/ssnx/ssn#Device", Prefixes.SSN, null, true);
+
+		return systemSubjectClassInstance;
 	}
 
 	public synchronized static Device getDeviceInstance() {
@@ -57,20 +67,20 @@ public class Device extends SystemClass {
 		 * Links the devices with their coverages. It is one to one relationShip
 		 * because a device can have only on coverage
 		 */
-		this.getProperties().put("hasCoverage",
-				new ObjectProperty("hasCoverage", Prefixes.IOT_LITE, Coverage.getCoverageInstance(), false, false));
+		this.getProperties().put("hasCoverage", new ObjectProperty(getSystemSubjectClassInstance(), "hasCoverage",
+				Prefixes.IOT_LITE, Coverage.getCoverageInstance(), false, false));
 
 		/*
 		 * A device has a service.
 		 */
-		this.getProperties().put("exposedBy",
-				new ObjectProperty("exposedBy", Prefixes.IOT_LITE, Service.getServiceInstance(), false, false));
+		this.getProperties().put("exposedBy", new ObjectProperty(getSystemSubjectClassInstance(), "exposedBy",
+				Prefixes.IOT_LITE, Service.getServiceInstance(), false, false));
 
 		/*
 		 * Links a Device with custom metadata about that device.
 		 */
-		this.getProperties().put("hasMetadata",
-				new ObjectProperty("hasMetadata", Prefixes.IOT_LITE, Metadata.getMetadataInstance(), true, false));
+		this.getProperties().put("hasMetadata", new ObjectProperty(getSystemSubjectClassInstance(), "hasMetadata",
+				Prefixes.IOT_LITE, Metadata.getMetadataInstance(), true, false));
 
 		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasCoverage", "hasCoverage");
 		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "exposedBy", "exposedBy");
@@ -107,19 +117,22 @@ public class Device extends SystemClass {
 		 * because a device can have only on coverage
 		 */
 		deviceInstance.getProperties().put("hasCoverage",
-				new ObjectProperty("hasCoverage", Prefixes.IOT_LITE, Coverage.getCoverageInstance(), false, false));
+				new ObjectProperty(deviceInstance.getSystemSubjectClassInstance(), "hasCoverage", Prefixes.IOT_LITE,
+						Coverage.getCoverageInstance(), false, false));
 
 		/*
 		 * A device has a service.
 		 */
 		deviceInstance.getProperties().put("exposedBy",
-				new ObjectProperty("exposedBy", Prefixes.IOT_LITE, Service.getServiceInstance(), false, false));
+				new ObjectProperty(deviceInstance.getSystemSubjectClassInstance(), "exposedBy", Prefixes.IOT_LITE,
+						Service.getServiceInstance(), false, false));
 
 		/*
 		 * Links a Device with custom metadata about that device.
 		 */
 		deviceInstance.getProperties().put("hasMetadata",
-				new ObjectProperty("hasMetadata", Prefixes.IOT_LITE, Metadata.getMetadataInstance(), true, false));
+				new ObjectProperty(deviceInstance.getSystemSubjectClassInstance(), "hasMetadata", Prefixes.IOT_LITE,
+						Metadata.getMetadataInstance(), true, false));
 
 		deviceInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasCoverage", "hasCoverage");
 		deviceInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "exposedBy", "exposedBy");

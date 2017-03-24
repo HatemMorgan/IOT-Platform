@@ -22,12 +22,19 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class QuantityKind extends Class {
 
 	private static QuantityKind quantityKindInstance;
+	private Class quantityKindSubjectClassInstance;
 
-	
 	public QuantityKind() {
-		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU, null,false);
-
+		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU, null, false);
 		init();
+	}
+
+	private Class getQuantityKindSubjectClassInstance() {
+		if (quantityKindSubjectClassInstance == null)
+			quantityKindSubjectClassInstance = new Class("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind",
+					Prefixes.QU, null, false);
+
+		return quantityKindSubjectClassInstance;
 	}
 
 	public synchronized static QuantityKind getQuantityKindInstance() {
@@ -38,8 +45,8 @@ public class QuantityKind extends Class {
 	}
 
 	private void init() {
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("id", new DataTypeProperty(getQuantityKindSubjectClassInstance(), "id",
+				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}

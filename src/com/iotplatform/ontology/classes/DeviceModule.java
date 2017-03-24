@@ -16,10 +16,19 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class DeviceModule extends Class {
 
 	private static DeviceModule deviceModuleInstance;
+	private Class deviceModuleSubjectClassInstance;
 
 	public DeviceModule() {
-		super("DeviceModule", "http://iot-platform#DeviceModule", Prefixes.IOT_PLATFORM, null,true);
+		super("DeviceModule", "http://iot-platform#DeviceModule", Prefixes.IOT_PLATFORM, null, true);
 		init();
+	}
+
+	private Class getDeviceModuleSubjectClassInstance() {
+		if (deviceModuleSubjectClassInstance == null)
+			deviceModuleSubjectClassInstance = new Class("DeviceModule", "http://iot-platform#DeviceModule",
+					Prefixes.IOT_PLATFORM, null, true);
+
+		return deviceModuleSubjectClassInstance;
 	}
 
 	public synchronized static DeviceModule getDeviceModuleInstance() {
@@ -34,16 +43,16 @@ public class DeviceModule extends Class {
 		/*
 		 * DeviceModule id which must be unique
 		 */
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("id", new DataTypeProperty(getDeviceModuleSubjectClassInstance(), "id",
+				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * Describes relation between Device module and its device
 		 * Components(eg: communicatingDevice,Sensor etc.) and it is one to many
 		 * relationship
 		 */
-		super.getProperties().put("hasDevice",
-				new ObjectProperty("hasDevice", Prefixes.IOT_PLATFORM, Device.getDeviceInstance(), true, false));
+		super.getProperties().put("hasDevice", new ObjectProperty(getDeviceModuleSubjectClassInstance(), "hasDevice",
+				Prefixes.IOT_PLATFORM, Device.getDeviceInstance(), true, false));
 
 		/*
 		 * Relation between a DeviceModule (e.g., A module consists of one or
@@ -57,8 +66,8 @@ public class DeviceModule extends Class {
 		 * DeviceModule so onPlatform has to have a uniqueValue
 		 * 
 		 */
-		super.getProperties().put("onPlatform",
-				new ObjectProperty("onPlatform", Prefixes.SSN, Platform.getPlatformInstance(), false, false));
+		super.getProperties().put("onPlatform", new ObjectProperty(getDeviceModuleSubjectClassInstance(), "onPlatform",
+				Prefixes.SSN, Platform.getPlatformInstance(), false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasDevice", "hasDevice");

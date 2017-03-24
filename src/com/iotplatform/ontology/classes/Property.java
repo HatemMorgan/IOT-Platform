@@ -20,10 +20,11 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Property extends Class {
 
 	private static Property propertyInstance;
+	private Class propertySubjectClassInstance;
 
-	public Property(String name, String uri, Prefixes prefix,
-			com.iotplatform.ontology.Property uniqueIdentifierProperty, boolean hasTypeClasses) {
-		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
+	public Property(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+			boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 		init();
 	}
 
@@ -39,9 +40,17 @@ public class Property extends Class {
 	 * I will use subClassesStaticInstances to add them to typeClassesList of
 	 * Property
 	 */
-	public Property(String name, String uri, Prefixes prefix,
-			com.iotplatform.ontology.Property uniqueIdentifierProperty, boolean hasTypeClasses, String nothing) {
-		super(name, uri, prefix, uniqueIdentifierProperty, hasTypeClasses);
+	public Property(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+			boolean hasTypeClasses, String nothing) {
+		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
+	}
+
+	private Class getPropertySubjectClassInstance() {
+		if (propertySubjectClassInstance == null)
+			propertySubjectClassInstance = new Class("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property",
+					Prefixes.SSN, null, true);
+
+		return propertySubjectClassInstance;
 	}
 
 	public Property() {
@@ -77,11 +86,11 @@ public class Property extends Class {
 		/*
 		 * relation between a Property and its value of type Amount
 		 */
-		this.getProperties().put("hasValue",
-				new ObjectProperty("hasValue", Prefixes.SSN, Amount.getAmountInstance(), false, false));
+		this.getProperties().put("hasValue", new ObjectProperty(getPropertySubjectClassInstance(), "hasValue",
+				Prefixes.SSN, Amount.getAmountInstance(), false, false));
 
-		this.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+		this.getProperties().put("id", new DataTypeProperty(getPropertySubjectClassInstance(), "id", Prefixes.IOT_LITE,
+				XSDDataTypes.string_typed, false, false));
 
 		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasValue", "hasValue");
@@ -120,10 +129,12 @@ public class Property extends Class {
 		 * relation between a Property and its value of type Amount
 		 */
 		propertyInstance.getProperties().put("hasValue",
-				new ObjectProperty("hasValue", Prefixes.SSN, Amount.getAmountInstance(), false, false));
+				new ObjectProperty(propertyInstance.getPropertySubjectClassInstance(), "hasValue", Prefixes.SSN,
+						Amount.getAmountInstance(), false, false));
 
 		propertyInstance.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				new DataTypeProperty(propertyInstance.getPropertySubjectClassInstance(), "id", Prefixes.IOT_LITE,
+						XSDDataTypes.string_typed, false, false));
 
 		propertyInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		propertyInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasValue", "hasValue");

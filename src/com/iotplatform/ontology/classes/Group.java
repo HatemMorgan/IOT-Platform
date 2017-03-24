@@ -17,10 +17,10 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Group extends Agent {
 
 	private static Group groupInstance;
+	private Class groupSubjectClassInstance;
 
 	public Group() {
-		super("Group", "http://xmlns.com/foaf/0.1/Group", Prefixes.FOAF,
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), false);
+		super("Group", "http://xmlns.com/foaf/0.1/Group", Prefixes.FOAF, "name", false);
 		init();
 	}
 
@@ -34,8 +34,15 @@ public class Group extends Agent {
 	 * 
 	 */
 	public Group(String nothing) {
-		super("Group", "http://xmlns.com/foaf/0.1/Group", Prefixes.FOAF,
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true), null, false);
+		super("Group", "http://xmlns.com/foaf/0.1/Group", Prefixes.FOAF, "name", null, false);
+	}
+
+	private Class getGroupSubjectClassInstance() {
+		if (groupSubjectClassInstance == null)
+			groupSubjectClassInstance = new Class("Group", "http://xmlns.com/foaf/0.1/Group", Prefixes.FOAF, "name",
+					false);
+
+		return groupSubjectClassInstance;
 	}
 
 	public synchronized static Group getGroupInstance() {
@@ -48,13 +55,14 @@ public class Group extends Agent {
 		return groupInstance;
 	}
 
-	public static void initGroupStaticInstance(Class groupInstance) {
-		groupInstance.getProperties().put("name",
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+	public static void initGroupStaticInstance(Group groupInstance) {
+		groupInstance.getProperties().put("name", new DataTypeProperty(groupInstance.getGroupSubjectClassInstance(),
+				"name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
 		groupInstance.getProperties().put("description",
-				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
-		groupInstance.getProperties().put("member",
-				new ObjectProperty("member", Prefixes.FOAF, Agent.getAgentInstance(), true, false));
+				new DataTypeProperty(groupInstance.getGroupSubjectClassInstance(), "description", Prefixes.IOT_PLATFORM,
+						XSDDataTypes.string_typed, false, false));
+		groupInstance.getProperties().put("member", new ObjectProperty(groupInstance.getGroupSubjectClassInstance(),
+				"member", Prefixes.FOAF, Agent.getAgentInstance(), true, false));
 
 		groupInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
 		groupInstance.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
@@ -64,12 +72,12 @@ public class Group extends Agent {
 	}
 
 	private void init() {
-		super.getProperties().put("name",
-				new DataTypeProperty("name", Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
-		super.getProperties().put("description",
-				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
-		super.getProperties().put("member",
-				new ObjectProperty("member", Prefixes.FOAF, Agent.getAgentInstance(), true, false));
+		super.getProperties().put("name", new DataTypeProperty(getGroupSubjectClassInstance(), "name", Prefixes.FOAF,
+				XSDDataTypes.string_typed, false, true));
+		super.getProperties().put("description", new DataTypeProperty(getGroupSubjectClassInstance(), "description",
+				Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("member", new ObjectProperty(getGroupSubjectClassInstance(), "member", Prefixes.FOAF,
+				Agent.getAgentInstance(), true, false));
 
 		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");

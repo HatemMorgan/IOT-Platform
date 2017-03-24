@@ -2,6 +2,7 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
@@ -19,6 +20,7 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Condition extends Property {
 
 	private static Condition conditionInstance;
+	private Class conditionSubjectClassInstance;
 
 	public Condition() {
 		super("Condition", "http://purl.oclc.org/NET/ssnx/ssn#Condition", Prefixes.SSN, null, false);
@@ -27,6 +29,14 @@ public class Condition extends Property {
 
 	public Condition(String nothing) {
 		super("Condition", "http://purl.oclc.org/NET/ssnx/ssn#Condition", Prefixes.SSN, null, false, null);
+	}
+
+	private Class getConditionSubjectClassInstance() {
+		if (conditionSubjectClassInstance == null)
+			conditionSubjectClassInstance = new Class("Condition", "http://purl.oclc.org/NET/ssnx/ssn#Condition",
+					Prefixes.SSN, null, false);
+
+		return conditionSubjectClassInstance;
 	}
 
 	public static Condition getConditionInstance() {
@@ -44,8 +54,8 @@ public class Condition extends Property {
 		/*
 		 * Condition description
 		 */
-		super.getProperties().put("description",
-				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("description", new DataTypeProperty(getConditionSubjectClassInstance(), "description",
+				Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
 		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
 
 		super.getSuperClassesList().add(Property.getPropertyInstance());
@@ -58,7 +68,8 @@ public class Condition extends Property {
 		 * Condition description
 		 */
 		conditionInstance.getProperties().put("description",
-				new DataTypeProperty("description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+				new DataTypeProperty(conditionInstance.getConditionSubjectClassInstance(), "description",
+						Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
 		conditionInstance.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
 
 		conditionInstance.getSuperClassesList().add(Property.getPropertyInstance());

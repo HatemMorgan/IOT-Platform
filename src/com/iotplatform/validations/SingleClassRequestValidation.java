@@ -37,9 +37,12 @@ import com.iotplatform.utilities.ValueOfTypeClass;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
-/*
- * SingleClassRequestValidation class is responsible to validate a single entity(class) request 
- * eg. Admin,Developer,Application,Organization
+/**
+ * SingleClassRequestValidation
+ * 
+ * class is responsible to validate a
+ * 
+ * single entity(class) request eg. Admin,Developer,Application,Organization
  */
 
 @Component
@@ -86,13 +89,13 @@ public class SingleClassRequestValidation {
 		 * having alot of dynamic properties not cached so to avoid going to the
 		 * database more than one time. I load all the dynamic properties of the
 		 * specified subject and then cache results
-		 * 
+		 *
 		 * I used hashtable to hold dynamic properties to enhance performance
 		 * when checking for valid property in the loading dynamic properties. I
 		 * did not check in the loop to allow caching all new properties that
 		 * were not cached before without terminating the loop when finding the
 		 * property needed in the dynamicProperties
-		 * 
+		 *
 		 * Also add dynamic property to property list of the subject class in
 		 * order to improve performance by caching the dynamic properties
 		 */
@@ -111,21 +114,29 @@ public class SingleClassRequestValidation {
 			subjectClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
 					dynamicProperty.getProperty_name());
 
-			if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty.toString())) {
-				subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
-						new DataTypeProperty(dynamicProperty.getProperty_name(),
-								getPrefix(dynamicProperty.getProperty_prefix_alias()),
-								getXSDDataTypeEnum(dynamicProperty.getProperty_object_type_uri()), applicationName,
-								dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
-			} else {
-				if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
-					subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
-							new ObjectProperty(dynamicProperty.getProperty_name(),
-									getPrefix(dynamicProperty.getProperty_prefix_alias()),
-									getClassByName(dynamicProperty.getProperty_object_type_uri()), applicationName,
-									dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
-				}
-			}
+			// if
+			// (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty.toString()))
+			// {
+			// subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
+			// new DataTypeProperty(dynamicProperty.getProperty_name(),
+			// getPrefix(dynamicProperty.getProperty_prefix_alias()),
+			// getXSDDataTypeEnum(dynamicProperty.getProperty_object_type_uri()),
+			// applicationName,
+			// dynamicProperty.getHasMultipleValues(),
+			// dynamicProperty.getIsUnique()));
+			// } else {
+			// if
+			// (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString()))
+			// {
+			// subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
+			// new ObjectProperty(dynamicProperty.getProperty_name(),
+			// getPrefix(dynamicProperty.getProperty_prefix_alias()),
+			// getClassByName(dynamicProperty.getProperty_object_type_uri()),
+			// applicationName,
+			// dynamicProperty.getHasMultipleValues(),
+			// dynamicProperty.getIsUnique()));
+			// }
+			// }
 			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
 		}
 
@@ -187,13 +198,13 @@ public class SingleClassRequestValidation {
 				 * passed field is a static property so add it to
 				 * htblStaticProperty so check that the property is valid for
 				 * this application domain
-				 * 
+				 *
 				 * if the applicationName is null so this field maps a property
 				 * in the main ontology .
-				 * 
+				 *
 				 * if the applicationName is equal to passed applicationName so
 				 * it is a dynamic added property to this application domain
-				 * 
+				 *
 				 * else it will be a dynamic property in another application
 				 * domain which will happen rarely
 				 */
@@ -263,7 +274,7 @@ public class SingleClassRequestValidation {
 	/*
 	 * isDataValueValid checks that the datatype of the values passed with the
 	 * property are valid to maintain data integrity and consistency.
-	 * 
+	 *
 	 */
 	private boolean isDataValueValid(DataTypeProperty dataProperty, Object value) {
 
@@ -489,7 +500,7 @@ public class SingleClassRequestValidation {
 			 * check if there are any constraints violations if there are any
 			 * violations hasConstraintViolations method will throw the
 			 * appropriate error that describes the type of the violation
-			 * 
+			 *
 			 * if there is no constraints violations a boolean true will be
 			 * returned
 			 */
@@ -543,7 +554,7 @@ public class SingleClassRequestValidation {
 		long startTime = System.currentTimeMillis();
 
 		// testing isValidFields method
-		Hashtable<Object, Object> res = requestValidation.isFieldsValid("test Application", new Developer(),
+		Hashtable<Object, Object> res = requestValidation.isFieldsValid("testApplication", new Developer(),
 				htblPropValues);
 
 		System.out.println(res.toString());

@@ -18,10 +18,19 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Attribute extends Class {
 
 	private static Attribute attributeInstance;
+	private Class attributeSubjectClassInstance;
 
 	public Attribute() {
-		super("Attribute", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", Prefixes.IOT_LITE, null,false);
+		super("Attribute", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", Prefixes.IOT_LITE, null, false);
 		init();
+	}
+
+	private Class getAttributeSubjectClassInstance() {
+		if (attributeSubjectClassInstance == null)
+			attributeSubjectClassInstance = new Class("Attribute",
+					"http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", Prefixes.IOT_LITE, null, false);
+
+		return attributeSubjectClassInstance;
 	}
 
 	public synchronized static Attribute getAttributeInstance() {
@@ -33,8 +42,8 @@ public class Attribute extends Class {
 	}
 
 	private void init() {
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("id", new DataTypeProperty(getAttributeSubjectClassInstance(), "id",
+				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 

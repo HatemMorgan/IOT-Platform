@@ -18,12 +18,20 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class ObservationValue extends Class {
 
 	private static ObservationValue observationValueInstance;
+	private Class observationValueSubjectClassInstance;
 
-	
 	public ObservationValue() {
-		super("ObservationValue", "http://purl.oclc.org/NET/ssnx/ssn#ObservationValue", Prefixes.SSN, null,false);
+		super("ObservationValue", "http://purl.oclc.org/NET/ssnx/ssn#ObservationValue", Prefixes.SSN, null, false);
 		init();
 
+	}
+
+	private Class getObservationValueSubjectClassInstance() {
+		if (observationValueSubjectClassInstance == null)
+			observationValueSubjectClassInstance = new Class("ObservationValue",
+					"http://purl.oclc.org/NET/ssnx/ssn#ObservationValue", Prefixes.SSN, null, false);
+
+		return observationValueSubjectClassInstance;
 	}
 
 	public synchronized static ObservationValue getObservationValueInstance() {
@@ -35,8 +43,8 @@ public class ObservationValue extends Class {
 	}
 
 	private void init() {
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("id", new DataTypeProperty(getObservationValueSubjectClassInstance(), "id",
+				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}

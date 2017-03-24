@@ -3,9 +3,7 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  * This Class maps  qu:Unit class in the ontology
