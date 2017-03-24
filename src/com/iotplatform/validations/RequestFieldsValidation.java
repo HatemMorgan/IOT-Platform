@@ -424,6 +424,19 @@ public class RequestFieldsValidation {
 	 * uniqueConstraintValidation. When the value is of type object
 	 * objectValueUniqueIdentifier holds the randomID of the subjectInstance of
 	 * this objectValue
+	 * 
+	 * notFoundFieldValueList is used to be passed to
+	 * isFieldMapsToStaticProperty method in order to add the not mapped field
+	 * to it
+	 * 
+	 * classValueList holds the objectValue of an objectProperty and its class
+	 * type to be passed to validationDao after parsing and check types and
+	 * fields to check if this objectValue is exist or not to maintain data
+	 * integrity
+	 * 
+	 * htblUniquePropValueList holds prpoertyValue for uniqueProperties to be
+	 * passed to validationDao after parsing and check types and fields to check
+	 * if the value is unique or not
 	 */
 	private void parseAndConstructFieldValue(Class subjectClass, Property property, Object value,
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue,
@@ -497,7 +510,7 @@ public class RequestFieldsValidation {
 						String classTypePrefixName = getObjectClassTypePrefixName(
 								((ObjectProperty) objectValueProperty).getObject(),
 								(ObjectProperty) objectValueProperty, objectValue);
-
+						System.out.println("heasas---> " + classTypePrefixName + "  " + objectValueProperty.getName());
 						htblUniquePropValueList.get(objectValueSubject).get(objectValueUniqueIdentifier)
 								.add(new PropertyValue(classTypePrefixName,
 										objectValueProperty.getPrefix().getPrefix() + objectValueProperty.getName(),
@@ -534,18 +547,12 @@ public class RequestFieldsValidation {
 					 */
 					if (objectValueProperty != null && objectValueSubject != null) {
 
-						/*
-						 * new PropertyValue instance created has the
-						 * prefixedClassTypeName of the objectValue, the
-						 * prefiexedPropertyName, uniqueIdentfier of
-						 * objectValueInstance and setting that the value was an
-						 * object to be treated that there is a nestedObject for
-						 * this property
-						 */
+						String classTypePrefixName = getObjectClassTypePrefixName(
+								((ObjectProperty) objectValueProperty).getObject(),
+								(ObjectProperty) objectValueProperty, objectValue);
+						System.out.println("heasas---> " + classTypePrefixName + "  " + objectValueProperty.getName());
 						htblUniquePropValueList.get(objectValueSubject).get(objectValueUniqueIdentifier)
-								.add(new PropertyValue(
-										((ObjectProperty) objectValueProperty).getObject().getPrefix().getPrefix()
-												+ ((ObjectProperty) objectValueProperty).getObject().getName(),
+								.add(new PropertyValue(classTypePrefixName,
 										objectValueProperty.getPrefix().getPrefix() + objectValueProperty.getName(),
 										uniqueIdentifier, true));
 					}
@@ -581,8 +588,9 @@ public class RequestFieldsValidation {
 			/*
 			 * add PropertyValue object to htblClassPropertyValue
 			 */
-			int classInstanceIndex = htblClassPropertyValue.get(subjectClass).size() - 1;
-			htblClassPropertyValue.get(subjectClass).get(classInstanceIndex).add(propertyValue);
+			// int classInstanceIndex =
+			// htblClassPropertyValue.get(subjectClass).size() - 1;
+			htblClassPropertyValue.get(subjectClass).get(indexCount).add(propertyValue);
 
 		} else {
 
@@ -1064,7 +1072,7 @@ public class RequestFieldsValidation {
 			value = "\"" + value.toString() + "\"" + xsdDataType.getXsdType();
 			return value;
 		} else {
-			return Prefixes.IOT_PLATFORM.getPrefix() + value;
+			return Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase().replaceAll(" ", "");
 		}
 	}
 
@@ -1643,7 +1651,7 @@ public class RequestFieldsValidation {
 
 		LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
 
-		hatemmorgan.put("type", "Developer");
+		hatemmorgan.put("type", "Admin");
 		hatemmorgan.put("age", 20);
 		hatemmorgan.put("firstName", "Hatem");
 		hatemmorgan.put("middleName", "ELsayed");
@@ -1658,29 +1666,28 @@ public class RequestFieldsValidation {
 		hatemmorganEmailList.add("hatem.el-sayeds@student.guc.edu.eg");
 
 		hatemmorgan.put("mbox", hatemmorganEmailList);
-		hatemmorgan.put("job", "Computer Engineeer");
+		// hatemmorgan.put("job", "Computer Engineeer");
 
-		LinkedHashMap<String, Object> hatemmorgan2 = new LinkedHashMap<>();
+		LinkedHashMap<String, Object> ahmedmorgnan = new LinkedHashMap<>();
 
-		 hatemmorgan2.put("type", "Developer");
-		hatemmorgan2.put("age", 20);
-		hatemmorgan2.put("firstName", "Hatem");
-		hatemmorgan2.put("middleName", "ELsayed");
-		hatemmorgan2.put("familyName", "Morgan");
-		hatemmorgan2.put("birthday", "27/7/1995");
-		hatemmorgan2.put("gender", "Male");
-		hatemmorgan2.put("title", "Engineer");
-		hatemmorgan2.put("userName", "HatemMorgans");
+		ahmedmorgnan.put("type", "Developer");
+		ahmedmorgnan.put("age", 16);
+		ahmedmorgnan.put("firstName", "Ahmed");
+		ahmedmorgnan.put("middleName", "ELsayed");
+		ahmedmorgnan.put("familyName", "Morgan");
+		ahmedmorgnan.put("birthday", "25/9/2000");
+		ahmedmorgnan.put("gender", "Male");
+		ahmedmorgnan.put("title", "Student");
+		ahmedmorgnan.put("userName", "AhmedMorgan");
 
-		ArrayList<Object> hatemmorgan2EmailList = new ArrayList<>();
-		hatemmorgan2EmailList.add("hatemmorgan17s@gmail.com");
-		hatemmorgan2EmailList.add("hatem.el-sayeds@student.guc.edu.eg");
+		ArrayList<Object> ahmedorganEmailList = new ArrayList<>();
+		ahmedorganEmailList.add("ahmedmorgan@gmail.com");
 
-		hatemmorgan2.put("mbox", hatemmorgan2EmailList);
-		 hatemmorgan2.put("job", "Computer Engineeer");
+		ahmedmorgnan.put("mbox", ahmedorganEmailList);
+		ahmedmorgnan.put("job", "High School Student");
 
 		// Haytham Ismail
-		htblFieldValue.put("age", 21);
+		htblFieldValue.put("age", 50);
 		htblFieldValue.put("firstName", "Haytham");
 		htblFieldValue.put("middleName", "Ismail");
 		htblFieldValue.put("familyName", "Khalf");
@@ -1697,7 +1704,7 @@ public class RequestFieldsValidation {
 
 		htblFieldValue.put("developedApplication", "TESTAPPLICATION");
 		htblFieldValue.put("knows", hatemmorgan);
-		htblFieldValue.put("hates", hatemmorgan2);
+		htblFieldValue.put("hates", ahmedmorgnan);
 		// ArrayList<LinkedHashMap<String, Object>> loveList = new
 		// ArrayList<>();
 		// loveList.add(hatemmorgan2);
@@ -1728,17 +1735,13 @@ public class RequestFieldsValidation {
 				System.out.println(" ]");
 			}
 
-			System.out.println(requestFieldsValidation.htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person")
-					.getProperties());
-			System.out.println(
-					requestFieldsValidation.htblAllStaticClasses.get("http://iot-platform#Developer").getProperties());
-
-			// System.out.println(MainDao.constructInsertQuery("TESTAPPLICATION",
-			// htblClassPropertyValue));
-			// System.out.println(
-			// requestFieldsValidation.htblAllStaticClasses.get("http://iot-platform#Developer").getProperties());
 			// System.out.println(requestFieldsValidation.htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person")
 			// .getProperties());
+			// System.out.println(
+			// requestFieldsValidation.htblAllStaticClasses.get("http://iot-platform#Developer").getProperties());
+
+			System.out.println(MainDao.constructInsertQuery("TESTAPPLICATION", htblClassPropertyValue));
+
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());
 		}

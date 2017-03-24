@@ -147,8 +147,8 @@ public class MainDao {
 		 * add subjectUniqueIdentifier and add triple that tells that
 		 * subjectUniqueIdentifier is of type subjectClass
 		 */
-		triplesBuilder.append(Prefixes.IOT_PLATFORM.getPrefix()+subjectUniqueIdentifier + "  a  " + subjectClass.getPrefix().getPrefix()
-				+ subjectClass.getName() + "  ; \n");
+		triplesBuilder.append(Prefixes.IOT_PLATFORM.getPrefix() + subjectUniqueIdentifier + "  a  "
+				+ subjectClass.getPrefix().getPrefix() + subjectClass.getName() + "  ; \n");
 
 		/*
 		 * add rest of triples by appending tempBuilder
@@ -170,7 +170,7 @@ public class MainDao {
 			value = "\"" + value.toString() + "\"" + xsdDataType.getXsdType();
 			return value;
 		} else {
-			return Prefixes.IOT_PLATFORM.getPrefix() + value;
+			return Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase().replaceAll(" ", "");
 		}
 	}
 
