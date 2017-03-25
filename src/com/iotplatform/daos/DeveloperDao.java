@@ -30,7 +30,7 @@ public class DeveloperDao {
 	private SelectionUtility selectionUtility;
 
 	@Autowired
-	public DeveloperDao(Oracle oracle, Developer developerClass, SelectionUtility selectionUtility) {
+	public DeveloperDao(Oracle oracle, SelectionUtility selectionUtility, Developer developerClass) {
 		this.oracle = oracle;
 		this.developerClass = developerClass;
 		this.selectionUtility = selectionUtility;
@@ -101,31 +101,6 @@ public class DeveloperDao {
 		}
 
 		return developersList;
-	}
-
-	public static void main(String[] args) {
-
-		ArrayList<PropertyValue> propValueList = new ArrayList<>();
-		propValueList.add(new PropertyValue("foaf:age", "\"20\"" + XSDDataTypes.integer_typed.getXsdType()));
-		propValueList.add(new PropertyValue("foaf:firstName", "\"Karam\"" + XSDDataTypes.string_typed.getXsdType()));
-		propValueList.add(new PropertyValue("foaf:middleName", "\"Elsayed\"" + XSDDataTypes.string_typed.getXsdType()));
-		propValueList.add(new PropertyValue("foaf:familyName", "\"Morgan\"" + XSDDataTypes.string_typed.getXsdType()));
-		propValueList.add(new PropertyValue("foaf:birthday", "\"27/7/1995\"" + XSDDataTypes.string_typed.getXsdType()));
-		propValueList.add(new PropertyValue("foaf:gender", "\"Male\"" + XSDDataTypes.string_typed.getXsdType()));
-		propValueList.add(new PropertyValue("foaf:title", "\"Engineer\"" + XSDDataTypes.string_typed.getXsdType()));
-		propValueList
-				.add(new PropertyValue("foaf:userName", "\"KaramMorgan\"" + XSDDataTypes.string_typed.getXsdType()));
-		propValueList.add(new PropertyValue("iot-platform:developedApplication", "iot-platform:TESTAPPLICATION"));
-
-		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
-		String szUser = "rdfusr";
-		String szPasswd = "rdfusr";
-
-		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
-
-		DeveloperDao developerDao = new DeveloperDao(oracle, new Developer(), null);
-		developerDao.insertDeveloper(propValueList, "TESTAPPLICATION_MODEL","karamMorgan");
-//		System.out.println(developerDao.getDevelopers("TESTAPPLICATION_MODEL"));
 	}
 
 }

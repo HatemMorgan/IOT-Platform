@@ -8,18 +8,23 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.iotplatform.daos.AdminDao;
 import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.DeveloperDao;
 import com.iotplatform.daos.DynamicConceptDao;
+import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
+import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.classes.Admin;
 import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Developer;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
+import com.iotplatform.validations.RequestFieldsValidation;
 import com.iotplatform.validations.SingleClassRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -28,15 +33,17 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class DeveloperService {
 
 	private DeveloperDao developerDao;
-	private SingleClassRequestValidation requestValidation;
+	private RequestFieldsValidation requestFieldsValidation;
+	private MainDao mainDao;
 	private Developer developerClass;
 	private ApplicationDao applicationDao;
 
 	@Autowired
-	public DeveloperService(DeveloperDao developerDao, SingleClassRequestValidation requestValidation, Developer developerClass,
-			ApplicationDao applicationDao) {
+	public DeveloperService(DeveloperDao developerDao, RequestFieldsValidation requestFieldsValidation, MainDao mainDao,
+			Developer developerClass, ApplicationDao applicationDao) {
 		this.developerDao = developerDao;
-		this.requestValidation = requestValidation;
+		this.requestFieldsValidation = requestFieldsValidation;
+		this.mainDao = mainDao;
 		this.developerClass = developerClass;
 		this.applicationDao = applicationDao;
 	}
@@ -48,7 +55,7 @@ public class DeveloperService {
 	 * access object to insert the new developer
 	 */
 
-	public Hashtable<String, Object> insertDeveloper(Hashtable<String, Object> htblPropValue,
+	public Hashtable<String, Object> insertDeveloper(Hashtable<String, Object> htblFieldValue,
 			String applicationNameCode) {
 
 		long startTime = System.currentTimeMillis();
@@ -70,14 +77,17 @@ public class DeveloperService {
 
 		try {
 
-			ArrayList<PropertyValue> prefixedPropertyValue = requestValidation.isRequestValid(applicationNameCode,
-					developerClass, htblPropValue);
+			/*
+			 * Check if the request is valid or not
+			 */
+			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
+					.validateRequestFields(applicationNameCode, htblFieldValue, Developer.getDeveloperInstance());
 
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-			String userName = htblPropValue.get("userName").toString();
+			mainDao.insertData(applicationModelName, Developer.getDeveloperInstance().getName(),
+					htblClassPropertyValue);
 
-			developerDao.insertDeveloper(prefixedPropertyValue, applicationModelName, userName);
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Developer", timeTaken);
 			return successModel.getResponseJson();
@@ -142,74 +152,73 @@ public class DeveloperService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		Developer developerClass = new Developer();
-		DeveloperDao developerDao = new DeveloperDao(oracle, developerClass,
-				new SelectionUtility(new SingleClassRequestValidation(validationDao, dynamicConceptDao)));
-		SingleClassRequestValidation requestValidation = new SingleClassRequestValidation(new ValidationDao(oracle),
-				new DynamicConceptDao(dataSource));
+		DeveloperDao developerDao = new DeveloperDao(oracle, new SelectionUtility(dynamicConceptDao),
+				Developer.getDeveloperInstance());
 
-		ApplicationDao applicationDao = new ApplicationDao(oracle, new Application());
+		RequestFieldsValidation requestFieldsValidation = new RequestFieldsValidation(dynamicConceptDao, validationDao);
 
-		DeveloperService developerService = new DeveloperService(developerDao, requestValidation, developerClass,
-				applicationDao);
+		MainDao mainDao = new MainDao(oracle);
 
-//		Hashtable<String, Object> htblPropValue = new Hashtable<>();
-//		htblPropValue.put("age", 20);
-//		htblPropValue.put("firstName", "Hatem");
-//		htblPropValue.put("middleName", "ELsayed");
-//		htblPropValue.put("familyName", "Morgan");
-//		htblPropValue.put("birthday", "27/7/1995");
-//		htblPropValue.put("gender", "Male");
-//		htblPropValue.put("title", "Engineer");
-//		htblPropValue.put("userName", "HatemMorgan");
-//
-//		ArrayList<Object> emailList = new ArrayList<>();
-//		emailList.add("hatemmorgan17@gmail.com");
-//		emailList.add("hatem.el-sayed@student.guc.edu.eg");
-//
-//		htblPropValue.put("mbox", emailList);
-//
-//		htblPropValue.put("developedApplication", "TESTAPPLICATION");
-//		 htblPropValue.put("knows", "HatemMorgan");
-//		 htblPropValue.put("hates", "HatemMorgan");
-//		 htblPropValue.put("job", "Engineeer");
-		 
-		 Hashtable<String, Object> htblPropValue = new Hashtable<>();
-			htblPropValue.put("age", 21);
-			htblPropValue.put("firstName", "Haytham");
-			htblPropValue.put("middleName", "Ismail");
-			htblPropValue.put("familyName", "Khalf");
-			htblPropValue.put("birthday", "27/7/1975");
-			htblPropValue.put("gender", "Male");
-			htblPropValue.put("title", "Professor");
-			htblPropValue.put("userName", "HaythamIsmail");
+		DeveloperService developerService = new DeveloperService(developerDao, requestFieldsValidation, mainDao,
+				Developer.getDeveloperInstance(), new ApplicationDao(oracle, Application.getApplicationInstance()));
 
-			ArrayList<Object> emailList = new ArrayList<>();
-			emailList.add("haytham.ismail@gmail.com");
-			emailList.add("haytham.ismail@student.guc.edu.eg");
+		// Hashtable<String, Object> htblPropValue = new Hashtable<>();
+		// htblPropValue.put("age", 20);
+		// htblPropValue.put("firstName", "Hatem");
+		// htblPropValue.put("middleName", "ELsayed");
+		// htblPropValue.put("familyName", "Morgan");
+		// htblPropValue.put("birthday", "27/7/1995");
+		// htblPropValue.put("gender", "Male");
+		// htblPropValue.put("title", "Engineer");
+		// htblPropValue.put("userName", "HatemMorgan");
+		//
+		// ArrayList<Object> emailList = new ArrayList<>();
+		// emailList.add("hatemmorgan17@gmail.com");
+		// emailList.add("hatem.el-sayed@student.guc.edu.eg");
+		//
+		// htblPropValue.put("mbox", emailList);
+		//
+		// htblPropValue.put("developedApplication", "TESTAPPLICATION");
+		// htblPropValue.put("knows", "HatemMorgan");
+		// htblPropValue.put("hates", "HatemMorgan");
+		// htblPropValue.put("job", "Engineeer");
 
-			htblPropValue.put("mbox", emailList);
+		Hashtable<String, Object> htblPropValue = new Hashtable<>();
+		htblPropValue.put("age", 21);
+		htblPropValue.put("firstName", "Haytham");
+		htblPropValue.put("middleName", "Ismail");
+		htblPropValue.put("familyName", "Khalf");
+		htblPropValue.put("birthday", "27/7/1975");
+		htblPropValue.put("gender", "Male");
+		htblPropValue.put("title", "Professor");
+		htblPropValue.put("userName", "HaythamIsmail");
 
-			htblPropValue.put("developedApplication", "TESTAPPLICATION");
-			 htblPropValue.put("knows", "HatemMorgan");
-			 htblPropValue.put("hates", "HatemMorgan");
-			 htblPropValue.put("job", "Engineeer");
+		ArrayList<Object> emailList = new ArrayList<>();
+		emailList.add("haytham.ismail@gmail.com");
+		emailList.add("haytham.ismail@student.guc.edu.eg");
 
-//		Hashtable<String, Object> res = developerService.getDevelopers("testApplication");
-//		System.out.println(res.get("results"));
+		htblPropValue.put("mbox", emailList);
+
+		htblPropValue.put("developedApplication", "TESTAPPLICATION");
+		htblPropValue.put("knows", "HatemMorgan");
+		htblPropValue.put("hates", "HatemMorgan");
+		htblPropValue.put("job", "Engineeer");
+
+		// Hashtable<String, Object> res =
+		// developerService.getDevelopers("testApplication");
+		// System.out.println(res.get("results"));
 
 		// System.out.println("===================================");
 		// System.out.println(developerClass.getProperties().toString());
 		// System.out.println("===================================");
 
-		 Hashtable<String, Object> resInsertion =
-		 developerService.insertDeveloper(htblPropValue, "test Application");
+		Hashtable<String, Object> resInsertion = developerService.insertDeveloper(htblPropValue, "test Application");
 
-//		 Hashtable<String, Object>[] json = (Hashtable<String, Object>[])
-//		 resInsertion.get("errors");
-//		 System.out.println(json[0].toString());
+		// Hashtable<String, Object>[] json = (Hashtable<String, Object>[])
+		// resInsertion.get("errors");
+		// System.out.println(json[0].toString());
 
-		 System.out.println(resInsertion.toString());
+		System.out.println(resInsertion.toString());
 
 	}
 }

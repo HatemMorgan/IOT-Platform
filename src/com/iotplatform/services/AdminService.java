@@ -24,7 +24,6 @@ import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.RequestFieldsValidation;
-import com.iotplatform.validations.SingleClassRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -34,16 +33,14 @@ public class AdminService {
 	private RequestFieldsValidation requestFieldsValidation;
 	private ApplicationDao applicationDao;
 	private AdminDao adminDao;
-	private Admin adminClass;
 	private MainDao mainDao;
 
 	@Autowired
 	public AdminService(RequestFieldsValidation requestFieldsValidation, ApplicationDao applicationDao,
-			AdminDao adminDao, Admin adminClass, MainDao mainDao) {
+			AdminDao adminDao, MainDao mainDao) {
 		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;
 		this.adminDao = adminDao;
-		this.adminClass = adminClass;
 		this.mainDao = mainDao;
 	}
 
@@ -76,14 +73,14 @@ public class AdminService {
 			 */
 
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
-					.validateRequestFields(applicationNameCode, htblFieldValue, adminClass);
+					.validateRequestFields(applicationNameCode, htblFieldValue, Admin.getAdminInstance());
 
 			/*
 			 * get application modelName
 			 */
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-			mainDao.insertData(applicationModelName, adminClass.getName(), htblClassPropertyValue);
+			mainDao.insertData(applicationModelName, Admin.getAdminInstance().getName(), htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Admin", timeTaken);
@@ -148,9 +145,6 @@ public class AdminService {
 		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
 
 		ValidationDao validationDao = new ValidationDao(oracle);
-
-		SingleClassRequestValidation requestValidation = new SingleClassRequestValidation(validationDao,
-				dynamicConceptDao);
 
 		AdminDao adminDao = new AdminDao(oracle, new SelectionUtility(dynamicConceptDao), Admin.getAdminInstance());
 
@@ -223,8 +217,7 @@ public class AdminService {
 		MainDao mainDao = new MainDao(oracle);
 
 		AdminService adminService = new AdminService(requestFieldsValidation,
-				new ApplicationDao(oracle, Application.getApplicationInstance()), adminDao, Admin.getAdminInstance(),
-				mainDao);
+				new ApplicationDao(oracle, Application.getApplicationInstance()), adminDao, mainDao);
 
 		Hashtable<String, Object> Admins = adminService.getAdmins("TESTAPPLICATION");
 		System.out.println(Admins);
