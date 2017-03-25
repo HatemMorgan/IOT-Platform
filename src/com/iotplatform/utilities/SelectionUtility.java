@@ -69,7 +69,6 @@ import com.iotplatform.ontology.classes.SystemClass;
 import com.iotplatform.ontology.classes.TagDevice;
 import com.iotplatform.ontology.classes.Unit;
 import com.iotplatform.validations.RequestFieldsValidation;
-import com.iotplatform.validations.SingleClassRequestValidation;
 
 @Component
 public class SelectionUtility {
@@ -166,7 +165,6 @@ public class SelectionUtility {
 		List<Hashtable<String, Object>> responseJson = new ArrayList<>();
 
 		Hashtable<Object, Hashtable<String, Object>> temp = new Hashtable<>();
-
 
 		Hashtable<String, Property> subjectClassProperties = subjectClass.getProperties();
 

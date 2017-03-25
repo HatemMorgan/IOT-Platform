@@ -82,7 +82,7 @@ public class MainDao {
 			UpdateAction.parseExecute(insertQueryBuilder.toString(), model);
 			model.close();
 
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			throw new DatabaseException(e.getMessage(), requestSubjectClassName);
 		}
 

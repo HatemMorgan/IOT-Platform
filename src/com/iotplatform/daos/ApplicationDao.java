@@ -80,12 +80,11 @@ public class ApplicationDao {
 			String modelConventionName = applicationName.replaceAll(" ", "").toUpperCase() + suffix;
 			Model newModel = ModelOracleSem.createOracleSemModel(oracle, modelConventionName);
 			newModel.close();
+			htblApplicationNameModelName.put(applicationName, modelConventionName);
 			return true;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new DatabaseException(e.getMessage(), "Application");
 		}
-		return false;
 	}
 
 	/*
@@ -248,8 +247,7 @@ public class ApplicationDao {
 		// Testing select query of an application
 		// System.out.println("Application Found :" +
 		// applicationDAO.checkIfApplicationModelExsist("Test App"));
-		// Hashtable<String, Object> res = applicationDAO.getApplication("Test
-		// App");
-		// System.out.println(res.toString());
+		 Hashtable<String, Object> res = applicationDAO.getApplication("TESTAPPLICATIONS");
+		 System.out.println(res.toString());
 	}
 }
