@@ -199,7 +199,7 @@ public class ValidationDao {
 			 * subject will have the iot-platform prefix
 			 */
 
-			String subject = Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase();
+			String subject = Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase().replaceAll(" ", "");
 			String object = valueClassType.getPrefix().getPrefix() + valueClassType.getName();
 
 			stringBuilder.append(subject + " a " + object + " . ");

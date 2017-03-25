@@ -436,7 +436,6 @@ public class RequestFieldsValidation {
 			 */
 			if (property instanceof ObjectProperty) {
 				classValueList.add(new ValueOfTypeClass(((ObjectProperty) property).getObject(), value));
-
 			} else {
 
 				/*
@@ -558,6 +557,30 @@ public class RequestFieldsValidation {
 				Class classType = ((ObjectProperty) property).getObject();
 
 				/*
+				 * check if there is a fieldName= type which means that value of
+				 * this field describes a type class then change the subClass
+				 * type to be the subjectClass
+				 */
+
+				if (valueObject.containsKey("type") && isobjectValueValidType(classType, valueObject.get("type"))) {
+					Class subClassSubject = classType.getClassTypesList().get(valueObject.get("type").toString());
+					classType = subClassSubject;
+
+				} else {
+
+					/*
+					 * throw an error if the type field value is not a valid
+					 * type
+					 */
+					if (valueObject.containsKey("type")
+							&& !isobjectValueValidType(subjectClass, valueObject.get("type")))
+
+						throw new InvalidTypeValidationException(requestClassName,
+								classType.getClassTypesList().keySet(), classType.getName());
+
+				}
+
+				/*
 				 * linking subject class with object class by adding a the
 				 * unique identifier as the object value of the property
 				 * 
@@ -607,30 +630,6 @@ public class RequestFieldsValidation {
 				 */
 
 				htblClassPropertyValue.get(subjectClass).get(indexCount).add(propertyValue);
-
-				/*
-				 * check if there is a fieldName= type which means that value of
-				 * this field describes a type class then change the subClass
-				 * type to be the subjectClass
-				 */
-
-				if (valueObject.containsKey("type") && isobjectValueValidType(classType, valueObject.get("type"))) {
-					Class subClassSubject = classType.getClassTypesList().get(valueObject.get("type").toString());
-					classType = subClassSubject;
-
-				} else {
-
-					/*
-					 * throw an error if the type field value is not a valid
-					 * type
-					 */
-					if (valueObject.containsKey("type")
-							&& !isobjectValueValidType(subjectClass, valueObject.get("type")))
-
-						throw new InvalidTypeValidationException(requestClassName,
-								classType.getClassTypesList().keySet(), classType.getName());
-
-				}
 
 				/*
 				 * Check if the classType exist in htblClassPropertyValue.
@@ -1648,7 +1647,6 @@ public class RequestFieldsValidation {
 			// .getProperties());
 			// System.out.println(
 			// requestFieldsValidation.htblAllStaticClasses.get("http://iot-platform#Developer").getProperties());
-
 
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());
