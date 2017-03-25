@@ -178,15 +178,15 @@ public class RequestFieldsValidation {
 		/*
 		 * uniquePropValueList is a LikedHashMap of key prefixedClassName and
 		 * value LinkedHashMap<String,ArrayList<PropertyValue>> with key
-		 * propertyURI and value list of propertyValue object that holds the
-		 * unique propertyName and value I used LinkedHashMap to ensure that the
-		 * property will not be duplicated for the prefixedClassName (this will
-		 * improve efficiency by reducing graph patterns as there will never be
-		 * duplicated properties)
+		 * prefixedPropertyName and value list of propertyValue object that
+		 * holds the unique propertyName and value I used LinkedHashMap to
+		 * ensure that the property will not be duplicated for the
+		 * prefixedClassName (this will improve efficiency by reducing graph
+		 * patterns as there will never be duplicated properties)
 		 * 
 		 * This DataStructure instance is used in uniqueConstraintValidation
 		 */
-		LinkedHashMap<String, LinkedHashMap<String, ArrayList<PropertyValue>>> htblUniquePropValueList = new LinkedHashMap<>();
+		LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList = new LinkedHashMap<>();
 
 		/*
 		 * check if there is a fieldName= type which means that value of this
@@ -262,21 +262,6 @@ public class RequestFieldsValidation {
 		}
 
 		/*
-		 * generate a randomID to be used to reference this instance
-		 * 
-		 * this randomIDwill be used to add all uniquePropertyValues that need
-		 * to be checked against uniqueConstraintViolations
-		 * 
-		 * this randomID will be used as key for linkedHashmap that contains
-		 * uniquePropertyValueList of this instance
-		 * 
-		 * There previous LinkedHashMap with key randomID will be the value of
-		 * objectClassType in htblUniquePropValueList
-		 */
-
-		String randomID = UUID.randomUUID().toString();
-
-		/*
 		 * Iterate on htblFieldValue
 		 */
 		while (htblFieldValueIterator.hasNext()) {
@@ -305,7 +290,7 @@ public class RequestFieldsValidation {
 			 */
 
 			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, htblNotMappedFieldsClasses,
-					notFoundFieldValueList, 0, randomID)) {
+					notFoundFieldValueList, 0)) {
 				Property property = subjectClass.getProperties().get(fieldName);
 
 				parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue,
@@ -337,22 +322,10 @@ public class RequestFieldsValidation {
 			 * if there is no constraints violations a boolean true will be
 			 * returned
 			 */
-			System.out.println(classValueList);
-			System.out.println(htblUniquePropValueList);
-			// if (validationDao.hasNoConstraintViolations(applicationName,
-			// classValueList, htblUniquePropValueList,
-			// subjectClass, randomID)) {
-			// return htblClassPropertyValue;
-			// }
-
-			// System.out.println("===============================================");
-			// System.out.println(htblUniquePropValueList);
-			// String s =
-			// validationDao.constructUniqueContstraintCheckSubQueryStr3(htblUniquePropValueList,
-			// subjectClass.getPrefix().getPrefix() + subjectClass.getName(),
-			// randomID);
-			// System.out.println("===============================================");
-			// System.out.println(s);
+			if (validationDao.hasNoConstraintViolations(applicationName, classValueList, htblUniquePropValueList,
+					subjectClass)) {
+				return htblClassPropertyValue;
+			}
 
 		}
 
@@ -390,15 +363,14 @@ public class RequestFieldsValidation {
 	 */
 	private boolean isFieldMapsToStaticProperty(Class subjectClass, String fieldName, Object value,
 			Hashtable<String, Class> htblNotMappedFieldsClasses,
-			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList, int index,
-			String uniqueIdentifer) {
+			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList, int index) {
 
 		if (subjectClass.getProperties().containsKey(fieldName)) {
 			return true;
 		} else {
 			htblNotMappedFieldsClasses.put(subjectClass.getUri(), subjectClass);
 			ValueOfFieldNotMappedToStaticProperty notMappedFieldValue = new ValueOfFieldNotMappedToStaticProperty(
-					subjectClass, value, index, uniqueIdentifer, fieldName);
+					subjectClass, value, index, fieldName);
 			notFoundFieldValueList.add(notMappedFieldValue);
 			return false;
 		}
@@ -446,7 +418,7 @@ public class RequestFieldsValidation {
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue,
 			Hashtable<String, Class> htblNotMappedFieldsClasses,
 			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList, int indexCount,
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<PropertyValue>>> htblUniquePropValueList,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			ArrayList<ValueOfTypeClass> classValueList, String requestClassName) {
 
 		// System.out.println(subjectClass.getName() + " " + property.getName()
@@ -493,31 +465,29 @@ public class RequestFieldsValidation {
 					 * was added before
 					 */
 					if (htblUniquePropValueList.get(prefixedPropertySubjectClassName)
-							.containsKey(property.getPrefix().getUri() + property.getName())) {
+							.containsKey(property.getPrefix().getPrefix() + property.getName())) {
 						/*
 						 * add propertyValue instance to uniquePropertyValueList
 						 * of subjectClassInstance
 						 */
 						htblUniquePropValueList.get(prefixedPropertySubjectClassName)
-								.get(property.getPrefix().getUri() + property.getName())
-								.add(new PropertyValue(property.getPrefix().getPrefix() + property.getName(), value));
+								.get(property.getPrefix().getPrefix() + property.getName()).add(value);
 					} else {
 						/*
-						 * add propertyURI and a list to hold propertyValue
-						 * objects
+						 * add prefixedPropertyName and a list to hold
+						 * propertyValue objects
 						 */
 
-						ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
+						ArrayList<Object> propertyValueList = new ArrayList<>();
 						htblUniquePropValueList.get(prefixedPropertySubjectClassName)
-								.put(property.getPrefix().getUri() + property.getName(), propertyValueList);
+								.put(property.getPrefix().getPrefix() + property.getName(), propertyValueList);
 
 						/*
 						 * add propertyValue instance to uniquePropertyValueList
 						 * of subjectClassInstance
 						 */
 						htblUniquePropValueList.get(prefixedPropertySubjectClassName)
-								.get(property.getPrefix().getUri() + property.getName())
-								.add(new PropertyValue(property.getPrefix().getPrefix() + property.getName(), value));
+								.get(property.getPrefix().getPrefix() + property.getName()).add(value);
 					}
 
 				} else {
@@ -527,9 +497,9 @@ public class RequestFieldsValidation {
 					 * htblClassInstanceUnqiuePropValueList to
 					 * htblClassInstanceUnqiuePropValueList
 					 */
-					ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
-					LinkedHashMap<String, ArrayList<PropertyValue>> htblClassInstanceUnqiuePropValueList = new LinkedHashMap<>();
-					htblClassInstanceUnqiuePropValueList.put(property.getPrefix().getUri() + property.getName(),
+					ArrayList<Object> propertyValueList = new ArrayList<>();
+					LinkedHashMap<String, ArrayList<Object>> htblClassInstanceUnqiuePropValueList = new LinkedHashMap<>();
+					htblClassInstanceUnqiuePropValueList.put(property.getPrefix().getPrefix() + property.getName(),
 							propertyValueList);
 					htblUniquePropValueList.put(prefixedPropertySubjectClassName, htblClassInstanceUnqiuePropValueList);
 
@@ -538,8 +508,7 @@ public class RequestFieldsValidation {
 					 * subjectClassInstance
 					 */
 					htblUniquePropValueList.get(prefixedPropertySubjectClassName)
-							.get(property.getPrefix().getUri() + property.getName())
-							.add(new PropertyValue(property.getPrefix().getPrefix() + property.getName(), value));
+							.get(property.getPrefix().getPrefix() + property.getName()).add(value);
 				}
 
 			}
@@ -718,21 +687,6 @@ public class RequestFieldsValidation {
 					htblClassPropertyValue.get(classType).get(classInstanceIndex).add(idPropertyValue);
 				}
 
-				/*
-				 * generate a randomID to be used to reference this instance
-				 * 
-				 * this randomIDwill be used to add all uniquePropertyValues
-				 * that need to be checked against uniqueConstraintViolations
-				 * 
-				 * this randomID will be used as key for linkedHashmap that
-				 * contains uniquePropertyValueList of this instance
-				 * 
-				 * There previous LinkedHashMap with key randomID will be the
-				 * value of objectClassType in htblUniquePropValueList
-				 */
-
-				String randomID = UUID.randomUUID().toString();
-
 				for (String fieldName : valueObject.keySet()) {
 
 					/*
@@ -756,7 +710,7 @@ public class RequestFieldsValidation {
 
 					Object fieldValue = valueObject.get(fieldName);
 					if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, htblNotMappedFieldsClasses,
-							notFoundFieldValueList, classInstanceIndex, randomID)) {
+							notFoundFieldValueList, classInstanceIndex)) {
 
 						Property classTypeProperty = classType.getProperties().get(fieldName);
 
@@ -868,7 +822,7 @@ public class RequestFieldsValidation {
 			Hashtable<String, Class> htblNotMappedFieldsClasses,
 			Hashtable<String, Class> htblPrevNotMappedFieldsClasses,
 			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList,
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<PropertyValue>>> htblUniquePropValueList,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			ArrayList<ValueOfTypeClass> classValueList) {
 		// System.out.println("in parseAndConstructNotMappedFieldsValues
 		// method");
@@ -1400,26 +1354,6 @@ public class RequestFieldsValidation {
 
 	}
 
-	private String getObjectClassTypePrefixName(Class subjectClass, ObjectProperty objectProperty, Object value) {
-		System.out.println("-------->>>>>" + objectProperty.getName() + "  " + value.toString());
-
-		Class classType;
-		if (value instanceof java.util.LinkedHashMap<?, ?>) {
-			LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) value;
-
-			if (valueObject.containsKey("type")) {
-				classType = subjectClass.getClassTypesList().get(valueObject.get("type"));
-			} else {
-				classType = objectProperty.getObject();
-			}
-
-		} else {
-			classType = objectProperty.getObject();
-		}
-
-		return classType.getPrefix().getPrefix() + classType.getName();
-	}
-
 	private void init() {
 		htblAllStaticClasses = new Hashtable<>();
 		htblAllStaticClasses.put("http://iot-platform#Application", Application.getApplicationInstance());
@@ -1624,7 +1558,7 @@ public class RequestFieldsValidation {
 
 		LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
 
-		hatemmorgan.put("type", "Admin");
+		hatemmorgan.put("type", "NormalUser");
 		hatemmorgan.put("age", 20);
 		hatemmorgan.put("firstName", "Hatem");
 		hatemmorgan.put("middleName", "ELsayed");
@@ -1639,6 +1573,7 @@ public class RequestFieldsValidation {
 		hatemmorganEmailList.add("hatem.el-sayeds@student.guc.edu.eg");
 
 		hatemmorgan.put("mbox", hatemmorganEmailList);
+		hatemmorgan.put("knows", "karammorgan");
 		// hatemmorgan.put("job", "Computer Engineeer");
 
 		LinkedHashMap<String, Object> ahmedmorgnan = new LinkedHashMap<>();
@@ -1651,13 +1586,14 @@ public class RequestFieldsValidation {
 		ahmedmorgnan.put("birthday", "25/9/2000");
 		ahmedmorgnan.put("gender", "Male");
 		ahmedmorgnan.put("title", "Student");
-		ahmedmorgnan.put("userName", "AhmedMorgan");
+		ahmedmorgnan.put("userName", "AhmedMorganl");
 
 		ArrayList<Object> ahmedorganEmailList = new ArrayList<>();
-		ahmedorganEmailList.add("ahmedmorgan@gmail.com");
+		ahmedorganEmailList.add("ahmedmorganl@gmail.com");
 
 		ahmedmorgnan.put("mbox", ahmedorganEmailList);
 		ahmedmorgnan.put("job", "High School Student");
+		ahmedmorgnan.put("love", hatemmorgan);
 
 		// Haytham Ismail
 		htblFieldValue.put("age", 50);
@@ -1676,7 +1612,7 @@ public class RequestFieldsValidation {
 		htblFieldValue.put("mbox", emailList);
 
 		htblFieldValue.put("developedApplication", "TESTAPPLICATION");
-		htblFieldValue.put("knows", hatemmorgan);
+		// htblFieldValue.put("knows", ahmedmorgnan);
 		htblFieldValue.put("hates", ahmedmorgnan);
 		// ArrayList<LinkedHashMap<String, Object>> loveList = new
 		// ArrayList<>();

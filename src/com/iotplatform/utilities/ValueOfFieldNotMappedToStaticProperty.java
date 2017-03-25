@@ -26,12 +26,13 @@ public class ValueOfFieldNotMappedToStaticProperty {
 	 */
 	private int classInstanceIndex;
 
-	/*
-	 * randomID is a random generated ID to represent the subjectInstance of
-	 * this property this randomID is used in uniqueConstraint Validation to
-	 * reference the uniquePropertyValues of the instance that has this property
-	 */
-	private String randomID;
+	// /*
+	// * randomID is a random generated ID to represent the subjectInstance of
+	// * this property this randomID is used in uniqueConstraint Validation to
+	// * reference the uniquePropertyValues of the instance that has this
+	// property
+	// */
+	// private String randomID;
 
 	/*
 	 * fieldName holds field name that has no static mapping to a property
@@ -39,11 +40,11 @@ public class ValueOfFieldNotMappedToStaticProperty {
 	private String fieldName;
 
 	public ValueOfFieldNotMappedToStaticProperty(Class propertyClass, Object propertyValue, int classInstanceIndex,
-			String randomID, String fieldName) {
+			String fieldName) {
 		this.propertyClass = propertyClass;
 		this.propertyValue = propertyValue;
 		this.classInstanceIndex = classInstanceIndex;
-		this.randomID = randomID;
+		// this.randomID = randomID;
 		this.fieldName = fieldName;
 	}
 
@@ -59,9 +60,9 @@ public class ValueOfFieldNotMappedToStaticProperty {
 		return classInstanceIndex;
 	}
 
-	public String getRandomID() {
-		return randomID;
-	}
+	// public String getRandomID() {
+	// return randomID;
+	// }
 
 	public String getFieldName() {
 		return fieldName;
@@ -70,8 +71,7 @@ public class ValueOfFieldNotMappedToStaticProperty {
 	@Override
 	public String toString() {
 		return "ValueOfFieldNotMappedToStaticProperty [propertyClass=" + propertyClass + ", propertyValue="
-				+ propertyValue + ", classInstanceIndex=" + classInstanceIndex + ", randomID=" + randomID
-				+ ", fieldName=" + fieldName + "]";
+				+ propertyValue + ", classInstanceIndex=" + classInstanceIndex + ", fieldName=" + fieldName + "]";
 	}
 
 }
