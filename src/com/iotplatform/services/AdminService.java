@@ -152,7 +152,7 @@ public class AdminService {
 		SingleClassRequestValidation requestValidation = new SingleClassRequestValidation(validationDao,
 				dynamicConceptDao);
 
-		AdminDao adminDao = new AdminDao(oracle, new SelectionUtility(requestValidation), Admin.getAdminInstance());
+		AdminDao adminDao = new AdminDao(oracle, new SelectionUtility(dynamicConceptDao), Admin.getAdminInstance());
 
 		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
 		LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
@@ -226,15 +226,16 @@ public class AdminService {
 				new ApplicationDao(oracle, Application.getApplicationInstance()), adminDao, Admin.getAdminInstance(),
 				mainDao);
 
-		// Hashtable<String, Object> Admins =
-		// adminService.getAdmins("TESTAPPLICATION");
-		// System.out.println(Admins);
+		Hashtable<String, Object> Admins = adminService.getAdmins("TESTAPPLICATION");
+		System.out.println(Admins);
 
-		Hashtable<String, Object> res = adminService.insertAdmin(htblFieldValue, "TESTAPPLICATION");
+		// Hashtable<String, Object> res =
+		// adminService.insertAdmin(htblFieldValue, "TESTAPPLICATION");
 
-//		Hashtable<String, Object>[] json = (Hashtable<String, Object>[]) res.get("errors");
-//		System.out.println(json[0].toString());
+		// Hashtable<String, Object>[] json = (Hashtable<String, Object>[])
+		// res.get("errors");
+		// System.out.println(json[0].toString());
 
-		System.out.println(res.toString());
+		// System.out.println(res.toString());
 	}
 }

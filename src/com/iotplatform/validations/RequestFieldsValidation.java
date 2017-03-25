@@ -1566,11 +1566,11 @@ public class RequestFieldsValidation {
 		hatemmorgan.put("birthday", "27/7/1995");
 		hatemmorgan.put("gender", "Male");
 		hatemmorgan.put("title", "Engineer");
-		hatemmorgan.put("userName", "HatemMorgans");
+		hatemmorgan.put("userName", "HatemMorganss");
 
 		ArrayList<Object> hatemmorganEmailList = new ArrayList<>();
-		hatemmorganEmailList.add("hatemmorgan17s@gmail.com");
-		hatemmorganEmailList.add("hatem.el-sayeds@student.guc.edu.eg");
+		hatemmorganEmailList.add("hatemmorgan17ss@gmail.com");
+		hatemmorganEmailList.add("hatem.el-sayedss@student.guc.edu.eg");
 
 		hatemmorgan.put("mbox", hatemmorganEmailList);
 		hatemmorgan.put("knows", "karammorgan");
@@ -1586,10 +1586,10 @@ public class RequestFieldsValidation {
 		ahmedmorgnan.put("birthday", "25/9/2000");
 		ahmedmorgnan.put("gender", "Male");
 		ahmedmorgnan.put("title", "Student");
-		ahmedmorgnan.put("userName", "AhmedMorganl");
+		ahmedmorgnan.put("userName", "AhmedMorganls");
 
 		ArrayList<Object> ahmedorganEmailList = new ArrayList<>();
-		ahmedorganEmailList.add("ahmedmorganl@gmail.com");
+		ahmedorganEmailList.add("ahmedmorganlss@gmail.com");
 
 		ahmedmorgnan.put("mbox", ahmedorganEmailList);
 		ahmedmorgnan.put("job", "High School Student");
@@ -1603,11 +1603,11 @@ public class RequestFieldsValidation {
 		htblFieldValue.put("birthday", "27/7/1975");
 		htblFieldValue.put("gender", "Male");
 		htblFieldValue.put("title", "Professor");
-		htblFieldValue.put("userName", "HaythamIsmails");
+		htblFieldValue.put("userName", "HaythamIsmailss");
 
 		ArrayList<Object> emailList = new ArrayList<>();
-		emailList.add("haytham.ismails@gmail.com");
-		emailList.add("haytham.ismails@student.guc.edu.eg");
+		emailList.add("haytham.ismailss@gmail.com");
+		emailList.add("haytham.ismailss@student.guc.edu.eg");
 
 		htblFieldValue.put("mbox", emailList);
 
@@ -1644,12 +1644,11 @@ public class RequestFieldsValidation {
 				System.out.println(" ]");
 			}
 
-			// System.out.println(requestFieldsValidation.htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person")
-			// .getProperties());
-			// System.out.println(
-			// requestFieldsValidation.htblAllStaticClasses.get("http://iot-platform#Developer").getProperties());
+			System.out.println(requestFieldsValidation.htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person")
+					.getProperties());
+			System.out.println(
+					requestFieldsValidation.htblAllStaticClasses.get("http://iot-platform#Developer").getProperties());
 
-//			System.out.println(MainDao.constructInsertQuery("TESTAPPLICATION", htblClassPropertyValue));
 
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());
