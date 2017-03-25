@@ -105,7 +105,6 @@ public class SelectionUtility {
 			propertyName = subjectClass.getHtblPropUriName().get(propertyURI);
 
 		}
-
 		Property property = subjectClass.getProperties().get(propertyName);
 
 		if (property instanceof ObjectProperty) {
@@ -168,7 +167,6 @@ public class SelectionUtility {
 
 		Hashtable<Object, Hashtable<String, Object>> temp = new Hashtable<>();
 
-		Hashtable<String, ArrayList<Object>> multipleValuePropNameValueArr = new Hashtable<>();
 
 		Hashtable<String, Property> subjectClassProperties = subjectClass.getProperties();
 
@@ -337,6 +335,9 @@ public class SelectionUtility {
 			cacheLoadedDynamicProperty(dynamicProperty, propertySubjectClass, applicationName);
 			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
 		}
+
+		System.out.println(htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person").getHtblPropUriName());
+		System.out.println(htblAllStaticClasses.get("http://iot-platform#Developer").getHtblPropUriName());
 
 		return dynamicProperties;
 	}

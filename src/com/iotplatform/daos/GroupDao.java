@@ -79,7 +79,8 @@ public class GroupDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(groupClass, applicationModelName);
+		String queryString = QueryUtility.constructSelectAllQueryNoFilters(Group.getGroupInstance(),
+				applicationModelName);
 		List<Hashtable<String, Object>> groupsList = new ArrayList<>();
 
 		try {
@@ -90,7 +91,7 @@ public class GroupDao {
 			 */
 
 			groupsList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					groupClass);
+					Group.getGroupInstance());
 
 		} catch (SQLException e) {
 			e.printStackTrace();

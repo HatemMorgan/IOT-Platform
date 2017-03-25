@@ -1644,10 +1644,10 @@ public class RequestFieldsValidation {
 				System.out.println(" ]");
 			}
 
-			System.out.println(requestFieldsValidation.htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person")
-					.getProperties());
-			System.out.println(
-					requestFieldsValidation.htblAllStaticClasses.get("http://iot-platform#Developer").getProperties());
+			// System.out.println(requestFieldsValidation.htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person")
+			// .getProperties());
+			// System.out.println(
+			// requestFieldsValidation.htblAllStaticClasses.get("http://iot-platform#Developer").getProperties());
 
 
 		} catch (ErrorObjException e) {

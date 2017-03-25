@@ -112,7 +112,7 @@ public class AdminService {
 		}
 
 		try {
-
+			
 			List<Hashtable<String, Object>> htblPropValue = adminDao
 					.getAdmins(applicationDao.getHtblApplicationNameModelName().get(applicationNameCode));
 

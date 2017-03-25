@@ -84,7 +84,8 @@ public class OrganizationDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(organizationClass, applicationModelName);
+		String queryString = QueryUtility.constructSelectAllQueryNoFilters(Organization.getOrganizationInstance(),
+				applicationModelName);
 		List<Hashtable<String, Object>> organizationsList = new ArrayList<>();
 
 		try {
@@ -97,7 +98,7 @@ public class OrganizationDao {
 			 */
 
 			organizationsList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					organizationClass);
+					Organization.getOrganizationInstance());
 
 		} catch (SQLException e) {
 			e.printStackTrace();

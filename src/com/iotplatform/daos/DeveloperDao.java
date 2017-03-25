@@ -80,7 +80,8 @@ public class DeveloperDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(developerClass, applicationModelName);
+		String queryString = QueryUtility.constructSelectAllQueryNoFilters(Developer.getDeveloperInstance(),
+				applicationModelName);
 		System.out.println(queryString);
 		List<Hashtable<String, Object>> developersList = new ArrayList<>();
 
@@ -93,7 +94,7 @@ public class DeveloperDao {
 			 */
 
 			developersList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					developerClass);
+					Developer.getDeveloperInstance());
 
 		} catch (SQLException e) {
 			e.printStackTrace();
