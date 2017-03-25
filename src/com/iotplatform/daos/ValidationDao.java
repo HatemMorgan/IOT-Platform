@@ -3,7 +3,6 @@ package com.iotplatform.daos;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -15,8 +14,6 @@ import com.iotplatform.exceptions.InvalidPropertyValuesException;
 import com.iotplatform.exceptions.UniqueConstraintViolationException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
-
-import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.ValueOfTypeClass;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -96,16 +93,39 @@ public class ValidationDao {
 	 * instance of that class with this value exist or not to insure data
 	 * integrity and consistency
 	 * 
+	 * It calls both constructIntegrityConstraintCheckSubQuery and
+	 * constructUniqueConstraintCheckSubQuery to get subQueries and construct
+	 * the main query
+	 * 
 	 * It also add graph patterns to the query to check that no constraint
 	 * violations happened
 	 * 
 	 * The Sparql injected sql query auto constructed query has the same format
 	 * like this:
 	 * 
-	 * select found from table(sem_match('select (count(*) as ?found)
-	 * where{iot-platform:testapp a iot-platform:Application
-	 * .}',sem_models('TESTAPP_MODEL'),null,SEM_ALIASES(SEM_ALIAS('iot-platform'
-	 * ,'http://iot-platform#')),null));
+	 * select isFound,isUnique from table(sem_match('select ?isFound ?isUnique
+	 * where{ { SELECT (COUNT(*) as ?isFound ) WHERE {
+	 * iot-platform:testapplication a iot-platform:Application .
+	 * iot-platform:karammorgan a foaf:Person . }} { SELECT (COUNT(*) as
+	 * ?isUnique ) WHERE { ?subject0 a foaf:Agent ; foaf:mbox ?var0 . ?subject1
+	 * a foaf:Person ; foaf:userName ?var1 . FILTER ( LCASE( ?var0) =
+	 * "haytham.ismails@gmail.com"|| LCASE( ?var0) =
+	 * "haytham.ismails@student.guc.edu.eg"|| LCASE( ?var0) =
+	 * "ahmedmorganl@gmail.com"|| LCASE( ?var0) = "hatemmorgan17s@gmail.com"||
+	 * LCASE( ?var0) = "hatem.el-sayeds@student.guc.edu.eg"|| LCASE( ?var1) =
+	 * "haythamismails"|| LCASE( ?var1) = "ahmedmorganl"|| LCASE( ?var1) =
+	 * "hatemmorgans" ) }}
+	 * }',sem_models('TESTAPPLICATION_MODEL'),null,SEM_ALIASES(SEM_ALIAS('ssn','
+	 * http://purl.oclc.org/NET/ssnx/ssn#'),SEM_ALIAS('geo','http://www.w3.org/
+	 * 2003/01/geo/wgs84_pos#'),SEM_ALIAS('iot-lite','http://purl.oclc.org/NET/
+	 * UNIS/fiware/iot-lite#'),SEM_ALIAS('iot-platform','http://iot-platform#'),
+	 * SEM_ALIAS('foaf','http://xmlns.com/foaf/0.1/'),SEM_ALIAS('xsd','http://
+	 * www.w3.org/2001/XMLSchema#'),SEM_ALIAS('owl','http://www.w3.org/2002/07/
+	 * owl#'),SEM_ALIAS('rdfs','http://www.w3.org/2000/01/rdf-schema#'),
+	 * SEM_ALIAS('rdf','http://www.w3.org/1999/02/22-rdf-syntax-ns#'),SEM_ALIAS(
+	 * 'qu','http://purl.org/NET/ssnx/qu/qu#'),SEM_ALIAS('DUL','http://www.loa-
+	 * cnr.it/ontologies/DUL.owl#')),null))
+	 *
 	 */
 	private String constructViolationsCheckQueryStr(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList) {
@@ -143,9 +163,8 @@ public class ValidationDao {
 
 			counter++;
 		}
-
-		String modelName = applicationName.replaceAll(" ", "").toUpperCase() + suffix;
-		stringBuilder.append("}',sem_models('" + modelName + "'),null,");
+		String applicationModelName = applicationName.toUpperCase().replaceAll(" ", "") + suffix;
+		stringBuilder.append("}',sem_models('" + applicationModelName + "'),null,");
 		stringBuilder.append("SEM_ALIASES(" + prefixStringBuilder.toString() + "),null))");
 
 		return stringBuilder.toString();
@@ -155,6 +174,10 @@ public class ValidationDao {
 	 * constructIntegrityConstraintCheckSubQuery method takes a list of
 	 * objectProperties values and construct a subquery that checks that the
 	 * object are valid (the passed objectValue exist in the applicationModel)
+	 * 
+	 * eg . { SELECT (COUNT(*) as ?isFound ) WHERE {
+	 * iot-platform:testapplication a iot-platform:Application .
+	 * iot-platform:karammorgan a foaf:Person . }}
 	 */
 
 	private String constructIntegrityConstraintCheckSubQuery(ArrayList<ValueOfTypeClass> classValueList) {
@@ -192,6 +215,19 @@ public class ValidationDao {
 		return stringBuilder.toString();
 	}
 
+	/*
+	 * constructUniqueConstraintCheckSubQuery it constructs subQuery that checks
+	 * for unique constraint violations eg.
+	 * 
+	 * { SELECT (COUNT(*) as ?isUnique ) WHERE { ?subject0 a foaf:Agent ;
+	 * foaf:mbox ?var0 . ?subject1 a foaf:Person ; foaf:userName ?var1 . FILTER
+	 * ( LCASE( ?var0) = "haytham.ismails@gmail.com"|| LCASE( ?var0) =
+	 * "haytham.ismails@student.guc.edu.eg"|| LCASE( ?var0) =
+	 * "ahmedmorganl@gmail.com"|| LCASE( ?var0) = "hatemmorgan17s@gmail.com"||
+	 * LCASE( ?var0) = "hatem.el-sayeds@student.guc.edu.eg"|| LCASE( ?var1) =
+	 * "haythamismails"|| LCASE( ?var1) = "ahmedmorganl"|| LCASE( ?var1) =
+	 * "hatemmorgans" ) }}
+	 */
 	private String constructUniqueConstraintCheckSubQuery(
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList) {
 

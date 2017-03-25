@@ -1649,7 +1649,7 @@ public class RequestFieldsValidation {
 			// System.out.println(
 			// requestFieldsValidation.htblAllStaticClasses.get("http://iot-platform#Developer").getProperties());
 
-			System.out.println(MainDao.constructInsertQuery("TESTAPPLICATION", htblClassPropertyValue));
+//			System.out.println(MainDao.constructInsertQuery("TESTAPPLICATION", htblClassPropertyValue));
 
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());

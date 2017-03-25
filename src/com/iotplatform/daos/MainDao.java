@@ -1,20 +1,23 @@
 package com.iotplatform.daos;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import org.apache.jena.update.UpdateAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.utilities.SelectionUtility;
 
+import oracle.spatial.rdf.client.jena.ModelOracleSem;
 import oracle.spatial.rdf.client.jena.Oracle;
 
 /*
@@ -25,12 +28,64 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class MainDao {
 
 	private Oracle oracle;
-	private SelectionUtility selectionUtility;
+	private static String prefixesString = null;
+	// private SelectionUtility selectionUtility;
 
 	@Autowired
-	public MainDao(Oracle oracle, SelectionUtility selectionUtility) {
+	public MainDao(Oracle oracle) {
 		this.oracle = oracle;
-		this.selectionUtility = selectionUtility;
+		// this.selectionUtility = selectionUtility;
+	}
+
+	/*
+	 * insertData method insert new triples to passed application model
+	 */
+	public void insertData(String applicationModelName, String requestSubjectClassName,
+			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue) {
+		try {
+
+			StringBuilder insertQueryBuilder = new StringBuilder();
+
+			if (prefixesString == null) {
+				StringBuilder prefixStringBuilder = new StringBuilder();
+				for (Prefixes prefix : Prefixes.values()) {
+					prefixStringBuilder.append("PREFIX	" + prefix.getPrefix() + "	<" + prefix.getUri() + ">\n");
+				}
+
+				prefixesString = prefixStringBuilder.toString();
+			}
+
+			insertQueryBuilder.append(prefixesString);
+			insertQueryBuilder.append("INSERT DATA { \n");
+
+			/*
+			 * call constructInsertQuery method that return the constructed
+			 * Triples
+			 */
+			String constructedTriples = constructInsertQuery(htblClassPropertyValue);
+
+			/*
+			 * append constructedTriples to queryBuilder
+			 */
+			insertQueryBuilder.append(constructedTriples);
+
+			/*
+			 * close insert query
+			 */
+			insertQueryBuilder.append("}");
+
+			System.out.println(insertQueryBuilder.toString());
+			/*
+			 * execute query
+			 */
+			ModelOracleSem model = ModelOracleSem.createOracleSemModel(oracle, applicationModelName);
+			UpdateAction.parseExecute(insertQueryBuilder.toString(), model);
+			model.close();
+
+		} catch (Exception e) {
+			throw new DatabaseException(e.getMessage(), requestSubjectClassName);
+		}
+
 	}
 
 	/*
@@ -42,8 +97,7 @@ public class MainDao {
 	 * Instance of an ontologyClass (htblClassPropertyValue constructed in
 	 * RequestValidation class)
 	 */
-	public static String constructInsertQuery(String applicationName,
-			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue) {
+	private String constructInsertQuery(Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue) {
 
 		StringBuilder insertQueryBuilder = new StringBuilder();
 
@@ -150,6 +204,16 @@ public class MainDao {
 		 */
 		triplesBuilder.append(Prefixes.IOT_PLATFORM.getPrefix() + subjectUniqueIdentifier + "  a  "
 				+ subjectClass.getPrefix().getPrefix() + subjectClass.getName() + "  ; \n");
+
+		/*
+		 * get all superClasses of subjectClass to identify that the new
+		 * instance is also an instance of all superClasses of subjectClass
+		 */
+
+		for (Class superClass : subjectClass.getSuperClassesList()) {
+			triplesBuilder.append("  a  " + superClass.getPrefix().getPrefix() + superClass.getName() + "  ; \n");
+
+		}
 
 		/*
 		 * add rest of triples by appending tempBuilder
