@@ -17,7 +17,7 @@ public class DynamicConceptModel {
 	private String property_prefix_uri;
 	private String property_prefix_alias;
 	private String property_type;
-	private String property_object_type;
+	private String property_object_type_uri;
 	private int isUnique;
 	private int hasMultipleValues;
 
@@ -30,8 +30,8 @@ public class DynamicConceptModel {
 			@JsonProperty("propertyPrefixURI") String property_prefix_uri,
 			@JsonProperty("propertyPrefixAlias") String property_prefix_alias,
 			@JsonProperty("propertyType") String property_type,
-			@JsonProperty("propertyObjectType") String property_object_type, @JsonProperty("isUnique") int isUnique,
-			@JsonProperty("hasMultipleValues") int hasMultipleValues) {
+			@JsonProperty("propertyObjectTypeURI") String property_object_type_uri,
+			@JsonProperty("isUnique") int isUnique, @JsonProperty("hasMultipleValues") int hasMultipleValues) {
 
 		this.application_name = application_name;
 		this.class_name = class_name;
@@ -43,7 +43,7 @@ public class DynamicConceptModel {
 		this.property_prefix_uri = property_prefix_uri;
 		this.property_prefix_alias = property_prefix_alias;
 		this.property_type = property_type;
-		this.property_object_type = property_object_type;
+		this.property_object_type_uri = property_object_type_uri;
 		this.hasMultipleValues = hasMultipleValues;
 		this.isUnique = isUnique;
 	}
@@ -92,8 +92,8 @@ public class DynamicConceptModel {
 		return property_type;
 	}
 
-	public String getProperty_object_type() {
-		return property_object_type;
+	public String getProperty_object_type_uri() {
+		return property_object_type_uri;
 	}
 
 	public void setApplication_name(String application_name) {
@@ -136,8 +136,8 @@ public class DynamicConceptModel {
 		this.property_type = property_type;
 	}
 
-	public void setProperty_object_type(String property_object_type) {
-		this.property_object_type = property_object_type;
+	public void setProperty_object_type_uri(String property_object_type_uri) {
+		this.property_object_type_uri = property_object_type_uri;
 	}
 
 	public int getIsUnique() {
@@ -162,8 +162,8 @@ public class DynamicConceptModel {
 				+ ", class_uri=" + class_uri + ", class_prefix_uri=" + class_prefix_uri + ", class_prefix_alias="
 				+ class_prefix_alias + ", property_name=" + property_name + ", property_uri=" + property_uri
 				+ ", property_prefix_uri=" + property_prefix_uri + ", property_prefix_alias=" + property_prefix_alias
-				+ ", property_type=" + property_type + ", property_object_type=" + property_object_type + ", isUnique="
-				+ isUnique + ", hasMultipleValues=" + hasMultipleValues + "]";
+				+ ", property_type=" + property_type + ", property_object_type_uri=" + property_object_type_uri
+				+ ", isUnique=" + isUnique + ", hasMultipleValues=" + hasMultipleValues + "]";
 	}
 
 }

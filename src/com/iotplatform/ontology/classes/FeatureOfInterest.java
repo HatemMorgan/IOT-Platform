@@ -3,7 +3,9 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  *  This Class maps the ssn:FeatureOfInterest class in the ontology
@@ -22,30 +24,33 @@ import com.iotplatform.ontology.Prefixes;
 public class FeatureOfInterest extends Class {
 
 	private static FeatureOfInterest featureOfInterestInstance;
+	private Class featureOfInterestSubjectClassInstance;
 
 	public FeatureOfInterest() {
-		super("FeatureOfInterest", "http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN);
+		super("FeatureOfInterest", "http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN, null, false);
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public FeatureOfInterest(String nothing) {
-		super("FeatureOfInterest", "http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN);
+	private Class getFeatureOfInterestSubjectClassInstance() {
+		if (featureOfInterestSubjectClassInstance == null)
+			featureOfInterestSubjectClassInstance = new Class("FeatureOfInterest",
+					"http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN, null, false);
+		
+		return featureOfInterestSubjectClassInstance;
 	}
 
 	public synchronized static FeatureOfInterest getFeatureOfInterestInstance() {
 		if (featureOfInterestInstance == null)
-			featureOfInterestInstance = new FeatureOfInterest(null);
+			featureOfInterestInstance = new FeatureOfInterest();
 
 		return featureOfInterestInstance;
 	}
 
 	private void init() {
+		super.getProperties().put("id",
+				new DataTypeProperty(getFeatureOfInterestSubjectClassInstance(),"id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}
 
 }

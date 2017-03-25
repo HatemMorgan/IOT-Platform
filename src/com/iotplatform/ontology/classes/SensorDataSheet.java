@@ -3,7 +3,9 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  * This Class maps ssn:SensorDataSheet class in the ontology
@@ -21,8 +23,34 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class SensorDataSheet extends Class {
 
+	private static SensorDataSheet sensorDataSheetInstance;
+	private Class sensorDataSheetSubjectClassInstance;
+
 	public SensorDataSheet() {
-		super("SensorDataSheet", "http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet", Prefixes.SSN);
+		super("SensorDataSheet", "http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet", Prefixes.SSN, null, false);
+		init();
+	}
+
+	private Class getSensorDataSheetSubjectClassInstance() {
+		if (sensorDataSheetSubjectClassInstance == null)
+			sensorDataSheetSubjectClassInstance = new Class("SensorDataSheet",
+					"http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet", Prefixes.SSN, null, false);
+
+		return sensorDataSheetSubjectClassInstance;
+	}
+
+	public synchronized static SensorDataSheet getSensorDataSheetInstance() {
+		if (sensorDataSheetInstance == null) {
+			sensorDataSheetInstance = new SensorDataSheet();
+		}
+		return sensorDataSheetInstance;
+	}
+
+	private void init() {
+		super.getProperties().put("id", new DataTypeProperty(getSensorDataSheetSubjectClassInstance(), "id",
+				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}
 
 }

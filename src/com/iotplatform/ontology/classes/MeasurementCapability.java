@@ -30,27 +30,30 @@ public class MeasurementCapability extends Property {
 	private static MeasurementCapability measurementCapabilityInstance;
 
 	public MeasurementCapability() {
-		super("MeasurementCapability", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefixes.SSN);
+		super("MeasurementCapability", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefixes.SSN, null,
+				false);
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
 	public MeasurementCapability(String nothing) {
-		super("MeasurementCapability", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefixes.SSN);
+		super("MeasurementCapability", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefixes.SSN, null,
+				false, null);
 	}
 
 	public synchronized static MeasurementCapability getMeasurementCapabilityInstance() {
-		if (measurementCapabilityInstance == null)
+		if (measurementCapabilityInstance == null) {
 			measurementCapabilityInstance = new MeasurementCapability(null);
-
+			Property.initPropertyStaticInstance(measurementCapabilityInstance);
+			initMeasurementCapabilityStaticInstance(measurementCapabilityInstance);
+		}
 		return measurementCapabilityInstance;
 	}
 
 	private void init() {
+		this.getSuperClassesList().add(Property.getPropertyInstance());
+	}
 
+	private static void initMeasurementCapabilityStaticInstance(MeasurementCapability measurementCapabilityInstance) {
+		measurementCapabilityInstance.getSuperClassesList().add(Property.getPropertyInstance());
 	}
 }

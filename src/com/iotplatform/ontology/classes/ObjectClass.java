@@ -3,7 +3,9 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  *  This Class maps the Object class in the ontology
@@ -14,13 +16,35 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class ObjectClass extends Class {
 
+	private static ObjectClass objectClassInstance;
+	private Class objectSubjectClassInstance;
+
 	public ObjectClass() {
-		super("Object", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Object", Prefixes.IOT_LITE);
+		super("Object", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Object", Prefixes.IOT_LITE, null, false);
 		init();
 	}
 
-	private void init() {
+	public synchronized static ObjectClass getObjectClassInstance() {
+		if (objectClassInstance == null) {
+			objectClassInstance = new ObjectClass();
+		}
 
+		return objectClassInstance;
+	}
+
+	private Class getObjectSubjectClassInstance() {
+		if (objectSubjectClassInstance == null)
+			objectSubjectClassInstance = new Class("Object", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Object",
+					Prefixes.IOT_LITE, null, false);
+
+		return objectSubjectClassInstance;
+	}
+
+	private void init() {
+		super.getProperties().put("id", new DataTypeProperty(getObjectSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+				XSDDataTypes.string_typed, false, false));
+
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}
 
 }

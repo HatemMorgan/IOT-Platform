@@ -16,6 +16,8 @@ import com.iotplatform.ontology.XSDDataTypes;
  *   or a fish might act as a Platform for an attached sensor.
  *   
  *   So It is a place where a device is attached to it
+ *   
+ *   A Platform can be used for multiple sensors
  *  
  */
 
@@ -23,25 +25,24 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Platform extends Class {
 
 	private static Platform platformInstance;
+	private Class platformSubjectClassInstance;
 
 	public Platform() {
-		super("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform", Prefixes.SSN);
+		super("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform", Prefixes.SSN, null, false);
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public Platform(String nothing) {
-		super("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform", Prefixes.SSN);
+	private Class getPlatformSubjectClassInstance() {
+		if (platformSubjectClassInstance == null)
+			platformSubjectClassInstance = new Class("Platform", "http://purl.oclc.org/NET/ssnx/ssn#Platform",
+					Prefixes.SSN, null, false);
 
+		return platformSubjectClassInstance;
 	}
 
 	public synchronized static Platform getPlatformInstance() {
 		if (platformInstance == null)
-			platformInstance = new Platform(null);
+			platformInstance = new Platform();
 
 		return platformInstance;
 	}
@@ -51,22 +52,22 @@ public class Platform extends Class {
 		/*
 		 * DeviceModule id which must be unique
 		 */
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		super.getProperties().put("id", new DataTypeProperty(getPlatformSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+				XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * Relation between Platform and its physical location described by
 		 * point class
 		 */
-		super.getProperties().put("hasLocation",
-				new ObjectProperty("hasLocation", Prefixes.GEO, Point.getPointInstacne(), false, false));
+		super.getProperties().put("location", new ObjectProperty(getPlatformSubjectClassInstance(), "location",
+				Prefixes.GEO, Point.getPointInstacne(), false, false));
 
 		/*
 		 * Describes if the platform is moving . ie: fish (A fish is a type of
 		 * platform because a sensor can be attached to it)
 		 */
-		super.getProperties().put("isMobile",
-				new DataTypeProperty("isMobile", Prefixes.IOT_LITE, XSDDataTypes.boolean_type, false, false));
+		super.getProperties().put("isMobile", new DataTypeProperty(getPlatformSubjectClassInstance(), "isMobile",
+				Prefixes.IOT_LITE, XSDDataTypes.boolean_type, false, false));
 
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.GEO.getUri() + "hasLocation", "hasLocation");

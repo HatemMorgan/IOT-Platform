@@ -19,29 +19,129 @@ import com.iotplatform.ontology.Prefixes;
 @Component
 public class SurvivalProperty extends Property {
 
-	private Hashtable<String, Class> survivalPropertyTypesList;
+	private static SurvivalProperty survivalPropertyInstance;
 
 	public SurvivalProperty() {
-		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN);
+		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN, null, true);
 		init();
 	}
 
+	/*
+	 * This constructor is used to perform overloading constructor technique and
+	 * the parameter String nothing will be passed always with null
+	 * 
+	 * I have done this overloaded constructor to instantiate the static
+	 * systemInstance to avoid java.lang.StackOverflowError exception that Occur
+	 * when calling init() to add properties to systemInstance
+	 * 
+	 */
+	public SurvivalProperty(String nothing) {
+		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN, null, true, null);
+	}
+
+	public synchronized static SurvivalProperty getSurvivalPropertyInstance() {
+		if (survivalPropertyInstance == null) {
+			survivalPropertyInstance = new SurvivalProperty(null);
+			initPropertyStaticInstance(survivalPropertyInstance);
+			initSurvivalPropertyStaticInstance(survivalPropertyInstance);
+		}
+
+		return survivalPropertyInstance;
+	}
+
 	private void init() {
-		survivalPropertyTypesList = new Hashtable<>();
+
+		this.getSuperClassesList().add(Property.getPropertyInstance());
+
+		/*
+		 * emptying classTypelist
+		 */
+		this.setClassTypesList(new Hashtable<>());
 
 		/*
 		 * Total useful life of a battery.
 		 */
-		survivalPropertyTypesList.put("BatteryLifetime",
-				new Class("BatteryLifetime", "http://purl.oclc.org/NET/ssnx/ssn#BatteryLifetime", Prefixes.SSN));
+		Class batteryLifetime = new Class("BatteryLifetime", "http://purl.oclc.org/NET/ssnx/ssn#BatteryLifetime",
+				Prefixes.SSN, null, false);
+
+		/*
+		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
+		 * to add triple that expresses that an instance of class
+		 * ssn:BatteryLifetime is also an instance of class ssn:SurvivalProperty
+		 */
+		batteryLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
+		batteryLifetime.getSuperClassesList().addAll(SurvivalProperty.getPropertyInstance().getSuperClassesList());
+		batteryLifetime.setProperties(super.getProperties());
+		batteryLifetime.setHtblPropUriName(super.getHtblPropUriName());
+		this.getClassTypesList().put("BatteryLifetime", batteryLifetime);
 
 		/*
 		 * Total useful life of a sensor/system (expressed as total life since
 		 * manufacture, time in use, number of operations, etc.).
 		 */
-		survivalPropertyTypesList.put("SystemLifetime",
-				new Class("SystemLifetime", "http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime", Prefixes.SSN));
 
+		Class systemLifetime = new Class("SystemLifetime", "http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime",
+				Prefixes.SSN, null, false);
+
+		/*
+		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
+		 * to add triple that expresses that an instance of class
+		 * ssn:SystemLifetime is also an instance of class ssn:SurvivalProperty
+		 */
+		systemLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
+		systemLifetime.getSuperClassesList().addAll(SurvivalProperty.getPropertyInstance().getSuperClassesList());
+		systemLifetime.setProperties(super.getProperties());
+		systemLifetime.setHtblPropUriName(super.getHtblPropUriName());
+		this.getClassTypesList().put("SystemLifetime", systemLifetime);
+
+	}
+
+	private static void initSurvivalPropertyStaticInstance(SurvivalProperty survivalPropertyInstance) {
+
+		survivalPropertyInstance.getSuperClassesList().add(Property.getPropertyInstance());
+
+		/*
+		 * emptying classTypelist
+		 */
+		survivalPropertyInstance.setClassTypesList(new Hashtable<>());
+
+		/*
+		 * Total useful life of a battery.
+		 */
+		Class batteryLifetime = new Class("BatteryLifetime", "http://purl.oclc.org/NET/ssnx/ssn#BatteryLifetime",
+				Prefixes.SSN, null, false);
+
+		/*
+		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
+		 * to add triple that expresses that an instance of class
+		 * ssn:BatteryLifetime is also an instance of class ssn:SurvivalProperty
+		 */
+		batteryLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
+		batteryLifetime.getSuperClassesList().addAll(SurvivalProperty.getPropertyInstance().getSuperClassesList());
+		batteryLifetime.setProperties(survivalPropertyInstance.getProperties());
+		batteryLifetime.setHtblPropUriName(survivalPropertyInstance.getHtblPropUriName());
+		survivalPropertyInstance.getClassTypesList().put("BatteryLifetime", batteryLifetime);
+
+		/*
+		 * Total useful life of a sensor/system (expressed as total life since
+		 * manufacture, time in use, number of operations, etc.).
+		 */
+
+		Class systemLifetime = new Class("SystemLifetime", "http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime",
+				Prefixes.SSN, null, false);
+
+		/*
+		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
+		 * to add triple that expresses that an instance of class
+		 * ssn:SystemLifetime is also an instance of class ssn:SurvivalProperty
+		 */
+		systemLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
+		systemLifetime.getSuperClassesList().addAll(SurvivalProperty.getPropertyInstance().getSuperClassesList());
+		systemLifetime.setProperties(survivalPropertyInstance.getProperties());
+		systemLifetime.setHtblPropUriName(survivalPropertyInstance.getHtblPropUriName());
+		survivalPropertyInstance.getClassTypesList().put("SystemLifetime", systemLifetime);
+
+		survivalPropertyInstance.getSuperClassesList().add(Property.getPropertyInstance());
 	}
 
 }

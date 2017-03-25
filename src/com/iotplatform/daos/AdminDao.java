@@ -79,7 +79,8 @@ public class AdminDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(adminClass, applicationModelName);
+		String queryString = QueryUtility.constructSelectAllQueryNoFilters(Admin.getAdminInstance(),
+				applicationModelName);
 		List<Hashtable<String, Object>> adminsList = new ArrayList<>();
 
 		try {
@@ -89,9 +90,9 @@ public class AdminDao {
 			 * call constractResponeJsonObjectForListSelection method in
 			 * selectionUtility class to construct the response json
 			 */
-			
+
 			adminsList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					adminClass);
+					Admin.getAdminInstance());
 
 		} catch (SQLException e) {
 			throw new DatabaseException(e.getMessage(), "Admin");

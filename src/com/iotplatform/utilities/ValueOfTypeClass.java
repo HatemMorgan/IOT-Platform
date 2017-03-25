@@ -9,6 +9,10 @@ import com.iotplatform.ontology.Class;
  * 
  * where value = iot-platform:hatemmorgan and type class is foaf:Agent
  * 
+ * This Class is used to create list of ValueOfTypeClass instances that is used in dataIntegrityValidation query
+ * 
+ * It also used in creating uniqueConstraintValidation query
+ * 
  */
 
 public class ValueOfTypeClass {
@@ -27,6 +31,11 @@ public class ValueOfTypeClass {
 
 	public Object getValue() {
 		return value;
+	}
+
+	@Override
+	public String toString() {
+		return "ValueOfTypeClass [typeClass=" + typeClass + ", value=" + value + "]";
 	}
 
 }

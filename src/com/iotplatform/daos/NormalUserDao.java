@@ -79,7 +79,8 @@ public class NormalUserDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(normalUserClass, applicationModelName);
+		String queryString = QueryUtility.constructSelectAllQueryNoFilters(NormalUser.getNormalUserInstance(),
+				applicationModelName);
 		List<Hashtable<String, Object>> normalUsersList = new ArrayList<>();
 
 		try {
@@ -90,7 +91,7 @@ public class NormalUserDao {
 			 */
 
 			normalUsersList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					normalUserClass);
+					NormalUser.getNormalUserInstance());
 
 		} catch (SQLException e) {
 			e.printStackTrace();

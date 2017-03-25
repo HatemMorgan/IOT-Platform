@@ -21,28 +21,45 @@ public class Sensing extends Process {
 	private static Sensing sensingInstance;
 
 	public Sensing() {
-		super("Sensing", "http://purl.oclc.org/NET/ssnx/ssn#Sensing", Prefixes.SSN);
+		super("Sensing", "http://purl.oclc.org/NET/ssnx/ssn#Sensing", Prefixes.SSN, null, false);
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
 	public Sensing(String nothing) {
-		super("Sensing", "http://purl.oclc.org/NET/ssnx/ssn#Sensing", Prefixes.SSN);
+		super("Sensing", "http://purl.oclc.org/NET/ssnx/ssn#Sensing", Prefixes.SSN, null, false, null);
 	}
 
 	public synchronized static Sensing getSensingInstance() {
-		if (sensingInstance == null)
+		if (sensingInstance == null) {
 			sensingInstance = new Sensing(null);
-
+			initSensingStaticInstance(sensingInstance);
+			Process.initProcessStaticInstance(sensingInstance);
+		}
 		return sensingInstance;
 	}
 
 	private void init() {
 
+		this.getSuperClassesList().add(Process.getProcessInstance());
 	}
 
+	private static void initSensingStaticInstance(Sensing sensingInstance) {
+
+		sensingInstance.getSuperClassesList().add(Process.getProcessInstance());
+	}
+
+	public static void main(String[] args) {
+		Sensing sensing = new Sensing();
+		System.out.println(sensing.getHtblPropUriName());
+		System.out.println(sensing.getProperties());
+		System.out.println(sensing.getSuperClassesList());
+		System.out.println(sensing.getClassTypesList());
+
+		System.out.println("===========================================");
+
+		System.out.println(Sensing.getSensingInstance().getHtblPropUriName());
+		System.out.println(Sensing.getSensingInstance().getProperties());
+		System.out.println(Sensing.getSensingInstance().getSuperClassesList());
+		System.out.println(Sensing.getSensingInstance().getClassTypesList());
+	}
 }

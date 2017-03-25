@@ -18,26 +18,26 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Metadata extends Class {
 
 	private static Metadata metadataInstance;
+	private Class metadataSubjectClassInstance;
 
 	public Metadata() {
-		super("Metadata", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefixes.IOT_LITE);
+		super("Metadata", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefixes.IOT_LITE, null, false);
 		init();
-	}
-
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public Metadata(String nothing) {
-		super("Metadata", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefixes.IOT_LITE);
 	}
 
 	public synchronized static Metadata getMetadataInstance() {
 		if (metadataInstance == null)
-			metadataInstance = new Metadata(null);
+			metadataInstance = new Metadata();
 
 		return metadataInstance;
+	}
+
+	private Class getMetadataSubjectClassInstance() {
+		if (metadataSubjectClassInstance == null)
+			metadataSubjectClassInstance = new Class("Metadata",
+					"http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefixes.IOT_LITE, null, false);
+
+		return metadataSubjectClassInstance;
 	}
 
 	private void init() {
@@ -46,15 +46,19 @@ public class Metadata extends Class {
 		 * Defines the type pf the metadata value (e.g. resolution of the
 		 * sensor). It must be unique to uniquely identify a metadata
 		 */
-		super.getProperties().put("metadataType",
-				new DataTypeProperty("metadataType", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		super.getProperties().put("metadataType", new DataTypeProperty(getMetadataSubjectClassInstance(),
+				"metadataType", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
 
 		/*
 		 * Value of the metadata
 		 */
-		super.getProperties().put("metadataValue",
-				new DataTypeProperty("metadataValue", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+		super.getProperties().put("metadataValue", new DataTypeProperty(getMetadataSubjectClassInstance(),
+				"metadataValue", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
+		super.getProperties().put("id", new DataTypeProperty(getMetadataSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+				XSDDataTypes.string_typed, false, false));
+
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "metadataType", "metadataType");
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "metadataValue", "metadataValue");
 

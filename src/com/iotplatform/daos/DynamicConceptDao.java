@@ -68,7 +68,7 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 				+ "class_name VARCHAR(50), class_uri VARCHAR(150), class_prefix_uri VARCHAR(150),"
 				+ "class_prefix_alias VARCHAR(20), property_name VARCHAR(50), property_uri VARCHAR(150),"
 				+ "property_prefix_uri VARCHAR(150), property_prefix_alias VARCHAR(50),"
-				+ "property_type VARCHAR(20), property_object_type VARCHAR(20),isUnique NUMBER(1,0) ,"
+				+ "property_type VARCHAR(20), property_object_type_uri VARCHAR(150),isUnique NUMBER(1,0) ,"
 				+ " hasMultipleValues NUMBER(1,0),"
 				+ "CONSTRAINT dynamic_concept_table_uk PRIMARY KEY(application_name,class_uri,property_uri) )";
 		try {
@@ -95,7 +95,7 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 							newDynamicConcept.getClass_prefix_alias(), newDynamicConcept.getProperty_name(),
 							newDynamicConcept.getProperty_uri(), newDynamicConcept.getProperty_prefix_uri(),
 							newDynamicConcept.getProperty_prefix_alias(), newDynamicConcept.getProperty_type(),
-							newDynamicConcept.getProperty_object_type(), newDynamicConcept.getIsUnique(),
+							newDynamicConcept.getProperty_object_type_uri(), newDynamicConcept.getIsUnique(),
 							newDynamicConcept.getHasMultipleValues() });
 			return count;
 		} catch (DuplicateKeyException duplicateKeyException) {
@@ -239,31 +239,38 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 
 		DynamicConceptDao dao = new DynamicConceptDao(dataSource);
 
-//		 DynamicConceptModel newConcept = new
-//		 DynamicConceptModel("TestApplication", "Person",
-//		 "http://xmlns.com/foaf/0.1/Person", "http://xmlns.com/foaf/0.1/",
-//		 "foaf:",
-//		 "hates", "http://xmlns.com/foaf/0.1/hates",
-//		 "http://xmlns.com/foaf/0.1/", "foaf:",
-//		 PropertyType.ObjectProperty.toString(), "Person",0,1);
+		// DynamicConceptModel newConcept = new
+		// DynamicConceptModel("TestApplication", "Person",
+		// "http://xmlns.com/foaf/0.1/Person", "http://xmlns.com/foaf/0.1/",
+		// "foaf:",
+		// "hates", "http://xmlns.com/foaf/0.1/hates",
+		// "http://xmlns.com/foaf/0.1/", "foaf:",
+		// PropertyType.ObjectProperty.toString(), "Person",0,1);
 
-//		 DynamicConceptModel newConcept = new
-//		 DynamicConceptModel("TestApplication", "Developer",
-//		 "http://iot-platform#Developer", "http://iot-platform#",
-//		 "iot-platform:",
-//		 "love", "http://iot-platform#love",
-//		 "http://iot-platform#", "iot-platform:",
-//		 PropertyType.ObjectProperty.toString(), "Person",0,1);
+		// DynamicConceptModel newConcept = new
+		// DynamicConceptModel("TestApplication", "Developer",
+		// "http://iot-platform#Developer", "http://iot-platform#",
+		// "iot-platform:",
+		// "love", "http://iot-platform#love",
+		// "http://iot-platform#", "iot-platform:",
+		// PropertyType.ObjectProperty.toString(), "Person",0,1);
+		//
+		
+		
+		DynamicConceptModel newConcept = new DynamicConceptModel("TestApplication", "System",
+				"http://purl.oclc.org/NET/ssnx/ssn#System", "http://purl.oclc.org/NET/ssnx/ssn#", "ssn:", "test",
+				"http://iot-platform#test", "http://iot-platform#", "iot-platform:",
+				PropertyType.ObjectProperty.toString(), "http://purl.oclc.org/NET/ssnx/ssn#System",0,0);
+		System.out.println(dao.insertNewConcept(newConcept));
+		 System.out.println(dao.getConceptsOfApplication("testapplication").toString());
+		
 //
-//		 System.out.println(dao.insertNewConcept(newConcept));
-//		 System.out.println(dao.getConceptsOfApplication("testapplication").toString());
-
-		ArrayList<SqlCondition> orConditionList = new ArrayList<>();
-
-		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Person"));
-		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Developer"));
-
-		System.out.println(dao.getConceptsOfApplicationByFilters("TESTAPPLICATION", null, orConditionList).toString());
+//		ArrayList<SqlCondition> orConditionList = new ArrayList<>();
+//
+//		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Person"));
+//		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Developer"));
+//
+//		System.out.println(dao.getConceptsOfApplicationByFilters("TESTAPPLICATION", null, orConditionList).toString());
 	}
 
 }

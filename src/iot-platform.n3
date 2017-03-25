@@ -203,7 +203,7 @@ So ssn:MeasurementCapability instance will have a ssn:forProperty property who m
 # http://purl.oclc.org/NET/ssnx/ssn#hasDeployment
 
 ssn:hasDeployment a owl:ObjectProperty ;
-	rdfs:comment "Relation between a System and a Deployment, recording that the System/Sensor was deployed in that Deployment." ;
+	rdfs:comment "Relation between an IOTSystem and a Deployment, recording that the IOTSystem was deployed in that Deployment." ;
 	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "has deployment" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Deploy#Deployment" .
@@ -362,8 +362,6 @@ ssn:observes a owl:ObjectProperty ;
 # http://purl.oclc.org/NET/ssnx/ssn#onPlatform
 
 ssn:onPlatform a owl:ObjectProperty ;
-	rdfs:domain ssn:System ;
-	rdfs:range ssn:Platform ;
 	rdfs:comment "Relation between a System (e.g., a Sensor) and a Platform.  The relation locates the sensor relative to other described entities entities: i.e., the Sensor s1's location is Platform p1.  More precise locations for sensors in space (relative to other entities, where attached to another entity, or in 3D space) are made using DOLCE's Regions (SpaceRegion)." ;
 	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "on platform" ;
@@ -382,9 +380,9 @@ ssn:sensingMethodUsed a owl:ObjectProperty ;
 DUL:includesEvent a owl:ObjectProperty ;
 	rdfs:comment "Links an observation to its stimulus(Event)." .
 # 
-# http://www.w3.org/2003/01/geo/wgs84_pos#hasLocation
+# http://www.w3.org/2003/01/geo/wgs84_pos#location
 
-geo:hasLocation a owl:ObjectProperty ;
+geo:location a owl:ObjectProperty ;
 	rdfs:range geo:Point .
 # 
 # http://xmlns.com/foaf/0.1/fundedBy
@@ -759,13 +757,25 @@ foaf:userName a owl:DatatypeProperty ;
 # http://iot-platform#DeviceModule
 
 :DeviceModule a owl:Class ;
-	rdfs:comment "DeviceModule is a module that consists of one or mix of devices (communicating Device, Tag Device, ActuatingDevice, CommunicatingDevice)" ;
+	rdfs:subClassOf _:genid1 .
+
+_:genid1 a owl:Restriction ;
+	owl:onProperty ssn:onPlatform ;
+	owl:allValuesFrom ssn:Platform .
+
+:DeviceModule rdfs:comment "DeviceModule is a module that consists of one or mix of devices (communicating Device, Tag Device, ActuatingDevice, CommunicatingDevice)" ;
 	rdfs:label "Device Module" .
 # 
 # http://iot-platform#IOTSystem
 
 :IOTSystem a owl:Class ;
-	rdfs:comment "Describes an IOT system eg: Smart Campus, Smart City. The IOT System consists of one or more Device module." ;
+	rdfs:subClassOf _:genid2 .
+
+_:genid2 a owl:Restriction ;
+	owl:onProperty ssn:hasDeployment ;
+	owl:allValuesFrom ssn:Deployment .
+
+:IOTSystem rdfs:comment "Describes an IOT system eg: Smart Campus, Smart City. The IOT System consists of one or more Device module." ;
 	rdfs:label "IOT System" .
 # 
 # http://iot-platform#NormalUser
@@ -859,9 +869,9 @@ ssn:Condition a owl:Class ;
 # http://purl.oclc.org/NET/ssnx/ssn#Deployment
 
 ssn:Deployment a owl:Class ;
-	rdfs:subClassOf ssn:DeploymentRelatedProcess , _:genid1 .
+	rdfs:subClassOf ssn:DeploymentRelatedProcess , _:genid3 .
 
-_:genid1 a owl:Restriction ;
+_:genid3 a owl:Restriction ;
 	owl:onProperty ssn:deployedOnPlatform ;
 	owl:allValuesFrom ssn:Platform .
 
@@ -873,9 +883,9 @@ ssn:Deployment rdfs:comment "The ongoing Process of Entities (for the purposes o
 # http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess
 
 ssn:DeploymentRelatedProcess a owl:Class ;
-	rdfs:subClassOf _:genid2 .
+	rdfs:subClassOf _:genid4 .
 
-_:genid2 a owl:Restriction ;
+_:genid4 a owl:Restriction ;
 	owl:onProperty ssn:deploymentProcessPart ;
 	owl:allValuesFrom ssn:DeploymentRelatedProcess .
 
@@ -914,15 +924,15 @@ ssn:Drift a owl:Class ;
 # http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest
 
 ssn:FeatureOfInterest a owl:Class ;
-	rdfs:subClassOf owl:Thing , _:genid3 .
+	rdfs:subClassOf owl:Thing , _:genid5 .
 
-_:genid3 a owl:Restriction ;
+_:genid5 a owl:Restriction ;
 	owl:onProperty ssn:hasProperty ;
 	owl:someValuesFrom ssn:Property .
 
-ssn:FeatureOfInterest rdfs:subClassOf _:genid4 .
+ssn:FeatureOfInterest rdfs:subClassOf _:genid6 .
 
-_:genid4 a owl:Restriction ;
+_:genid6 a owl:Restriction ;
 	owl:onProperty ssn:hasProperty ;
 	owl:allValuesFrom ssn:Property .
 
@@ -974,21 +984,21 @@ ssn:MaintenanceSchedule a owl:Class ;
 # http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability
 
 ssn:MeasurementCapability a owl:Class ;
-	rdfs:subClassOf ssn:Property , _:genid5 .
+	rdfs:subClassOf ssn:Property , _:genid7 .
 
-_:genid5 a owl:Restriction ;
+_:genid7 a owl:Restriction ;
 	owl:onProperty ssn:forProperty ;
 	owl:allValuesFrom ssn:Property .
 
-ssn:MeasurementCapability rdfs:subClassOf _:genid6 .
+ssn:MeasurementCapability rdfs:subClassOf _:genid8 .
 
-_:genid6 a owl:Restriction ;
+_:genid8 a owl:Restriction ;
 	owl:onProperty ssn:hasMeasurementProperty ;
 	owl:allValuesFrom ssn:MeasurementProperty .
 
-ssn:MeasurementCapability rdfs:subClassOf _:genid7 .
+ssn:MeasurementCapability rdfs:subClassOf _:genid9 .
 
-_:genid7 a owl:Restriction ;
+_:genid9 a owl:Restriction ;
 	owl:onProperty ssn:inCondition ;
 	owl:allValuesFrom ssn:Condition .
 
@@ -1026,66 +1036,66 @@ ssn:MeasurementRange a owl:Class ;
 # http://purl.oclc.org/NET/ssnx/ssn#Observation
 
 ssn:Observation a owl:Class ;
-	rdfs:subClassOf _:genid8 .
-
-_:genid8 a owl:Restriction ;
-	owl:onProperty DUL:includesEvent ;
-	owl:someValuesFrom ssn:Stimulus .
-
-ssn:Observation rdfs:subClassOf _:genid9 .
-
-_:genid9 a owl:Restriction ;
-	owl:onProperty ssn:featureOfInterest ;
-	owl:allValuesFrom ssn:FeatureOfInterest .
-
-ssn:Observation rdfs:subClassOf _:genid10 .
+	rdfs:subClassOf _:genid10 .
 
 _:genid10 a owl:Restriction ;
-	owl:onProperty ssn:observationResult ;
-	owl:allValuesFrom ssn:SensorOutput .
+	owl:onProperty DUL:includesEvent ;
+	owl:someValuesFrom ssn:Stimulus .
 
 ssn:Observation rdfs:subClassOf _:genid11 .
 
 _:genid11 a owl:Restriction ;
-	owl:onProperty ssn:observedProperty ;
-	owl:allValuesFrom ssn:Property .
+	owl:onProperty ssn:featureOfInterest ;
+	owl:allValuesFrom ssn:FeatureOfInterest .
 
 ssn:Observation rdfs:subClassOf _:genid12 .
 
 _:genid12 a owl:Restriction ;
-	owl:onProperty ssn:sensingMethodUsed ;
-	owl:allValuesFrom ssn:Sensing .
+	owl:onProperty ssn:observationResult ;
+	owl:allValuesFrom ssn:SensorOutput .
 
 ssn:Observation rdfs:subClassOf _:genid13 .
 
 _:genid13 a owl:Restriction ;
-	owl:onProperty ssn:featureOfInterest ;
-	owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-	owl:onClass ssn:FeatureOfInterest .
+	owl:onProperty ssn:observedProperty ;
+	owl:allValuesFrom ssn:Property .
 
 ssn:Observation rdfs:subClassOf _:genid14 .
 
 _:genid14 a owl:Restriction ;
-	owl:onProperty ssn:observedProperty ;
-	owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-	owl:onClass ssn:Property .
+	owl:onProperty ssn:sensingMethodUsed ;
+	owl:allValuesFrom ssn:Sensing .
 
 ssn:Observation rdfs:subClassOf _:genid15 .
 
 _:genid15 a owl:Restriction ;
-	owl:onProperty ssn:sensingMethodUsed ;
+	owl:onProperty ssn:featureOfInterest ;
 	owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-	owl:onClass ssn:Sensing .
+	owl:onClass ssn:FeatureOfInterest .
 
 ssn:Observation rdfs:subClassOf _:genid16 .
 
 _:genid16 a owl:Restriction ;
-	owl:onProperty ssn:observationResultTime ;
-	owl:minCardinality "0"^^xsd:nonNegativeInteger .
+	owl:onProperty ssn:observedProperty ;
+	owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+	owl:onClass ssn:Property .
 
 ssn:Observation rdfs:subClassOf _:genid17 .
 
 _:genid17 a owl:Restriction ;
+	owl:onProperty ssn:sensingMethodUsed ;
+	owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+	owl:onClass ssn:Sensing .
+
+ssn:Observation rdfs:subClassOf _:genid18 .
+
+_:genid18 a owl:Restriction ;
+	owl:onProperty ssn:observationResultTime ;
+	owl:minCardinality "0"^^xsd:nonNegativeInteger .
+
+ssn:Observation rdfs:subClassOf _:genid19 .
+
+_:genid19 a owl:Restriction ;
 	owl:onProperty ssn:observationSamplingTime ;
 	owl:minCardinality "0"^^xsd:nonNegativeInteger .
 
@@ -1123,15 +1133,15 @@ ssn:OperatingProperty a owl:Class ;
 # http://purl.oclc.org/NET/ssnx/ssn#OperatingRange
 
 ssn:OperatingRange a owl:Class ;
-	rdfs:subClassOf ssn:Property , _:genid18 .
+	rdfs:subClassOf ssn:Property , _:genid20 .
 
-_:genid18 a owl:Restriction ;
+_:genid20 a owl:Restriction ;
 	owl:onProperty ssn:hasOperatingProperty ;
 	owl:allValuesFrom ssn:OperatingProperty .
 
-ssn:OperatingRange rdfs:subClassOf _:genid19 .
+ssn:OperatingRange rdfs:subClassOf _:genid21 .
 
-_:genid19 a owl:Restriction ;
+_:genid21 a owl:Restriction ;
 	owl:onProperty ssn:inCondition ;
 	owl:allValuesFrom ssn:Condition .
 
@@ -1170,21 +1180,21 @@ ssn:Precision a owl:Class ;
 # http://purl.oclc.org/NET/ssnx/ssn#Process
 
 ssn:Process a owl:Class ;
-	rdfs:subClassOf _:genid20 .
+	rdfs:subClassOf _:genid22 .
 
-_:genid20 a owl:Restriction ;
+_:genid22 a owl:Restriction ;
 	owl:onProperty ssn:hasOutput ;
 	owl:someValuesFrom ssn:Output .
 
-ssn:Process rdfs:subClassOf _:genid21 .
+ssn:Process rdfs:subClassOf _:genid23 .
 
-_:genid21 a owl:Restriction ;
+_:genid23 a owl:Restriction ;
 	owl:onProperty ssn:hasInput ;
 	owl:allValuesFrom ssn:Input .
 
-ssn:Process rdfs:subClassOf _:genid22 .
+ssn:Process rdfs:subClassOf _:genid24 .
 
-_:genid22 a owl:Restriction ;
+_:genid24 a owl:Restriction ;
 	owl:onProperty ssn:hasOutput ;
 	owl:allValuesFrom ssn:Output .
 
@@ -1260,27 +1270,27 @@ ssn:Sensitivity a owl:Class ;
 # http://purl.oclc.org/NET/ssnx/ssn#Sensor
 
 ssn:Sensor a owl:Class ;
-	rdfs:subClassOf ssn:Device , _:genid23 .
-
-_:genid23 a owl:Restriction ;
-	owl:onProperty ssn:implements ;
-	owl:someValuesFrom ssn:Sensing .
-
-ssn:Sensor rdfs:subClassOf _:genid24 .
-
-_:genid24 a owl:Restriction ;
-	owl:onProperty ssn:detects ;
-	owl:allValuesFrom ssn:Stimulus .
-
-ssn:Sensor rdfs:subClassOf _:genid25 .
+	rdfs:subClassOf ssn:Device , _:genid25 .
 
 _:genid25 a owl:Restriction ;
-	owl:onProperty ssn:hasMeasurementCapability ;
-	owl:allValuesFrom ssn:MeasurementCapability .
+	owl:onProperty ssn:implements ;
+	owl:someValuesFrom ssn:Sensing .
 
 ssn:Sensor rdfs:subClassOf _:genid26 .
 
 _:genid26 a owl:Restriction ;
+	owl:onProperty ssn:detects ;
+	owl:allValuesFrom ssn:Stimulus .
+
+ssn:Sensor rdfs:subClassOf _:genid27 .
+
+_:genid27 a owl:Restriction ;
+	owl:onProperty ssn:hasMeasurementCapability ;
+	owl:allValuesFrom ssn:MeasurementCapability .
+
+ssn:Sensor rdfs:subClassOf _:genid28 .
+
+_:genid28 a owl:Restriction ;
 	owl:onProperty ssn:observes ;
 	owl:allValuesFrom ssn:Property .
 
@@ -1302,15 +1312,15 @@ Generally a sensor's properties are recorded directly (with hasMeasurementCapabi
 # http://purl.oclc.org/NET/ssnx/ssn#SensorOutput
 
 ssn:SensorOutput a owl:Class ;
-	rdfs:subClassOf _:genid27 .
+	rdfs:subClassOf _:genid29 .
 
-_:genid27 a owl:Restriction ;
+_:genid29 a owl:Restriction ;
 	owl:onProperty ssn:hasValue ;
 	owl:someValuesFrom ssn:ObservationValue .
 
-ssn:SensorOutput rdfs:subClassOf _:genid28 .
+ssn:SensorOutput rdfs:subClassOf _:genid30 .
 
-_:genid28 a owl:Restriction ;
+_:genid30 a owl:Restriction ;
 	owl:onProperty ssn:isProducedBy ;
 	owl:someValuesFrom ssn:Sensor .
 
@@ -1322,9 +1332,9 @@ ssn:SensorOutput rdfs:comment "A sensor outputs a piece of information (an obser
 # http://purl.oclc.org/NET/ssnx/ssn#Stimulus
 
 ssn:Stimulus a owl:Class ;
-	rdfs:subClassOf _:genid29 .
+	rdfs:subClassOf _:genid31 .
 
-_:genid29 a owl:Restriction ;
+_:genid31 a owl:Restriction ;
 	owl:onProperty ssn:isProxyFor ;
 	owl:allValuesFrom ssn:Property .
 
@@ -1353,15 +1363,15 @@ ssn:SurvivalProperty a owl:Class ;
 # http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange
 
 ssn:SurvivalRange a owl:Class ;
-	rdfs:subClassOf ssn:Property , _:genid30 .
+	rdfs:subClassOf ssn:Property , _:genid32 .
 
-_:genid30 a owl:Restriction ;
+_:genid32 a owl:Restriction ;
 	owl:onProperty ssn:hasSurvivalProperty ;
 	owl:allValuesFrom ssn:SurvivalProperty .
 
-ssn:SurvivalRange rdfs:subClassOf _:genid31 .
+ssn:SurvivalRange rdfs:subClassOf _:genid33 .
 
-_:genid31 a owl:Restriction ;
+_:genid33 a owl:Restriction ;
 	owl:onProperty ssn:inCondition ;
 	owl:allValuesFrom ssn:Condition .
 
@@ -1373,41 +1383,29 @@ ssn:SurvivalRange rdfs:comment "The conditions a sensor can be exposed to withou
 # http://purl.oclc.org/NET/ssnx/ssn#System
 
 ssn:System a owl:Class ;
-	rdfs:subClassOf _:genid32 .
-
-_:genid32 a owl:Restriction ;
-	owl:onProperty ssn:hasSubSystem ;
-	owl:someValuesFrom ssn:System .
-
-ssn:System rdfs:subClassOf _:genid33 .
-
-_:genid33 a owl:Restriction ;
-	owl:onProperty ssn:hasDeployment ;
-	owl:allValuesFrom ssn:Deployment .
-
-ssn:System rdfs:subClassOf _:genid34 .
+	rdfs:subClassOf _:genid34 .
 
 _:genid34 a owl:Restriction ;
-	owl:onProperty ssn:hasOperatingRange ;
-	owl:allValuesFrom ssn:OperatingRange .
+	owl:onProperty ssn:hasSubSystem ;
+	owl:someValuesFrom ssn:System .
 
 ssn:System rdfs:subClassOf _:genid35 .
 
 _:genid35 a owl:Restriction ;
-	owl:onProperty ssn:hasSubSystem ;
-	owl:allValuesFrom ssn:System .
+	owl:onProperty ssn:hasOperatingRange ;
+	owl:allValuesFrom ssn:OperatingRange .
 
 ssn:System rdfs:subClassOf _:genid36 .
 
 _:genid36 a owl:Restriction ;
-	owl:onProperty ssn:hasSurvivalRange ;
-	owl:allValuesFrom ssn:SurvivalRange .
+	owl:onProperty ssn:hasSubSystem ;
+	owl:allValuesFrom ssn:System .
 
 ssn:System rdfs:subClassOf _:genid37 .
 
 _:genid37 a owl:Restriction ;
-	owl:onProperty ssn:onPlatform ;
-	owl:allValuesFrom ssn:Platform .
+	owl:onProperty ssn:hasSurvivalRange ;
+	owl:allValuesFrom ssn:SurvivalRange .
 
 ssn:System rdfs:comment "System is a unit of abstraction for pieces of infrastructure (and we largely care that they are) for sensing. A system has components, its subsystems, which are other systems." ;
 	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;

@@ -2,6 +2,7 @@ package com.iotplatform.services;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -11,34 +12,36 @@ import org.springframework.stereotype.Service;
 import com.iotplatform.daos.AdminDao;
 import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.DynamicConceptDao;
+import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
+import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.classes.Admin;
 import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.validations.RequestValidation;
+import com.iotplatform.validations.RequestFieldsValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
 @Service("adminService")
 public class AdminService {
 
-	private RequestValidation requestValidation;
+	private RequestFieldsValidation requestFieldsValidation;
 	private ApplicationDao applicationDao;
 	private AdminDao adminDao;
-	private Admin adminClass;
+	private MainDao mainDao;
 
 	@Autowired
-	public AdminService(RequestValidation requestValidation, ApplicationDao applicationDao, AdminDao adminDao,
-			Admin adminClass) {
-		this.requestValidation = requestValidation;
+	public AdminService(RequestFieldsValidation requestFieldsValidation, ApplicationDao applicationDao,
+			AdminDao adminDao, MainDao mainDao) {
+		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;
 		this.adminDao = adminDao;
-		this.adminClass = adminClass;
+		this.mainDao = mainDao;
 	}
 
 	/*
@@ -48,7 +51,7 @@ public class AdminService {
 	 * access object to insert the new admin
 	 */
 
-	public Hashtable<String, Object> insertAdmin(Hashtable<String, Object> htblPropValue, String applicationNameCode) {
+	public Hashtable<String, Object> insertAdmin(Hashtable<String, Object> htblFieldValue, String applicationNameCode) {
 
 		long startTime = System.currentTimeMillis();
 
@@ -63,20 +66,21 @@ public class AdminService {
 			return exception.getExceptionHashTable(timeTaken);
 		}
 
-		/*
-		 * Check if the request is valid or not
-		 */
-
 		try {
 
-			ArrayList<PropertyValue> prefixedPropertyValue = requestValidation.isRequestValid(applicationNameCode,
-					adminClass, htblPropValue);
+			/*
+			 * Check if the request is valid or not
+			 */
+			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
+					.validateRequestFields(applicationNameCode, htblFieldValue, Admin.getAdminInstance());
 
+			/*
+			 * get application modelName
+			 */
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-			String userName = htblPropValue.get("userName").toString();
-			
-			adminDao.insertAdmin(prefixedPropertyValue, applicationModelName,userName);
+			mainDao.insertData(applicationModelName, Admin.getAdminInstance().getName(), htblClassPropertyValue);
+
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Admin", timeTaken);
 			return successModel.getResponseJson();
@@ -108,7 +112,7 @@ public class AdminService {
 		}
 
 		try {
-
+			
 			List<Hashtable<String, Object>> htblPropValue = adminDao
 					.getAdmins(applicationDao.getHtblApplicationNameModelName().get(applicationNameCode));
 
@@ -141,45 +145,89 @@ public class AdminService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		Admin adminClass = new Admin();
+		AdminDao adminDao = new AdminDao(oracle, new SelectionUtility(dynamicConceptDao), Admin.getAdminInstance());
 
-		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
+		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
+		LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
 
-		AdminDao adminDao = new AdminDao(oracle, new SelectionUtility(requestValidation), adminClass);
+		hatemmorgan.put("type", "Developer");
+		hatemmorgan.put("age", 20);
+		hatemmorgan.put("firstName", "Hatem");
+		hatemmorgan.put("middleName", "ELsayed");
+		hatemmorgan.put("familyName", "Morgan");
+		hatemmorgan.put("birthday", "27/7/1995");
+		hatemmorgan.put("gender", "Male");
+		hatemmorgan.put("title", "Engineer");
+		hatemmorgan.put("userName", "HatemMorgans");
 
-		Hashtable<String, Object> htblPropValue = new Hashtable<>();
-		htblPropValue.put("age", 20);
-		htblPropValue.put("firstName", "Omar");
-		htblPropValue.put("middleName", "Hassan");
-		htblPropValue.put("familyName", "Tag");
-		htblPropValue.put("birthday", "27/2/1995");
-		htblPropValue.put("gender", "Male");
-		htblPropValue.put("title", "Engineer");
-		htblPropValue.put("userName", "OmarTag");
-		
+		ArrayList<Object> hatemmorganEmailList = new ArrayList<>();
+		hatemmorganEmailList.add("hatemmorgan17s@gmail.com");
+		hatemmorganEmailList.add("hatem.el-sayeds@student.guc.edu.eg");
+
+		hatemmorgan.put("mbox", hatemmorganEmailList);
+		hatemmorgan.put("knows", "karammorgan");
+		hatemmorgan.put("job", "Computer Engineeer");
+
+		LinkedHashMap<String, Object> ahmedmorgnan = new LinkedHashMap<>();
+		ahmedmorgnan.put("type", "Developer");
+		ahmedmorgnan.put("age", 16);
+		ahmedmorgnan.put("firstName", "Ahmed");
+		ahmedmorgnan.put("middleName", "ELsayed");
+		ahmedmorgnan.put("familyName", "Morgan");
+		ahmedmorgnan.put("birthday", "25/9/2000");
+		ahmedmorgnan.put("gender", "Male");
+		ahmedmorgnan.put("title", "Student");
+		ahmedmorgnan.put("userName", "AhmedMorganl");
+
+		ArrayList<Object> ahmedorganEmailList = new ArrayList<>();
+		ahmedorganEmailList.add("ahmedmorganl@gmail.com");
+
+		ahmedmorgnan.put("mbox", ahmedorganEmailList);
+		ahmedmorgnan.put("job", "High School Student");
+		ahmedmorgnan.put("love", hatemmorgan);
+
+		// Haytham Ismail
+		htblFieldValue.put("age", 50);
+		htblFieldValue.put("firstName", "Haytham");
+		htblFieldValue.put("middleName", "Ismail");
+		htblFieldValue.put("familyName", "Khalf");
+		htblFieldValue.put("birthday", "27/7/1975");
+		htblFieldValue.put("gender", "Male");
+		htblFieldValue.put("title", "Professor");
+		htblFieldValue.put("userName", "HaythamIsmails");
+
 		ArrayList<Object> emailList = new ArrayList<>();
-		emailList.add("omartagguv@gmail.com");
-		emailList.add("omar.tag@student.guc.edu.eg" );
-		
-		htblPropValue.put("mbox", emailList);
-		
-		htblPropValue.put("adminOf", "TESTAPPLICATION");
-		htblPropValue.put("knows", "HatemMorgan");
-		htblPropValue.put("hates", "HatemMorgan");
+		emailList.add("haytham.ismails@gmail.com");
+		emailList.add("haytham.ismails@student.guc.edu.eg");
 
-		AdminService adminService = new AdminService(requestValidation, new ApplicationDao(oracle, new Application()),
-				adminDao, adminClass);
+		htblFieldValue.put("mbox", emailList);
 
-//		Hashtable<String, Object> Admins = adminService.getAdmins("TESTAPPLICATION");
-//		System.out.println(Admins);
-		
-		Hashtable<String, Object> res = adminService.insertAdmin(htblPropValue, "TESTAPPLICATION");
+		htblFieldValue.put("adminOf", "TESTAPPLICATION");
+		// htblFieldValue.put("knows", ahmedmorgnan);
+		htblFieldValue.put("hates", ahmedmorgnan);
+		// ArrayList<LinkedHashMap<String, Object>> loveList = new
+		// ArrayList<>();
+		// loveList.add(hatemmorgan2);
+		// loveList.add(hatemmorgan);
+		// htblFieldValue.put("love", loveList);
+		// htblFieldValue.put("job", "Engineeer");
+		RequestFieldsValidation requestFieldsValidation = new RequestFieldsValidation(dynamicConceptDao, validationDao);
 
-//		 Hashtable<String, Object>[] json = (Hashtable<String,
-//		 Object>[])res.get("errors");
-//		 System.out.println(json[0].toString());
-		System.out.println("has");
-	
-		System.out.println(res.toString());
+		MainDao mainDao = new MainDao(oracle);
+
+		AdminService adminService = new AdminService(requestFieldsValidation,
+				new ApplicationDao(oracle, Application.getApplicationInstance()), adminDao, mainDao);
+
+		Hashtable<String, Object> Admins = adminService.getAdmins("TESTAPPLICATION");
+		System.out.println(Admins);
+
+		// Hashtable<String, Object> res =
+		// adminService.insertAdmin(htblFieldValue, "TESTAPPLICATION");
+
+		// Hashtable<String, Object>[] json = (Hashtable<String, Object>[])
+		// res.get("errors");
+		// System.out.println(json[0].toString());
+
+		// System.out.println(res.toString());
 	}
 }

@@ -37,14 +37,22 @@ import com.iotplatform.utilities.ValueOfTypeClass;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
+/**
+ * SingleClassRequestValidation
+ * 
+ * class is responsible to validate a
+ * 
+ * single entity(class) request eg. Admin,Developer,Application,Organization
+ */
+
 @Component
-public class RequestValidation {
+public class SingleClassRequestValidation {
 
 	private ValidationDao validationDao;
 	private DynamicConceptDao dynamicConceptDao;
 
 	@Autowired
-	public RequestValidation(ValidationDao validationDao, DynamicConceptDao dynamicConceptDao) {
+	public SingleClassRequestValidation(ValidationDao validationDao, DynamicConceptDao dynamicConceptDao) {
 
 		this.validationDao = validationDao;
 		this.dynamicConceptDao = dynamicConceptDao;
@@ -62,7 +70,7 @@ public class RequestValidation {
 
 		ArrayList<SqlCondition> orCondtionsFilterList = new ArrayList<>();
 		orCondtionsFilterList.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), subjectClass.getUri()));
-		
+
 		for (Class superClass : subjectClass.getSuperClassesList()) {
 			orCondtionsFilterList
 					.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), superClass.getUri()));
@@ -81,13 +89,13 @@ public class RequestValidation {
 		 * having alot of dynamic properties not cached so to avoid going to the
 		 * database more than one time. I load all the dynamic properties of the
 		 * specified subject and then cache results
-		 * 
+		 *
 		 * I used hashtable to hold dynamic properties to enhance performance
 		 * when checking for valid property in the loading dynamic properties. I
 		 * did not check in the loop to allow caching all new properties that
 		 * were not cached before without terminating the loop when finding the
 		 * property needed in the dynamicProperties
-		 * 
+		 *
 		 * Also add dynamic property to property list of the subject class in
 		 * order to improve performance by caching the dynamic properties
 		 */
@@ -106,21 +114,29 @@ public class RequestValidation {
 			subjectClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
 					dynamicProperty.getProperty_name());
 
-			if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty.toString())) {
-				subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
-						new DataTypeProperty(dynamicProperty.getProperty_name(),
-								getPrefix(dynamicProperty.getProperty_prefix_alias()),
-								getXSDDataTypeEnum(dynamicProperty.getProperty_object_type()), applicationName,
-								dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
-			} else {
-				if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
-					subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
-							new ObjectProperty(dynamicProperty.getProperty_name(),
-									getPrefix(dynamicProperty.getProperty_prefix_alias()),
-									getClassByName(dynamicProperty.getProperty_object_type()), applicationName,
-									dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
-				}
-			}
+			// if
+			// (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty.toString()))
+			// {
+			// subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
+			// new DataTypeProperty(dynamicProperty.getProperty_name(),
+			// getPrefix(dynamicProperty.getProperty_prefix_alias()),
+			// getXSDDataTypeEnum(dynamicProperty.getProperty_object_type_uri()),
+			// applicationName,
+			// dynamicProperty.getHasMultipleValues(),
+			// dynamicProperty.getIsUnique()));
+			// } else {
+			// if
+			// (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString()))
+			// {
+			// subjectClass.getProperties().put(dynamicProperty.getProperty_name(),
+			// new ObjectProperty(dynamicProperty.getProperty_name(),
+			// getPrefix(dynamicProperty.getProperty_prefix_alias()),
+			// getClassByName(dynamicProperty.getProperty_object_type_uri()),
+			// applicationName,
+			// dynamicProperty.getHasMultipleValues(),
+			// dynamicProperty.getIsUnique()));
+			// }
+			// }
 			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
 		}
 
@@ -128,10 +144,8 @@ public class RequestValidation {
 	}
 
 	/*
-	 * checkIfFieldsValid checks if the fields passed by the http request are
-	 * valid or not and it return an array of hashtables if the fields are valid
-	 * which contains the hashtable of dynamic properties and the other
-	 * hashtable for static properties
+	 * isFieldsValid checks if the fields passed by the http request are valid
+	 * or not and it returns a hashtable of propertyValue keyValue
 	 */
 	private Hashtable<Object, Object> isFieldsValid(String applicationName, Class subjectClass,
 			Hashtable<String, Object> htblPropertyValue) {
@@ -171,8 +185,9 @@ public class RequestValidation {
 				} else {
 
 					/*
-					 * passed field is a static property so add it to
-					 * htblDynamicProperties
+					 * passed field is a dynamic property and it is cached so it
+					 * will be availabe in the subject class properties list so
+					 * add it to the returned hashtable of property and value
 					 */
 					htblFieldPropValue.put(htblProperties.get(field), value);
 				}
@@ -181,7 +196,17 @@ public class RequestValidation {
 
 				/*
 				 * passed field is a static property so add it to
-				 * htblStaticProperty
+				 * htblStaticProperty so check that the property is valid for
+				 * this application domain
+				 *
+				 * if the applicationName is null so this field maps a property
+				 * in the main ontology .
+				 *
+				 * if the applicationName is equal to passed applicationName so
+				 * it is a dynamic added property to this application domain
+				 *
+				 * else it will be a dynamic property in another application
+				 * domain which will happen rarely
 				 */
 
 				if (htblProperties.get(field).getApplicationName() == null || htblProperties.get(field)
@@ -247,12 +272,11 @@ public class RequestValidation {
 	}
 
 	/*
-	 * isStaticDataValueValid checks that the datatype of the values passed with
-	 * the property are valid to maintain data integrity and consistency.
-	 * 
-	 * It is used with static dataProperty
+	 * isDataValueValid checks that the datatype of the values passed with the
+	 * property are valid to maintain data integrity and consistency.
+	 *
 	 */
-	private boolean isStaticDataValueValid(DataTypeProperty dataProperty, Object value) {
+	private boolean isDataValueValid(DataTypeProperty dataProperty, Object value) {
 
 		XSDDataTypes xsdDataType = dataProperty.getDataType();
 		switch (xsdDataType) {
@@ -438,7 +462,7 @@ public class RequestValidation {
 				 * check if the datatype is correct or not
 				 */
 
-				if (!isStaticDataValueValid((DataTypeProperty) property, value)) {
+				if (!isDataValueValid((DataTypeProperty) property, value)) {
 
 					throw new InvalidPropertyValuesException(subjectClass.getName(), property.getName());
 				}
@@ -476,15 +500,16 @@ public class RequestValidation {
 			 * check if there are any constraints violations if there are any
 			 * violations hasConstraintViolations method will throw the
 			 * appropriate error that describes the type of the violation
-			 * 
+			 *
 			 * if there is no constraints violations a boolean true will be
 			 * returned
 			 */
 
-			if (validationDao.hasConstraintViolations(applicationName, classValueList, uniquePropValueList,
-					subjectClass)) {
-				return prefixedPropertyValueList;
-			}
+			// if (validationDao.hasNoConstraintViolations(applicationName,
+			// classValueList, uniquePropValueList,
+			// subjectClass)) {
+			// return prefixedPropertyValueList;
+			// }
 
 		}
 
@@ -518,7 +543,8 @@ public class RequestValidation {
 
 		System.out.println("Connected to Database");
 
-		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
+		SingleClassRequestValidation requestValidation = new SingleClassRequestValidation(validationDao,
+				dynamicConceptDao);
 
 		Hashtable<String, Object> htblPropValues = new Hashtable<>();
 		htblPropValues.put("firstName", "Hatem");
@@ -528,7 +554,7 @@ public class RequestValidation {
 		long startTime = System.currentTimeMillis();
 
 		// testing isValidFields method
-		Hashtable<Object, Object> res = requestValidation.isFieldsValid("test Application", new Developer(),
+		Hashtable<Object, Object> res = requestValidation.isFieldsValid("testApplication", new Developer(),
 				htblPropValues);
 
 		System.out.println(res.toString());

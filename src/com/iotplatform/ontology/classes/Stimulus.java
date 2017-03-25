@@ -3,7 +3,9 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  * This Class maps ssn:Stimulus Class in the ontology
@@ -26,37 +28,38 @@ import com.iotplatform.ontology.Prefixes;
  * its behavior in order to make the environment more satisfactory. For instance, 1- hunger motivates animals
  * to seek food, 2- predators stimulate prey to run away or hide, and 3- falling temperatures encourage creatures
  * to seek shelter or find warmth in other ways
- * 
  */
 
 @Component
 public class Stimulus extends Class {
 
 	private static Stimulus stimulusInstance;
+	private Class stimulusSubjectClassInstance;
 
 	public Stimulus() {
-		super("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Prefixes.SSN);
+		super("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Prefixes.SSN, null, false);
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public Stimulus(String nothing) {
-		super("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Prefixes.SSN);
+	private Class getStimulusSubjectClassInstance() {
+		if (stimulusSubjectClassInstance == null)
+			stimulusSubjectClassInstance = new Class("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus",
+					Prefixes.SSN, null, false);
+		return stimulusSubjectClassInstance;
 	}
 
 	public synchronized static Stimulus getStimulusInstance() {
 		if (stimulusInstance == null)
-			stimulusInstance = new Stimulus(null);
+			stimulusInstance = new Stimulus();
 
 		return stimulusInstance;
 	}
 
 	private void init() {
+		super.getProperties().put("id", new DataTypeProperty(getStimulusSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+				XSDDataTypes.string_typed, false, false));
 
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}
 
 }

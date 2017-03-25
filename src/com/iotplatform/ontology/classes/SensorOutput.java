@@ -3,7 +3,9 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  *  This Class maps ssn:SensorOutput class in the ontology
@@ -16,30 +18,34 @@ import com.iotplatform.ontology.Prefixes;
 public class SensorOutput extends Class {
 
 	private static SensorOutput sensorOutputInstance;
+	private Class sensorOutputSubjectClassInstance;
 
 	public SensorOutput() {
-		super("SensorOutput", " http://purl.oclc.org/NET/ssnx/ssn#SensorOutput", Prefixes.SSN);
+
+		super("SensorOutput", " http://purl.oclc.org/NET/ssnx/ssn#SensorOutput", Prefixes.SSN, null, false);
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public SensorOutput(String nothing) {
-		super("SensorOutput", " http://purl.oclc.org/NET/ssnx/ssn#SensorOutput", Prefixes.SSN);
+	private Class getSensorOutputSubjectClassInstance() {
+		if (sensorOutputSubjectClassInstance == null)
+			sensorOutputSubjectClassInstance = new Class("SensorOutput",
+					" http://purl.oclc.org/NET/ssnx/ssn#SensorOutput", Prefixes.SSN, null, false);
+
+		return sensorOutputSubjectClassInstance;
 	}
 
 	public synchronized static SensorOutput getSensorOutputInstance() {
 		if (sensorOutputInstance == null)
-			sensorOutputInstance = new SensorOutput(null);
+			sensorOutputInstance = new SensorOutput();
 
 		return sensorOutputInstance;
 	}
 
 	private void init() {
+		super.getProperties().put("id", new DataTypeProperty(getSensorOutputSubjectClassInstance(), "id",
+				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}
 
 }

@@ -2,10 +2,9 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.ontology.DataTypeProperty;
+import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  * This Class maps the Deployment Class in the ontology
@@ -20,45 +19,73 @@ import com.iotplatform.ontology.XSDDataTypes;
 public class Deployment extends DeploymentRelatedProcess {
 
 	private static Deployment deploymentInstance;
+	private Class deploymentSubjectClassInstance;
 
 	public Deployment() {
-		super("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment", Prefixes.SSN);
+		super("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment", Prefixes.SSN, null, false);
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
 	public Deployment(String nothing) {
+		super("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment", Prefixes.SSN, null, false, null);
+	}
 
-		super("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment", Prefixes.SSN);
+	private Class getDeploymentSubjectClassInstance() {
+		if (deploymentSubjectClassInstance == null)
+			deploymentSubjectClassInstance = new Class("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment",
+					Prefixes.SSN, null, false);
+
+		return deploymentSubjectClassInstance;
 	}
 
 	public synchronized static Deployment getDeploymentInstance() {
 		if (deploymentInstance == null) {
 			deploymentInstance = new Deployment(null);
+			initDeploymentStaticInstance(deploymentInstance);
+			DeploymentRelatedProcess.initDeploymentRelatedProccessStaticInstance(deploymentInstance);
 		}
-
 		return deploymentInstance;
 
 	}
 
 	private void init() {
-		
 
 		/*
 		 * Relation between a deployment and the platform on which the system
 		 * was deployed. one to one relation because a deployment will be in one
 		 * place (which is the place of the platform)
 		 */
-		this.getProperties().put("deployedOnPlatform",
-				new ObjectProperty("deployedOnPlatform", Prefixes.SSN, Platform.getPlatformInstance(), false, false));
+		super.getProperties().put("deployedOnPlatform", new ObjectProperty(getDeploymentSubjectClassInstance(),
+				"deployedOnPlatform", Prefixes.SSN, Platform.getPlatformInstance(), false, false));
 
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deployedOnPlatform", "deployedOnPlatform");
 
+		super.getSuperClassesList().add(DeploymentRelatedProcess.getDeploymentRelatedProcessInstance());
 
+	}
+
+	private static void initDeploymentStaticInstance(Deployment deploymentInstance) {
+
+		/*
+		 * Relation between a deployment and the platform on which the system
+		 * was deployed. one to one relation because a deployment will be in one
+		 * place (which is the place of the platform)
+		 */
+		deploymentInstance.getProperties().put("deployedOnPlatform",
+				new ObjectProperty(deploymentInstance.getDeploymentSubjectClassInstance(), "deployedOnPlatform",
+						Prefixes.SSN, Platform.getPlatformInstance(), false, false));
+
+		deploymentInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deployedOnPlatform", "deployedOnPlatform");
+
+		deploymentInstance.getSuperClassesList().add(DeploymentRelatedProcess.getDeploymentRelatedProcessInstance());
+
+	}
+
+	public static void main(String[] args) {
+		Deployment deployment = new Deployment();
+		System.out.println(deployment.getProperties());
+		System.out.println(deployment.getClassTypesList());
+		System.out.println(Deployment.getDeploymentInstance().getProperties());
 	}
 
 }

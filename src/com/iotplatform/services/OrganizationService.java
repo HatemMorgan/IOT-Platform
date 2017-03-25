@@ -4,43 +4,37 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.iotplatform.daos.AdminDao;
 import com.iotplatform.daos.ApplicationDao;
-import com.iotplatform.daos.DynamicConceptDao;
+import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.OrganizationDao;
-import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
-import com.iotplatform.ontology.classes.Admin;
-import com.iotplatform.ontology.classes.Application;
+import com.iotplatform.ontology.Class;
+
 import com.iotplatform.ontology.classes.Organization;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.validations.RequestValidation;
-
-import oracle.spatial.rdf.client.jena.Oracle;
+import com.iotplatform.validations.RequestFieldsValidation;
 
 @Service("organizationService")
 public class OrganizationService {
 
-	private RequestValidation requestValidation;
+	private RequestFieldsValidation requestFieldsValidation;
 	private ApplicationDao applicationDao;
 	private OrganizationDao organizationDao;
-	private Organization organizationClass;
+	private MainDao mainDao;
 
 	@Autowired
-	public OrganizationService(RequestValidation requestValidation, ApplicationDao applicationDao,
-			OrganizationDao organizationDao, Organization organizationClass) {
-		this.requestValidation = requestValidation;
+	public OrganizationService(RequestFieldsValidation requestFieldsValidation, ApplicationDao applicationDao,
+			OrganizationDao organizationDao, MainDao mainDao) {
+		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;
 		this.organizationDao = organizationDao;
-		this.organizationClass = organizationClass;
+		this.mainDao = mainDao;
 	}
 
 	/*
@@ -50,7 +44,7 @@ public class OrganizationService {
 	 * data access object to insert the new organization
 	 */
 
-	public Hashtable<String, Object> insertOrganization(Hashtable<String, Object> htblPropValue,
+	public Hashtable<String, Object> insertOrganization(Hashtable<String, Object> htblFieldValue,
 			String applicationNameCode) {
 
 		long startTime = System.currentTimeMillis();
@@ -73,14 +67,19 @@ public class OrganizationService {
 
 		try {
 
-			ArrayList<PropertyValue> prefixedPropertyValue = requestValidation.isRequestValid(applicationNameCode,
-					organizationClass, htblPropValue);
+			/*
+			 * Check if the request is valid or not
+			 */
+			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
+					.validateRequestFields(applicationNameCode, htblFieldValue, Organization.getOrganizationInstance());
 
+			/*
+			 * get application modelName
+			 */
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-			String organizationName = htblPropValue.get("name").toString();
-
-			organizationDao.insertOrganization(prefixedPropertyValue, applicationModelName, organizationName);
+			mainDao.insertData(applicationModelName, Organization.getOrganizationInstance().getName(),
+					htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Organization", timeTaken);
@@ -128,55 +127,61 @@ public class OrganizationService {
 		}
 	}
 
-	public static void main(String[] args) {
-		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
-		String szUser = "rdfusr";
-		String szPasswd = "rdfusr";
-		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
-
-		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName(szJdbcDriver);
-		dataSource.setUrl(szJdbcURL);
-		dataSource.setUsername(szUser);
-		dataSource.setPassword(szPasswd);
-
-		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
-
-		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
-
-		ValidationDao validationDao = new ValidationDao(oracle);
-
-		Organization organizationClass = new Organization();
-
-		RequestValidation requestValidation = new RequestValidation(validationDao, dynamicConceptDao);
-
-		OrganizationDao organizationDao = new OrganizationDao(oracle, new SelectionUtility(requestValidation),
-				organizationClass);
-
-		// Hashtable<String, Object> htblPropValue = new Hashtable<>();
-		// htblPropValue.put("name", "Google");
-		// htblPropValue.put("description",
-		// "Google is a software Engineering Company that helps peolpe with new
-		// technologies.");
-
-		Hashtable<String, Object> htblPropValue = new Hashtable<>();
-		htblPropValue.put("name", "BMW");
-		htblPropValue.put("description", "BMW is mechanical company that manufacture automative cars");
-
-		OrganizationService organizationService = new OrganizationService(requestValidation,
-				new ApplicationDao(oracle, new Application()), organizationDao, organizationClass);
-
-//		Hashtable<String, Object> res = organizationService.getOrganizations("test application");
-
-		 Hashtable<String, Object> res =
-		 organizationService.insertOrganization(htblPropValue,
-		 "TESTAPPLICATION");
-
-//		 Hashtable<String, Object>[] json = (Hashtable<String,
-//		 Object>[])res.get("errors");
-//		 System.out.println(json[0].toString());
-
-		System.out.println(res.toString());
-	}
+	// public static void main(String[] args) {
+	// String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+	// String szUser = "rdfusr";
+	// String szPasswd = "rdfusr";
+	// String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+	//
+	// BasicDataSource dataSource = new BasicDataSource();
+	// dataSource.setDriverClassName(szJdbcDriver);
+	// dataSource.setUrl(szJdbcURL);
+	// dataSource.setUsername(szUser);
+	// dataSource.setPassword(szPasswd);
+	//
+	// Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+	//
+	// DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+	//
+	// ValidationDao validationDao = new ValidationDao(oracle);
+	//
+	// Organization organizationClass = new Organization();
+	//
+	// SingleClassRequestValidation requestValidation = new
+	// SingleClassRequestValidation(validationDao,
+	// dynamicConceptDao);
+	//
+	// OrganizationDao organizationDao = new OrganizationDao(oracle, new
+	// SelectionUtility(requestValidation),
+	// organizationClass);
+	//
+	// // Hashtable<String, Object> htblPropValue = new Hashtable<>();
+	// // htblPropValue.put("name", "Google");
+	// // htblPropValue.put("description",
+	// // "Google is a software Engineering Company that helps peolpe with new
+	// // technologies.");
+	//
+	// Hashtable<String, Object> htblPropValue = new Hashtable<>();
+	// htblPropValue.put("name", "BMW");
+	// htblPropValue.put("description", "BMW is mechanical company that
+	// manufacture automative cars");
+	//
+	// OrganizationService organizationService = new
+	// OrganizationService(requestValidation,
+	// new ApplicationDao(oracle, new Application()), organizationDao,
+	// organizationClass);
+	//
+	// // Hashtable<String, Object> res =
+	// // organizationService.getOrganizations("test application");
+	//
+	// Hashtable<String, Object> res =
+	// organizationService.insertOrganization(htblPropValue, "TESTAPPLICATION");
+	//
+	// // Hashtable<String, Object>[] json = (Hashtable<String,
+	// // Object>[])res.get("errors");
+	// // System.out.println(json[0].toString());
+	//
+	// System.out.println(res.toString());
+	// }
 
 }

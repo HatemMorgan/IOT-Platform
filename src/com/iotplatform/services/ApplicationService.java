@@ -16,7 +16,7 @@ import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.validations.RequestValidation;
+import com.iotplatform.validations.SingleClassRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -24,11 +24,11 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class ApplicationService {
 
 	private ApplicationDao applicationDao;
-	private RequestValidation requestValidation;
+	private SingleClassRequestValidation requestValidation;
 	private Application applicationClass;
 
 	@Autowired
-	public ApplicationService(ApplicationDao applicationDao, RequestValidation requestValidation,
+	public ApplicationService(ApplicationDao applicationDao, SingleClassRequestValidation requestValidation,
 			Application applicationClass) {
 		this.applicationDao = applicationDao;
 		this.requestValidation = requestValidation;
@@ -114,7 +114,7 @@ public class ApplicationService {
 
 		ApplicationDao applicationDao = new ApplicationDao(oracle, application);
 		ApplicationService applicationService = new ApplicationService(applicationDao,
-				new RequestValidation(new ValidationDao(oracle), new DynamicConceptDao(dataSource)), application);
+				new SingleClassRequestValidation(new ValidationDao(oracle), new DynamicConceptDao(dataSource)), application);
 
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		htblPropValue.put("name", "Test Application");

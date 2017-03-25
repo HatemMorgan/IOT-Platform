@@ -3,7 +3,9 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  * This class maps qu:QuantityKind Class in the ontology
@@ -20,32 +22,33 @@ import com.iotplatform.ontology.Prefixes;
 public class QuantityKind extends Class {
 
 	private static QuantityKind quantityKindInstance;
+	private Class quantityKindSubjectClassInstance;
 
 	public QuantityKind() {
-		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU);
-
+		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU, null, false);
 		init();
 	}
 
-	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
-	 */
-	public QuantityKind(String nothing) {
-		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU);
+	private Class getQuantityKindSubjectClassInstance() {
+		if (quantityKindSubjectClassInstance == null)
+			quantityKindSubjectClassInstance = new Class("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind",
+					Prefixes.QU, null, false);
 
+		return quantityKindSubjectClassInstance;
 	}
 
 	public synchronized static QuantityKind getQuantityKindInstance() {
 		if (quantityKindInstance == null)
-			quantityKindInstance = new QuantityKind(null);
+			quantityKindInstance = new QuantityKind();
 
 		return quantityKindInstance;
 	}
 
 	private void init() {
+		super.getProperties().put("id", new DataTypeProperty(getQuantityKindSubjectClassInstance(), "id",
+				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
+		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 	}
 
 }

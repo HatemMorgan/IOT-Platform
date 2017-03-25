@@ -11,44 +11,87 @@ import com.iotplatform.ontology.XSDDataTypes;
 /*
  *  This class maps the ssn:System class in the ontology 
  * 
- * System is the superClass of device class 
+ * System is the superClass of device class and it has properties that describes any system
+ * (eg:device like what our ontology has)
  * 
- * A system can be a SmartCampus of example
+ * hasOperatingRange and hasSurvivalRange Properties describes that the system has and operatingRange 
+ * or survivalRage that under certain conditions will have a specified survivalProperty or operatingProperty
+ * 
+ * so SurvivalRange and OperatingRange classes act like a wrapper for a condition and the property triggered 
  * 
  * System is a unit of abstraction for pieces of infrastructure (and we largely care that they are) for sensing. 
  * A system has components, its subsystems, which are other systems.
+ * 
+ * 
  */
 
 @Component
 public class SystemClass extends Class {
 
 	private static SystemClass systemInstance;
+	private Class systemSubjectClassInstance;
 
 	public SystemClass() {
-		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN);
+		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN, null, true);
 
 		init();
 
 	}
 
-	public SystemClass(String name, String uri, Prefixes prefix) {
-		super(name, uri, prefix);
+	private Class getSystemSubjectClassInstance() {
+		if (systemSubjectClassInstance == null)
+			systemSubjectClassInstance = new Class("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN,
+					null, true);
+
+		return systemSubjectClassInstance;
+	}
+
+	/*
+	 * This constructor is used to perform overloading constructor technique and
+	 * the parameter String nothing will be passed always with null
+	 * 
+	 * I have done this overloaded constructor to instantiate the static
+	 * systemInstance to avoid java.lang.StackOverflowError exception that Occur
+	 * when calling init() to add properties to systemInstance
+	 * 
+	 */
+	public SystemClass(String nothing) {
+		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN, null, true);
+	}
+
+	public SystemClass(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+			boolean hasTypeClasses) {
+		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 		init();
 	}
 
 	/*
-	 * String nothing parameter is added for overloading constructor technique
-	 * because I need to initialize an instance without having properties and it
-	 * will be always passed by null
+	 * This constructor is used to perform overloading constructor technique and
+	 * the parameter String nothing will be passed always with null and this
+	 * constructor is used to initialize staticInstance for Person class
+	 * 
+	 * I added this overloaded constructor to allow subClasses of SystemClass to
+	 * create their own static instance and also reference them here in
+	 * typeClassList
+	 * 
+	 * It cause java.lang.StackOverflowError exception when calling the above
+	 * constructor because it calls init method
+	 * 
 	 */
-	public SystemClass(String nothing) {
-
-		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN);
+	public SystemClass(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+			boolean hasTypeClasses, String nothing) {
+		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 	}
 
 	public synchronized static SystemClass getSystemInstance() {
 		if (systemInstance == null) {
 			systemInstance = new SystemClass(null);
+			initSystemStaticInstance(systemInstance);
+
+			if (systemInstance.isHasTypeClasses()) {
+				systemInstance.getClassTypesList().put("Device", Device.getDeviceInstance());
+				systemInstance.getClassTypesList().putAll(Device.getDeviceInstance().getClassTypesList());
+			}
 		}
 
 		return systemInstance;
@@ -60,64 +103,176 @@ public class SystemClass extends Class {
 		/*
 		 * id which must be unique
 		 */
-		super.getProperties().put("id",
-				new DataTypeProperty("id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+		this.getProperties().put("id", new DataTypeProperty(getSystemSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+				XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * relation between a system and its parts. A system or its subclasses
 		 * can have many subsystems so multipleValues is enabled (one to many
 		 * relation)
 		 */
-		super.getProperties().put("hasSubSystem",
-				new ObjectProperty("hasSubSystem", Prefixes.SSN, SystemClass.getSystemInstance(), true, false));
-
-		/*
-		 * Relation between a System and a Deployment, recording that the
-		 * System/Sensor was deployed in that Deployment. A deployment will have
-		 * a name and it will be one to one relation because a senesor or a
-		 * system cannot be deployed in two places
-		 */
-
-		super.getProperties().put("hasDeployment",
-				new ObjectProperty("hasDeployment", Prefixes.SSN, Deployment.getDeploymentInstance(), false, false));
-
-		/*
-		 * Relation between a System (e.g., a Sensor) and a Platform. The
-		 * relation locates the sensor relative to other described entities
-		 * entities: i.e., the Sensor s1's location is Platform p1. More precise
-		 * locations for sensors in space (relative to other entities, where
-		 * attached to another entity, or in 3D space) are made using DOLCE's
-		 * Regions (SpaceRegion). It is one to one relation
-		 */
-		super.getProperties().put("onPlatform",
-				new ObjectProperty("onPlatform", Prefixes.SSN, Platform.getPlatformInstance(), false, false));
+		this.getProperties().put("hasSubSystem", new ObjectProperty(getSystemSubjectClassInstance(), "hasSubSystem",
+				Prefixes.SSN, SystemClass.getSystemInstance(), true, false));
 
 		/*
 		 * A Relation from a System to a SurvivalRange. It is a one to one
 		 * relationShip because a system/device has only one survivalRange
 		 */
-		super.getProperties().put("hasSurvivalRange", new ObjectProperty("hasSurvivalRange", Prefixes.SSN,
-				SurvivalRange.getSurvivalRangeInstance(), false, false));
+		this.getProperties().put("hasSurvivalRange", new ObjectProperty(getSystemSubjectClassInstance(),
+				"hasSurvivalRange", Prefixes.SSN, SurvivalRange.getSurvivalRangeInstance(), true, false));
 
 		/*
 		 * Relation from a System to an OperatingRange describing the normal
 		 * operating environment of the System. It is one to one relationShip
 		 * because a system/device has only one operatingRange
 		 */
-		super.getProperties().put("hasOperatingRange", new ObjectProperty("hasOperatingRange", Prefixes.SSN,
-				OperatingRange.getOperatingRangeInstance(), false, false));
+		this.getProperties().put("hasOperatingRange", new ObjectProperty(getSystemSubjectClassInstance(),
+				"hasOperatingRange", Prefixes.SSN, OperatingRange.getOperatingRangeInstance(), true, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSubSystem", "hasSubSystem");
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasDeployment", "hasDeployment");
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "onPlatform", "onPlatform");
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalRange", "hasSurvivalRange");
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingRange", "hasOperatingRange");
+		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSubSystem", "hasSubSystem");
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalRange", "hasSurvivalRange");
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingRange", "hasOperatingRange");
+
+		if (this.isHasTypeClasses()) {
+			this.getClassTypesList().put("Device", Device.getDeviceInstance());
+			this.getClassTypesList().putAll(Device.getDeviceInstance().getClassTypesList());
+		}
+	}
+
+	public static void initSystemStaticInstance(SystemClass systemInstance) {
+		/*
+		 * id which must be unique
+		 */
+		systemInstance.getProperties().put("id", new DataTypeProperty(systemInstance.getSystemSubjectClassInstance(),
+				"id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+
+		/*
+		 * relation between a system and its parts. A system or its subclasses
+		 * can have many subsystems so multipleValues is enabled (one to many
+		 * relation)
+		 */
+		systemInstance.getProperties().put("hasSubSystem",
+				new ObjectProperty(systemInstance.getSystemSubjectClassInstance(), "hasSubSystem", Prefixes.SSN,
+						SystemClass.getSystemInstance(), true, false));
+
+		/*
+		 * A Relation from a System to a SurvivalRange. It is a one to one
+		 * relationShip because a system/device has only one survivalRange
+		 */
+		systemInstance.getProperties().put("hasSurvivalRange",
+				new ObjectProperty(systemInstance.getSystemSubjectClassInstance(), "hasSurvivalRange", Prefixes.SSN,
+						SurvivalRange.getSurvivalRangeInstance(), true, false));
+
+		/*
+		 * Relation from a System to an OperatingRange describing the normal
+		 * operating environment of the System. It is one to one relationShip
+		 * because a system/device has only one operatingRange
+		 */
+		systemInstance.getProperties().put("hasOperatingRange",
+				new ObjectProperty(systemInstance.getSystemSubjectClassInstance(), "hasOperatingRange", Prefixes.SSN,
+						OperatingRange.getOperatingRangeInstance(), true, false));
+
+		systemInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		systemInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSubSystem", "hasSubSystem");
+		systemInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalRange", "hasSurvivalRange");
+		systemInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingRange", "hasOperatingRange");
 
 	}
 
-	// public static void main(String[] args) {
-	// SystemClass system = new SystemClass();
-	// System.out.println(system.getProperties().toString());
-	// }
+	public static void main(String[] args) {
+		SystemClass system = new SystemClass();
+		System.out.println(system.getProperties().toString());
+		System.out.println(system.getClassTypesList());
+		System.out.println(system.getSuperClassesList());
+		System.out.println(system.getHtblPropUriName());
+
+		System.out.println("==================================================================");
+
+		System.out.println(SystemClass.getSystemInstance().getProperties().toString());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList());
+		System.out.println(SystemClass.getSystemInstance().getHtblPropUriName());
+		System.out.println(SystemClass.getSystemInstance().getSuperClassesList());
+
+		System.out.println("===========================Device==========================================");
+
+		System.out.println(system.getClassTypesList().get("Device").getProperties().toString());
+		System.out.println(system.getClassTypesList().get("Device").getClassTypesList());
+		System.out.println(system.getClassTypesList().get("Device").getSuperClassesList());
+		System.out.println(system.getClassTypesList().get("Device").getHtblPropUriName());
+
+		System.out.println("==================================================================");
+
+		System.out
+				.println(SystemClass.getSystemInstance().getClassTypesList().get("Device").getProperties().toString());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("Device").getClassTypesList());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("Device").getHtblPropUriName());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("Device").getSuperClassesList());
+
+		System.out.println("===========================Sensor==========================================");
+
+		System.out.println(system.getClassTypesList().get("Sensor").getProperties().toString());
+		System.out.println(system.getClassTypesList().get("Sensor").getClassTypesList());
+		System.out.println(system.getClassTypesList().get("Sensor").getSuperClassesList());
+		System.out.println(system.getClassTypesList().get("Sensor").getHtblPropUriName());
+
+		System.out.println("==================================================================");
+
+		System.out
+				.println(SystemClass.getSystemInstance().getClassTypesList().get("Sensor").getProperties().toString());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("Sensor").getClassTypesList());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("Sensor").getHtblPropUriName());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("Sensor").getSuperClassesList());
+
+		System.out.println("===========================ActuatingDevice==========================================");
+
+		System.out.println(system.getClassTypesList().get("ActuatingDevice").getProperties().toString());
+		System.out.println(system.getClassTypesList().get("ActuatingDevice").getClassTypesList());
+		System.out.println(system.getClassTypesList().get("ActuatingDevice").getSuperClassesList());
+		System.out.println(system.getClassTypesList().get("ActuatingDevice").getHtblPropUriName());
+
+		System.out.println("==================================================================");
+
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("ActuatingDevice").getProperties().toString());
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("ActuatingDevice").getClassTypesList());
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("ActuatingDevice").getHtblPropUriName());
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("ActuatingDevice").getSuperClassesList());
+
+		System.out.println("===========================TagDevice==========================================");
+
+		System.out.println(system.getClassTypesList().get("TagDevice").getProperties().toString());
+		System.out.println(system.getClassTypesList().get("TagDevice").getClassTypesList());
+		System.out.println(system.getClassTypesList().get("TagDevice").getSuperClassesList());
+		System.out.println(system.getClassTypesList().get("TagDevice").getHtblPropUriName());
+
+		System.out.println("==================================================================");
+
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("TagDevice").getProperties().toString());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("TagDevice").getClassTypesList());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("TagDevice").getHtblPropUriName());
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("TagDevice").getSuperClassesList());
+
+		System.out.println("===========================CommunicatingDevice==========================================");
+
+		System.out.println(system.getClassTypesList().get("CommunicatingDevice").getProperties().toString());
+		System.out.println(system.getClassTypesList().get("CommunicatingDevice").getClassTypesList());
+		System.out.println(system.getClassTypesList().get("CommunicatingDevice").getSuperClassesList());
+		System.out.println(system.getClassTypesList().get("CommunicatingDevice").getHtblPropUriName());
+
+		System.out.println("==================================================================");
+
+		System.out.println(SystemClass.getSystemInstance().getClassTypesList().get("CommunicatingDevice")
+				.getProperties().toString());
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("CommunicatingDevice").getClassTypesList());
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("CommunicatingDevice").getHtblPropUriName());
+		System.out.println(
+				SystemClass.getSystemInstance().getClassTypesList().get("CommunicatingDevice").getSuperClassesList());
+	}
 }
