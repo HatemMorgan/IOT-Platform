@@ -8,7 +8,6 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.iotplatform.daos.AdminDao;
 import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.DeveloperDao;
 import com.iotplatform.daos.DynamicConceptDao;
@@ -19,13 +18,11 @@ import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.classes.Admin;
 import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Developer;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.RequestFieldsValidation;
-import com.iotplatform.validations.SingleClassRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -35,16 +32,14 @@ public class DeveloperService {
 	private DeveloperDao developerDao;
 	private RequestFieldsValidation requestFieldsValidation;
 	private MainDao mainDao;
-	private Developer developerClass;
 	private ApplicationDao applicationDao;
 
 	@Autowired
 	public DeveloperService(DeveloperDao developerDao, RequestFieldsValidation requestFieldsValidation, MainDao mainDao,
-			Developer developerClass, ApplicationDao applicationDao) {
+			ApplicationDao applicationDao) {
 		this.developerDao = developerDao;
 		this.requestFieldsValidation = requestFieldsValidation;
 		this.mainDao = mainDao;
-		this.developerClass = developerClass;
 		this.applicationDao = applicationDao;
 	}
 
@@ -160,7 +155,7 @@ public class DeveloperService {
 		MainDao mainDao = new MainDao(oracle);
 
 		DeveloperService developerService = new DeveloperService(developerDao, requestFieldsValidation, mainDao,
-				Developer.getDeveloperInstance(), new ApplicationDao(oracle, Application.getApplicationInstance()));
+				new ApplicationDao(oracle, Application.getApplicationInstance()));
 
 		// Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		// htblPropValue.put("age", 20);
