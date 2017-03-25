@@ -126,6 +126,9 @@ public class Observation extends Class {
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "observedProperty", "observedProperty");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "featureOfInterest", "featureOfInterest");
 		super.getHtblPropUriName().put(Prefixes.DUL.getUri() + "includesEvent", "includesEvent");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "observationResultTime", "observationResultTime");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "observationSamplingTime", "observationSamplingTime");
+		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "qualityOfObservation", "qualityOfObservation");
 
 	}
 
