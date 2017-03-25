@@ -4,43 +4,37 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.iotplatform.daos.AdminDao;
 import com.iotplatform.daos.ApplicationDao;
-import com.iotplatform.daos.DynamicConceptDao;
+import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.NormalUserDao;
-import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
-import com.iotplatform.ontology.classes.Admin;
-import com.iotplatform.ontology.classes.Application;
+import com.iotplatform.ontology.Class;
+
 import com.iotplatform.ontology.classes.NormalUser;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.validations.SingleClassRequestValidation;
-
-import oracle.spatial.rdf.client.jena.Oracle;
+import com.iotplatform.validations.RequestFieldsValidation;
 
 @Service("normalUserService")
 public class NormalUserService {
 
-	private SingleClassRequestValidation requestValidation;
+	private RequestFieldsValidation requestFieldsValidation;
 	private ApplicationDao applicationDao;
 	private NormalUserDao normalUserDao;
-	private NormalUser normalUserClass;
+	private MainDao mainDao;
 
 	@Autowired
-	public NormalUserService(SingleClassRequestValidation requestValidation, ApplicationDao applicationDao,
-			NormalUserDao normalUserDao, NormalUser normalUserClass) {
-		this.requestValidation = requestValidation;
+	public NormalUserService(RequestFieldsValidation requestFieldsValidation, ApplicationDao applicationDao,
+			NormalUserDao normalUserDao, MainDao mainDao) {
+		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;
 		this.normalUserDao = normalUserDao;
-		this.normalUserClass = normalUserClass;
+		this.mainDao = mainDao;
 	}
 
 	/*
@@ -50,7 +44,7 @@ public class NormalUserService {
 	 * access object to insert the new normal user
 	 */
 
-	public Hashtable<String, Object> insertNormalUser(Hashtable<String, Object> htblPropValue,
+	public Hashtable<String, Object> insertNormalUser(Hashtable<String, Object> htblFieldValue,
 			String applicationNameCode) {
 
 		long startTime = System.currentTimeMillis();
@@ -72,14 +66,19 @@ public class NormalUserService {
 
 		try {
 
-			ArrayList<PropertyValue> prefixedPropertyValue = requestValidation.isRequestValid(applicationNameCode,
-					normalUserClass, htblPropValue);
+			/*
+			 * Check if the request is valid or not
+			 */
+			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
+					.validateRequestFields(applicationNameCode, htblFieldValue, NormalUser.getNormalUserInstance());
 
+			/*
+			 * get application modelName
+			 */
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-			String userName = htblPropValue.get("userName").toString();
-
-			normalUserDao.insertNormalUser(prefixedPropertyValue, applicationModelName, userName);
+			mainDao.insertData(applicationModelName, NormalUser.getNormalUserInstance().getName(),
+					htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Normal User", timeTaken);
@@ -125,61 +124,68 @@ public class NormalUserService {
 
 		}
 	}
-	
-	public static void main(String[] args) {
-		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
-		String szUser = "rdfusr";
-		String szPasswd = "rdfusr";
-		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
 
-		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName(szJdbcDriver);
-		dataSource.setUrl(szJdbcURL);
-		dataSource.setUsername(szUser);
-		dataSource.setPassword(szPasswd);
-
-		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
-
-		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
-
-		ValidationDao validationDao = new ValidationDao(oracle);
-
-		NormalUser normalUserClass = new NormalUser();
-
-		SingleClassRequestValidation requestValidation = new SingleClassRequestValidation(validationDao, dynamicConceptDao);
-
-		NormalUserDao normalUserDao = new NormalUserDao(oracle, new SelectionUtility(requestValidation), normalUserClass);
-
-		Hashtable<String, Object> htblPropValue = new Hashtable<>();
-		htblPropValue.put("age", 20);
-		htblPropValue.put("firstName", "Mohamed");
-		htblPropValue.put("middleName", "Ebrahim");
-		htblPropValue.put("familyName", "Gomaa");
-		htblPropValue.put("birthday", "27/2/1995");
-		htblPropValue.put("gender", "Male");
-		htblPropValue.put("title", "Engineer");
-		htblPropValue.put("userName", "MohamedIbrahim");
-		
-		ArrayList<Object> emailList = new ArrayList<>();
-		emailList.add("hima@gmail.com");
-		emailList.add("mohamed.ibrahim@student.guc.edu.eg" );
-		
-		htblPropValue.put("mbox", emailList);
-		
-		htblPropValue.put("usesApplication", "TESTAPPLICATION");
-		htblPropValue.put("knows", "HatemMorgan");
-		htblPropValue.put("hates", "HatemMorgan");
-
-		NormalUserService normalUserService = new NormalUserService(requestValidation, new ApplicationDao(oracle, new Application()),
-				normalUserDao, normalUserClass);
-
-		Hashtable<String, Object> res = normalUserService.insertNormalUser(htblPropValue, "TESTAPPLICATION");
-
-//		 Hashtable<String, Object>[] json = (Hashtable<String,
-//		 Object>[])res.get("errors");
-//		 System.out.println(json[0].toString());
-
-		System.out.println(res.toString());
-	}
+	// public static void main(String[] args) {
+	// String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+	// String szUser = "rdfusr";
+	// String szPasswd = "rdfusr";
+	// String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+	//
+	// BasicDataSource dataSource = new BasicDataSource();
+	// dataSource.setDriverClassName(szJdbcDriver);
+	// dataSource.setUrl(szJdbcURL);
+	// dataSource.setUsername(szUser);
+	// dataSource.setPassword(szPasswd);
+	//
+	// Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+	//
+	// DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+	//
+	// ValidationDao validationDao = new ValidationDao(oracle);
+	//
+	// NormalUser normalUserClass = new NormalUser();
+	//
+	// SingleClassRequestValidation requestValidation = new
+	// SingleClassRequestValidation(validationDao,
+	// dynamicConceptDao);
+	//
+	// NormalUserDao normalUserDao = new NormalUserDao(oracle, new
+	// SelectionUtility(requestValidation),
+	// normalUserClass);
+	//
+	// Hashtable<String, Object> htblPropValue = new Hashtable<>();
+	// htblPropValue.put("age", 20);
+	// htblPropValue.put("firstName", "Mohamed");
+	// htblPropValue.put("middleName", "Ebrahim");
+	// htblPropValue.put("familyName", "Gomaa");
+	// htblPropValue.put("birthday", "27/2/1995");
+	// htblPropValue.put("gender", "Male");
+	// htblPropValue.put("title", "Engineer");
+	// htblPropValue.put("userName", "MohamedIbrahim");
+	//
+	// ArrayList<Object> emailList = new ArrayList<>();
+	// emailList.add("hima@gmail.com");
+	// emailList.add("mohamed.ibrahim@student.guc.edu.eg");
+	//
+	// htblPropValue.put("mbox", emailList);
+	//
+	// htblPropValue.put("usesApplication", "TESTAPPLICATION");
+	// htblPropValue.put("knows", "HatemMorgan");
+	// htblPropValue.put("hates", "HatemMorgan");
+	//
+	// NormalUserService normalUserService = new
+	// NormalUserService(requestValidation,
+	// new ApplicationDao(oracle, new Application()), normalUserDao,
+	// normalUserClass);
+	//
+	// Hashtable<String, Object> res =
+	// normalUserService.insertNormalUser(htblPropValue, "TESTAPPLICATION");
+	//
+	// // Hashtable<String, Object>[] json = (Hashtable<String,
+	// // Object>[])res.get("errors");
+	// // System.out.println(json[0].toString());
+	//
+	// System.out.println(res.toString());
+	// }
 
 }
