@@ -71,7 +71,6 @@ public class AdminService {
 			/*
 			 * Check if the request is valid or not
 			 */
-
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
 					.validateRequestFields(applicationNameCode, htblFieldValue, Admin.getAdminInstance());
 
