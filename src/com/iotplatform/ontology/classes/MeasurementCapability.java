@@ -2,6 +2,8 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 
 /*
@@ -28,11 +30,20 @@ import com.iotplatform.ontology.Prefixes;
 public class MeasurementCapability extends Property {
 
 	private static MeasurementCapability measurementCapabilityInstance;
+	private Class measurementCapabilitySubjectClassInstance;
 
 	public MeasurementCapability() {
 		super("MeasurementCapability", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefixes.SSN, null,
 				false);
 		init();
+	}
+
+	private Class getMeasurementCapabilitySubjectClassInstance() {
+		if (measurementCapabilitySubjectClassInstance == null)
+			measurementCapabilitySubjectClassInstance = new Class("MeasurementCapability",
+					"http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefixes.SSN, null, false);
+
+		return measurementCapabilitySubjectClassInstance;
 	}
 
 	public MeasurementCapability(String nothing) {
@@ -51,9 +62,95 @@ public class MeasurementCapability extends Property {
 
 	private void init() {
 		this.getSuperClassesList().add(Property.getPropertyInstance());
+
+		/*
+		 * A relation between some aspect of a sensing entity and a property.
+		 * For example, from a sensor to the properties it can observe, or from
+		 * a deployment to the properties it was installed to observe. Also from
+		 * a measurement capability to the property the capability is described
+		 * for. (Used in conjunction with ofFeature).
+		 * 
+		 * A ssn:MeasurementCapability is something that is a ssn:Property and
+		 * has a ssn:hasMeasurementProperty property who must be a
+		 * ssn:MeasurementProperty .
+		 * 
+		 * So ssn:MeasurementCapability instance will have a ssn:forProperty
+		 * property who must be a ssn:Property and has a ssn:inCondition
+		 * property who must be a ssn:Condition
+		 */
+		this.getProperties().put("forProperty", new ObjectProperty(getMeasurementCapabilitySubjectClassInstance(),
+				"forProperty", Prefixes.SSN, getPropertyInstance(), true, false));
+
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "forProperty", "forProperty");
+
+		/*
+		 * Relation from a MeasurementCapability to a MeasurementProperty. For
+		 * example, to an accuracy (see notes at MeasurementCapability).
+		 */
+		this.getProperties().put("hasMeasurementProperty",
+				new ObjectProperty(getMeasurementCapabilitySubjectClassInstance(), "hasMeasurementProperty",
+						Prefixes.SSN, MeasurementProperty.getMeasurementPropertyInstance(), true, false));
+
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasMeasurementProperty", "hasMeasurementProperty");
+
+		/*
+		 * Describes the prevailing environmental conditions for
+		 * MeasurementCapabilites, OperatingConditions and SurvivalRanges. Used
+		 * for example to say that a sensor has a particular accuracy in
+		 * particular conditions. (see also MeasurementCapability)
+		 */
+		this.getProperties().put("inCondition", new ObjectProperty(getMeasurementCapabilitySubjectClassInstance(),
+				"inCondition", Prefixes.SSN, Condition.getConditionInstance(), false, false));
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
+
 	}
 
 	private static void initMeasurementCapabilityStaticInstance(MeasurementCapability measurementCapabilityInstance) {
 		measurementCapabilityInstance.getSuperClassesList().add(Property.getPropertyInstance());
+
+		/*
+		 * A relation between some aspect of a sensing entity and a property.
+		 * For example, from a sensor to the properties it can observe, or from
+		 * a deployment to the properties it was installed to observe. Also from
+		 * a measurement capability to the property the capability is described
+		 * for. (Used in conjunction with ofFeature).
+		 * 
+		 * A ssn:MeasurementCapability is something that is a ssn:Property and
+		 * has a ssn:hasMeasurementProperty property who must be a
+		 * ssn:MeasurementProperty .
+		 * 
+		 * So ssn:MeasurementCapability instance will have a ssn:forProperty
+		 * property who must be a ssn:Property and has a ssn:inCondition
+		 * property who must be a ssn:Condition
+		 */
+		measurementCapabilityInstance.getProperties().put("forProperty",
+				new ObjectProperty(measurementCapabilityInstance.getMeasurementCapabilitySubjectClassInstance(),
+						"forProperty", Prefixes.SSN, getPropertyInstance(), true, false));
+
+		measurementCapabilityInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "forProperty", "forProperty");
+
+		/*
+		 * Relation from a MeasurementCapability to a MeasurementProperty. For
+		 * example, to an accuracy (see notes at MeasurementCapability).
+		 */
+		measurementCapabilityInstance.getProperties().put("hasMeasurementProperty",
+				new ObjectProperty(measurementCapabilityInstance.getMeasurementCapabilitySubjectClassInstance(),
+						"hasMeasurementProperty", Prefixes.SSN, MeasurementProperty.getMeasurementPropertyInstance(),
+						true, false));
+
+		measurementCapabilityInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasMeasurementProperty",
+				"hasMeasurementProperty");
+
+		/*
+		 * Describes the prevailing environmental conditions for
+		 * MeasurementCapabilites, OperatingConditions and SurvivalRanges. Used
+		 * for example to say that a sensor has a particular accuracy in
+		 * particular conditions. (see also MeasurementCapability)
+		 */
+		measurementCapabilityInstance.getProperties().put("inCondition",
+				new ObjectProperty(measurementCapabilityInstance.getMeasurementCapabilitySubjectClassInstance(),
+						"inCondition", Prefixes.SSN, Condition.getConditionInstance(), false, false));
+		measurementCapabilityInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
+
 	}
 }

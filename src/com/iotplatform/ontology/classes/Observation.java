@@ -90,6 +90,36 @@ public class Observation extends Class {
 		super.getProperties().put("id", new DataTypeProperty(getObservationSubjectClassInstance(), "id",
 				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
+		/*
+		 * The result time is the time when the procedure associated with the
+		 * observation act was applied.
+		 * 
+		 * The result time shall describe the time when the result became
+		 * available, typically when the procedure associated with the
+		 * observation was completed For some observations this is identical to
+		 * the phenomenonTime. However, there are important cases where they
+		 * differ.[O&M]
+		 */
+		super.getProperties().put("observationResultTime", new DataTypeProperty(getObservationSubjectClassInstance(),
+				"observationResultTime", Prefixes.SSN, XSDDataTypes.string_typed, false, false));
+
+		/*
+		 * Rebadged as phenomenon time in [O&M]. The phenomenon time shall
+		 * describe the time that the result applies to the property of the
+		 * feature-of-interest. This is often the time of interaction by a
+		 * sampling procedure or observation procedure with a real-world
+		 * feature.
+		 * 
+		 * The sampling time is the time that the result applies to the
+		 * feature-of-interest. This is the time usually required for geospatial
+		 * analysis of the result.
+		 */
+		super.getProperties().put("observationSamplingTime", new DataTypeProperty(getObservationSubjectClassInstance(),
+				"observationSamplingTime", Prefixes.SSN, XSDDataTypes.string_typed, false, false));
+
+		super.getProperties().put("qualityOfObservation", new DataTypeProperty(getObservationSubjectClassInstance(),
+				"qualityOfObservation", Prefixes.SSN, XSDDataTypes.double_typed, false, false));
+
 		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "sensingMethodUsed", "sensingMethodUsed");
 		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "observationResult", "observationResult");
