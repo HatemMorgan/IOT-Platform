@@ -99,7 +99,7 @@ import oracle.spatial.rdf.client.jena.Oracle;
  */
 
 @Component
-public class RequestFieldsValidation {
+public class PostRequestValidations {
 
 	/*
 	 * dynamicConceptDao class is used to get all dynamic properties or dynamic
@@ -110,7 +110,7 @@ public class RequestFieldsValidation {
 	private ValidationDao validationDao;
 
 	@Autowired
-	public RequestFieldsValidation(DynamicConceptDao dynamicConceptDao, ValidationDao validationDao) {
+	public PostRequestValidations(DynamicConceptDao dynamicConceptDao, ValidationDao validationDao) {
 		this.dynamicConceptDao = dynamicConceptDao;
 		this.validationDao = validationDao;
 		init();
@@ -1441,7 +1441,7 @@ public class RequestFieldsValidation {
 
 		System.out.println("Connected to Database");
 
-		RequestFieldsValidation requestFieldsValidation = new RequestFieldsValidation(dynamicConceptDao, validationDao);
+		PostRequestValidations requestFieldsValidation = new PostRequestValidations(dynamicConceptDao, validationDao);
 
 		// { "hasCoverage":[
 		// {"type":"Circle","location": [

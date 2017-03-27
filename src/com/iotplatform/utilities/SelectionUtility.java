@@ -68,7 +68,7 @@ import com.iotplatform.ontology.classes.SurvivalRange;
 import com.iotplatform.ontology.classes.SystemClass;
 import com.iotplatform.ontology.classes.TagDevice;
 import com.iotplatform.ontology.classes.Unit;
-import com.iotplatform.validations.RequestFieldsValidation;
+import com.iotplatform.validations.PostRequestValidations;
 
 @Component
 public class SelectionUtility {

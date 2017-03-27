@@ -59,7 +59,7 @@ import com.iotplatform.ontology.classes.SystemClass;
 import com.iotplatform.ontology.classes.TagDevice;
 import com.iotplatform.ontology.classes.Unit;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.validations.RequestFieldsValidation;
+import com.iotplatform.validations.PostRequestValidations;
 
 /*
  * DynamicInsertionService is to service the insertion API in DynamicAPIController
@@ -69,13 +69,13 @@ import com.iotplatform.validations.RequestFieldsValidation;
 @Service("dynamicInsertionService")
 public class DynamicInsertionService {
 
-	private RequestFieldsValidation requestFieldsValidation;
+	private PostRequestValidations requestFieldsValidation;
 	private ApplicationDao applicationDao;
 	private MainDao mainDao;
 	private Hashtable<String, Class> htblAllStaticClasses;
 
 	@Autowired
-	public DynamicInsertionService(RequestFieldsValidation requestFieldsValidation, ApplicationDao applicationDao,
+	public DynamicInsertionService(PostRequestValidations requestFieldsValidation, ApplicationDao applicationDao,
 			MainDao mainDao) {
 		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;

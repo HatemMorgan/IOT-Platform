@@ -22,7 +22,7 @@ import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Developer;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.validations.RequestFieldsValidation;
+import com.iotplatform.validations.PostRequestValidations;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -30,12 +30,12 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class DeveloperService {
 
 	private DeveloperDao developerDao;
-	private RequestFieldsValidation requestFieldsValidation;
+	private PostRequestValidations requestFieldsValidation;
 	private MainDao mainDao;
 	private ApplicationDao applicationDao;
 
 	@Autowired
-	public DeveloperService(DeveloperDao developerDao, RequestFieldsValidation requestFieldsValidation, MainDao mainDao,
+	public DeveloperService(DeveloperDao developerDao, PostRequestValidations requestFieldsValidation, MainDao mainDao,
 			ApplicationDao applicationDao) {
 		this.developerDao = developerDao;
 		this.requestFieldsValidation = requestFieldsValidation;
@@ -150,7 +150,7 @@ public class DeveloperService {
 		DeveloperDao developerDao = new DeveloperDao(oracle, new SelectionUtility(dynamicConceptDao),
 				Developer.getDeveloperInstance());
 
-		RequestFieldsValidation requestFieldsValidation = new RequestFieldsValidation(dynamicConceptDao, validationDao);
+		PostRequestValidations requestFieldsValidation = new PostRequestValidations(dynamicConceptDao, validationDao);
 
 		MainDao mainDao = new MainDao(oracle);
 
