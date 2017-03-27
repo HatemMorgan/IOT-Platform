@@ -19,6 +19,7 @@ import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.classes.NormalUser;
+import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.PostRequestValidations;
@@ -148,7 +149,8 @@ public class NormalUserService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		NormalUserDao normalUserDao = new NormalUserDao(oracle, new SelectionUtility(dynamicConceptDao));
+		NormalUserDao normalUserDao = new NormalUserDao(oracle,
+				new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
 
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		htblPropValue.put("age", 20);
@@ -170,7 +172,8 @@ public class NormalUserService {
 		htblPropValue.put("knows", "HatemMorgan");
 		htblPropValue.put("hates", "HatemMorgan");
 
-		PostRequestValidations requestFieldsValidation = new PostRequestValidations(dynamicConceptDao, validationDao);
+		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
+				new DynamicPropertiesUtility(dynamicConceptDao));
 
 		MainDao mainDao = new MainDao(oracle);
 

@@ -1,9 +1,5 @@
 package com.iotplatform.utilities;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefixes;
 

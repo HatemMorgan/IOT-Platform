@@ -19,6 +19,7 @@ import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.classes.Developer;
+import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.PostRequestValidations;
@@ -146,9 +147,10 @@ public class DeveloperService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		DeveloperDao developerDao = new DeveloperDao(oracle, new SelectionUtility(dynamicConceptDao));
+		DeveloperDao developerDao = new DeveloperDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
 
-		PostRequestValidations requestFieldsValidation = new PostRequestValidations(dynamicConceptDao, validationDao);
+		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
+				new DynamicPropertiesUtility(dynamicConceptDao));
 
 		MainDao mainDao = new MainDao(oracle);
 
