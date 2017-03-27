@@ -83,6 +83,7 @@ public class MainDao {
 			model.close();
 
 		} catch (SQLException e) {
+			e.printStackTrace();
 			throw new DatabaseException(e.getMessage(), requestSubjectClassName);
 		}
 

@@ -96,13 +96,13 @@ public class DynamicInsertionService {
 		long startTime = System.currentTimeMillis();
 
 		/*
-		 * check if th className has a valid class Mapping
+		 * check if the className has a valid class Mapping
 		 */
 		if (htblAllStaticClasses.containsKey(className.toLowerCase())) {
 
 			try {
 
-				Class subjectClass = htblAllStaticClasses.get(className.toLowerCase());
+				Class subjectClass = htblAllStaticClasses.get(className.toLowerCase().replaceAll(" ", ""));
 
 				/*
 				 * Check if the request is valid or not
