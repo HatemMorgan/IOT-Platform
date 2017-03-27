@@ -575,7 +575,9 @@ ssn:endTime a owl:DatatypeProperty ;
 ssn:observationResultTime a owl:DatatypeProperty ;
 	rdfs:domain ssn:Observation ;
 	rdfs:range xsd:string ;
-	rdfs:comment "The result time is the time when the procedure associated with the observation act was applied." , "The result time shall describe the time when the result became available, typically when the procedure associated with the observation was completed For some observations this is identical to the phenomenonTime. However, there are important cases where they differ.[O&M]" ;
+	rdfs:comment """The result time is the time when the procedure associated with the observation act was applied.
+
+The result time shall describe the time when the result became available, typically when the procedure associated with the observation was completed For some observations this is identical to the phenomenonTime. However, there are important cases where they differ.[O&M]""" ;
 	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "observation result time" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Observation#Observation" .
@@ -585,7 +587,9 @@ ssn:observationResultTime a owl:DatatypeProperty ;
 ssn:observationSamplingTime a owl:DatatypeProperty ;
 	rdfs:domain ssn:Observation ;
 	rdfs:range xsd:string ;
-	rdfs:comment "Rebadged as phenomenon time in [O&M]. The phenomenon time shall describe the time that the result applies to the property of the feature-of-interest. This is often the time of interaction by a sampling procedure or observation procedure with a real-world feature." , "The sampling time is the time that the result applies to the feature-of-interest. This is the time usually required for geospatial analysis of the result." ;
+	rdfs:comment """Rebadged as phenomenon time in [O&M]. The phenomenon time shall describe the time that the result applies to the property of the feature-of-interest. This is often the time of interaction by a sampling procedure or observation procedure with a real-world feature.
+
+The sampling time is the time that the result applies to the feature-of-interest. This is the time usually required for geospatial analysis of the result.""" ;
 	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "observation sampling time" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Observation#Observation" .

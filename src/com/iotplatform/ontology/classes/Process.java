@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 
@@ -53,10 +54,20 @@ public class Process extends Class {
 	}
 
 	private void init() {
-		super.getProperties().put("id", new DataTypeProperty(getProcessSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+		this.getProperties().put("id", new DataTypeProperty(getProcessSubjectClassInstance(), "id", Prefixes.IOT_LITE,
 				XSDDataTypes.string_typed, false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+
+		this.getProperties().put("hasInput", new ObjectProperty(getProcessSubjectClassInstance(), "hasInput",
+				Prefixes.SSN, Input.getInputInstance(), true, false));
+
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasInput", "hasInput");
+
+		this.getProperties().put("hasOutput", new ObjectProperty(getProcessSubjectClassInstance(), "hasOutput",
+				Prefixes.SSN, Output.getOutputInstance(), true, false));
+
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOutput", "hasOutput");
 
 		if (this.isHasTypeClasses()) {
 			super.getClassTypesList().put("Sensing", Sensing.getSensingInstance());
@@ -68,6 +79,18 @@ public class Process extends Class {
 				"id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		processInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+
+		processInstance.getProperties().put("hasInput",
+				new ObjectProperty(processInstance.getProcessSubjectClassInstance(), "hasInput", Prefixes.SSN,
+						Input.getInputInstance(), true, false));
+
+		processInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasInput", "hasInput");
+
+		processInstance.getProperties().put("hasOutput",
+				new ObjectProperty(processInstance.getProcessSubjectClassInstance(), "hasOutput", Prefixes.SSN,
+						Output.getOutputInstance(), true, false));
+
+		processInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOutput", "hasOutput");
 
 		if (processInstance.isHasTypeClasses()) {
 			processInstance.getClassTypesList().put("Sensing", Sensing.getSensingInstance());

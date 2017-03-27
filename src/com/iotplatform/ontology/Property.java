@@ -67,4 +67,8 @@ public abstract class Property {
 		return subjectClass;
 	}
 
+	public void setUnique(boolean unique) {
+		this.unique = unique;
+	}
+
 }

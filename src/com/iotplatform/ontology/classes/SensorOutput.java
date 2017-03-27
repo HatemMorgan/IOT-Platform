@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 
@@ -42,10 +43,15 @@ public class SensorOutput extends Class {
 	}
 
 	private void init() {
-		super.getProperties().put("id", new DataTypeProperty(getSensorOutputSubjectClassInstance(), "id",
+		this.getProperties().put("id", new DataTypeProperty(getSensorOutputSubjectClassInstance(), "id",
 				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+
+		this.getProperties().put("hasValue", new ObjectProperty(getSensorOutputSubjectClassInstance(), "hasValue",
+				Prefixes.SSN, ObservationValue.getObservationValueInstance(), false, false));
+
+		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasValue", "hasValue");
 	}
 
 }

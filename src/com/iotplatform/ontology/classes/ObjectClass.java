@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.XSDDataTypes;
 
@@ -41,10 +42,18 @@ public class ObjectClass extends Class {
 	}
 
 	private void init() {
-		super.getProperties().put("id", new DataTypeProperty(getObjectSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+		this.getProperties().put("id", new DataTypeProperty(getObjectSubjectClassInstance(), "id", Prefixes.IOT_LITE,
 				XSDDataTypes.string_typed, false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+
+		/*
+		 * Links an Object with their attributes.
+		 */
+		this.getProperties().put("hasAttribute", new ObjectProperty(getObjectSubjectClassInstance(), "hasAttribute",
+				Prefixes.IOT_LITE, Attribute.getAttributeInstance(), false, false));
+
+		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasAttribute", "hasAttribute");
 	}
 
 }
