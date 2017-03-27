@@ -12,11 +12,9 @@ import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.CannotCreateApplicationModelException;
-import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.classes.Admin;
 import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.validations.PostRequestValidations;
@@ -119,7 +117,7 @@ public class ApplicationService {
 
 		MainDao mainDao = new MainDao(oracle);
 
-		ApplicationDao applicationDao = new ApplicationDao(oracle, Application.getApplicationInstance());
+		ApplicationDao applicationDao = new ApplicationDao(oracle);
 		ApplicationService applicationService = new ApplicationService(applicationDao, requestFieldsValidation,
 				mainDao);
 
@@ -130,9 +128,10 @@ public class ApplicationService {
 		// applicationDao.dropApplicationModel("Test Application");
 
 		Hashtable<String, Object> res = applicationService.insertApplication(htblPropValue);
-//		Hashtable<String, Object>[] json = (Hashtable<String, Object>[]) res.get("errors");
-//		System.out.println(json[0].toString());
-		 System.out.println(res.toString());
+		// Hashtable<String, Object>[] json = (Hashtable<String, Object>[])
+		// res.get("errors");
+		// System.out.println(json[0].toString());
+		System.out.println(res.toString());
 
 	}
 }

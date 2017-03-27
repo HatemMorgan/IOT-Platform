@@ -18,7 +18,6 @@ import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Developer;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
@@ -147,15 +146,14 @@ public class DeveloperService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		DeveloperDao developerDao = new DeveloperDao(oracle, new SelectionUtility(dynamicConceptDao),
-				Developer.getDeveloperInstance());
+		DeveloperDao developerDao = new DeveloperDao(oracle, new SelectionUtility(dynamicConceptDao));
 
 		PostRequestValidations requestFieldsValidation = new PostRequestValidations(dynamicConceptDao, validationDao);
 
 		MainDao mainDao = new MainDao(oracle);
 
 		DeveloperService developerService = new DeveloperService(developerDao, requestFieldsValidation, mainDao,
-				new ApplicationDao(oracle, Application.getApplicationInstance()));
+				new ApplicationDao(oracle));
 
 		// Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		// htblPropValue.put("age", 20);

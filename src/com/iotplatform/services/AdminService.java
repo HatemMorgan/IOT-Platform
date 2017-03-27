@@ -20,7 +20,6 @@ import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.classes.Admin;
-import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.PostRequestValidations;
@@ -112,7 +111,7 @@ public class AdminService {
 		}
 
 		try {
-			
+
 			List<Hashtable<String, Object>> htblPropValue = adminDao
 					.getAdmins(applicationDao.getHtblApplicationNameModelName().get(applicationNameCode));
 
@@ -145,7 +144,7 @@ public class AdminService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		AdminDao adminDao = new AdminDao(oracle, new SelectionUtility(dynamicConceptDao), Admin.getAdminInstance());
+		AdminDao adminDao = new AdminDao(oracle, new SelectionUtility(dynamicConceptDao));
 
 		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
 		LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
@@ -215,8 +214,8 @@ public class AdminService {
 
 		MainDao mainDao = new MainDao(oracle);
 
-		AdminService adminService = new AdminService(requestFieldsValidation,
-				new ApplicationDao(oracle, Application.getApplicationInstance()), adminDao, mainDao);
+		AdminService adminService = new AdminService(requestFieldsValidation, new ApplicationDao(oracle), adminDao,
+				mainDao);
 
 		Hashtable<String, Object> Admins = adminService.getAdmins("TESTAPPLICATION");
 		System.out.println(Admins);

@@ -4,19 +4,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Hashtable;
 
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.update.UpdateAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Prefixes;
-import com.iotplatform.ontology.classes.Application;
-import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.utilities.QueryUtility;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -30,14 +25,12 @@ import oracle.spatial.rdf.client.jena.OracleUtils;
 public class ApplicationDao {
 	private Oracle oracle;
 	private final String suffix = "_MODEL";
-	private Application applicationClass;
 
 	private Hashtable<String, String> htblApplicationNameModelName;
 
 	@Autowired
-	public ApplicationDao(Oracle oracle, Application applicationClass) {
+	public ApplicationDao(Oracle oracle) {
 		this.oracle = oracle;
-		this.applicationClass = applicationClass;
 		this.htblApplicationNameModelName = new Hashtable<>();
 	}
 
@@ -101,31 +94,6 @@ public class ApplicationDao {
 			e.printStackTrace();
 		}
 		return false;
-	}
-
-	/*
-	 * insertApplication method inserts a new Application and the input is
-	 * Application name to ge the model name from it and a hashtable with the
-	 * property name appended to its prefix as a key
-	 * (eg:iot-plaform:applicationDescription) and the object of the property as
-	 * the value
-	 */
-	public void insertApplication(ArrayList<PropertyValue> prefixedPropertyValue, String applicationName) {
-		String applicationModelName = applicationName.replaceAll(" ", "").toUpperCase() + suffix;
-
-		String subject = applicationName.replaceAll(" ", "").toLowerCase();
-		String insertQuery = QueryUtility.constructInsertQuery(Prefixes.IOT_PLATFORM.getPrefix() + subject,
-				applicationClass, prefixedPropertyValue);
-		try {
-
-			ModelOracleSem model = ModelOracleSem.createOracleSemModel(oracle, applicationModelName);
-			UpdateAction.parseExecute(insertQuery, model);
-			model.close();
-
-		} catch (SQLException e) {
-			throw new DatabaseException(e.getMessage(), "Application");
-		}
-
 	}
 
 	/*
@@ -213,7 +181,7 @@ public class ApplicationDao {
 		// dataSource.setUsername(szUser);
 		// dataSource.setPassword(szPasswd);
 
-		ApplicationDao applicationDAO = new ApplicationDao(new Oracle(szJdbcURL, szUser, szPasswd), new Application());
+		ApplicationDao applicationDAO = new ApplicationDao(new Oracle(szJdbcURL, szUser, szPasswd));
 
 		// test creation and dropping models
 		// System.out.println("Application Found :" +
@@ -247,7 +215,7 @@ public class ApplicationDao {
 		// Testing select query of an application
 		// System.out.println("Application Found :" +
 		// applicationDAO.checkIfApplicationModelExsist("Test App"));
-		 Hashtable<String, Object> res = applicationDAO.getApplication("TESTAPPLICATIONS");
-		 System.out.println(res.toString());
+		Hashtable<String, Object> res = applicationDAO.getApplication("TESTAPPLICATIONS");
+		System.out.println(res.toString());
 	}
 }
