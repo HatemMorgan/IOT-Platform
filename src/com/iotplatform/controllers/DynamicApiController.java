@@ -28,28 +28,11 @@ public class DynamicApiController {
 			@PathVariable(value = "applicationNameCode") String applicationNameCode,
 			@PathVariable(value = "instanceType") String instanceType,
 			@RequestBody Hashtable<String, Object> htblFieldValue) {
+
 		Hashtable<String, Object> responseJSON = dynamicInsertionService.insertNewFieldValueList(htblFieldValue,
 				applicationNameCode, instanceType);
+
 		return responseJSON;
 	}
 
-	@RequestMapping(value = "/dynamicInsertionAPI/{applicationNameCode}", method = RequestMethod.POST)
-	public String test(@PathVariable("applicationNameCode") String applicationNameCode,
-			@RequestBody Hashtable<String, Object> htblFieldValue) {
-		return "response";
-	}
-
-	@RequestMapping(value = "/dynamicInsertionAPI/{applicationNameCode}/{instanceType}", method = RequestMethod.GET)
-	public String test2(@RequestParam(value = "applicationNameCode", required = true) String applicationNameCode,
-			@RequestParam(value = "instanceType", required = false) String instanceType,
-			@RequestBody Hashtable<String, Object> htblFieldValue) {
-		return "response";
-	}
-
-	@RequestMapping(value = "/dynamicInsertionAPI/{applicationNameCode}/{instanceType}", method = RequestMethod.DELETE)
-	public String test3(@PathVariable(value = "applicationNameCode") String applicationNameCode,
-			@PathVariable(value = "instanceType") String instanceType,
-			@RequestBody Hashtable<String, Object> htblFieldValue) {
-		return "response";
-	}
 }
