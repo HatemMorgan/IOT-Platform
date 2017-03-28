@@ -35,13 +35,12 @@ public class DynamicApiController {
 		return responseJSON;
 	}
 
-	@RequestMapping(value = "/dynamicSelectAllAPI/{applicationNameCode}/{instanceType}", method = RequestMethod.POST)
+	@RequestMapping(value = "/dynamicSelectAllAPI/{applicationNameCode}/{instanceType}", method = RequestMethod.GET)
 	public Hashtable<String, Object> getData(@PathVariable(value = "applicationNameCode") String applicationNameCode,
-			@PathVariable(value = "instanceType") String instanceType,
-			@RequestBody Hashtable<String, Object> htblFieldValue) {
+			@PathVariable(value = "instanceType") String instanceType) {
 
 		Hashtable<String, Object> responseJSON = dynamicInsertionService.selectAll(applicationNameCode, instanceType);
-		
+
 		return responseJSON;
 	}
 
