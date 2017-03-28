@@ -147,12 +147,13 @@ public class DeveloperService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		DeveloperDao developerDao = new DeveloperDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+		DeveloperDao developerDao = new DeveloperDao(oracle,
+				new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
 
 		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
 				new DynamicPropertiesUtility(dynamicConceptDao));
 
-		MainDao mainDao = new MainDao(oracle);
+		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
 
 		DeveloperService developerService = new DeveloperService(developerDao, requestFieldsValidation, mainDao,
 				new ApplicationDao(oracle));

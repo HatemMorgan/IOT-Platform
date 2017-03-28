@@ -214,7 +214,7 @@ public class AdminService {
 		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
 				new DynamicPropertiesUtility(dynamicConceptDao));
 
-		MainDao mainDao = new MainDao(oracle);
+		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
 
 		AdminService adminService = new AdminService(requestFieldsValidation, new ApplicationDao(oracle), adminDao,
 				mainDao);

@@ -175,7 +175,7 @@ public class NormalUserService {
 		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
 				new DynamicPropertiesUtility(dynamicConceptDao));
 
-		MainDao mainDao = new MainDao(oracle);
+		MainDao mainDao = new MainDao(oracle,new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
 
 		NormalUserService normalUserService = new NormalUserService(requestFieldsValidation, new ApplicationDao(oracle),
 				normalUserDao, mainDao);

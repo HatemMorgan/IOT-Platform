@@ -1,5 +1,6 @@
 package com.iotplatform.daos;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -19,6 +20,8 @@ import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.QueryField;
+import com.iotplatform.utilities.QueryUtility;
+import com.iotplatform.utilities.SelectionUtility;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -32,12 +35,12 @@ public class MainDao {
 
 	private Oracle oracle;
 	private static String prefixesString = null;
-	// private SelectionUtility selectionUtility;
+	private SelectionUtility selectionUtility;
 
 	@Autowired
-	public MainDao(Oracle oracle) {
+	public MainDao(Oracle oracle, SelectionUtility selectionUtility) {
 		this.oracle = oracle;
-		// this.selectionUtility = selectionUtility;
+		this.selectionUtility = selectionUtility;
 	}
 
 	/*
@@ -273,7 +276,7 @@ public class MainDao {
 		constructSelectQueryHelper(htblClassNameProperty, prefixedClassName, subjectCounter, variableCounter,
 				graphPatternsBuilder, endQueryBuilder);
 
-//		graphPatternsBuilder.append(endQueryBuilder);
+		// graphPatternsBuilder.append(endQueryBuilder);
 
 		return graphPatternsBuilder.toString();
 
@@ -337,6 +340,33 @@ public class MainDao {
 
 		return graphPatternsBuilder.toString();
 
+	}
+
+	public List<Hashtable<String, Object>> selectAll(String applicationModelName, Class subjectClass) {
+
+		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
+				applicationModelName.length() - 6);
+
+		String queryString = QueryUtility.constructSelectAllQueryNoFilters(subjectClass, applicationModelName);
+		List<Hashtable<String, Object>> subjectClassIndividualsList = new ArrayList<>();
+
+		try {
+			ResultSet results = oracle.executeQuery(queryString, 0, 1);
+
+			/*
+			 * call constractResponeJsonObjectForListSelection method in
+			 * selectionUtility class to construct the response json
+			 */
+
+			subjectClassIndividualsList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName,
+					results, subjectClass);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new DatabaseException(e.getMessage(), subjectClass.getName());
+		}
+
+		return subjectClassIndividualsList;
 	}
 
 }

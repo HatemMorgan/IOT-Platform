@@ -24,7 +24,7 @@ public class DynamicApiController {
 	}
 
 	@RequestMapping(value = "/dynamicInsertionAPI/{applicationNameCode}/{instanceType}", method = RequestMethod.POST)
-	public Hashtable<String, Object> insertNewAdmin(
+	public Hashtable<String, Object> insertNewdata(
 			@PathVariable(value = "applicationNameCode") String applicationNameCode,
 			@PathVariable(value = "instanceType") String instanceType,
 			@RequestBody Hashtable<String, Object> htblFieldValue) {
@@ -32,6 +32,16 @@ public class DynamicApiController {
 		Hashtable<String, Object> responseJSON = dynamicInsertionService.insertNewFieldValueList(htblFieldValue,
 				applicationNameCode, instanceType);
 
+		return responseJSON;
+	}
+
+	@RequestMapping(value = "/dynamicSelectAllAPI/{applicationNameCode}/{instanceType}", method = RequestMethod.POST)
+	public Hashtable<String, Object> getData(@PathVariable(value = "applicationNameCode") String applicationNameCode,
+			@PathVariable(value = "instanceType") String instanceType,
+			@RequestBody Hashtable<String, Object> htblFieldValue) {
+
+		Hashtable<String, Object> responseJSON = dynamicInsertionService.selectAll(applicationNameCode, instanceType);
+		
 		return responseJSON;
 	}
 

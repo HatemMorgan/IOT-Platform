@@ -1,17 +1,22 @@
 package com.iotplatform.services;
 
-import java.io.InvalidClassException;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
+import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.MainDao;
+import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidClassNameException;
+import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
+import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.classes.ActuatingDevice;
 import com.iotplatform.ontology.classes.Admin;
@@ -58,8 +63,12 @@ import com.iotplatform.ontology.classes.SurvivalRange;
 import com.iotplatform.ontology.classes.SystemClass;
 import com.iotplatform.ontology.classes.TagDevice;
 import com.iotplatform.ontology.classes.Unit;
+import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.PostRequestValidations;
+
+import oracle.spatial.rdf.client.jena.Oracle;
 
 /*
  * DynamicInsertionService is to service the insertion API in DynamicAPIController
@@ -94,15 +103,16 @@ public class DynamicInsertionService {
 			String applicationNameCode, String className) {
 
 		long startTime = System.currentTimeMillis();
+		className = className.toLowerCase().replaceAll(" ", "");
 
 		/*
 		 * check if the className has a valid class Mapping
 		 */
-		if (htblAllStaticClasses.containsKey(className.toLowerCase())) {
+		if (htblAllStaticClasses.containsKey(className)) {
 
 			try {
 
-				Class subjectClass = htblAllStaticClasses.get(className.toLowerCase().replaceAll(" ", ""));
+				Class subjectClass = htblAllStaticClasses.get(className);
 
 				/*
 				 * Check if the request is valid or not
@@ -131,6 +141,55 @@ public class DynamicInsertionService {
 		} else
 
 		{
+			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+			InvalidClassNameException invalidClassNameException = new InvalidClassNameException(className);
+			return invalidClassNameException.getExceptionHashTable(timeTaken);
+		}
+
+	}
+
+	public Hashtable<String, Object> selectAll(String applicationNameCode, String className) {
+
+		long startTime = System.currentTimeMillis();
+		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
+
+		className = className.toLowerCase().replaceAll(" ", "");
+		/*
+		 * check if the className has a valid class Mapping
+		 */
+		if (htblAllStaticClasses.containsKey(className)) {
+			Class subjectClass = htblAllStaticClasses.get(className);
+
+			/*
+			 * check if the model exist or not .
+			 */
+
+			if (!exist) {
+				NoApplicationModelException exception = new NoApplicationModelException(applicationNameCode,
+						subjectClass.getName());
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return new SuccessfullSelectAllJsonModel(exception.getExceptionHashTable(timeTaken)).getJson();
+			}
+
+			try {
+
+				/*
+				 * get application modelName
+				 */
+				String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
+
+				List<Hashtable<String, Object>> htblPropValue = mainDao.selectAll(applicationModelName, subjectClass);
+
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return new SuccessfullSelectAllJsonModel(htblPropValue, timeTaken).getJson();
+
+			} catch (ErrorObjException e) {
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return new SuccessfullSelectAllJsonModel(e.getExceptionHashTable(timeTaken)).getJson();
+
+			}
+
+		} else {
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			InvalidClassNameException invalidClassNameException = new InvalidClassNameException(className);
 			return invalidClassNameException.getExceptionHashTable(timeTaken);
@@ -190,4 +249,32 @@ public class DynamicInsertionService {
 		htblAllStaticClasses.put("unit", Unit.getUnitInstance());
 	}
 
+	public static void main(String[] args) {
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(szJdbcDriver);
+		dataSource.setUrl(szJdbcURL);
+		dataSource.setUsername(szUser);
+		dataSource.setPassword(szPasswd);
+
+		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+
+		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+
+		ValidationDao validationDao = new ValidationDao(oracle);
+
+		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
+				new DynamicPropertiesUtility(dynamicConceptDao));
+
+		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+
+		DynamicInsertionService dynamicInsertionService = new DynamicInsertionService(requestFieldsValidation,
+				new ApplicationDao(oracle), mainDao);
+
+		System.out.println(dynamicInsertionService.selectAll("TESTAPPLICATION", "communicating Device"));
+	}
 }
