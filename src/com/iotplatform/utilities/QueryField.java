@@ -24,10 +24,16 @@ public class QueryField {
 	 */
 	private String objectValueTypeClassName;
 
-	public QueryField(String prefixedPropertyName, String objectValueTypeClassName) {
+	/*
+	 * String uniqueIdentifier to represent the key of the individual of type
+	 * objectValueTypeClassName
+	 */
+	private String individualUniqueIdentifier;
+
+	public QueryField(String prefixedPropertyName, String objectValueTypeClassName, String individualUniqueIdentifier) {
 		this.prefixedPropertyName = prefixedPropertyName;
 		this.objectValueTypeClassName = objectValueTypeClassName;
-
+		this.individualUniqueIdentifier = individualUniqueIdentifier;
 		this.isValueObject = (objectValueTypeClassName == null) ? false : true;
 
 	}
@@ -42,6 +48,17 @@ public class QueryField {
 
 	public String getObjectValueTypeClassName() {
 		return objectValueTypeClassName;
+	}
+
+	public String getIndividualUniqueIdentifier() {
+		return individualUniqueIdentifier;
+	}
+
+	@Override
+	public String toString() {
+		return "QueryField [prefixedPropertyName=" + prefixedPropertyName + ", isValueObject=" + isValueObject
+				+ ", objectValueTypeClassName=" + objectValueTypeClassName + ", individualUniqueIdentifier="
+				+ individualUniqueIdentifier + "]";
 	}
 
 }

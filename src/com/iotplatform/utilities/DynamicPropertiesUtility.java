@@ -447,8 +447,8 @@ public class DynamicPropertiesUtility {
 			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
 		}
 
-		System.out.println(htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person").getHtblPropUriName());
-		System.out.println(htblAllStaticClasses.get("http://iot-platform#Developer").getHtblPropUriName());
+//		System.out.println(htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person").getHtblPropUriName());
+//		System.out.println(htblAllStaticClasses.get("http://iot-platform#Developer").getHtblPropUriName());
 
 		return dynamicProperties;
 	}
