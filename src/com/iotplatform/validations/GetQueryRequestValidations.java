@@ -9,6 +9,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.daos.DynamicConceptDao;
+import com.iotplatform.daos.MainDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidQueryRequestBodyFormatException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
@@ -18,7 +19,6 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.classes.Admin;
-import com.iotplatform.ontology.classes.Developer;
 import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.NotMappedDynamicQueryFields;
 import com.iotplatform.utilities.QueryField;
@@ -32,7 +32,8 @@ public class GetQueryRequestValidations {
 		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
 	}
 
-	public void validateRequest(String applicationName, Hashtable<String, Object> htblFieldValue, Class subjectClass) {
+	public LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> validateRequest(String applicationName,
+			Hashtable<String, Object> htblFieldValue, Class subjectClass) {
 
 		/*
 		 * List of classes that need to get their dynamic properties to check if
@@ -77,11 +78,8 @@ public class GetQueryRequestValidations {
 						notMappedFieldList, htblClassNameProperty, subjectClass.getName());
 			}
 
-			System.out.println(htblClassNameProperty.toString());
-			System.out.println(htblNotMappedFieldsClasses.toString());
-			System.out.println(notMappedFieldList);
 		}
-
+		return htblClassNameProperty;
 	}
 
 	/*
@@ -544,7 +542,7 @@ public class GetQueryRequestValidations {
 		ArrayList<Object> hatesPersonFieldList = new ArrayList<>();
 		hatesPersonFieldList.add("firstName");
 		hatesPersonFieldList.add("birthday");
-		hatesPersonFieldList.add(lovesPersonFieldMap);
+//		hatesPersonFieldList.add(lovesPersonFieldMap);
 
 		LinkedHashMap<String, Object> personFieldMap = new LinkedHashMap<>();
 		personFieldMap.put("fieldName", "hates");
@@ -563,7 +561,7 @@ public class GetQueryRequestValidations {
 		fieldsList.add("title");
 		fieldsList.add("middleName");
 		fieldsList.add(knowsPersonFieldMap);
-		fieldsList.add(personFieldMap);
+//		fieldsList.add(personFieldMap);
 
 		htblFieldValue.put("fields", fieldsList);
 
@@ -573,7 +571,11 @@ public class GetQueryRequestValidations {
 				new DynamicPropertiesUtility(dynamicConceptDao));
 
 		try {
-			getQueryRequestValidations.validateRequest("TESTAPPLICATION", htblFieldValue, Admin.getAdminInstance());
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = getQueryRequestValidations
+					.validateRequest("TESTAPPLICATION", htblFieldValue, Admin.getAdminInstance());
+			System.out.println(htblClassNameProperty.toString());
+			System.out.println("============================================");
+			System.out.println(MainDao.constructSelectQuery(htblClassNameProperty, "TESTAPPLICATION"));
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());
 		}

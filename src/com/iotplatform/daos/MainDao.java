@@ -4,6 +4,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.apache.jena.update.UpdateAction;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.QueryField;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -238,6 +241,102 @@ public class MainDao {
 		} else {
 			return Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase().replaceAll(" ", "");
 		}
+	}
+
+	public List<Hashtable<String, Object>> queryData(
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
+			String applicationName, String requestSubjectClassName) {
+
+		return null;
+	}
+
+	public static String constructSelectQuery(
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
+			String applicationName) {
+
+		int[] subjectCounter = { 0 };
+		int[] variableCounter = { 0 };
+
+		Iterator<String> htblClassNamePropertyIterator = htblClassNameProperty.keySet().iterator();
+
+		/*
+		 * get first prefixedClassName which is the prefixedName of the passed
+		 * request className because LinkedHashMap keep the order of the
+		 * insertion unchanged and GetQueryRequestValiation insert the
+		 * requestClassPrefixName firstly
+		 */
+		String prefixedClassName = htblClassNamePropertyIterator.next();
+
+		StringBuilder graphPatternsBuilder = new StringBuilder();
+		StringBuilder endQueryBuilder = new StringBuilder();
+
+		constructSelectQueryHelper(htblClassNameProperty, prefixedClassName, subjectCounter, variableCounter,
+				graphPatternsBuilder, endQueryBuilder);
+
+//		graphPatternsBuilder.append(endQueryBuilder);
+
+		return graphPatternsBuilder.toString();
+
+	}
+
+	private static String constructSelectQueryHelper(
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
+			String subjectClassPrefixedName, int[] subjectCounter, int[] variableCounter,
+			StringBuilder graphPatternsBuilder, StringBuilder endQueryBuilder) {
+
+		endQueryBuilder.append("?subject" + subjectCounter[0] + "  a  " + subjectClassPrefixedName + " ; \n");
+		subjectCounter[0]++;
+
+		Iterator<String> htblIndividualsFieldListIterator = htblClassNameProperty.get(subjectClassPrefixedName).keySet()
+				.iterator();
+
+		while (htblIndividualsFieldListIterator.hasNext()) {
+			String uniqueIdentifier = htblIndividualsFieldListIterator.next();
+
+			ArrayList<QueryField> individualProjectFieldList = htblClassNameProperty.get(subjectClassPrefixedName)
+					.get(uniqueIdentifier);
+			int size = individualProjectFieldList.size();
+			int counter = 0;
+			for (QueryField queryField : individualProjectFieldList) {
+
+				if (!queryField.isValueObject()) {
+
+					if (counter < size - 1) {
+						endQueryBuilder.append(
+								queryField.getPrefixedPropertyName() + "  " + "?var" + variableCounter[0] + " ; \n");
+					} else {
+						endQueryBuilder.append(
+								queryField.getPrefixedPropertyName() + "  " + "?var" + variableCounter[0] + " . \n");
+
+						graphPatternsBuilder.append(endQueryBuilder);
+					}
+
+					variableCounter[0]++;
+					counter++;
+				} else {
+
+					if (counter < size - 1) {
+						endQueryBuilder.append(
+								queryField.getPrefixedPropertyName() + "  " + "?subject" + subjectCounter[0] + " ; \n");
+					} else {
+						endQueryBuilder.append(
+								queryField.getPrefixedPropertyName() + "  " + "?subject" + subjectCounter[0] + " . \n");
+						graphPatternsBuilder.append(endQueryBuilder);
+					}
+					counter++;
+
+					endQueryBuilder = new StringBuilder();
+					constructSelectQueryHelper(htblClassNameProperty, queryField.getObjectValueTypeClassName(),
+							subjectCounter, variableCounter, graphPatternsBuilder, endQueryBuilder);
+
+				}
+
+			}
+
+		}
+
+		return graphPatternsBuilder.toString();
+
 	}
 
 }
