@@ -542,7 +542,7 @@ public class GetQueryRequestValidations {
 		ArrayList<Object> hatesPersonFieldList = new ArrayList<>();
 		hatesPersonFieldList.add("firstName");
 		hatesPersonFieldList.add("birthday");
-//		hatesPersonFieldList.add(lovesPersonFieldMap);
+		hatesPersonFieldList.add(lovesPersonFieldMap);
 
 		LinkedHashMap<String, Object> personFieldMap = new LinkedHashMap<>();
 		personFieldMap.put("fieldName", "hates");
@@ -561,7 +561,7 @@ public class GetQueryRequestValidations {
 		fieldsList.add("title");
 		fieldsList.add("middleName");
 		fieldsList.add(knowsPersonFieldMap);
-//		fieldsList.add(personFieldMap);
+		fieldsList.add(personFieldMap);
 
 		htblFieldValue.put("fields", fieldsList);
 

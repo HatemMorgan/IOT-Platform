@@ -257,9 +257,6 @@ public class MainDao {
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
 			String applicationName) {
 
-		int[] subjectCounter = { 0 };
-		int[] variableCounter = { 0 };
-
 		Iterator<String> htblClassNamePropertyIterator = htblClassNameProperty.keySet().iterator();
 
 		/*
@@ -269,76 +266,302 @@ public class MainDao {
 		 * requestClassPrefixName firstly
 		 */
 		String prefixedClassName = htblClassNamePropertyIterator.next();
+		String mainInstanceUniqueIdentifier = htblClassNameProperty.get(prefixedClassName).keySet().iterator().next();
 
-		StringBuilder graphPatternsBuilder = new StringBuilder();
-		StringBuilder endQueryBuilder = new StringBuilder();
-
-		constructSelectQueryHelper(htblClassNameProperty, prefixedClassName, subjectCounter, variableCounter,
-				graphPatternsBuilder, endQueryBuilder);
-
-		// graphPatternsBuilder.append(endQueryBuilder);
-
-		return graphPatternsBuilder.toString();
+		return constructUniqueContstraintCheckSubQueryStr3(htblClassNameProperty, prefixedClassName,
+				mainInstanceUniqueIdentifier);
 
 	}
 
-	private static String constructSelectQueryHelper(
+	public static String constructUniqueContstraintCheckSubQueryStr3(
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			String subjectClassPrefixedName, int[] subjectCounter, int[] variableCounter,
-			StringBuilder graphPatternsBuilder, StringBuilder endQueryBuilder) {
+			String mainClassPrefixedName, String mainInstanceUniqueIdentifier) {
 
-		endQueryBuilder.append("?subject" + subjectCounter[0] + "  a  " + subjectClassPrefixedName + " ; \n");
-		subjectCounter[0]++;
+		/*
+		 * main builder for dynamically building the query
+		 */
+		StringBuilder queryBuilder = new StringBuilder();
 
-		Iterator<String> htblIndividualsFieldListIterator = htblClassNameProperty.get(subjectClassPrefixedName).keySet()
-				.iterator();
+		/*
+		 * filterConditionsBuilder is for building filter conditions
+		 */
+		StringBuilder filterConditionsBuilder = new StringBuilder();
 
-		while (htblIndividualsFieldListIterator.hasNext()) {
-			String uniqueIdentifier = htblIndividualsFieldListIterator.next();
+		/*
+		 * endGraphPatternBuilder is for building other graph nodes and patterns
+		 * and add them to the end of the main graph pattern
+		 */
+		StringBuilder endGraphPatternBuilder = new StringBuilder();
 
-			ArrayList<QueryField> individualProjectFieldList = htblClassNameProperty.get(subjectClassPrefixedName)
-					.get(uniqueIdentifier);
-			int size = individualProjectFieldList.size();
-			int counter = 0;
-			for (QueryField queryField : individualProjectFieldList) {
+		/*
+		 * Getting propertyList of the main subject(this list constructs the
+		 * main graph pattern)
+		 */
+		ArrayList<QueryField> currentClassPropertyValueList = htblClassNameProperty.get(mainClassPrefixedName)
+				.get(mainInstanceUniqueIdentifier);
 
-				if (!queryField.isValueObject()) {
+		/*
+		 * htblPropValue has key prefiexedPropertyName and value
+		 * valueOfProperty.
+		 *
+		 * It is used to avoid duplicating same triple patterns eg: mbox when
+		 * person has more the one email so I want to add foaf:mbox ?var only
+		 * one time for this instance
+		 */
+		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 
-					if (counter < size - 1) {
-						endQueryBuilder.append(
-								queryField.getPrefixedPropertyName() + "  " + "?var" + variableCounter[0] + " ; \n");
-					} else {
-						endQueryBuilder.append(
-								queryField.getPrefixedPropertyName() + "  " + "?var" + variableCounter[0] + " . \n");
+		/*
+		 * start of the subQuery
+		 */
+		queryBuilder.append("{ SELECT (COUNT(*) as ?isUnique ) WHERE { \n");
 
-						graphPatternsBuilder.append(endQueryBuilder);
+		/*
+		 * start of the query graph patterns (this triple pattern minimize
+		 * search area because of specifing that the first subject variable
+		 * (?subject0) is of type certin class )
+		 */
+		queryBuilder.append("?subject0" + " a " + mainClassPrefixedName);
+
+		/*
+		 * counters that are used to assign different variables .
+		 *
+		 * They must be arrays of integers in order to be able to pass by
+		 * reference
+		 */
+		int[] vairableNum = { 0 };
+		int[] subjectNum = { 1 };
+
+		/*
+		 * iterating on the propertyList of the main subject to construct the
+		 * main graph pattern and break through values recursively to construct
+		 * other graph nodes and patterns using endGraphPatternBuilder
+		 */
+		for (QueryField queryField : currentClassPropertyValueList) {
+
+			helper(htblClassNameProperty, queryBuilder, filterConditionsBuilder, endGraphPatternBuilder,
+					mainClassPrefixedName, mainInstanceUniqueIdentifier, queryField, htblPropValue, vairableNum,
+					subjectNum);
+
+		}
+
+		/*
+		 * Appending the endGraphPatternBuilder to the end of the queryBuilder
+		 */
+		queryBuilder.append(endGraphPatternBuilder.toString());
+
+		// filterConditionsBuilder.append(" )");
+
+		/*
+		 * complete end of the subquery structure
+		 */
+		// queryBuilder.append(" " + filterConditionsBuilder.toString() + " \n
+		// }}");
+
+		return queryBuilder.toString();
+	}
+
+	/*
+	 * A recursive method that construct the uniqueConstraintCheck query
+	 *
+	 * it takes the reference of
+	 * htblUniquePropValueList,queryBuilder,filterConditionsBuilder and
+	 * endGraphPatternBuilder to construct query
+	 *
+	 * It also recursively take propertyValue and currentClassPrefixedName to
+	 * breakdown all values and construct a proper graph patterns and filter in
+	 * the query
+	 *
+	 */
+	public static void helper(LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
+			StringBuilder queryBuilder, StringBuilder filterConditionsBuilder, StringBuilder endGraphPatternBuilder,
+			String currentClassPrefixedName, String currentClassInstanceUniqueIdentifier, QueryField queryField,
+			Hashtable<String, Object> htblPropValue, int[] vairableNum, int[] subjectNum) {
+
+		/*
+		 * The property is an objectProperty and the value is a nestedObject(new
+		 * class object instance that has its own properties and values)
+		 */
+		if (queryField.isValueObject()) {
+
+			/*
+			 * add property and reference to graph node the represent the object
+			 * value node
+			 *
+			 * eg. SELECT (COUNT(*) as ?isUnique ) WHERE { ?subject0 a
+			 * iot-platform:Developer ; foaf:knows ?subject1. ?subject1 a
+			 * foaf:Person.
+			 *
+			 * ?subject1 is the object node reference and is linked to main node
+			 * (?subject0) with objectProperty (foaf:knows)
+			 */
+
+			if (htblClassNameProperty.get(currentClassPrefixedName).get(currentClassInstanceUniqueIdentifier)
+					.indexOf(queryField) < htblClassNameProperty.get(currentClassPrefixedName)
+							.get(currentClassInstanceUniqueIdentifier).size() - 1) {
+				queryBuilder.append(" ; \n" + queryField.getPrefixedPropertyName() + "?subject" + subjectNum[0]);
+			} else {
+				/*
+				 * it is the last property so we will end the previous triple
+				 * pattern with ; and this one with .
+				 */
+				queryBuilder
+						.append(" ; \n" + queryField.getPrefixedPropertyName() + " ?subject" + subjectNum[0] + " . \n");
+
+			}
+
+			/*
+			 * get the value classType which is stored in the
+			 * prefixedObjectValueClassName of the propertyValue this classType
+			 * represent the prefiexedClassName of the value class type and it
+			 * was added by RequestValidation class
+			 */
+			String objectClassTypeName = queryField.getObjectValueTypeClassName();
+
+			/*
+			 * get the uniqueIdentifer of the objectProperty inOrder to
+			 * breakDown the nestedObject to construct Recursively the query
+			 */
+			String objectVaueUniqueIdentifier = queryField.getIndividualUniqueIdentifier();
+
+			/*
+			 * get the objectValueInstance's propertyValueList
+			 */
+			ArrayList<QueryField> queryFieldList = htblClassNameProperty.get(objectClassTypeName)
+					.get(objectVaueUniqueIdentifier);
+
+			/*
+			 * is for building other graph nodes and patterns and add them to
+			 * the end of the main graph pattern ( graph pattern with node
+			 * representing the subjectClassInstance of the nestedObjectValue )
+			 */
+			StringBuilder tempBuilder = new StringBuilder();
+
+			/*
+			 * start the new graph pattern that will be added to the end
+			 */
+			tempBuilder.append("?subject" + subjectNum[0] + " a " + objectClassTypeName);
+			subjectNum[0]++;
+
+			/*
+			 * objectValueHtblPropValue is the same htblPropValue but for this
+			 * objectValueInstance I doing this to keep every instance
+			 * independent from other instance even if more than one instance
+			 * have the same ontology class type
+			 *
+			 * objectValueHtblPropValue has key prefiexedPropertyName and value
+			 * valueOfProperty.
+			 *
+			 * It is used to avoid duplicating same triple patterns eg: mbox
+			 * when person has more the one email so I want to add foaf:mbox
+			 * ?var only one time for this instance
+			 */
+			Hashtable<String, Object> objectValueHtblPropValue = new Hashtable<>();
+
+			for (QueryField objectPropertyValue : queryFieldList) {
+
+				helper(htblClassNameProperty, tempBuilder, filterConditionsBuilder, endGraphPatternBuilder,
+						objectClassTypeName, objectVaueUniqueIdentifier, objectPropertyValue, objectValueHtblPropValue,
+						vairableNum, subjectNum);
+			}
+
+			/*
+			 * append tempBuilder to endGraphPatternBuilder to add the
+			 * nestedObject Patterns to the end of its main patterns (above
+			 * graph node that has relation to nestedObject node)
+			 */
+			endGraphPatternBuilder.append(tempBuilder.toString());
+
+			/*
+			 * ReIntialize tempBuilder to remove all what was builded on it to
+			 * be used again
+			 */
+			tempBuilder = new StringBuilder();
+
+		} else {
+
+			/*
+			 * The property is not an objectProperty it is property that has a
+			 * literal value (the value can be datatype value (eg.
+			 * string,int,float) or a reference to an existed object instance
+			 */
+			if (htblClassNameProperty.get(currentClassPrefixedName).get(currentClassInstanceUniqueIdentifier)
+					.indexOf(queryField) < htblClassNameProperty.get(currentClassPrefixedName)
+							.get(currentClassInstanceUniqueIdentifier).size() - 1) {
+
+				/*
+				 * Check if the prefixedPropertyName of this instance was added
+				 * before
+				 */
+				if (!htblPropValue.containsKey(queryField.getPrefixedPropertyName())) {
+
+					/*
+					 * if we add a new graph pattern (by checking if the
+					 * prefixedPropertyName was not added before for this
+					 * current instance) then increment the variableNum[0]
+					 *
+					 * add prifixedPropertyName to htblPropValue to avoid
+					 * duplicating it again for this instance
+					 *
+					 * I do this after adding filter condition and graph pattern
+					 * to maintain the same variableNames between graph pattern
+					 * added and condtion
+					 */
+					if (!htblPropValue.containsKey(queryField.getPrefixedPropertyName())) {
+						htblPropValue.put(queryField.getPrefixedPropertyName(), "?var" + vairableNum[0]);
+						vairableNum[0]++;
 					}
 
-					variableCounter[0]++;
-					counter++;
+					/*
+					 * it is not the last property so we will end the previous
+					 * triple pattern with ;
+					 */
+					queryBuilder.append(" ; \n" + queryField.getPrefixedPropertyName() + " "
+							+ htblPropValue.get(queryField.getPrefixedPropertyName()));
+
+				}
+
+			} else {
+				if (!htblPropValue.containsKey(queryField.getPrefixedPropertyName())) {
+
+					/*
+					 * if we add a new graph pattern (by checking if the
+					 * prefixedPropertyName was not added before for this
+					 * current instance) then increment the variableNum[0]
+					 *
+					 * add prifixedPropertyName to htblPropValue to avoid
+					 * duplicating it again for this instance
+					 *
+					 * I do this after adding filter condition and graph pattern
+					 * to maintain the same variableNames between graph pattern
+					 * added and condtion
+					 */
+					if (!htblPropValue.containsKey(queryField.getPrefixedPropertyName())) {
+						htblPropValue.put(queryField.getPrefixedPropertyName(), "?var" + vairableNum[0]);
+						vairableNum[0]++;
+					}
+
+					/*
+					 * it is the last property so we will end the previous
+					 * triple pattern with ; and this one with .
+					 */
+					queryBuilder.append(" ; \n" + queryField.getPrefixedPropertyName() + " "
+							+ htblPropValue.get(queryField.getPrefixedPropertyName()) + " . \n");
+
 				} else {
 
-					if (counter < size - 1) {
-						endQueryBuilder.append(
-								queryField.getPrefixedPropertyName() + "  " + "?subject" + subjectCounter[0] + " ; \n");
-					} else {
-						endQueryBuilder.append(
-								queryField.getPrefixedPropertyName() + "  " + "?subject" + subjectCounter[0] + " . \n");
-						graphPatternsBuilder.append(endQueryBuilder);
-					}
-					counter++;
-
-					endQueryBuilder = new StringBuilder();
-					constructSelectQueryHelper(htblClassNameProperty, queryField.getObjectValueTypeClassName(),
-							subjectCounter, variableCounter, graphPatternsBuilder, endQueryBuilder);
-
+					/*
+					 * end the previous triple pattern with .
+					 *
+					 * Because after checking it was found that the end
+					 * prefixedPropertyName was added before to this instance's
+					 * graph patterns
+					 */
+					queryBuilder.append(" . \n");
 				}
 
 			}
 
 		}
-
-		return graphPatternsBuilder.toString();
 
 	}
 
