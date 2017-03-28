@@ -72,7 +72,7 @@ import com.iotplatform.ontology.classes.Unit;
 @Component
 public class DynamicPropertiesUtility {
 
-	private Hashtable<String, Class> htblAllStaticClasses;
+	public static Hashtable<String, Class> htblAllStaticClasses;
 
 	/*
 	 * dynamicConceptDao class is used to get all dynamic properties or dynamic

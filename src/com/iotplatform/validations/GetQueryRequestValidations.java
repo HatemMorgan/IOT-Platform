@@ -22,6 +22,9 @@ import com.iotplatform.ontology.classes.Admin;
 import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.NotMappedDynamicQueryFields;
 import com.iotplatform.utilities.QueryField;
+import com.iotplatform.utilities.SelectionUtility;
+
+import oracle.spatial.rdf.client.jena.Oracle;
 
 @Component
 public class GetQueryRequestValidations {
@@ -62,13 +65,13 @@ public class GetQueryRequestValidations {
 			 */
 			String randomUUID = UUID.randomUUID().toString();
 
-			String prefixedClassName = subjectClass.getPrefix().getPrefix() + subjectClass.getName();
+//			String prefixedClassName = subjectClass.getPrefix().getPrefix() + subjectClass.getName();
 
 			ArrayList<QueryField> queryFieldsList = new ArrayList<>();
 
 			LinkedHashMap<String, ArrayList<QueryField>> htblUniqueIdentierQueryFieldsList = new LinkedHashMap<>();
 			htblUniqueIdentierQueryFieldsList.put(randomUUID, queryFieldsList);
-			htblClassNameProperty.put(prefixedClassName, htblUniqueIdentierQueryFieldsList);
+			htblClassNameProperty.put(subjectClass.getUri(), htblUniqueIdentierQueryFieldsList);
 
 			validateProjectionFields(subjectClass, htblNotMappedFieldsClasses, notMappedFieldList,
 					htblFieldValue.get("fields"), htblClassNameProperty, randomUUID, subjectClass.getName());
@@ -140,8 +143,8 @@ public class GetQueryRequestValidations {
 				/*
 				 * add constructed query field to htblClassNameProperty
 				 */
-				String prefixedClassName = subjectClass.getPrefix().getPrefix() + subjectClass.getName();
-				htblClassNameProperty.get(prefixedClassName).get(uniqueIdentifier).add(queryField);
+//				String prefixedClassName = subjectClass.getPrefix().getPrefix() + subjectClass.getName();
+				htblClassNameProperty.get(subjectClass.getUri()).get(uniqueIdentifier).add(queryField);
 
 			}
 		} else {
@@ -221,18 +224,19 @@ public class GetQueryRequestValidations {
 							 * objectValueTypeClassName because the field has
 							 * object value (not an literal)
 							 */
-							String objectValueTypeClassPrefixedName = objectValueClassType.getPrefix().getPrefix()
-									+ objectValueClassType.getName();
+							
+//							String objectValueTypeClassPrefixedName = objectValueClassType.getPrefix().getPrefix()
+//									+ objectValueClassType.getName();
 							QueryField queryField = new QueryField(
 									property.getPrefix().getPrefix() + property.getName(),
-									objectValueTypeClassPrefixedName, randomUUID);
+									objectValueClassType.getUri(), randomUUID);
 
 							/*
 							 * add objectProperty to subjectClass individual
 							 * with uniqueIdentifier
 							 */
-							String prefixedClassName = subjectClass.getPrefix().getPrefix() + subjectClass.getName();
-							htblClassNameProperty.get(prefixedClassName).get(uniqueIdentifier).add(queryField);
+//							String prefixedClassName = subjectClass.getPrefix().getPrefix() + subjectClass.getName();
+							htblClassNameProperty.get(subjectClass.getUri()).get(uniqueIdentifier).add(queryField);
 
 							/*
 							 * add new Object with generated
@@ -240,10 +244,10 @@ public class GetQueryRequestValidations {
 							 * objectValueTypeClassPrefixedName as the
 							 * prefixedName of this objectType
 							 */
-							if (htblClassNameProperty.containsKey(objectValueTypeClassPrefixedName)) {
+							if (htblClassNameProperty.containsKey(objectValueClassType.getUri())) {
 
 								ArrayList<QueryField> queryFieldsList = new ArrayList<>();
-								htblClassNameProperty.get(objectValueTypeClassPrefixedName).put(randomUUID,
+								htblClassNameProperty.get(objectValueClassType.getUri()).put(randomUUID,
 										queryFieldsList);
 
 							} else {
@@ -257,7 +261,7 @@ public class GetQueryRequestValidations {
 
 								LinkedHashMap<String, ArrayList<QueryField>> htblUniqueIdentierQueryFieldsList = new LinkedHashMap<>();
 								htblUniqueIdentierQueryFieldsList.put(randomUUID, queryFieldsList);
-								htblClassNameProperty.put(objectValueTypeClassPrefixedName,
+								htblClassNameProperty.put(objectValueClassType.getUri(),
 										htblUniqueIdentierQueryFieldsList);
 
 							}
@@ -541,11 +545,12 @@ public class GetQueryRequestValidations {
 
 		ArrayList<Object> hatesPersonFieldList = new ArrayList<>();
 		hatesPersonFieldList.add("firstName");
+		hatesPersonFieldList.add("mbox");
 		hatesPersonFieldList.add("birthday");
-		hatesPersonFieldList.add(lovesPersonFieldMap);
+//		hatesPersonFieldList.add(lovesPersonFieldMap);
 
 		LinkedHashMap<String, Object> personFieldMap = new LinkedHashMap<>();
-		personFieldMap.put("fieldName", "hates");
+		personFieldMap.put("fieldName", "knows");
 		personFieldMap.put("classType", "Developer");
 		personFieldMap.put("fields", hatesPersonFieldList);
 
@@ -558,7 +563,7 @@ public class GetQueryRequestValidations {
 		knowsPersonFieldMap.put("fields", knowsPersonFieldList);
 
 		fieldsList.add("firstName");
-		fieldsList.add("title");
+//		fieldsList.add("title");
 		fieldsList.add("middleName");
 		fieldsList.add(knowsPersonFieldMap);
 		fieldsList.add(personFieldMap);
@@ -575,7 +580,14 @@ public class GetQueryRequestValidations {
 					.validateRequest("TESTAPPLICATION", htblFieldValue, Admin.getAdminInstance());
 			System.out.println(htblClassNameProperty.toString());
 			System.out.println("============================================");
-			System.out.println(MainDao.constructSelectQuery(htblClassNameProperty, "TESTAPPLICATION"));
+
+			Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+
+			MainDao mainDao = new MainDao(oracle,
+					new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+
+			mainDao.queryData(htblClassNameProperty, "TESTAPPLICATION_MODEL");
+
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());
 		}

@@ -1,10 +1,12 @@
 package com.iotplatform.utilities;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -217,4 +219,77 @@ public class SelectionUtility {
 		}
 		return responseJson;
 	}
+
+	public List<Hashtable<String, Object>> constructQueryResult(String applicationName, ResultSet results,
+			Class subjectClass, Hashtable<String, QueryVariable> htblSubjectVariables) {
+
+		List<Hashtable<String, Object>> consturctedQueryResult = new ArrayList<>();
+
+		/*
+		 * htblIndividualSubjectIndex has subjectUri as key and index of
+		 * subjectUri in consturctedQueryResult
+		 */
+		LinkedHashMap<String, Integer> htblIndividualSubjectIndex = new LinkedHashMap<>();
+
+		try {
+			ResultSetMetaData rsmd = results.getMetaData();
+
+			int columnsNumber = rsmd.getColumnCount();
+			while (results.next()) {
+
+				/*
+				 * SUBJECT0 must be always the first column
+				 */
+				String mainSubjectUri = results.getString("SUBJECT0");
+
+				/*
+				 * check if the subjectUri exist before or not in
+				 * htblIndividualSubjectIndex
+				 */
+				if (!htblIndividualSubjectIndex.containsKey(mainSubjectUri)) {
+
+					/*
+					 * new result so I will create a new
+					 * Hashtable<String,Object> to hold propertyValues of it and
+					 * get the last index in consturctedQueryResult list to save
+					 * it in htblIndividualSubjectIndex
+					 */
+					Hashtable<String, Object> htblIndividualPropertyValue = new Hashtable<>();
+					consturctedQueryResult.add(htblIndividualPropertyValue);
+					int index = consturctedQueryResult.size() - 1;
+					htblIndividualSubjectIndex.put(mainSubjectUri, index);
+				}
+
+				for (int i = 2; i <= columnsNumber; i++) {
+
+					String columnName = rsmd.getColumnName(i);
+					if (rsmd.getColumnName(i).contains("SUBJECT")) {
+						QueryVariable queryVariable = htblSubjectVariables.get(columnName);
+						String classUri = queryVariable.getSubjectClassUri();
+						Class propertyClass = DynamicPropertiesUtility.htblAllStaticClasses.get(classUri);
+						Property property = propertyClass.getProperties().get(queryVariable.getPropertyName());
+
+						if (property.isMulitpleValues()) {
+
+							// ArrayList<Object> propertyValueList = new
+							// ArrayList<>();
+						} else {
+
+						}
+
+					}
+
+					String columnValue = results.getString(i);
+					System.out.print(columnValue + " " + rsmd.getColumnName(i));
+				}
+				System.out.println("");
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }

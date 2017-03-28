@@ -1,6 +1,7 @@
 package com.iotplatform.daos;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -22,6 +23,7 @@ import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.QueryField;
 import com.iotplatform.utilities.QueryUtility;
 import com.iotplatform.utilities.SelectionUtility;
+import com.iotplatform.utilities.QueryVariable;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -246,16 +248,9 @@ public class MainDao {
 		}
 	}
 
-	public List<Hashtable<String, Object>> queryData(
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			String applicationName, String requestSubjectClassName) {
-
-		return null;
-	}
-
-	public static String constructSelectQuery(
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			String applicationName) {
+	// List<Hashtable<String, Object>>
+	public void queryData(LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
+			String applicationModelName) {
 
 		Iterator<String> htblClassNamePropertyIterator = htblClassNameProperty.keySet().iterator();
 
@@ -268,14 +263,38 @@ public class MainDao {
 		String prefixedClassName = htblClassNamePropertyIterator.next();
 		String mainInstanceUniqueIdentifier = htblClassNameProperty.get(prefixedClassName).keySet().iterator().next();
 
-		return constructUniqueContstraintCheckSubQueryStr3(htblClassNameProperty, prefixedClassName,
-				mainInstanceUniqueIdentifier);
+		Object[] returnObject = constructSelectQuery(htblClassNameProperty, prefixedClassName,
+				mainInstanceUniqueIdentifier, applicationModelName);
+
+		String queryString = returnObject[0].toString();
+		Hashtable<String, QueryVariable> htblSubjectVariables = (Hashtable<String, QueryVariable>) returnObject[1];
+		System.out.println(queryString);
+
+		try {
+			ResultSet results = oracle.executeQuery(queryString, 0, 1);
+
+			ResultSetMetaData rsmd = results.getMetaData();
+			int columnsNumber = rsmd.getColumnCount();
+			while (results.next()) {
+				for (int i = 1; i <= columnsNumber; i++) {
+					if (i > 1)
+						System.out.print(",  ");
+					String columnValue = results.getString(i);
+					System.out.print(columnValue + " " + rsmd.getColumnName(i));
+				}
+				System.out.println("");
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new DatabaseException(e.getMessage(), prefixedClassName);
+		}
 
 	}
 
-	public static String constructUniqueContstraintCheckSubQueryStr3(
+	private static Object[] constructSelectQuery(
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			String mainClassPrefixedName, String mainInstanceUniqueIdentifier) {
+			String mainClassPrefixedName, String mainInstanceUniqueIdentifier, String applicationModelName) {
 
 		/*
 		 * main builder for dynamically building the query
@@ -292,6 +311,18 @@ public class MainDao {
 		 * and add them to the end of the main graph pattern
 		 */
 		StringBuilder endGraphPatternBuilder = new StringBuilder();
+
+		/*
+		 * sparqlProjectedFieldsBuilder is for building selection field part for
+		 * injected SPARQL query
+		 */
+		StringBuilder sparqlProjectedFieldsBuilder = new StringBuilder();
+
+		/*
+		 * sqlProjectedFieldsBuilder is for building selection field part for
+		 * SQL query that contains the injected SPARQL query
+		 */
+		StringBuilder sqlProjectedFieldsBuilder = new StringBuilder();
 
 		/*
 		 * Getting propertyList of the main subject(this list constructs the
@@ -311,16 +342,19 @@ public class MainDao {
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 
 		/*
-		 * start of the subQuery
+		 * htblSubjectVariablePropertyName holds subjectVariable as key and its
+		 * associated property as value
 		 */
-		queryBuilder.append("{ SELECT (COUNT(*) as ?isUnique ) WHERE { \n");
+		Hashtable<String, QueryVariable> htblSubjectVariables = new Hashtable<>();
 
 		/*
 		 * start of the query graph patterns (this triple pattern minimize
 		 * search area because of specifing that the first subject variable
 		 * (?subject0) is of type certin class )
 		 */
-		queryBuilder.append("?subject0" + " a " + mainClassPrefixedName);
+		queryBuilder.append("?subject0" + " a " + "<" + mainClassPrefixedName + ">");
+		sparqlProjectedFieldsBuilder.append(" ?subject0");
+		sqlProjectedFieldsBuilder.append(" subject0");
 
 		/*
 		 * counters that are used to assign different variables .
@@ -338,16 +372,43 @@ public class MainDao {
 		 */
 		for (QueryField queryField : currentClassPropertyValueList) {
 
-			helper(htblClassNameProperty, queryBuilder, filterConditionsBuilder, endGraphPatternBuilder,
-					mainClassPrefixedName, mainInstanceUniqueIdentifier, queryField, htblPropValue, vairableNum,
-					subjectNum);
+			constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, queryBuilder,
+					filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
+					sqlProjectedFieldsBuilder, mainClassPrefixedName, mainInstanceUniqueIdentifier, queryField,
+					htblPropValue, vairableNum, subjectNum);
 
+		}
+
+		/*
+		 * construct prefixes
+		 */
+		StringBuilder prefixStringBuilder = new StringBuilder();
+		int counter = 0;
+		int stop = Prefixes.values().length - 1;
+		for (Prefixes prefix : Prefixes.values()) {
+			if (counter == stop) {
+				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "')");
+			} else {
+				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "'),");
+			}
+
+			counter++;
 		}
 
 		/*
 		 * Appending the endGraphPatternBuilder to the end of the queryBuilder
 		 */
 		queryBuilder.append(endGraphPatternBuilder.toString());
+
+		/*
+		 * complete query by appending projection field and graph patterns
+		 */
+		StringBuilder mainBuilder = new StringBuilder();
+
+		mainBuilder.append("SELECT " + sqlProjectedFieldsBuilder.toString() + "\n FROM TABLE( SEM_MATCH ( ' SELECT "
+				+ sparqlProjectedFieldsBuilder.toString() + " \n WHERE { \n " + queryBuilder.toString()
+				+ " }' , \n sem_models('" + applicationModelName + "'),null, \n SEM_ALIASES("
+				+ prefixStringBuilder.toString() + "),null))");
 
 		// filterConditionsBuilder.append(" )");
 
@@ -357,14 +418,16 @@ public class MainDao {
 		// queryBuilder.append(" " + filterConditionsBuilder.toString() + " \n
 		// }}");
 
-		return queryBuilder.toString();
+		System.out.println(htblSubjectVariables);
+		Object[] returnObject = { mainBuilder.toString(), htblSubjectVariables };
+		return returnObject;
 	}
 
 	/*
-	 * A recursive method that construct the uniqueConstraintCheck query
+	 * A recursive method that construct a select query
 	 *
 	 * it takes the reference of
-	 * htblUniquePropValueList,queryBuilder,filterConditionsBuilder and
+	 * htblClassNameProperty,queryBuilder,filterConditionsBuilder and
 	 * endGraphPatternBuilder to construct query
 	 *
 	 * It also recursively take propertyValue and currentClassPrefixedName to
@@ -372,8 +435,11 @@ public class MainDao {
 	 * the query
 	 *
 	 */
-	public static void helper(LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			StringBuilder queryBuilder, StringBuilder filterConditionsBuilder, StringBuilder endGraphPatternBuilder,
+	private static void constructSelectQueryHelper(
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
+			Hashtable<String, QueryVariable> htblSubjectVariables, StringBuilder queryBuilder,
+			StringBuilder filterConditionsBuilder, StringBuilder endGraphPatternBuilder,
+			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder,
 			String currentClassPrefixedName, String currentClassInstanceUniqueIdentifier, QueryField queryField,
 			Hashtable<String, Object> htblPropValue, int[] vairableNum, int[] subjectNum) {
 
@@ -410,6 +476,14 @@ public class MainDao {
 			}
 
 			/*
+			 * add subjectVarible and it property to
+			 * htblSubjectVariablePropertyName to be used to properly construct
+			 * query results
+			 */
+			htblSubjectVariables.put("subject" + subjectNum[0], new QueryVariable("subject" + (subjectNum[0] - 1),
+					getPropertyName(queryField.getPrefixedPropertyName()), currentClassPrefixedName));
+
+			/*
 			 * get the value classType which is stored in the
 			 * prefixedObjectValueClassName of the propertyValue this classType
 			 * represent the prefiexedClassName of the value class type and it
@@ -439,7 +513,9 @@ public class MainDao {
 			/*
 			 * start the new graph pattern that will be added to the end
 			 */
-			tempBuilder.append("?subject" + subjectNum[0] + " a " + objectClassTypeName);
+			tempBuilder.append("?subject" + subjectNum[0] + " a " + "<" + objectClassTypeName + ">");
+			sparqlProjectedFieldsBuilder.append("  ?subject" + subjectNum[0]);
+			sqlProjectedFieldsBuilder.append(" , subject" + subjectNum[0]);
 			subjectNum[0]++;
 
 			/*
@@ -459,9 +535,10 @@ public class MainDao {
 
 			for (QueryField objectPropertyValue : queryFieldList) {
 
-				helper(htblClassNameProperty, tempBuilder, filterConditionsBuilder, endGraphPatternBuilder,
-						objectClassTypeName, objectVaueUniqueIdentifier, objectPropertyValue, objectValueHtblPropValue,
-						vairableNum, subjectNum);
+				constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, tempBuilder,
+						filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
+						sqlProjectedFieldsBuilder, objectClassTypeName, objectVaueUniqueIdentifier, objectPropertyValue,
+						objectValueHtblPropValue, vairableNum, subjectNum);
 			}
 
 			/*
@@ -508,6 +585,19 @@ public class MainDao {
 					 */
 					if (!htblPropValue.containsKey(queryField.getPrefixedPropertyName())) {
 						htblPropValue.put(queryField.getPrefixedPropertyName(), "?var" + vairableNum[0]);
+						sparqlProjectedFieldsBuilder.append("  ?var" + vairableNum[0]);
+						sqlProjectedFieldsBuilder.append(" , var" + vairableNum[0]);
+
+						/*
+						 * add var variable and it property to
+						 * htblSubjectVariablePropertyName to be used to
+						 * properly construct query results
+						 */
+						htblSubjectVariables.put("var" + vairableNum[0],
+								new QueryVariable("subject" + (subjectNum[0] - 1),
+										getPropertyName(queryField.getPrefixedPropertyName()),
+										currentClassPrefixedName));
+
 						vairableNum[0]++;
 					}
 
@@ -537,6 +627,17 @@ public class MainDao {
 					 */
 					if (!htblPropValue.containsKey(queryField.getPrefixedPropertyName())) {
 						htblPropValue.put(queryField.getPrefixedPropertyName(), "?var" + vairableNum[0]);
+						sparqlProjectedFieldsBuilder.append("  ?var" + vairableNum[0]);
+						sqlProjectedFieldsBuilder.append(" , var" + vairableNum[0]);
+						/*
+						 * add var variable and it property to
+						 * htblSubjectVariablePropertyName to be used to
+						 * properly construct query results
+						 */
+						htblSubjectVariables.put("var" + vairableNum[0],
+								new QueryVariable("subject" + (subjectNum[0] - 1),
+										getPropertyName(queryField.getPrefixedPropertyName()),
+										currentClassPrefixedName));
 						vairableNum[0]++;
 					}
 
@@ -590,6 +691,18 @@ public class MainDao {
 		}
 
 		return subjectClassIndividualsList;
+	}
+
+	private static String getPropertyName(String prefixedPropertyName) {
+		int startIndex = 0;
+		for (int i = 0; i < prefixedPropertyName.length(); i++) {
+			if (prefixedPropertyName.charAt(i) == ':') {
+				startIndex = i;
+				break;
+			}
+		}
+
+		return prefixedPropertyName.substring(startIndex + 1, prefixedPropertyName.length());
 	}
 
 }
