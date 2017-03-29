@@ -65,7 +65,8 @@ public class GetQueryRequestValidations {
 			 */
 			String randomUUID = UUID.randomUUID().toString();
 
-//			String prefixedClassName = subjectClass.getPrefix().getPrefix() + subjectClass.getName();
+			// String prefixedClassName = subjectClass.getPrefix().getPrefix() +
+			// subjectClass.getName();
 
 			ArrayList<QueryField> queryFieldsList = new ArrayList<>();
 
@@ -143,7 +144,9 @@ public class GetQueryRequestValidations {
 				/*
 				 * add constructed query field to htblClassNameProperty
 				 */
-//				String prefixedClassName = subjectClass.getPrefix().getPrefix() + subjectClass.getName();
+				// String prefixedClassName =
+				// subjectClass.getPrefix().getPrefix() +
+				// subjectClass.getName();
 				htblClassNameProperty.get(subjectClass.getUri()).get(uniqueIdentifier).add(queryField);
 
 			}
@@ -224,9 +227,10 @@ public class GetQueryRequestValidations {
 							 * objectValueTypeClassName because the field has
 							 * object value (not an literal)
 							 */
-							
-//							String objectValueTypeClassPrefixedName = objectValueClassType.getPrefix().getPrefix()
-//									+ objectValueClassType.getName();
+
+							// String objectValueTypeClassPrefixedName =
+							// objectValueClassType.getPrefix().getPrefix()
+							// + objectValueClassType.getName();
 							QueryField queryField = new QueryField(
 									property.getPrefix().getPrefix() + property.getName(),
 									objectValueClassType.getUri(), randomUUID);
@@ -235,7 +239,9 @@ public class GetQueryRequestValidations {
 							 * add objectProperty to subjectClass individual
 							 * with uniqueIdentifier
 							 */
-//							String prefixedClassName = subjectClass.getPrefix().getPrefix() + subjectClass.getName();
+							// String prefixedClassName =
+							// subjectClass.getPrefix().getPrefix() +
+							// subjectClass.getName();
 							htblClassNameProperty.get(subjectClass.getUri()).get(uniqueIdentifier).add(queryField);
 
 							/*
@@ -534,11 +540,24 @@ public class GetQueryRequestValidations {
 
 		ArrayList<Object> fieldsList = new ArrayList<>();
 
+		//
+		LinkedHashMap<String, Object> tempMap = new LinkedHashMap<>();
+		ArrayList<Object> tempList = new ArrayList<>();
+		tempList.add("title");
+		tempList.add("job");
+
+		tempMap.put("fieldName", "love");
+		tempMap.put("classType", "Developer");
+		tempMap.put("fields", tempList);
+
+		//
+
 		LinkedHashMap<String, Object> lovesPersonFieldMap = new LinkedHashMap<>();
 		ArrayList<Object> lovesPersonFieldList = new ArrayList<>();
 		lovesPersonFieldList.add("title");
 		lovesPersonFieldList.add("job");
-
+//		lovesPersonFieldList.add(tempMap);
+		
 		lovesPersonFieldMap.put("fieldName", "love");
 		lovesPersonFieldMap.put("classType", "Developer");
 		lovesPersonFieldMap.put("fields", lovesPersonFieldList);
@@ -548,6 +567,7 @@ public class GetQueryRequestValidations {
 		hatesPersonFieldList.add("mbox");
 		hatesPersonFieldList.add("birthday");
 //		hatesPersonFieldList.add(lovesPersonFieldMap);
+//		hatesPersonFieldList.add(tempMap);
 
 		LinkedHashMap<String, Object> personFieldMap = new LinkedHashMap<>();
 		personFieldMap.put("fieldName", "knows");
@@ -563,7 +583,7 @@ public class GetQueryRequestValidations {
 		knowsPersonFieldMap.put("fields", knowsPersonFieldList);
 
 		fieldsList.add("firstName");
-//		fieldsList.add("title");
+		// fieldsList.add("title");
 		fieldsList.add("middleName");
 		fieldsList.add(knowsPersonFieldMap);
 		fieldsList.add(personFieldMap);

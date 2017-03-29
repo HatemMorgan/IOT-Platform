@@ -2,6 +2,7 @@ package com.iotplatform.services;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -65,7 +66,9 @@ import com.iotplatform.ontology.classes.TagDevice;
 import com.iotplatform.ontology.classes.Unit;
 import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.QueryField;
 import com.iotplatform.utilities.SelectionUtility;
+import com.iotplatform.validations.GetQueryRequestValidations;
 import com.iotplatform.validations.PostRequestValidations;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -82,13 +85,15 @@ public class DynamicInsertionService {
 	private ApplicationDao applicationDao;
 	private MainDao mainDao;
 	private Hashtable<String, Class> htblAllStaticClasses;
+	private GetQueryRequestValidations getQueryRequestValidations;
 
 	@Autowired
 	public DynamicInsertionService(PostRequestValidations requestFieldsValidation, ApplicationDao applicationDao,
-			MainDao mainDao) {
+			MainDao mainDao, GetQueryRequestValidations getQueryRequestValidations) {
 		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;
 		this.mainDao = mainDao;
+		this.getQueryRequestValidations = getQueryRequestValidations;
 
 		init();
 	}
@@ -197,6 +202,61 @@ public class DynamicInsertionService {
 
 	}
 
+	public Hashtable<String, Object> QueryData(String applicationNameCode, String className,
+			Hashtable<String, Object> htblFieldValue) {
+
+		long startTime = System.currentTimeMillis();
+		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
+
+		className = className.toLowerCase().replaceAll(" ", "");
+		/*
+		 * check if the className has a valid class Mapping
+		 */
+		if (htblAllStaticClasses.containsKey(className)) {
+			Class subjectClass = htblAllStaticClasses.get(className);
+
+			/*
+			 * check if the model exist or not .
+			 */
+
+			if (!exist) {
+				NoApplicationModelException exception = new NoApplicationModelException(applicationNameCode,
+						subjectClass.getName());
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return new SuccessfullSelectAllJsonModel(exception.getExceptionHashTable(timeTaken)).getJson();
+			}
+			try {
+				/*
+				 * validate query request
+				 */
+				LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = getQueryRequestValidations
+						.validateRequest(applicationNameCode, htblFieldValue, subjectClass);
+
+				/*
+				 * get application modelName
+				 */
+				String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
+
+				List<Hashtable<String, Object>> resultsList = mainDao.queryData(htblClassNameProperty,
+						applicationModelName);
+
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return new SuccessfullSelectAllJsonModel(resultsList, timeTaken).getJson();
+
+			} catch (ErrorObjException e) {
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return new SuccessfullSelectAllJsonModel(e.getExceptionHashTable(timeTaken)).getJson();
+
+			}
+
+		} else {
+			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+			InvalidClassNameException invalidClassNameException = new InvalidClassNameException(className);
+			return invalidClassNameException.getExceptionHashTable(timeTaken);
+		}
+
+	}
+
 	private void init() {
 		htblAllStaticClasses = new Hashtable<>();
 		htblAllStaticClasses.put("application", Application.getApplicationInstance());
@@ -272,9 +332,13 @@ public class DynamicInsertionService {
 
 		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
 
-		DynamicInsertionService dynamicInsertionService = new DynamicInsertionService(requestFieldsValidation,
-				new ApplicationDao(oracle), mainDao);
+		GetQueryRequestValidations getQueryRequestValidations = new GetQueryRequestValidations(
+				new DynamicPropertiesUtility(dynamicConceptDao));
 
-		System.out.println(dynamicInsertionService.selectAll("TESTAPPLICATION", "communicating Device"));
+		DynamicInsertionService dynamicInsertionService = new DynamicInsertionService(requestFieldsValidation,
+				new ApplicationDao(oracle), mainDao, getQueryRequestValidations);
+
+		// System.out.println(dynamicInsertionService.selectAll("TESTAPPLICATION",
+		// "communicating Device"));
 	}
 }

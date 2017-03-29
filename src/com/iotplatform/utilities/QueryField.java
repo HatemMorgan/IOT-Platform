@@ -30,6 +30,15 @@ public class QueryField {
 	 */
 	private String individualUniqueIdentifier;
 
+	/*
+	 * subjectVariableName is used to save the the subjectVariable (eg.
+	 * ?subject1) to be used by MainDao to save the subjectVariable of
+	 * objectProperty to be used after that by SelectionUtility to know the
+	 * subjectVariableName of an objectProperty that is connected to another
+	 * node (another object defined by another subjctVariable)
+	 */
+	private String subjectVariableName;
+
 	public QueryField(String prefixedPropertyName, String objectValueTypeClassName, String individualUniqueIdentifier) {
 		this.prefixedPropertyName = prefixedPropertyName;
 		this.objectValueTypeClassName = objectValueTypeClassName;
@@ -52,6 +61,14 @@ public class QueryField {
 
 	public String getIndividualUniqueIdentifier() {
 		return individualUniqueIdentifier;
+	}
+
+	public String getSubjectVariableName() {
+		return subjectVariableName;
+	}
+
+	public void setSubjectVariableName(String subjectVariableName) {
+		this.subjectVariableName = subjectVariableName;
 	}
 
 	@Override

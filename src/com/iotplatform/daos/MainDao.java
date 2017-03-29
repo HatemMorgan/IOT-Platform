@@ -249,7 +249,8 @@ public class MainDao {
 	}
 
 	// List<Hashtable<String, Object>>
-	public void queryData(LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
+	public List<Hashtable<String, Object>> queryData(
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
 			String applicationModelName) {
 
 		Iterator<String> htblClassNamePropertyIterator = htblClassNameProperty.keySet().iterator();
@@ -273,17 +274,20 @@ public class MainDao {
 		try {
 			ResultSet results = oracle.executeQuery(queryString, 0, 1);
 
-			ResultSetMetaData rsmd = results.getMetaData();
-			int columnsNumber = rsmd.getColumnCount();
-			while (results.next()) {
-				for (int i = 1; i <= columnsNumber; i++) {
-					if (i > 1)
-						System.out.print(",  ");
-					String columnValue = results.getString(i);
-					System.out.print(columnValue + " " + rsmd.getColumnName(i));
-				}
-				System.out.println("");
-			}
+			return SelectionUtility.constructQueryResult(applicationModelName, results, prefixedClassName,
+					htblSubjectVariables);
+
+			// ResultSetMetaData rsmd = results.getMetaData();
+			// int columnsNumber = rsmd.getColumnCount();
+			// while (results.next()) {
+			// for (int i = 1; i <= columnsNumber; i++) {
+			// if (i > 1)
+			// System.out.print(", ");
+			// String columnValue = results.getString(i);
+			// System.out.print(columnValue + " " + rsmd.getColumnName(i));
+			// }
+			// System.out.println("");
+			// }
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -348,11 +352,27 @@ public class MainDao {
 		Hashtable<String, QueryVariable> htblSubjectVariables = new Hashtable<>();
 
 		/*
+		 * htblIndividualIDSubjVarName is used to hold uniqueIdentifier of an
+		 * Individual as key and it subjectVariableName to be used after that to
+		 * reference that a property of the individual with uniqueIdentifier has
+		 * a subjectVariableName which is stored here. This will be used in
+		 * construction of htblSubjectVariables that is used in selectionUtility
+		 * to construct the queryResults
+		 * 
+		 * I used this data structure to solve the problem of storing that a
+		 * nested object has a subject with SubjectVariableName because I
+		 * increment a counter and recursively using to stringBuilders to keep
+		 * the order of graphPatterns correct. so as the input become complex
+		 * with many nested objects I cannot keep track of the correct
+		 * SubjectVariableName
+		 */
+		Hashtable<String, String> htblIndividualIDSubjVarName = new Hashtable<>();
+		/*
 		 * start of the query graph patterns (this triple pattern minimize
 		 * search area because of specifing that the first subject variable
 		 * (?subject0) is of type certin class )
 		 */
-		queryBuilder.append("?subject0" + " a " + "<" + mainClassPrefixedName + ">");
+		queryBuilder.append("?subject0  " + " a " + "<" + mainClassPrefixedName + ">");
 		sparqlProjectedFieldsBuilder.append(" ?subject0");
 		sqlProjectedFieldsBuilder.append(" subject0");
 
@@ -372,8 +392,8 @@ public class MainDao {
 		 */
 		for (QueryField queryField : currentClassPropertyValueList) {
 
-			constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, queryBuilder,
-					filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
+			constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
+					queryBuilder, filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
 					sqlProjectedFieldsBuilder, mainClassPrefixedName, mainInstanceUniqueIdentifier, queryField,
 					htblPropValue, vairableNum, subjectNum);
 
@@ -437,11 +457,21 @@ public class MainDao {
 	 */
 	private static void constructSelectQueryHelper(
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			Hashtable<String, QueryVariable> htblSubjectVariables, StringBuilder queryBuilder,
+			Hashtable<String, QueryVariable> htblSubjectVariables,
+			Hashtable<String, String> htblIndividualIDSubjVarName, StringBuilder queryBuilder,
 			StringBuilder filterConditionsBuilder, StringBuilder endGraphPatternBuilder,
-			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder,
-			String currentClassPrefixedName, String currentClassInstanceUniqueIdentifier, QueryField queryField,
-			Hashtable<String, Object> htblPropValue, int[] vairableNum, int[] subjectNum) {
+			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder, String currentClassURI,
+			String currentClassInstanceUniqueIdentifier, QueryField queryField, Hashtable<String, Object> htblPropValue,
+			int[] vairableNum, int[] subjectNum) {
+
+		if (!htblIndividualIDSubjVarName.containsKey(currentClassInstanceUniqueIdentifier)) {
+			/*
+			 * if htblIndividualIDSubjVarName does not contain the
+			 * currentClassInstanceUniqueIdentifier so I have to add it and its
+			 * subjectVariableName
+			 */
+			htblIndividualIDSubjVarName.put(currentClassInstanceUniqueIdentifier, "subject" + (subjectNum[0] - 1));
+		}
 
 		/*
 		 * The property is an objectProperty and the value is a nestedObject(new
@@ -461,10 +491,10 @@ public class MainDao {
 			 * (?subject0) with objectProperty (foaf:knows)
 			 */
 
-			if (htblClassNameProperty.get(currentClassPrefixedName).get(currentClassInstanceUniqueIdentifier)
-					.indexOf(queryField) < htblClassNameProperty.get(currentClassPrefixedName)
+			if (htblClassNameProperty.get(currentClassURI).get(currentClassInstanceUniqueIdentifier)
+					.indexOf(queryField) < htblClassNameProperty.get(currentClassURI)
 							.get(currentClassInstanceUniqueIdentifier).size() - 1) {
-				queryBuilder.append(" ; \n" + queryField.getPrefixedPropertyName() + "?subject" + subjectNum[0]);
+				queryBuilder.append(" ; \n" + queryField.getPrefixedPropertyName() + " ?subject" + subjectNum[0]);
 			} else {
 				/*
 				 * it is the last property so we will end the previous triple
@@ -480,8 +510,9 @@ public class MainDao {
 			 * htblSubjectVariablePropertyName to be used to properly construct
 			 * query results
 			 */
-			htblSubjectVariables.put("subject" + subjectNum[0], new QueryVariable("subject" + (subjectNum[0] - 1),
-					getPropertyName(queryField.getPrefixedPropertyName()), currentClassPrefixedName));
+			htblSubjectVariables.put("subject" + subjectNum[0],
+					new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
+							getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 
 			/*
 			 * get the value classType which is stored in the
@@ -535,8 +566,8 @@ public class MainDao {
 
 			for (QueryField objectPropertyValue : queryFieldList) {
 
-				constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, tempBuilder,
-						filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
+				constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
+						tempBuilder, filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
 						sqlProjectedFieldsBuilder, objectClassTypeName, objectVaueUniqueIdentifier, objectPropertyValue,
 						objectValueHtblPropValue, vairableNum, subjectNum);
 			}
@@ -561,8 +592,8 @@ public class MainDao {
 			 * literal value (the value can be datatype value (eg.
 			 * string,int,float) or a reference to an existed object instance
 			 */
-			if (htblClassNameProperty.get(currentClassPrefixedName).get(currentClassInstanceUniqueIdentifier)
-					.indexOf(queryField) < htblClassNameProperty.get(currentClassPrefixedName)
+			if (htblClassNameProperty.get(currentClassURI).get(currentClassInstanceUniqueIdentifier)
+					.indexOf(queryField) < htblClassNameProperty.get(currentClassURI)
 							.get(currentClassInstanceUniqueIdentifier).size() - 1) {
 
 				/*
@@ -595,8 +626,7 @@ public class MainDao {
 						 */
 						htblSubjectVariables.put("var" + vairableNum[0],
 								new QueryVariable("subject" + (subjectNum[0] - 1),
-										getPropertyName(queryField.getPrefixedPropertyName()),
-										currentClassPrefixedName));
+										getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 
 						vairableNum[0]++;
 					}
@@ -636,8 +666,7 @@ public class MainDao {
 						 */
 						htblSubjectVariables.put("var" + vairableNum[0],
 								new QueryVariable("subject" + (subjectNum[0] - 1),
-										getPropertyName(queryField.getPrefixedPropertyName()),
-										currentClassPrefixedName));
+										getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 						vairableNum[0]++;
 					}
 

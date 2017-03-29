@@ -8,10 +8,12 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
@@ -220,8 +222,8 @@ public class SelectionUtility {
 		return responseJson;
 	}
 
-	public List<Hashtable<String, Object>> constructQueryResult(String applicationName, ResultSet results,
-			Class subjectClass, Hashtable<String, QueryVariable> htblSubjectVariables) {
+	public static List<Hashtable<String, Object>> constructQueryResult(String applicationName, ResultSet results,
+			String requestClassName, Hashtable<String, QueryVariable> htblSubjectVariables) {
 
 		List<Hashtable<String, Object>> consturctedQueryResult = new ArrayList<>();
 
@@ -230,6 +232,11 @@ public class SelectionUtility {
 		 * subjectUri in consturctedQueryResult
 		 */
 		LinkedHashMap<String, Integer> htblIndividualSubjectIndex = new LinkedHashMap<>();
+
+		/*
+		 * 
+		 */
+		List<Hashtable<String, Hashtable<String, Object>>> helperList = new ArrayList<>();
 
 		try {
 			ResultSetMetaData rsmd = results.getMetaData();
@@ -249,47 +256,263 @@ public class SelectionUtility {
 				if (!htblIndividualSubjectIndex.containsKey(mainSubjectUri)) {
 
 					/*
-					 * new result so I will create a new
-					 * Hashtable<String,Object> to hold propertyValues of it and
-					 * get the last index in consturctedQueryResult list to save
-					 * it in htblIndividualSubjectIndex
+					 * construct new data structures instances to hold data of
+					 * the new subjectUri
 					 */
+					Hashtable<String, Hashtable<String, Object>> htblSubjectVariablehtblpropVal = new Hashtable<>();
+
 					Hashtable<String, Object> htblIndividualPropertyValue = new Hashtable<>();
-					consturctedQueryResult.add(htblIndividualPropertyValue);
-					int index = consturctedQueryResult.size() - 1;
+
+					htblSubjectVariablehtblpropVal.put("subject0", htblIndividualPropertyValue);
+
+					helperList.add(htblSubjectVariablehtblpropVal);
+
+					/*
+					 * store index of mainSubjectUri
+					 * htblSubjectVariablehtblpropVal in helperList
+					 */
+					int index = helperList.size() - 1;
 					htblIndividualSubjectIndex.put(mainSubjectUri, index);
+
+					consturctedQueryResult.add(htblIndividualPropertyValue);
+
 				}
 
 				for (int i = 2; i <= columnsNumber; i++) {
 
-					String columnName = rsmd.getColumnName(i);
-					if (rsmd.getColumnName(i).contains("SUBJECT")) {
+					String columnName = rsmd.getColumnName(i).toLowerCase();
+
+					if (columnName.contains("subject")) {
+						int index = htblIndividualSubjectIndex.get(mainSubjectUri);
+
+						Hashtable<String, Hashtable<String, Object>> htblSubjectVariablehtblpropVal = helperList
+								.get(index);
+						/*
+						 * check if the subject variable exist
+						 * 
+						 * if it exist so I will skip this iteration because I
+						 * don't have to create a new Hashtable<String, Object>
+						 * instance to hold it data
+						 */
+						if (htblSubjectVariablehtblpropVal.containsKey(columnName)) {
+							continue;
+						} else {
+
+							/*
+							 * create new Hashtable<String, Object> instance to
+							 * hold new subjectVariable data
+							 */
+							Hashtable<String, Object> htblPropValue = new Hashtable<>();
+
+							/*
+							 * add new subject variable and its
+							 * Hashtable<String, Object> htblPropValue to
+							 * htblSubjectVariablehtblpropVal
+							 */
+							htblSubjectVariablehtblpropVal.put(columnName, htblPropValue);
+
+							/*
+							 * get queryVariable of the subjectVariable to know
+							 * its propertyName
+							 */
+							QueryVariable queryVariable = htblSubjectVariables.get(columnName);
+							String propertyName = queryVariable.getPropertyName();
+
+							/*
+							 * get subjectVariable of the objectVariable
+							 * (columnName)
+							 */
+							String subjectVariable = queryVariable.getSubjectVariableName();
+
+							/*
+							 * check if the subjectVariable exist in
+							 * htblSubjectVariablehtblpropVal
+							 */
+							if (htblSubjectVariablehtblpropVal.containsKey(subjectVariable)) {
+								Hashtable<String, Object> subjectVariablePropVal = htblSubjectVariablehtblpropVal
+										.get(subjectVariable);
+
+								/*
+								 * check if the subjectVariablePropVal contains
+								 * the propertyName
+								 */
+								if (subjectVariablePropVal.containsKey(propertyName)) {
+									Object value = subjectVariablePropVal.get(propertyName);
+
+									/*
+									 * if the value exist then it must be an
+									 * arrayList of values so I have to add a
+									 * reference to new created htblPropValue
+									 */
+									((ArrayList<Object>) value).add(htblPropValue);
+								} else {
+
+									/*
+									 * get propertyMapping of propertyName that
+									 * connects subjectVariable to
+									 * objectVariable (columnName)
+									 */
+									String classUri = queryVariable.getSubjectClassUri();
+									Class propertyClass = DynamicPropertiesUtility.htblAllStaticClasses.get(classUri);
+									Property property = propertyClass.getProperties().get(propertyName);
+
+									/*
+									 * check if the property has multipleValue
+									 * in order to create a new Arraylist to
+									 * hold values
+									 */
+									if (property.isMulitpleValues()) {
+										ArrayList<Object> valueList = new ArrayList<>();
+										valueList.add(htblPropValue);
+
+										subjectVariablePropVal.put(propertyName, valueList);
+
+									} else {
+										subjectVariablePropVal.put(propertyName, htblPropValue);
+									}
+
+								}
+
+							} else {
+								/*
+								 * subjectVariable doesnot exist so I have to
+								 * create it and add property and value that
+								 * reference the created htblPropValue
+								 */
+								Hashtable<String, Object> subjectVariablePropVal = new Hashtable<>();
+								htblSubjectVariablehtblpropVal.put(subjectVariable, subjectVariablePropVal);
+
+								/*
+								 * get propertyMapping of propertyName that
+								 * connects subjectVariable to objectVariable
+								 * (columnName)
+								 */
+								String classUri = queryVariable.getSubjectClassUri();
+								Class propertyClass = DynamicPropertiesUtility.htblAllStaticClasses.get(classUri);
+								Property property = propertyClass.getProperties().get(propertyName);
+
+								/*
+								 * check if the property has multipleValue in
+								 * order to create a new Arraylist to hold
+								 * values
+								 */
+								if (property.isMulitpleValues()) {
+									ArrayList<Object> valueList = new ArrayList<>();
+									valueList.add(htblPropValue);
+
+									subjectVariablePropVal.put(propertyName, valueList);
+
+								} else {
+									subjectVariablePropVal.put(propertyName, htblPropValue);
+								}
+
+							}
+
+							/*
+							 * add reference to new htblPropValue hashtable in
+							 * consturctedQueryResult
+							 * 
+							 * the mainSubjectUri will have the same index in
+							 * consturctedQueryResult as
+							 * htblSubjectVariablehtblpropVal because they were
+							 * added at the same time
+							 */
+							// consturctedQueryResult.get(index).put(propertyName,
+							// htblPropValue);
+						}
+
+					} else {
+						/*
+						 * it is a variable not a subject so get value of the
+						 * variable
+						 */
+						Object propValue = results.getObject(i);
+
+						/*
+						 * get queryVariable of the subjectVariable to know its
+						 * propertyName
+						 */
 						QueryVariable queryVariable = htblSubjectVariables.get(columnName);
+						String propertyName = queryVariable.getPropertyName();
+
+						/*
+						 * get propertyMapping of propertyName that connects
+						 * subjectVariable to objectVariable (columnName)
+						 */
 						String classUri = queryVariable.getSubjectClassUri();
 						Class propertyClass = DynamicPropertiesUtility.htblAllStaticClasses.get(classUri);
-						Property property = propertyClass.getProperties().get(queryVariable.getPropertyName());
+						Property property = propertyClass.getProperties().get(propertyName);
 
-						if (property.isMulitpleValues()) {
+						/*
+						 * construct value datatype of propValue if the property
+						 * is a datatype property
+						 */
+						if (property instanceof DataTypeProperty) {
+							propValue = typeCastValueToItsDataType((DataTypeProperty) property, propValue);
+						}
 
-							// ArrayList<Object> propertyValueList = new
-							// ArrayList<>();
+						/*
+						 * get subjectVariable of the objectVariable
+						 * (columnName)
+						 */
+						String subjectVariable = queryVariable.getSubjectVariableName();
+
+						/*
+						 * get HtblPropValue of the subjectVariable
+						 */
+						int index = htblIndividualSubjectIndex.get(mainSubjectUri);
+						Hashtable<String, Object> htblPropValue = helperList.get(index).get(subjectVariable);
+
+						// System.out.println(helperList.get(index));
+						// System.out.println(subjectVariable + " " + propValue
+						// + " " + htblPropValue);
+
+						/*
+						 * check if the subjectVariablePropVal contains the
+						 * propertyName
+						 */
+						if (htblPropValue.containsKey(propertyName) && property.isMulitpleValues()) {
+							Object value = htblPropValue.get(propertyName);
+
+							/*
+							 * if the value exist then it must be an arrayList
+							 * of values so I have to add literalValue
+							 */
+							ArrayList<Object> valueList = (ArrayList<Object>) value;
+							if (!valueList.contains(propValue)) {
+								valueList.add(propValue);
+							}
 						} else {
+
+							/*
+							 * check if the property has multipleValue in order
+							 * to create a new Arraylist to hold values
+							 */
+							if (property.isMulitpleValues()) {
+								ArrayList<Object> valueList = new ArrayList<>();
+								valueList.add(propValue);
+
+								htblPropValue.put(propertyName, valueList);
+
+							} else {
+								htblPropValue.put(propertyName, propValue);
+
+							}
 
 						}
 
 					}
 
-					String columnValue = results.getString(i);
-					System.out.print(columnValue + " " + rsmd.getColumnName(i));
 				}
-				System.out.println("");
 			}
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new DatabaseException(e.getMessage(), requestClassName);
 		}
-		return null;
+
+		// System.out.println(consturctedQueryResult.toString());
+
+		return consturctedQueryResult;
 	}
 
 }
