@@ -1,5 +1,7 @@
 package com.iotplatform.ontology.classes;
 
+import java.util.Hashtable;
+
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
@@ -73,6 +75,11 @@ public class SurvivalRange extends Property {
 	}
 
 	private static void initSurvivalRangeStaticInstance(SurvivalRange survivalRangeInstance) {
+		/*
+		 * emptying classTypelist
+		 */
+		survivalRangeInstance.setClassTypesList(new Hashtable<>());
+
 		/*
 		 * Relation from an SurvivalProperty to a Property.
 		 */

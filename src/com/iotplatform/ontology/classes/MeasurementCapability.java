@@ -1,5 +1,7 @@
 package com.iotplatform.ontology.classes;
 
+import java.util.Hashtable;
+
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
@@ -107,6 +109,11 @@ public class MeasurementCapability extends Property {
 
 	private static void initMeasurementCapabilityStaticInstance(MeasurementCapability measurementCapabilityInstance) {
 		measurementCapabilityInstance.getSuperClassesList().add(Property.getPropertyInstance());
+
+		/*
+		 * emptying classTypelist
+		 */
+		measurementCapabilityInstance.setClassTypesList(new Hashtable<>());
 
 		/*
 		 * A relation between some aspect of a sensing entity and a property.
