@@ -533,6 +533,35 @@ public class DynamicPropertiesUtility {
 				SurvivalProperty.getSurvivalPropertyInstance().getClassTypesList().get("BatteryLifetime"));
 		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime",
 				SurvivalProperty.getSurvivalPropertyInstance().getClassTypesList().get("SystemLifetime"));
+
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MaintenanceSchedule",
+				OperatingProperty.getOperatingPropertyInstance().getClassTypesList().get("MaintenanceSchedule"));
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingPowerRange",
+				OperatingProperty.getOperatingPropertyInstance().getClassTypesList().get("OperatingPowerRange"));
+
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Accuracy",
+				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Accuracy"));
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#DetectionLimit",
+				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("DetectionLimit"));
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Drift",
+				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Drift"));
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Frequency",
+				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Frequency"));
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Latency",
+				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Latency"));
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementRange",
+				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("MeasurementRange"));
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Precision",
+				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Precision"));
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Resolution",
+				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Resolution"));
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#ResponseTime",
+				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("ResponseTime"));
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Selectivity",
+				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Selectivity"));
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensitivity",
+				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Sensitivity"));
+
 	}
 
 }
