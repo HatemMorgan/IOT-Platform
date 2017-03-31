@@ -447,8 +447,8 @@ public class DynamicPropertiesUtility {
 			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
 		}
 
-//		System.out.println(htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person").getHtblPropUriName());
-//		System.out.println(htblAllStaticClasses.get("http://iot-platform#Developer").getHtblPropUriName());
+		// System.out.println(htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person").getHtblPropUriName());
+		// System.out.println(htblAllStaticClasses.get("http://iot-platform#Developer").getHtblPropUriName());
 
 		return dynamicProperties;
 	}
@@ -529,6 +529,10 @@ public class DynamicPropertiesUtility {
 		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice",
 				TagDevice.getTagDeviceInstance());
 		htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#Unit", Unit.getUnitInstance());
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#BatteryLifetime",
+				SurvivalProperty.getSurvivalPropertyInstance().getClassTypesList().get("BatteryLifetime"));
+		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime",
+				SurvivalProperty.getSurvivalPropertyInstance().getClassTypesList().get("SystemLifetime"));
 	}
 
 }

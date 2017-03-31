@@ -381,6 +381,7 @@ public class DynamicInsertionService {
 
 		LinkedHashMap<String, Object> survivalPropertyMap = new LinkedHashMap<>();
 		survivalPropertyMap.put("fieldName", "hasSurvivalProperty");
+		survivalPropertyMap.put("classType", "BatteryLifetime");
 		ArrayList<Object> survivalPropertyList = new ArrayList<>();
 		survivalPropertyMap.put("fields", survivalPropertyList);
 		survivalPropertyList.add("id");
