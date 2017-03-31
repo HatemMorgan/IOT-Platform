@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.TreeSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -295,7 +294,9 @@ public class SelectionUtility {
 						 * instance to hold it data
 						 */
 						if (htblSubjectVariablehtblpropVal.containsKey(columnName)) {
+
 							continue;
+
 						} else {
 
 							/*
@@ -510,7 +511,7 @@ public class SelectionUtility {
 			throw new DatabaseException(e.getMessage(), requestClassName);
 		}
 
-		// System.out.println(consturctedQueryResult.toString());
+		System.out.println("--->" + helperList.toString());
 
 		return consturctedQueryResult;
 	}

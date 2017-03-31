@@ -1,7 +1,6 @@
 package com.iotplatform.daos;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -252,7 +251,7 @@ public class MainDao {
 	public List<Hashtable<String, Object>> queryData(
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
 			String applicationModelName) {
-
+		System.out.println(htblClassNameProperty);
 		Iterator<String> htblClassNamePropertyIterator = htblClassNameProperty.keySet().iterator();
 
 		/*
@@ -288,6 +287,7 @@ public class MainDao {
 			// }
 			// System.out.println("");
 			// }
+			// return null;
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -296,7 +296,7 @@ public class MainDao {
 
 	}
 
-	private static Object[] constructSelectQuery(
+	private Object[] constructSelectQuery(
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
 			String mainClassPrefixedName, String mainInstanceUniqueIdentifier, String applicationModelName) {
 
@@ -455,7 +455,7 @@ public class MainDao {
 	 * the query
 	 *
 	 */
-	private static void constructSelectQueryHelper(
+	private void constructSelectQueryHelper(
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
 			Hashtable<String, QueryVariable> htblSubjectVariables,
 			Hashtable<String, String> htblIndividualIDSubjVarName, StringBuilder queryBuilder,
@@ -625,7 +625,7 @@ public class MainDao {
 						 * properly construct query results
 						 */
 						htblSubjectVariables.put("var" + vairableNum[0],
-								new QueryVariable("subject" + (subjectNum[0] - 1),
+								new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
 										getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 
 						vairableNum[0]++;
@@ -665,7 +665,7 @@ public class MainDao {
 						 * properly construct query results
 						 */
 						htblSubjectVariables.put("var" + vairableNum[0],
-								new QueryVariable("subject" + (subjectNum[0] - 1),
+								new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
 										getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 						vairableNum[0]++;
 					}

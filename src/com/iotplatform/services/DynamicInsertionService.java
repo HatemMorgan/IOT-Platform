@@ -338,6 +338,71 @@ public class DynamicInsertionService {
 		DynamicInsertionService dynamicInsertionService = new DynamicInsertionService(requestFieldsValidation,
 				new ApplicationDao(oracle), mainDao, getQueryRequestValidations);
 
+		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
+
+		ArrayList<Object> fieldList = new ArrayList<>();
+		htblFieldValue.put("fields", fieldList);
+
+		fieldList.add("id");
+		fieldList.add("hasTransmissionPower");
+		fieldList.add("hasType");
+
+		LinkedHashMap<String, Object> coverageMap = new LinkedHashMap<>();
+		coverageMap.put("fieldName", "hasCoverage");
+		ArrayList<Object> coverageFieldList = new ArrayList<>();
+		coverageMap.put("fields", coverageFieldList);
+		coverageFieldList.add("id");
+
+		LinkedHashMap<String, Object> pointMap = new LinkedHashMap<>();
+		pointMap.put("fieldName", "location");
+		ArrayList<Object> pointFieldList = new ArrayList<>();
+		pointMap.put("fields", pointFieldList);
+		pointFieldList.add("id");
+		pointFieldList.add("lat");
+		pointFieldList.add("long");
+
+		coverageFieldList.add(pointMap);
+
+		fieldList.add(coverageMap);
+
+		LinkedHashMap<String, Object> survivalRangeMap = new LinkedHashMap<>();
+		survivalRangeMap.put("fieldName", "hasSurvivalRange");
+		ArrayList<Object> survivalRangeFieldList = new ArrayList<>();
+		survivalRangeMap.put("fields", survivalRangeFieldList);
+
+		LinkedHashMap<String, Object> conditionMap = new LinkedHashMap<>();
+		conditionMap.put("fieldName", "inCondition");
+		ArrayList<Object> conditionFieldList = new ArrayList<>();
+		conditionMap.put("fields", conditionFieldList);
+		conditionFieldList.add("id");
+		conditionFieldList.add("description");
+
+		survivalRangeFieldList.add(conditionMap);
+
+		LinkedHashMap<String, Object> survivalPropertyMap = new LinkedHashMap<>();
+		survivalPropertyMap.put("fieldName", "hasSurvivalProperty");
+		ArrayList<Object> survivalPropertyList = new ArrayList<>();
+		survivalPropertyMap.put("fields", survivalPropertyList);
+		survivalPropertyList.add("id");
+
+		LinkedHashMap<String, Object> amountMap = new LinkedHashMap<>();
+		amountMap.put("fieldName", "hasValue");
+		ArrayList<Object> amountFieldList = new ArrayList<>();
+		amountMap.put("fields", amountFieldList);
+		amountFieldList.add("id");
+		amountFieldList.add("hasDataValue");
+
+		survivalPropertyList.add(amountMap);
+
+		survivalRangeFieldList.add(survivalPropertyMap);
+		
+		fieldList.add(survivalRangeMap);
+
+		System.out.println(htblFieldValue);
+		
+		System.out
+				.println(dynamicInsertionService.QueryData("TESTAPPLICATION", "communicating Device", htblFieldValue));
+
 		// System.out.println(dynamicInsertionService.selectAll("TESTAPPLICATION",
 		// "communicating Device"));
 	}
