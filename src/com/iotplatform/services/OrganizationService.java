@@ -18,18 +18,18 @@ import com.iotplatform.ontology.Class;
 
 import com.iotplatform.ontology.classes.Organization;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.validations.RequestFieldsValidation;
+import com.iotplatform.validations.PostRequestValidations;
 
 @Service("organizationService")
 public class OrganizationService {
 
-	private RequestFieldsValidation requestFieldsValidation;
+	private PostRequestValidations requestFieldsValidation;
 	private ApplicationDao applicationDao;
 	private OrganizationDao organizationDao;
 	private MainDao mainDao;
 
 	@Autowired
-	public OrganizationService(RequestFieldsValidation requestFieldsValidation, ApplicationDao applicationDao,
+	public OrganizationService(PostRequestValidations requestFieldsValidation, ApplicationDao applicationDao,
 			OrganizationDao organizationDao, MainDao mainDao) {
 		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;

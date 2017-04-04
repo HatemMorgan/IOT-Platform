@@ -1,85 +1,33 @@
 package com.iotplatform.utilities;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.daos.DynamicConceptDao;
-import com.iotplatform.exceptions.ErrorObjException;
-import com.iotplatform.models.DynamicConceptModel;
+import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
-import com.iotplatform.ontology.DynamicConceptColumns;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefixes;
 import com.iotplatform.ontology.Property;
-import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.ontology.XSDDataTypes;
-import com.iotplatform.ontology.classes.ActuatingDevice;
-import com.iotplatform.ontology.classes.Admin;
-import com.iotplatform.ontology.classes.Agent;
-import com.iotplatform.ontology.classes.Amount;
-import com.iotplatform.ontology.classes.Application;
-import com.iotplatform.ontology.classes.Attribute;
-import com.iotplatform.ontology.classes.CommunicatingDevice;
-import com.iotplatform.ontology.classes.Condition;
-import com.iotplatform.ontology.classes.Coverage;
-import com.iotplatform.ontology.classes.Deployment;
-import com.iotplatform.ontology.classes.DeploymentRelatedProcess;
-import com.iotplatform.ontology.classes.Developer;
-import com.iotplatform.ontology.classes.Device;
-import com.iotplatform.ontology.classes.DeviceModule;
-import com.iotplatform.ontology.classes.FeatureOfInterest;
-import com.iotplatform.ontology.classes.Group;
-import com.iotplatform.ontology.classes.IOTSystem;
-import com.iotplatform.ontology.classes.Input;
-import com.iotplatform.ontology.classes.MeasurementCapability;
-import com.iotplatform.ontology.classes.MeasurementProperty;
-import com.iotplatform.ontology.classes.Metadata;
-import com.iotplatform.ontology.classes.NormalUser;
-import com.iotplatform.ontology.classes.ObjectClass;
-import com.iotplatform.ontology.classes.Observation;
-import com.iotplatform.ontology.classes.ObservationValue;
-import com.iotplatform.ontology.classes.OperatingProperty;
-import com.iotplatform.ontology.classes.OperatingRange;
-import com.iotplatform.ontology.classes.Organization;
-import com.iotplatform.ontology.classes.Output;
-import com.iotplatform.ontology.classes.Person;
-import com.iotplatform.ontology.classes.Platform;
-import com.iotplatform.ontology.classes.Point;
-import com.iotplatform.ontology.classes.Process;
-import com.iotplatform.ontology.classes.QuantityKind;
-import com.iotplatform.ontology.classes.Sensing;
-import com.iotplatform.ontology.classes.SensingDevice;
-import com.iotplatform.ontology.classes.Sensor;
-import com.iotplatform.ontology.classes.SensorDataSheet;
-import com.iotplatform.ontology.classes.SensorOutput;
-import com.iotplatform.ontology.classes.Service;
-import com.iotplatform.ontology.classes.Stimulus;
-import com.iotplatform.ontology.classes.SurvivalProperty;
-import com.iotplatform.ontology.classes.SurvivalRange;
-import com.iotplatform.ontology.classes.SystemClass;
-import com.iotplatform.ontology.classes.TagDevice;
-import com.iotplatform.ontology.classes.Unit;
-import com.iotplatform.validations.RequestFieldsValidation;
 
 @Component
 public class SelectionUtility {
 
-	private DynamicConceptDao dynamicConceptDao;
-	private Hashtable<String, Class> htblAllStaticClasses;
+	private DynamicPropertiesUtility dynamicPropertiesUtility;
 
 	@Autowired
-	public SelectionUtility(DynamicConceptDao dynamicConceptDao) {
-		this.dynamicConceptDao = dynamicConceptDao;
-		init();
+	public SelectionUtility(DynamicPropertiesUtility dynamicPropertiesUtility) {
+		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
 	}
 
 	/*
@@ -100,7 +48,7 @@ public class SelectionUtility {
 			 * properties from database
 			 */
 
-			getDynamicProperties(applicationName, subjectClass);
+			dynamicPropertiesUtility.getDynamicProperties(applicationName, subjectClass);
 			propertyName = subjectClass.getHtblPropUriName().get(propertyURI);
 
 		}
@@ -273,312 +221,439 @@ public class SelectionUtility {
 		return responseJson;
 	}
 
-	/*
-	 * it loads dynamic properties of the given class in the passed application
-	 * domain and also caches the dynamic properties to improve performance
-	 */
-	private Hashtable<String, DynamicConceptModel> getDynamicProperties(String applicationName, Class subjectClass) {
+	public static List<Hashtable<String, Object>> constructQueryResult(String applicationName, ResultSet results,
+			String requestClassName, Hashtable<String, QueryVariable> htblSubjectVariables) {
+
+		List<Hashtable<String, Object>> consturctedQueryResult = new ArrayList<>();
 
 		/*
-		 * to get the dynamic properties only one time
+		 * htblIndividualSubjectIndex has subjectUri as key and index of
+		 * subjectUri in consturctedQueryResult
 		 */
+		LinkedHashMap<String, Integer> htblIndividualSubjectIndex = new LinkedHashMap<>();
 
-		ArrayList<SqlCondition> orCondtionsFilterList = new ArrayList<>();
-		orCondtionsFilterList.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), subjectClass.getUri()));
+		/*
+		 * htblIndividualIndex is used to hold uniqueIdentifier of an individual
+		 * (key) and index of individual in list (value)
+		 * 
+		 * htblIndividualIndex is used only when there is an objectProperty that
+		 * has multiple values so the value of this property has to be
+		 * List<Hashtable<String, Object>> each row in the list represent an
+		 * individual so htblIndividualIndex is used to get index of individual
+		 */
+		LinkedHashMap<String, Integer> htblIndividualIndex = new LinkedHashMap<>();
 
-		for (Class superClass : subjectClass.getSuperClassesList()) {
-			orCondtionsFilterList
-					.add(new SqlCondition(DynamicConceptColumns.CLASS_URI.toString(), superClass.getUri()));
+		/*
+		 * 
+		 */
+		List<Hashtable<String, Object>> helperList = new ArrayList<>();
 
-		}
-
-		List<DynamicConceptModel> res;
 		try {
-			res = dynamicConceptDao.getConceptsOfApplicationByFilters(applicationName, null, orCondtionsFilterList);
-		} catch (ErrorObjException ex) {
-			throw ex;
-		}
+			ResultSetMetaData rsmd = results.getMetaData();
 
-		/*
-		 * populate dynamicProperties hashtable to enhance performance when
-		 * having alot of dynamic properties not cached so to avoid going to the
-		 * database more than one time. I load all the dynamic properties of the
-		 * specified subject and then cache results
-		 *
-		 * I used hashtable to hold dynamic properties to enhance performance
-		 * when checking for valid property in the loading dynamic properties. I
-		 * did not check in the loop to allow caching all new properties that
-		 * were not cached before without terminating the loop when finding the
-		 * property needed in the dynamicProperties
-		 *
-		 * Also add dynamic property to property list of the subject class in
-		 * order to improve performance by caching the dynamic properties
-		 */
-		Hashtable<String, DynamicConceptModel> dynamicProperties = new Hashtable<>();
+			int columnsNumber = rsmd.getColumnCount();
+			while (results.next()) {
 
-		applicationName = applicationName.replaceAll(" ", "").toUpperCase();
+				/*
+				 * SUBJECT0 must be always the first column
+				 */
+				String mainSubjectUri = results.getString("SUBJECT0");
 
-		for (DynamicConceptModel dynamicProperty : res) {
+				/*
+				 * check if the subjectUri exist before or not in
+				 * htblIndividualSubjectIndex
+				 */
+				if (!htblIndividualSubjectIndex.containsKey(mainSubjectUri)) {
 
-			Class propertySubjectClass = htblAllStaticClasses.get(dynamicProperty.getClass_uri());
+					/*
+					 * construct new data structures instances to hold data of
+					 * the new subjectUri
+					 */
+					Hashtable<String, Object> htblSubjectVariablehtblpropVal = new Hashtable<>();
 
-			// skip if the property was cached before
-			if (propertySubjectClass.getProperties().contains(dynamicProperty.getProperty_name())) {
-				continue;
-			}
+					Hashtable<String, Object> htblIndividualPropertyValue = new Hashtable<>();
 
-			propertySubjectClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
-					dynamicProperty.getProperty_name());
+					htblSubjectVariablehtblpropVal.put("subject0", htblIndividualPropertyValue);
 
-			cacheLoadedDynamicProperty(dynamicProperty, propertySubjectClass, applicationName);
-			dynamicProperties.put(dynamicProperty.getProperty_name(), dynamicProperty);
-		}
+					helperList.add(htblSubjectVariablehtblpropVal);
 
-		System.out.println(htblAllStaticClasses.get("http://xmlns.com/foaf/0.1/Person").getHtblPropUriName());
-		System.out.println(htblAllStaticClasses.get("http://iot-platform#Developer").getHtblPropUriName());
+					/*
+					 * store index of mainSubjectUri
+					 * htblSubjectVariablehtblpropVal in helperList
+					 */
+					int index = helperList.size() - 1;
+					htblIndividualSubjectIndex.put(mainSubjectUri, index);
 
-		return dynamicProperties;
-	}
+					consturctedQueryResult.add(htblIndividualPropertyValue);
 
-	/*
-	 * cacheLoadedDynamicProperty method is used to cache a loaded dynamic
-	 * property by adding it to subclass's propertiesList and add it to any of
-	 * the subjectClass's subClasses' propertiesList (Properties inheritance)
-	 */
-	private void cacheLoadedDynamicProperty(DynamicConceptModel dynamicProperty, Class subjectClass,
-			String applicationName) {
-
-		// check if the property was cached before
-		if (!subjectClass.getProperties().contains(dynamicProperty.getProperty_name())) {
-
-			subjectClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
-					dynamicProperty.getProperty_name());
-
-			if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty.toString())) {
-				htblAllStaticClasses.get(subjectClass.getUri()).getProperties().put(dynamicProperty.getProperty_name(),
-						new DataTypeProperty(htblAllStaticClasses.get(dynamicProperty.getClass_uri()),
-								dynamicProperty.getProperty_name(),
-								getPrefix(dynamicProperty.getProperty_prefix_alias()),
-								getXSDDataTypeEnum(dynamicProperty.getProperty_object_type_uri()), applicationName,
-								dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
-			} else {
-				if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
-					htblAllStaticClasses.get(subjectClass.getUri()).getProperties().put(
-							dynamicProperty.getProperty_name(),
-							new ObjectProperty(htblAllStaticClasses.get(dynamicProperty.getClass_uri()),
-									dynamicProperty.getProperty_name(),
-									getPrefix(dynamicProperty.getProperty_prefix_alias()),
-									htblAllStaticClasses.get(dynamicProperty.getProperty_object_type_uri()),
-									applicationName, dynamicProperty.getHasMultipleValues(),
-									dynamicProperty.getIsUnique()));
 				}
-			}
-		}
-		/*
-		 * Check if the subjectClass has subClasses(Type Classes)
-		 */
-		if (!subjectClass.isHasTypeClasses()) {
-			return;
-		}
 
-		/*
-		 * caching property into subClasses after made sure that it has
-		 * typeClasses(SubClasses)
-		 */
-		Iterator<String> htblSubClassesIterator = subjectClass.getClassTypesList().keySet().iterator();
+				for (int i = 2; i <= columnsNumber; i++) {
 
-		while (htblSubClassesIterator.hasNext()) {
-			String subClassName = htblSubClassesIterator.next();
-			Class subClass = subjectClass.getClassTypesList().get(subClassName);
+					String columnName = rsmd.getColumnName(i).toLowerCase();
 
-			// check if the property was cached before
-			if (!subClass.getProperties().contains(dynamicProperty.getProperty_name())) {
+					if (columnName.contains("subject")) {
+						int index = htblIndividualSubjectIndex.get(mainSubjectUri);
 
-				subClass.getHtblPropUriName().put(dynamicProperty.getProperty_uri(),
-						dynamicProperty.getProperty_name());
+						/*
+						 * get queryVariable of the subjectVariable to know its
+						 * propertyName
+						 */
+						QueryVariable queryVariable = htblSubjectVariables.get(columnName);
+						String propertyName = queryVariable.getPropertyName();
 
-				if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty.toString())) {
-					htblAllStaticClasses.get(subClass.getUri()).getProperties().put(dynamicProperty.getProperty_name(),
-							new DataTypeProperty(htblAllStaticClasses.get(dynamicProperty.getClass_uri()),
-									dynamicProperty.getProperty_name(),
-									getPrefix(dynamicProperty.getProperty_prefix_alias()),
-									getXSDDataTypeEnum(dynamicProperty.getProperty_object_type_uri()), applicationName,
-									dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
-				} else {
-					if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
-						htblAllStaticClasses.get(subClass.getUri()).getProperties().put(
-								dynamicProperty.getProperty_name(),
-								new ObjectProperty(htblAllStaticClasses.get(dynamicProperty.getClass_uri()),
-										dynamicProperty.getProperty_name(),
-										getPrefix(dynamicProperty.getProperty_prefix_alias()),
-										htblAllStaticClasses.get(dynamicProperty.getProperty_object_type_uri()),
-										applicationName, dynamicProperty.getHasMultipleValues(),
-										dynamicProperty.getIsUnique()));
+						/*
+						 * get parrentSubjectVariable of the objectVariable
+						 * (columnName)
+						 */
+						String parrentSubjectVariable = queryVariable.getSubjectVariableName();
+
+						/*
+						 * get propertyMapping of propertyName that connects
+						 * subjectVariable to objectVariable (columnName)
+						 */
+						String classUri = queryVariable.getSubjectClassUri();
+						Class propertyClass = DynamicPropertiesUtility.htblAllStaticClasses.get(classUri);
+						Property property = propertyClass.getProperties().get(propertyName);
+
+						Hashtable<String, Object> htblSubjectVariablehtblpropVal = helperList.get(index);
+
+						String individualUniqueIdentifier = results.getString(columnName);
+
+						/*
+						 * check if the subject variable exist
+						 * 
+						 * if it exist so I will skip this iteration because I
+						 * don't have to create a new Hashtable<String, Object>
+						 * instance to hold it data
+						 */
+						if (htblSubjectVariablehtblpropVal.containsKey(columnName)) {
+
+							/*
+							 * create new Hashtable<String, Object> instance to
+							 * hold new subjectVariable data
+							 */
+							Hashtable<String, Object> htblPropValue = new Hashtable<>();
+
+							/*
+							 * Make sure that individualUniqueIdentifier was not
+							 * added before
+							 */
+							if (!htblIndividualIndex.containsKey(individualUniqueIdentifier)) {
+
+								/*
+								 * get subjectVariablePropValue from
+								 * htblSubjectVariablehtblpropVal
+								 */
+								Object parentSubjectVariablePropValue = htblSubjectVariablehtblpropVal
+										.get(parrentSubjectVariable);
+
+								/*
+								 * get target htblParentFieldObject that holds
+								 * the propValues of parentSubjectVariable
+								 */
+								Hashtable<String, Object> htblParentPropValue = getHtblPropValue(
+										parentSubjectVariablePropValue);
+
+								/*
+								 * check if the property has multipleValue in
+								 * order to add the new individual to list of
+								 * individuals
+								 */
+								if (property.isMulitpleValues()) {
+
+									/*
+									 * get valueList of the property from
+									 * parentVariable htblParentPropValue
+									 */
+									ArrayList<Hashtable<String, Object>> valueList = (ArrayList<Hashtable<String, Object>>) htblParentPropValue
+											.get(propertyName);
+
+									/*
+									 * adding new individual to value List
+									 * 
+									 * this will also be added to list of
+									 * individuals of subjectVariable stored in
+									 * columnName because they both reference
+									 * (pointers) the same list so adding it in
+									 * one of them reflect the other
+									 */
+									valueList.add(htblPropValue);
+
+									/*
+									 * add index (which will be zero because it
+									 * is the first time to see this
+									 * subjectVariable) of the individual to
+									 * htblIndividualIndex
+									 */
+									htblIndividualIndex.put(individualUniqueIdentifier, null);
+
+								} else {
+
+									/*
+									 * add objectPropertyName and add reference
+									 * to htblPropValue(Hashtable<String,Object)
+									 * that holds the subjectVariabelIndividual
+									 * data
+									 */
+									htblParentPropValue.put(propertyName, htblPropValue);
+
+									/*
+									 * get subjectVariablePropValue of the
+									 * subjectVariable (stored in columnName)
+									 * from htblSubjectVariablehtblpropVal
+									 */
+									Object subjectVariablePropValue = htblSubjectVariablehtblpropVal.get(columnName);
+
+									/*
+									 * if subjectVariablePropValue is an
+									 * instance of hashtable<String,Object> so I
+									 * will reinitialize a new instance to hold
+									 * new individual data
+									 */
+									if (subjectVariablePropValue instanceof java.util.Hashtable<?, ?>) {
+										htblSubjectVariablehtblpropVal.put(columnName, htblPropValue);
+
+									}
+
+									/*
+									 * add index (which will be zero because it
+									 * is the first time to see this
+									 * subjectVariable) of the individual to
+									 * htblIndividualIndex
+									 */
+									htblIndividualIndex.put(individualUniqueIdentifier, null);
+								}
+
+							} else {
+
+								/*
+								 * individualUniqueIdentifier was added before
+								 * so skip this iteration because we do not need
+								 * to override that past values because they are
+								 * the same
+								 */
+								continue;
+							}
+
+						} else {
+
+							/*
+							 * create new Hashtable<String, Object> instance to
+							 * hold new subjectVariable data
+							 */
+							Hashtable<String, Object> htblPropValue = new Hashtable<>();
+
+							/*
+							 * get subjectVariablePropValue from
+							 * htblSubjectVariablehtblpropVal
+							 */
+							Object parentSubjectVariablePropValue = htblSubjectVariablehtblpropVal
+									.get(parrentSubjectVariable);
+
+							/*
+							 * get target htblfieldObject that holds the
+							 * propValues of parentSubjectVariable
+							 */
+							Hashtable<String, Object> htblParentFieldObject = getHtblPropValue(
+									parentSubjectVariablePropValue);
+
+							/*
+							 * check if the property has multipleValue in order
+							 * to create a new Arraylist to hold values
+							 */
+							if (property.isMulitpleValues()) {
+								ArrayList<Hashtable<String, Object>> valueList = new ArrayList<>();
+								valueList.add(htblPropValue);
+
+								htblParentFieldObject.put(propertyName, valueList);
+
+								/*
+								 * add new subject variable and its valueList to
+								 * htblSubjectVariablehtblpropVal
+								 */
+								htblSubjectVariablehtblpropVal.put(columnName, valueList);
+
+								/*
+								 * add index (which will be zero because it is
+								 * the first time to see this subjectVariable)
+								 * of the individual to htblIndividualIndex
+								 */
+								htblIndividualIndex.put(individualUniqueIdentifier, 0);
+
+							} else {
+								htblParentFieldObject.put(propertyName, htblPropValue);
+
+								/*
+								 * add new subject variable and its
+								 * htblPropValue to
+								 * htblSubjectVariablehtblpropVal
+								 */
+								htblSubjectVariablehtblpropVal.put(columnName, htblPropValue);
+
+								/*
+								 * add index (which will be zero because it is
+								 * the first time to see this subjectVariable)
+								 * of the individual to htblIndividualIndex
+								 */
+								htblIndividualIndex.put(individualUniqueIdentifier, 0);
+							}
+
+						}
+
+					} else {
+						/*
+						 * it is a variable not a subject so get value of the
+						 * variable
+						 */
+						Object propValue = results.getObject(i);
+
+						/*
+						 * get queryVariable of the subjectVariable to know its
+						 * propertyName
+						 */
+						QueryVariable queryVariable = htblSubjectVariables.get(columnName);
+						String propertyName = queryVariable.getPropertyName();
+
+						/*
+						 * get propertyMapping of propertyName that connects
+						 * subjectVariable to objectVariable (columnName)
+						 */
+						String classUri = queryVariable.getSubjectClassUri();
+						Class propertyClass = DynamicPropertiesUtility.htblAllStaticClasses.get(classUri);
+						Property property = propertyClass.getProperties().get(propertyName);
+
+						/*
+						 * construct value datatype of propValue if the property
+						 * is a datatype property
+						 */
+						if (property instanceof DataTypeProperty) {
+							propValue = typeCastValueToItsDataType((DataTypeProperty) property, propValue);
+						}
+
+						/*
+						 * get subjectVariable of the objectVariable
+						 * (columnName)
+						 */
+						String parentSubjectVariable = queryVariable.getSubjectVariableName();
+
+						/*
+						 * get parentSubjectVariablePropValue of the
+						 * subjectVariable
+						 */
+						int index = htblIndividualSubjectIndex.get(mainSubjectUri);
+						Object parentSubjectVariablePropValue = helperList.get(index).get(parentSubjectVariable);
+						/*
+						 * get target htblParentFieldObject that holds the
+						 * propValues of subjectVariable
+						 */
+						Hashtable<String, Object> htblParentFieldObject;
+
+						if (parentSubjectVariablePropValue instanceof java.util.Hashtable<?, ?>) {
+
+							/*
+							 * parentSubjectVariable has one single
+							 * Hashtable<String, Object> that holds its prop
+							 * values
+							 */
+							htblParentFieldObject = (Hashtable<String, Object>) parentSubjectVariablePropValue;
+
+						} else {
+
+							/*
+							 * subjectVariable has list of Hashtable<String,
+							 * Object> that holds all individuals' prop values
+							 */
+							List<Hashtable<String, Object>> htblfieldObjectList = (List<Hashtable<String, Object>>) parentSubjectVariablePropValue;
+
+							/*
+							 * get the index of the last individual because I am
+							 * iterating on values so I am adding values in
+							 * order s
+							 */
+							int lastIndividualIndex = htblfieldObjectList.size() - 1;
+							htblParentFieldObject = htblfieldObjectList.get(lastIndividualIndex);
+						}
+
+						/*
+						 * check if the subjectVariablePropVal contains the
+						 * propertyName
+						 */
+						if (htblParentFieldObject.containsKey(propertyName) && property.isMulitpleValues()) {
+							Object value = htblParentFieldObject.get(propertyName);
+
+							/*
+							 * if the value exist then it must be an arrayList
+							 * of values so I have to add literalValue
+							 */
+							ArrayList<Object> valueList = (ArrayList<Object>) value;
+							if (!valueList.contains(propValue)) {
+								valueList.add(propValue);
+							}
+						} else {
+
+							/*
+							 * check if the property has multipleValue in order
+							 * to create a new Arraylist to hold values
+							 */
+							if (property.isMulitpleValues()) {
+								ArrayList<Object> valueList = new ArrayList<>();
+								valueList.add(propValue);
+
+								htblParentFieldObject.put(propertyName, valueList);
+
+							} else {
+								htblParentFieldObject.put(propertyName, propValue);
+
+							}
+
+						}
+
 					}
+
 				}
 			}
 
+		} catch (
+
+		SQLException e) {
+			throw new DatabaseException(e.getMessage(), requestClassName);
 		}
 
+		System.out.println("--->" + helperList);
+
+		return consturctedQueryResult;
 	}
 
-	/*
-	 * get Prefix enum that maps the String prefixAlias from a dynamicProperty
-	 */
-	private Prefixes getPrefix(String prefixAlias) {
+	private static Hashtable<String, Object> getHtblPropValue(Object subjectVariablePropValueObject) {
+		/*
+		 * get target htblfieldObject that holds the propValues of
+		 * subjectVariable
+		 */
+		Hashtable<String, Object> htblPropValue;
+		if (subjectVariablePropValueObject instanceof java.util.Hashtable<?, ?>) {
+			/*
+			 * subjectVariable has one single Hashtable<String, Object> that
+			 * holds its prop values
+			 */
+			htblPropValue = (Hashtable<String, Object>) subjectVariablePropValueObject;
 
-		if (Prefixes.FOAF.getPrefix().equals(prefixAlias)) {
-			return Prefixes.FOAF;
+		} else {
+			/*
+			 * subjectVariable has list of Hashtable<String, Object> that holds
+			 * all individuals' prop values
+			 */
+			List<Hashtable<String, Object>> htblIndividualshtblPropValueList = (List<Hashtable<String, Object>>) subjectVariablePropValueObject;
+
+			/*
+			 * get the index of the last individual because I am iterating on
+			 * values so I am adding values in order s
+			 */
+			int lastIndividualIndex = htblIndividualshtblPropValueList.size() - 1;
+			htblPropValue = htblIndividualshtblPropValueList.get(lastIndividualIndex);
 		}
 
-		if (Prefixes.SSN.getPrefix().equals(prefixAlias)) {
-			return Prefixes.SSN;
-		}
-
-		if (Prefixes.IOT_LITE.getPrefix().equals(prefixAlias)) {
-			return Prefixes.IOT_LITE;
-		}
-
-		if (Prefixes.IOT_PLATFORM.getPrefix().equals(prefixAlias)) {
-			return Prefixes.IOT_PLATFORM;
-		}
-
-		if (Prefixes.GEO.getPrefix().equals(prefixAlias)) {
-			return Prefixes.GEO;
-		}
-
-		if (Prefixes.XSD.getPrefix().equals(prefixAlias)) {
-			return Prefixes.XSD;
-		}
-
-		if (Prefixes.OWL.getPrefix().equals(prefixAlias)) {
-			return Prefixes.OWL;
-		}
-
-		if (Prefixes.RDFS.getPrefix().equals(prefixAlias)) {
-			return Prefixes.RDFS;
-		}
-
-		if (Prefixes.RDF.getPrefix().equals(prefixAlias)) {
-			return Prefixes.RDF;
-		}
-
-		if (Prefixes.QU.getPrefix().equals(prefixAlias)) {
-			return Prefixes.QU;
-		}
-
-		if (Prefixes.DUL.getPrefix().equals(prefixAlias)) {
-			return Prefixes.DUL;
-		}
-
-		return null;
-	}
-
-	/*
-	 * getXSDDataTypeEnum return XsdDataType enum instance
-	 */
-	private XSDDataTypes getXSDDataTypeEnum(String dataType) {
-
-		if (XSDDataTypes.boolean_type.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.boolean_type;
-		}
-
-		if (XSDDataTypes.decimal_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.decimal_typed;
-		}
-
-		if (XSDDataTypes.float_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.float_typed;
-		}
-
-		if (XSDDataTypes.integer_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.integer_typed;
-		}
-
-		if (XSDDataTypes.string_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.string_typed;
-		}
-
-		if (XSDDataTypes.dateTime_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.dateTime_typed;
-		}
-
-		if (XSDDataTypes.double_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.double_typed;
-		}
-
-		return null;
-	}
-
-	private void init() {
-		htblAllStaticClasses = new Hashtable<>();
-		htblAllStaticClasses.put("http://iot-platform#Application", Application.getApplicationInstance());
-		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Person", Person.getPersonInstance());
-		htblAllStaticClasses.put("http://iot-platform#Admin", Admin.getAdminInstance());
-		htblAllStaticClasses.put("http://iot-platform#Developer", Developer.getDeveloperInstance());
-		htblAllStaticClasses.put("http://iot-platform#NormalUser", NormalUser.getNormalUserInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice",
-				ActuatingDevice.getActuatingDeviceInstance());
-		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Agent", Agent.getAgentInstance());
-		htblAllStaticClasses.put("http://iot-platform#Amount", Amount.getAmountInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute",
-				Attribute.getAttributeInstance());
-		htblAllStaticClasses.put("http://iot-platform#CommunicatingDevice",
-				CommunicatingDevice.getCommunicatingDeviceInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Condition", Condition.getConditionInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage",
-				Coverage.getCoverageInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Deployment", Deployment.getDeploymentInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess",
-				DeploymentRelatedProcess.getDeploymentRelatedProcessInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Device", Device.getDeviceInstance());
-		htblAllStaticClasses.put("http://iot-platform#DeviceModule", DeviceModule.getDeviceModuleInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest",
-				FeatureOfInterest.getFeatureOfInterestInstance());
-		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Group", Group.getGroupInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Input", Input.getInputInstance());
-		htblAllStaticClasses.put("http://iot-platform#IOTSystem", IOTSystem.getIOTSystemInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability",
-				MeasurementCapability.getMeasurementCapabilityInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementProperty",
-				MeasurementProperty.getMeasurementPropertyInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata",
-				Metadata.getMetadataInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Object",
-				ObjectClass.getObjectClassInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Observation", Observation.getObservationInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#ObservationValue",
-				ObservationValue.getObservationValueInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty",
-				OperatingProperty.getOperatingPropertyInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingRange",
-				OperatingRange.getOperatingRangeInstance());
-		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Organization", Organization.getOrganizationInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Output", Output.getOutputInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Platform", Platform.getPlatformInstance());
-		htblAllStaticClasses.put("http://www.w3.org/2003/01/geo/wgs84_pos#Point", Point.getPointInstacne());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Process", Process.getProcessInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Property",
-				com.iotplatform.ontology.classes.Property.getPropertyInstance());
-		htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#QuantityKind", QuantityKind.getQuantityKindInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensing", Sensing.getSensingInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensingDevice",
-				SensingDevice.getSensingDeviceInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensor", Sensor.getSensorInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet",
-				SensorDataSheet.getSensorDataSheetInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensorOutput",
-				SensorOutput.getSensorOutputInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service", Service.getServiceInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Stimulus.getStimulusInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty",
-				SurvivalProperty.getSurvivalPropertyInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange",
-				SurvivalRange.getSurvivalRangeInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#System", SystemClass.getSystemInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice",
-				TagDevice.getTagDeviceInstance());
-		htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#Unit", Unit.getUnitInstance());
+		return htblPropValue;
 	}
 
 }

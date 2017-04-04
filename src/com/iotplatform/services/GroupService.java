@@ -18,18 +18,18 @@ import com.iotplatform.ontology.Class;
 
 import com.iotplatform.ontology.classes.Group;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.validations.RequestFieldsValidation;
+import com.iotplatform.validations.PostRequestValidations;
 
 @Service("GroupService")
 public class GroupService {
 
-	private RequestFieldsValidation requestFieldsValidation;
+	private PostRequestValidations requestFieldsValidation;
 	private ApplicationDao applicationDao;
 	private GroupDao groupDao;
 	private MainDao mainDao;
 
 	@Autowired
-	public GroupService(RequestFieldsValidation requestFieldsValidation, ApplicationDao applicationDao,
+	public GroupService(PostRequestValidations requestFieldsValidation, ApplicationDao applicationDao,
 			GroupDao groupDao, MainDao mainDao) {
 		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;

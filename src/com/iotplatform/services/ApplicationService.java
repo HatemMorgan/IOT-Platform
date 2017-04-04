@@ -12,14 +12,14 @@ import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.CannotCreateApplicationModelException;
-import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.classes.Admin;
 import com.iotplatform.ontology.classes.Application;
+import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.validations.RequestFieldsValidation;
+import com.iotplatform.utilities.SelectionUtility;
+import com.iotplatform.validations.PostRequestValidations;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -27,11 +27,11 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class ApplicationService {
 
 	private ApplicationDao applicationDao;
-	private RequestFieldsValidation requestFieldsValidation;
+	private PostRequestValidations requestFieldsValidation;
 	private MainDao mainDao;
 
 	@Autowired
-	public ApplicationService(ApplicationDao applicationDao, RequestFieldsValidation requestFieldsValidation,
+	public ApplicationService(ApplicationDao applicationDao, PostRequestValidations requestFieldsValidation,
 			MainDao mainDao) {
 		this.applicationDao = applicationDao;
 		this.requestFieldsValidation = requestFieldsValidation;
@@ -115,11 +115,11 @@ public class ApplicationService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		RequestFieldsValidation requestFieldsValidation = new RequestFieldsValidation(dynamicConceptDao, validationDao);
+		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
+				new DynamicPropertiesUtility(dynamicConceptDao));
+		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
 
-		MainDao mainDao = new MainDao(oracle);
-
-		ApplicationDao applicationDao = new ApplicationDao(oracle, Application.getApplicationInstance());
+		ApplicationDao applicationDao = new ApplicationDao(oracle);
 		ApplicationService applicationService = new ApplicationService(applicationDao, requestFieldsValidation,
 				mainDao);
 
@@ -130,9 +130,10 @@ public class ApplicationService {
 		// applicationDao.dropApplicationModel("Test Application");
 
 		Hashtable<String, Object> res = applicationService.insertApplication(htblPropValue);
-//		Hashtable<String, Object>[] json = (Hashtable<String, Object>[]) res.get("errors");
-//		System.out.println(json[0].toString());
-		 System.out.println(res.toString());
+		// Hashtable<String, Object>[] json = (Hashtable<String, Object>[])
+		// res.get("errors");
+		// System.out.println(json[0].toString());
+		System.out.println(res.toString());
 
 	}
 }

@@ -20,23 +20,23 @@ import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.classes.Admin;
-import com.iotplatform.ontology.classes.Application;
+import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.validations.RequestFieldsValidation;
+import com.iotplatform.validations.PostRequestValidations;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
 @Service("adminService")
 public class AdminService {
 
-	private RequestFieldsValidation requestFieldsValidation;
+	private PostRequestValidations requestFieldsValidation;
 	private ApplicationDao applicationDao;
 	private AdminDao adminDao;
 	private MainDao mainDao;
 
 	@Autowired
-	public AdminService(RequestFieldsValidation requestFieldsValidation, ApplicationDao applicationDao,
+	public AdminService(PostRequestValidations requestFieldsValidation, ApplicationDao applicationDao,
 			AdminDao adminDao, MainDao mainDao) {
 		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;
@@ -112,7 +112,7 @@ public class AdminService {
 		}
 
 		try {
-			
+
 			List<Hashtable<String, Object>> htblPropValue = adminDao
 					.getAdmins(applicationDao.getHtblApplicationNameModelName().get(applicationNameCode));
 
@@ -145,7 +145,7 @@ public class AdminService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		AdminDao adminDao = new AdminDao(oracle, new SelectionUtility(dynamicConceptDao), Admin.getAdminInstance());
+		AdminDao adminDao = new AdminDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
 
 		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
 		LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
@@ -211,12 +211,13 @@ public class AdminService {
 		// loveList.add(hatemmorgan);
 		// htblFieldValue.put("love", loveList);
 		// htblFieldValue.put("job", "Engineeer");
-		RequestFieldsValidation requestFieldsValidation = new RequestFieldsValidation(dynamicConceptDao, validationDao);
+		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
+				new DynamicPropertiesUtility(dynamicConceptDao));
 
-		MainDao mainDao = new MainDao(oracle);
+		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
 
-		AdminService adminService = new AdminService(requestFieldsValidation,
-				new ApplicationDao(oracle, Application.getApplicationInstance()), adminDao, mainDao);
+		AdminService adminService = new AdminService(requestFieldsValidation, new ApplicationDao(oracle), adminDao,
+				mainDao);
 
 		Hashtable<String, Object> Admins = adminService.getAdmins("TESTAPPLICATION");
 		System.out.println(Admins);

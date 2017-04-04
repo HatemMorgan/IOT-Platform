@@ -1,17 +1,23 @@
 package com.iotplatform.services;
 
-import java.io.InvalidClassException;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
+import java.util.List;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
+import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.MainDao;
+import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidClassNameException;
+import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
+import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.classes.ActuatingDevice;
 import com.iotplatform.ontology.classes.Admin;
@@ -58,8 +64,14 @@ import com.iotplatform.ontology.classes.SurvivalRange;
 import com.iotplatform.ontology.classes.SystemClass;
 import com.iotplatform.ontology.classes.TagDevice;
 import com.iotplatform.ontology.classes.Unit;
+import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.validations.RequestFieldsValidation;
+import com.iotplatform.utilities.QueryField;
+import com.iotplatform.utilities.SelectionUtility;
+import com.iotplatform.validations.GetQueryRequestValidations;
+import com.iotplatform.validations.PostRequestValidations;
+
+import oracle.spatial.rdf.client.jena.Oracle;
 
 /*
  * DynamicInsertionService is to service the insertion API in DynamicAPIController
@@ -69,17 +81,19 @@ import com.iotplatform.validations.RequestFieldsValidation;
 @Service("dynamicInsertionService")
 public class DynamicInsertionService {
 
-	private RequestFieldsValidation requestFieldsValidation;
+	private PostRequestValidations requestFieldsValidation;
 	private ApplicationDao applicationDao;
 	private MainDao mainDao;
 	private Hashtable<String, Class> htblAllStaticClasses;
+	private GetQueryRequestValidations getQueryRequestValidations;
 
 	@Autowired
-	public DynamicInsertionService(RequestFieldsValidation requestFieldsValidation, ApplicationDao applicationDao,
-			MainDao mainDao) {
+	public DynamicInsertionService(PostRequestValidations requestFieldsValidation, ApplicationDao applicationDao,
+			MainDao mainDao, GetQueryRequestValidations getQueryRequestValidations) {
 		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;
 		this.mainDao = mainDao;
+		this.getQueryRequestValidations = getQueryRequestValidations;
 
 		init();
 	}
@@ -94,15 +108,16 @@ public class DynamicInsertionService {
 			String applicationNameCode, String className) {
 
 		long startTime = System.currentTimeMillis();
+		className = className.toLowerCase().replaceAll(" ", "");
 
 		/*
 		 * check if the className has a valid class Mapping
 		 */
-		if (htblAllStaticClasses.containsKey(className.toLowerCase())) {
+		if (htblAllStaticClasses.containsKey(className)) {
 
 			try {
 
-				Class subjectClass = htblAllStaticClasses.get(className.toLowerCase().replaceAll(" ", ""));
+				Class subjectClass = htblAllStaticClasses.get(className);
 
 				/*
 				 * Check if the request is valid or not
@@ -131,6 +146,110 @@ public class DynamicInsertionService {
 		} else
 
 		{
+			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+			InvalidClassNameException invalidClassNameException = new InvalidClassNameException(className);
+			return invalidClassNameException.getExceptionHashTable(timeTaken);
+		}
+
+	}
+
+	public Hashtable<String, Object> selectAll(String applicationNameCode, String className) {
+
+		long startTime = System.currentTimeMillis();
+		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
+
+		className = className.toLowerCase().replaceAll(" ", "");
+		/*
+		 * check if the className has a valid class Mapping
+		 */
+		if (htblAllStaticClasses.containsKey(className)) {
+			Class subjectClass = htblAllStaticClasses.get(className);
+
+			/*
+			 * check if the model exist or not .
+			 */
+
+			if (!exist) {
+				NoApplicationModelException exception = new NoApplicationModelException(applicationNameCode,
+						subjectClass.getName());
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return new SuccessfullSelectAllJsonModel(exception.getExceptionHashTable(timeTaken)).getJson();
+			}
+
+			try {
+
+				/*
+				 * get application modelName
+				 */
+				String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
+
+				List<Hashtable<String, Object>> htblPropValue = mainDao.selectAll(applicationModelName, subjectClass);
+
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return new SuccessfullSelectAllJsonModel(htblPropValue, timeTaken).getJson();
+
+			} catch (ErrorObjException e) {
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return new SuccessfullSelectAllJsonModel(e.getExceptionHashTable(timeTaken)).getJson();
+
+			}
+
+		} else {
+			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+			InvalidClassNameException invalidClassNameException = new InvalidClassNameException(className);
+			return invalidClassNameException.getExceptionHashTable(timeTaken);
+		}
+
+	}
+
+	public Hashtable<String, Object> QueryData(String applicationNameCode, String className,
+			Hashtable<String, Object> htblFieldValue) {
+
+		long startTime = System.currentTimeMillis();
+		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
+
+		className = className.toLowerCase().replaceAll(" ", "");
+		/*
+		 * check if the className has a valid class Mapping
+		 */
+		if (htblAllStaticClasses.containsKey(className)) {
+			Class subjectClass = htblAllStaticClasses.get(className);
+
+			/*
+			 * check if the model exist or not .
+			 */
+
+			if (!exist) {
+				NoApplicationModelException exception = new NoApplicationModelException(applicationNameCode,
+						subjectClass.getName());
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return new SuccessfullSelectAllJsonModel(exception.getExceptionHashTable(timeTaken)).getJson();
+			}
+			try {
+				/*
+				 * validate query request
+				 */
+				LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = getQueryRequestValidations
+						.validateRequest(applicationNameCode, htblFieldValue, subjectClass);
+
+				/*
+				 * get application modelName
+				 */
+				String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
+
+				List<Hashtable<String, Object>> resultsList = mainDao.queryData(htblClassNameProperty,
+						applicationModelName);
+
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return new SuccessfullSelectAllJsonModel(resultsList, timeTaken).getJson();
+
+			} catch (ErrorObjException e) {
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return new SuccessfullSelectAllJsonModel(e.getExceptionHashTable(timeTaken)).getJson();
+
+			}
+
+		} else {
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			InvalidClassNameException invalidClassNameException = new InvalidClassNameException(className);
 			return invalidClassNameException.getExceptionHashTable(timeTaken);
@@ -190,4 +309,102 @@ public class DynamicInsertionService {
 		htblAllStaticClasses.put("unit", Unit.getUnitInstance());
 	}
 
+	public static void main(String[] args) {
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(szJdbcDriver);
+		dataSource.setUrl(szJdbcURL);
+		dataSource.setUsername(szUser);
+		dataSource.setPassword(szPasswd);
+
+		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+
+		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+
+		ValidationDao validationDao = new ValidationDao(oracle);
+
+		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
+				new DynamicPropertiesUtility(dynamicConceptDao));
+
+		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+
+		GetQueryRequestValidations getQueryRequestValidations = new GetQueryRequestValidations(
+				new DynamicPropertiesUtility(dynamicConceptDao));
+
+		DynamicInsertionService dynamicInsertionService = new DynamicInsertionService(requestFieldsValidation,
+				new ApplicationDao(oracle), mainDao, getQueryRequestValidations);
+
+		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
+
+		ArrayList<Object> fieldList = new ArrayList<>();
+		htblFieldValue.put("fields", fieldList);
+
+		fieldList.add("id");
+		fieldList.add("hasTransmissionPower");
+		fieldList.add("hasType");
+
+		LinkedHashMap<String, Object> coverageMap = new LinkedHashMap<>();
+		coverageMap.put("fieldName", "hasCoverage");
+		ArrayList<Object> coverageFieldList = new ArrayList<>();
+		coverageMap.put("fields", coverageFieldList);
+		coverageFieldList.add("id");
+
+		LinkedHashMap<String, Object> pointMap = new LinkedHashMap<>();
+		pointMap.put("fieldName", "location");
+		ArrayList<Object> pointFieldList = new ArrayList<>();
+		pointMap.put("fields", pointFieldList);
+		pointFieldList.add("id");
+		pointFieldList.add("lat");
+		pointFieldList.add("long");
+
+		coverageFieldList.add(pointMap);
+
+		fieldList.add(coverageMap);
+
+		LinkedHashMap<String, Object> survivalRangeMap = new LinkedHashMap<>();
+		survivalRangeMap.put("fieldName", "hasSurvivalRange");
+		ArrayList<Object> survivalRangeFieldList = new ArrayList<>();
+		survivalRangeMap.put("fields", survivalRangeFieldList);
+
+		LinkedHashMap<String, Object> conditionMap = new LinkedHashMap<>();
+		conditionMap.put("fieldName", "inCondition");
+		ArrayList<Object> conditionFieldList = new ArrayList<>();
+		conditionMap.put("fields", conditionFieldList);
+		conditionFieldList.add("id");
+		conditionFieldList.add("description");
+
+		survivalRangeFieldList.add(conditionMap);
+
+		LinkedHashMap<String, Object> survivalPropertyMap = new LinkedHashMap<>();
+		survivalPropertyMap.put("fieldName", "hasSurvivalProperty");
+		survivalPropertyMap.put("classType", "BatteryLifetime");
+		ArrayList<Object> survivalPropertyList = new ArrayList<>();
+		survivalPropertyMap.put("fields", survivalPropertyList);
+		survivalPropertyList.add("id");
+
+		LinkedHashMap<String, Object> amountMap = new LinkedHashMap<>();
+		amountMap.put("fieldName", "hasValue");
+		ArrayList<Object> amountFieldList = new ArrayList<>();
+		amountMap.put("fields", amountFieldList);
+		amountFieldList.add("id");
+		amountFieldList.add("hasDataValue");
+
+		survivalPropertyList.add(amountMap);
+
+		survivalRangeFieldList.add(survivalPropertyMap);
+		
+		fieldList.add(survivalRangeMap);
+
+		System.out.println(htblFieldValue);
+		
+		System.out
+				.println(dynamicInsertionService.QueryData("TESTAPPLICATION", "communicating Device", htblFieldValue));
+
+		// System.out.println(dynamicInsertionService.selectAll("TESTAPPLICATION",
+		// "communicating Device"));
+	}
 }

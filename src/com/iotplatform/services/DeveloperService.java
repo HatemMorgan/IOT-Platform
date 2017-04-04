@@ -18,11 +18,11 @@ import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.Developer;
+import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.validations.RequestFieldsValidation;
+import com.iotplatform.validations.PostRequestValidations;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -30,12 +30,12 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class DeveloperService {
 
 	private DeveloperDao developerDao;
-	private RequestFieldsValidation requestFieldsValidation;
+	private PostRequestValidations requestFieldsValidation;
 	private MainDao mainDao;
 	private ApplicationDao applicationDao;
 
 	@Autowired
-	public DeveloperService(DeveloperDao developerDao, RequestFieldsValidation requestFieldsValidation, MainDao mainDao,
+	public DeveloperService(DeveloperDao developerDao, PostRequestValidations requestFieldsValidation, MainDao mainDao,
 			ApplicationDao applicationDao) {
 		this.developerDao = developerDao;
 		this.requestFieldsValidation = requestFieldsValidation;
@@ -147,15 +147,16 @@ public class DeveloperService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		DeveloperDao developerDao = new DeveloperDao(oracle, new SelectionUtility(dynamicConceptDao),
-				Developer.getDeveloperInstance());
+		DeveloperDao developerDao = new DeveloperDao(oracle,
+				new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
 
-		RequestFieldsValidation requestFieldsValidation = new RequestFieldsValidation(dynamicConceptDao, validationDao);
+		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
+				new DynamicPropertiesUtility(dynamicConceptDao));
 
-		MainDao mainDao = new MainDao(oracle);
+		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
 
 		DeveloperService developerService = new DeveloperService(developerDao, requestFieldsValidation, mainDao,
-				new ApplicationDao(oracle, Application.getApplicationInstance()));
+				new ApplicationDao(oracle));
 
 		// Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		// htblPropValue.put("age", 20);

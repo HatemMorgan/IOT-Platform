@@ -69,8 +69,8 @@ public class SurvivalProperty extends Property {
 		 * to add triple that expresses that an instance of class
 		 * ssn:BatteryLifetime is also an instance of class ssn:SurvivalProperty
 		 */
-		batteryLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
 		batteryLifetime.getSuperClassesList().addAll(SurvivalProperty.getPropertyInstance().getSuperClassesList());
+		batteryLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
 		batteryLifetime.setProperties(super.getProperties());
 		batteryLifetime.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("BatteryLifetime", batteryLifetime);
@@ -88,8 +88,8 @@ public class SurvivalProperty extends Property {
 		 * to add triple that expresses that an instance of class
 		 * ssn:SystemLifetime is also an instance of class ssn:SurvivalProperty
 		 */
-		systemLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
 		systemLifetime.getSuperClassesList().addAll(SurvivalProperty.getPropertyInstance().getSuperClassesList());
+		systemLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
 		systemLifetime.setProperties(super.getProperties());
 		systemLifetime.setHtblPropUriName(super.getHtblPropUriName());
 		this.getClassTypesList().put("SystemLifetime", systemLifetime);
@@ -98,7 +98,7 @@ public class SurvivalProperty extends Property {
 
 	private static void initSurvivalPropertyStaticInstance(SurvivalProperty survivalPropertyInstance) {
 
-		survivalPropertyInstance.getSuperClassesList().add(Property.getPropertyInstance());
+		 survivalPropertyInstance.getSuperClassesList().add(Property.getPropertyInstance());
 
 		/*
 		 * emptying classTypelist
@@ -116,8 +116,8 @@ public class SurvivalProperty extends Property {
 		 * to add triple that expresses that an instance of class
 		 * ssn:BatteryLifetime is also an instance of class ssn:SurvivalProperty
 		 */
-		batteryLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
-		batteryLifetime.getSuperClassesList().addAll(SurvivalProperty.getPropertyInstance().getSuperClassesList());
+		batteryLifetime.getSuperClassesList().addAll(SurvivalProperty.getSurvivalPropertyInstance().getSuperClassesList());
+		batteryLifetime.getSuperClassesList().add(SurvivalProperty.getSurvivalPropertyInstance());
 		batteryLifetime.setProperties(survivalPropertyInstance.getProperties());
 		batteryLifetime.setHtblPropUriName(survivalPropertyInstance.getHtblPropUriName());
 		survivalPropertyInstance.getClassTypesList().put("BatteryLifetime", batteryLifetime);
@@ -135,13 +135,18 @@ public class SurvivalProperty extends Property {
 		 * to add triple that expresses that an instance of class
 		 * ssn:SystemLifetime is also an instance of class ssn:SurvivalProperty
 		 */
-		systemLifetime.getSuperClassesList().add(SurvivalProperty.getPropertyInstance());
-		systemLifetime.getSuperClassesList().addAll(SurvivalProperty.getPropertyInstance().getSuperClassesList());
+		systemLifetime.getSuperClassesList().addAll(SurvivalProperty.getSurvivalPropertyInstance().getSuperClassesList());
+		systemLifetime.getSuperClassesList().add(SurvivalProperty.getSurvivalPropertyInstance());
 		systemLifetime.setProperties(survivalPropertyInstance.getProperties());
 		systemLifetime.setHtblPropUriName(survivalPropertyInstance.getHtblPropUriName());
 		survivalPropertyInstance.getClassTypesList().put("SystemLifetime", systemLifetime);
 
-		survivalPropertyInstance.getSuperClassesList().add(Property.getPropertyInstance());
+	}
+
+	public static void main(String[] args) {
+		System.out.println(SurvivalProperty.getSurvivalPropertyInstance().getSuperClassesList());
+		System.out.println(SurvivalProperty.getSurvivalPropertyInstance().getClassTypesList().get("SystemLifetime")
+				.getSuperClassesList());
 	}
 
 }

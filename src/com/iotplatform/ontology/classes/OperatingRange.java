@@ -1,5 +1,7 @@
 package com.iotplatform.ontology.classes;
 
+import java.util.Hashtable;
+
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
@@ -79,6 +81,11 @@ public class OperatingRange extends Property {
 
 	private static void initOperatingRangeStaticInstance(OperatingRange operatingRangeInstance) {
 
+		/*
+		 * emptying classTypelist
+		 */
+		operatingRangeInstance.setClassTypesList(new Hashtable<>());
+		
 		/*
 		 * Relation from an OperatingRange to a Property. For example, to a
 		 * battery lifetime.

@@ -1,5 +1,7 @@
 package com.iotplatform.ontology.classes;
 
+import java.util.Hashtable;
+
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
@@ -64,6 +66,11 @@ public class Condition extends Property {
 
 	private static void initConditionStaticInstance(Condition conditionInstance) {
 
+		/*
+		 * emptying classTypelist
+		 */
+		conditionInstance.setClassTypesList(new Hashtable<>());
+		
 		/*
 		 * Condition description
 		 */

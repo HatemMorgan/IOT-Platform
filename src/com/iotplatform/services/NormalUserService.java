@@ -18,24 +18,24 @@ import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.classes.Application;
 import com.iotplatform.ontology.classes.NormalUser;
+import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.validations.RequestFieldsValidation;
+import com.iotplatform.validations.PostRequestValidations;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
 @Service("normalUserService")
 public class NormalUserService {
 
-	private RequestFieldsValidation requestFieldsValidation;
+	private PostRequestValidations requestFieldsValidation;
 	private ApplicationDao applicationDao;
 	private NormalUserDao normalUserDao;
 	private MainDao mainDao;
 
 	@Autowired
-	public NormalUserService(RequestFieldsValidation requestFieldsValidation, ApplicationDao applicationDao,
+	public NormalUserService(PostRequestValidations requestFieldsValidation, ApplicationDao applicationDao,
 			NormalUserDao normalUserDao, MainDao mainDao) {
 		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;
@@ -149,8 +149,8 @@ public class NormalUserService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		NormalUserDao normalUserDao = new NormalUserDao(oracle, new SelectionUtility(dynamicConceptDao),
-				NormalUser.getNormalUserInstance());
+		NormalUserDao normalUserDao = new NormalUserDao(oracle,
+				new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
 
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		htblPropValue.put("age", 20);
@@ -172,12 +172,13 @@ public class NormalUserService {
 		htblPropValue.put("knows", "HatemMorgan");
 		htblPropValue.put("hates", "HatemMorgan");
 
-		RequestFieldsValidation requestFieldsValidation = new RequestFieldsValidation(dynamicConceptDao, validationDao);
+		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
+				new DynamicPropertiesUtility(dynamicConceptDao));
 
-		MainDao mainDao = new MainDao(oracle);
+		MainDao mainDao = new MainDao(oracle,new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
 
-		NormalUserService normalUserService = new NormalUserService(requestFieldsValidation,
-				new ApplicationDao(oracle, Application.getApplicationInstance()), normalUserDao, mainDao);
+		NormalUserService normalUserService = new NormalUserService(requestFieldsValidation, new ApplicationDao(oracle),
+				normalUserDao, mainDao);
 
 		Hashtable<String, Object> normalusers = normalUserService.getNormalUsers("TESTAPPLICATION");
 		System.out.println(normalusers);
