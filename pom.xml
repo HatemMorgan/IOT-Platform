@@ -22,15 +22,7 @@
 					<warSourceDirectory>WebContent</warSourceDirectory>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.tomcat</groupId>
-    				<artifactId>tomcat</artifactId>
-    				<version>9.0.0.M19</version>
-				<configuration>
-					<url>http://139.162.138.196:8080/manager/text</url>
-					<server>TomcatServer</server>
-				</configuration>
-			</plugin>
+			
 		</plugins>
 	</build>
 	<dependencies>
@@ -73,7 +65,7 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 			<version>2.5</version>
-			<scope> provided </scope>
+			
 		</dependency>
 		<dependency>
 			<groupId>commons-dbcp</groupId>
