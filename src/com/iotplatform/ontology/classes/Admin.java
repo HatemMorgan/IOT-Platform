@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 /*
  *  This class maps the Admin class in the ontology
@@ -17,7 +17,7 @@ public class Admin extends Person {
 	private Class adminSubjectClassInstance;
 
 	public Admin() {
-		super("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM, "userName", false);
+		super("Admin", "http://iot-platform#Admin", Prefix.IOT_PLATFORM, "userName", false);
 		init();
 	}
 
@@ -31,12 +31,12 @@ public class Admin extends Person {
 	 * 
 	 */
 	public Admin(String nothing) {
-		super("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM, "userName", false);
+		super("Admin", "http://iot-platform#Admin", Prefix.IOT_PLATFORM, "userName", false);
 	}
 
 	public Class getAdminSubjectClassInstance() {
 		if (adminSubjectClassInstance == null) {
-			adminSubjectClassInstance = new Class("Admin", "http://iot-platform#Admin", Prefixes.IOT_PLATFORM,
+			adminSubjectClassInstance = new Class("Admin", "http://iot-platform#Admin", Prefix.IOT_PLATFORM,
 					"userName", false);
 		}
 		return adminSubjectClassInstance;
@@ -53,18 +53,18 @@ public class Admin extends Person {
 
 	public static void initAdminStaticInstance(Admin adminInstance) {
 		adminInstance.getProperties().put("adminOf", new ObjectProperty(adminInstance.getAdminSubjectClassInstance(),
-				"adminOf", Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
+				"adminOf", Prefix.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
-		adminInstance.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "adminOf", "adminOf");
+		adminInstance.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "adminOf", "adminOf");
 
 		adminInstance.getSuperClassesList().add(Person.getPersonInstance());
 	}
 
 	private void init() {
 		super.getProperties().put("adminOf", new ObjectProperty(getAdminSubjectClassInstance(), "adminOf",
-				Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
+				Prefix.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "adminOf", "adminOf");
+		super.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "adminOf", "adminOf");
 
 		super.getSuperClassesList().add(Person.getPersonInstance());
 	}

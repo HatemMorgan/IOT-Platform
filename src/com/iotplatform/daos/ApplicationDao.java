@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.iotplatform.exceptions.DatabaseException;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -104,7 +104,7 @@ public class ApplicationDao {
 		long startTime = System.currentTimeMillis();
 		System.out.println("Started at : " + startTime / 1000);
 
-		String subject = Prefixes.IOT_PLATFORM.getPrefix() + applicationName.replaceAll(" ", "").toLowerCase();
+		String subject = Prefix.IOT_PLATFORM.getPrefix() + applicationName.replaceAll(" ", "").toLowerCase();
 		Hashtable<String, Object> results = new Hashtable<>();
 
 		ResultSetMetaData metadata;
@@ -139,7 +139,7 @@ public class ApplicationDao {
 		long startTime = System.currentTimeMillis();
 		System.out.println("Started at : " + startTime / 1000);
 
-		String subject = Prefixes.IOT_PLATFORM.getPrefix() + applicationName.replaceAll(" ", "").toLowerCase();
+		String subject = Prefix.IOT_PLATFORM.getPrefix() + applicationName.replaceAll(" ", "").toLowerCase();
 		Hashtable<String, Object> results = new Hashtable<>();
 
 		ResultSetMetaData metadata;

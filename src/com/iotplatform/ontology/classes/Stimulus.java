@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -37,14 +37,14 @@ public class Stimulus extends Class {
 	private Class stimulusSubjectClassInstance;
 
 	public Stimulus() {
-		super("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Prefixes.SSN, null, false);
+		super("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Prefix.SSN, null, false);
 		init();
 	}
 
 	private Class getStimulusSubjectClassInstance() {
 		if (stimulusSubjectClassInstance == null)
 			stimulusSubjectClassInstance = new Class("Stimulus", "http://purl.oclc.org/NET/ssnx/ssn#Stimulus",
-					Prefixes.SSN, null, false);
+					Prefix.SSN, null, false);
 		return stimulusSubjectClassInstance;
 	}
 
@@ -56,10 +56,10 @@ public class Stimulus extends Class {
 	}
 
 	private void init() {
-		super.getProperties().put("id", new DataTypeProperty(getStimulusSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+		super.getProperties().put("id", new DataTypeProperty(getStimulusSubjectClassInstance(), "id", Prefix.IOT_LITE,
 				XSDDataTypes.string_typed, false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 	}
 
 }

@@ -9,7 +9,7 @@ import java.util.Hashtable;
 public class Class {
 	private String name;
 	private String uri;
-	private Prefixes prefix;
+	private Prefix prefix;
 
 	/*
 	 * uniqueIdentifier of the class it will be null if the plarform will
@@ -53,7 +53,7 @@ public class Class {
 	 */
 	private Hashtable<String, Class> classTypesList;
 
-	public Class(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+	public Class(String name, String uri, Prefix prefix, String uniqueIdentifierPropertyName,
 			boolean hasTypeClasses) {
 		this.name = name;
 		this.uri = uri;
@@ -85,7 +85,7 @@ public class Class {
 		return uri;
 	}
 
-	public Prefixes getPrefix() {
+	public Prefix getPrefix() {
 		return prefix;
 	}
 

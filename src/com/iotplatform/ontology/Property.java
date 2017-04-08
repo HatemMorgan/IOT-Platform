@@ -6,13 +6,13 @@ package com.iotplatform.ontology;
  */
 public abstract class Property {
 	private String name;
-	private Prefixes prefix;
+	private Prefix prefix;
 	private String applicationName;
 	private boolean mulitpleValues;
 	private boolean unique;
 	private Class subjectClass;
 
-	public Property(Class subjectClass, String name, Prefixes prefix, boolean mulitpleValues, boolean unique) {
+	public Property(Class subjectClass, String name, Prefix prefix, boolean mulitpleValues, boolean unique) {
 
 		this.name = name;
 		this.prefix = prefix;
@@ -22,7 +22,7 @@ public abstract class Property {
 		this.subjectClass = subjectClass;
 	}
 
-	public Property(Class subjectClass, String name, Prefixes prefix, String applicationName, int mulitpleValues,
+	public Property(Class subjectClass, String name, Prefix prefix, String applicationName, int mulitpleValues,
 			int unique) {
 
 		this.name = name;
@@ -47,7 +47,7 @@ public abstract class Property {
 		return name;
 	}
 
-	public Prefixes getPrefix() {
+	public Prefix getPrefix() {
 		return prefix;
 	}
 

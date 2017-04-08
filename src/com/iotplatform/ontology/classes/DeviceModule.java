@@ -3,7 +3,7 @@ package com.iotplatform.ontology.classes;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -19,14 +19,14 @@ public class DeviceModule extends Class {
 	private Class deviceModuleSubjectClassInstance;
 
 	public DeviceModule() {
-		super("DeviceModule", "http://iot-platform#DeviceModule", Prefixes.IOT_PLATFORM, null, true);
+		super("DeviceModule", "http://iot-platform#DeviceModule", Prefix.IOT_PLATFORM, null, true);
 		init();
 	}
 
 	private Class getDeviceModuleSubjectClassInstance() {
 		if (deviceModuleSubjectClassInstance == null)
 			deviceModuleSubjectClassInstance = new Class("DeviceModule", "http://iot-platform#DeviceModule",
-					Prefixes.IOT_PLATFORM, null, true);
+					Prefix.IOT_PLATFORM, null, true);
 
 		return deviceModuleSubjectClassInstance;
 	}
@@ -44,7 +44,7 @@ public class DeviceModule extends Class {
 		 * DeviceModule id which must be unique
 		 */
 		super.getProperties().put("id", new DataTypeProperty(getDeviceModuleSubjectClassInstance(), "id",
-				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * Describes relation between Device module and its device
@@ -52,7 +52,7 @@ public class DeviceModule extends Class {
 		 * relationship
 		 */
 		super.getProperties().put("hasDevice", new ObjectProperty(getDeviceModuleSubjectClassInstance(), "hasDevice",
-				Prefixes.IOT_PLATFORM, Device.getDeviceInstance(), true, false));
+				Prefix.IOT_PLATFORM, Device.getDeviceInstance(), true, false));
 
 		/*
 		 * Relation between a DeviceModule (e.g., A module consists of one or
@@ -67,11 +67,11 @@ public class DeviceModule extends Class {
 		 * 
 		 */
 		super.getProperties().put("onPlatform", new ObjectProperty(getDeviceModuleSubjectClassInstance(), "onPlatform",
-				Prefixes.SSN, Platform.getPlatformInstance(), false, false));
+				Prefix.SSN, Platform.getPlatformInstance(), false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
-		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasDevice", "hasDevice");
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "onPlatform", "onPlatform");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
+		super.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "hasDevice", "hasDevice");
+		super.getHtblPropUriName().put(Prefix.SSN.getUri() + "onPlatform", "onPlatform");
 
 	}
 

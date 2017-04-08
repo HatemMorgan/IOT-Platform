@@ -1,7 +1,7 @@
 package com.iotplatform.utilities;
 
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 public class QueryUtility {
 
@@ -13,8 +13,8 @@ public class QueryUtility {
 
 		StringBuilder prefixStringBuilder = new StringBuilder();
 		int counter = 0;
-		int stop = Prefixes.values().length - 1;
-		for (Prefixes prefix : Prefixes.values()) {
+		int stop = Prefix.values().length - 1;
+		for (Prefix prefix : Prefix.values()) {
 			if (counter == stop) {
 				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "')");
 			} else {
@@ -34,7 +34,7 @@ public class QueryUtility {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(Prefixes.values().length);
+		System.out.println(Prefix.values().length);
 	}
 
 }

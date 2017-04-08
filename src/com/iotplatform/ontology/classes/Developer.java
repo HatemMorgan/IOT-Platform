@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 /*
  *  This class maps the Developer class in the ontology
@@ -17,7 +17,7 @@ public class Developer extends Person {
 	private Class developerSubjectClassInstance;
 
 	public Developer() {
-		super("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM, "userName", false);
+		super("Developer", "http://iot-platform#Developer", Prefix.IOT_PLATFORM, "userName", false);
 		init();
 	}
 
@@ -31,13 +31,13 @@ public class Developer extends Person {
 	 * 
 	 */
 	public Developer(String nothing) {
-		super("Developer", "http://iot-platform#Developer", Prefixes.IOT_PLATFORM, "userName", false);
+		super("Developer", "http://iot-platform#Developer", Prefix.IOT_PLATFORM, "userName", false);
 	}
 
 	private Class getDeveloperSubjectClassInstance() {
 		if (developerSubjectClassInstance == null)
 			developerSubjectClassInstance = new Class("Developer", "http://iot-platform#Developer",
-					Prefixes.IOT_PLATFORM, "userName", false);
+					Prefix.IOT_PLATFORM, "userName", false);
 
 		return developerSubjectClassInstance;
 	}
@@ -54,9 +54,9 @@ public class Developer extends Person {
 	public static void initDeveloperStaticInstance(Developer developerInstance) {
 		developerInstance.getProperties().put("developedApplication",
 				new ObjectProperty(developerInstance.getDeveloperSubjectClassInstance(), "developedApplication",
-						Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
+						Prefix.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
-		developerInstance.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "developedApplication",
+		developerInstance.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "developedApplication",
 				"developedApplication");
 
 		developerInstance.getSuperClassesList().add(Person.getPersonInstance());
@@ -64,9 +64,9 @@ public class Developer extends Person {
 
 	private void init() {
 		super.getProperties().put("developedApplication", new ObjectProperty(getDeveloperSubjectClassInstance(),
-				"developedApplication", Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
+				"developedApplication", Prefix.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "developedApplication", "developedApplication");
+		super.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "developedApplication", "developedApplication");
 
 		super.getSuperClassesList().add(Person.getPersonInstance());
 	}

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -21,7 +21,7 @@ public class Metadata extends Class {
 	private Class metadataSubjectClassInstance;
 
 	public Metadata() {
-		super("Metadata", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefixes.IOT_LITE, null, false);
+		super("Metadata", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefix.IOT_LITE, null, false);
 		init();
 	}
 
@@ -35,7 +35,7 @@ public class Metadata extends Class {
 	private Class getMetadataSubjectClassInstance() {
 		if (metadataSubjectClassInstance == null)
 			metadataSubjectClassInstance = new Class("Metadata",
-					"http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefixes.IOT_LITE, null, false);
+					"http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata", Prefix.IOT_LITE, null, false);
 
 		return metadataSubjectClassInstance;
 	}
@@ -47,20 +47,20 @@ public class Metadata extends Class {
 		 * sensor). It must be unique to uniquely identify a metadata
 		 */
 		super.getProperties().put("metadataType", new DataTypeProperty(getMetadataSubjectClassInstance(),
-				"metadataType", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				"metadataType", Prefix.IOT_LITE, XSDDataTypes.string_typed, false, true));
 
 		/*
 		 * Value of the metadata
 		 */
 		super.getProperties().put("metadataValue", new DataTypeProperty(getMetadataSubjectClassInstance(),
-				"metadataValue", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				"metadataValue", Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
-		super.getProperties().put("id", new DataTypeProperty(getMetadataSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+		super.getProperties().put("id", new DataTypeProperty(getMetadataSubjectClassInstance(), "id", Prefix.IOT_LITE,
 				XSDDataTypes.string_typed, false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "metadataType", "metadataType");
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "metadataValue", "metadataValue");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "metadataType", "metadataType");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "metadataValue", "metadataValue");
 
 	}
 

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -19,14 +19,14 @@ public class Application extends Class {
 	private Class applicationSubjectClassInstance;
 
 	public Application() {
-		super("Application", "http://iot-platform#Application", Prefixes.IOT_PLATFORM, "name", false);
+		super("Application", "http://iot-platform#Application", Prefix.IOT_PLATFORM, "name", false);
 		init();
 	}
 
 	private Class getApplicationSubjectClassInstance() {
 		if (applicationSubjectClassInstance == null) {
 			applicationSubjectClassInstance = new Class("Application", "http://iot-platform#Application",
-					Prefixes.IOT_PLATFORM, "name", false);
+					Prefix.IOT_PLATFORM, "name", false);
 		}
 		return applicationSubjectClassInstance;
 	}
@@ -46,13 +46,13 @@ public class Application extends Class {
 		 * Application Describption
 		 */
 		super.getProperties().put("description", new DataTypeProperty(getApplicationSubjectClassInstance(),
-				"description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+				"description", Prefix.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * Application name
 		 */
 		super.getProperties().put("name", new DataTypeProperty(getApplicationSubjectClassInstance(), "name",
-				Prefixes.FOAF, XSDDataTypes.string_typed, false, false));
+				Prefix.FOAF, XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * relation between an application and an organization the funds it . It
@@ -60,7 +60,7 @@ public class Application extends Class {
 		 * than one organization
 		 */
 		super.getProperties().put("fundedBy", new ObjectProperty(getApplicationSubjectClassInstance(), "fundedBy",
-				Prefixes.FOAF, Organization.getOrganizationInstance(), true, false));
+				Prefix.FOAF, Organization.getOrganizationInstance(), true, false));
 
 		/*
 		 * It describes the relation that an IOT application uses a system
@@ -68,12 +68,12 @@ public class Application extends Class {
 		 * application can use more than one system
 		 */
 		super.getProperties().put("usesSystem", new ObjectProperty(getApplicationSubjectClassInstance(), "usesSystem",
-				Prefixes.IOT_PLATFORM, IOTSystem.getIOTSystemInstance(), true, false));
+				Prefix.IOT_PLATFORM, IOTSystem.getIOTSystemInstance(), true, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
-		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
-		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "usesSystem", "usesSystem");
-		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "fundedBy", "fundedBy");
+		super.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "description", "description");
+		super.getHtblPropUriName().put(Prefix.FOAF.getUri() + "name", "name");
+		super.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "usesSystem", "usesSystem");
+		super.getHtblPropUriName().put(Prefix.FOAF.getUri() + "fundedBy", "fundedBy");
 	}
 
 }

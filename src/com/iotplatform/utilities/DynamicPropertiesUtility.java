@@ -15,7 +15,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.DynamicConceptColumns;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.ontology.classes.ActuatingDevice;
@@ -301,50 +301,50 @@ public class DynamicPropertiesUtility {
 	/*
 	 * get Prefix enum that maps the String prefixAlias from a dynamicProperty
 	 */
-	private Prefixes getPrefix(String prefixAlias) {
+	private Prefix getPrefix(String prefixAlias) {
 
-		if (Prefixes.FOAF.getPrefix().equals(prefixAlias)) {
-			return Prefixes.FOAF;
+		if (Prefix.FOAF.getPrefix().equals(prefixAlias)) {
+			return Prefix.FOAF;
 		}
 
-		if (Prefixes.SSN.getPrefix().equals(prefixAlias)) {
-			return Prefixes.SSN;
+		if (Prefix.SSN.getPrefix().equals(prefixAlias)) {
+			return Prefix.SSN;
 		}
 
-		if (Prefixes.IOT_LITE.getPrefix().equals(prefixAlias)) {
-			return Prefixes.IOT_LITE;
+		if (Prefix.IOT_LITE.getPrefix().equals(prefixAlias)) {
+			return Prefix.IOT_LITE;
 		}
 
-		if (Prefixes.IOT_PLATFORM.getPrefix().equals(prefixAlias)) {
-			return Prefixes.IOT_PLATFORM;
+		if (Prefix.IOT_PLATFORM.getPrefix().equals(prefixAlias)) {
+			return Prefix.IOT_PLATFORM;
 		}
 
-		if (Prefixes.GEO.getPrefix().equals(prefixAlias)) {
-			return Prefixes.GEO;
+		if (Prefix.GEO.getPrefix().equals(prefixAlias)) {
+			return Prefix.GEO;
 		}
 
-		if (Prefixes.XSD.getPrefix().equals(prefixAlias)) {
-			return Prefixes.XSD;
+		if (Prefix.XSD.getPrefix().equals(prefixAlias)) {
+			return Prefix.XSD;
 		}
 
-		if (Prefixes.OWL.getPrefix().equals(prefixAlias)) {
-			return Prefixes.OWL;
+		if (Prefix.OWL.getPrefix().equals(prefixAlias)) {
+			return Prefix.OWL;
 		}
 
-		if (Prefixes.RDFS.getPrefix().equals(prefixAlias)) {
-			return Prefixes.RDFS;
+		if (Prefix.RDFS.getPrefix().equals(prefixAlias)) {
+			return Prefix.RDFS;
 		}
 
-		if (Prefixes.RDF.getPrefix().equals(prefixAlias)) {
-			return Prefixes.RDF;
+		if (Prefix.RDF.getPrefix().equals(prefixAlias)) {
+			return Prefix.RDF;
 		}
 
-		if (Prefixes.QU.getPrefix().equals(prefixAlias)) {
-			return Prefixes.QU;
+		if (Prefix.QU.getPrefix().equals(prefixAlias)) {
+			return Prefix.QU;
 		}
 
-		if (Prefixes.DUL.getPrefix().equals(prefixAlias)) {
-			return Prefixes.DUL;
+		if (Prefix.DUL.getPrefix().equals(prefixAlias)) {
+			return Prefix.DUL;
 		}
 
 		return null;

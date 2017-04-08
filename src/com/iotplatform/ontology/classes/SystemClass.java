@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -32,7 +32,7 @@ public class SystemClass extends Class {
 	private Class systemSubjectClassInstance;
 
 	public SystemClass() {
-		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN, null, true);
+		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefix.SSN, null, true);
 
 		init();
 
@@ -40,7 +40,7 @@ public class SystemClass extends Class {
 
 	private Class getSystemSubjectClassInstance() {
 		if (systemSubjectClassInstance == null)
-			systemSubjectClassInstance = new Class("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN,
+			systemSubjectClassInstance = new Class("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefix.SSN,
 					null, true);
 
 		return systemSubjectClassInstance;
@@ -56,10 +56,10 @@ public class SystemClass extends Class {
 	 * 
 	 */
 	public SystemClass(String nothing) {
-		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefixes.SSN, null, true);
+		super("System", "http://purl.oclc.org/NET/ssnx/ssn#System", Prefix.SSN, null, true);
 	}
 
-	public SystemClass(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+	public SystemClass(String name, String uri, Prefix prefix, String uniqueIdentifierPropertyName,
 			boolean hasTypeClasses) {
 		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 		init();
@@ -78,7 +78,7 @@ public class SystemClass extends Class {
 	 * constructor because it calls init method
 	 * 
 	 */
-	public SystemClass(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+	public SystemClass(String name, String uri, Prefix prefix, String uniqueIdentifierPropertyName,
 			boolean hasTypeClasses, String nothing) {
 		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 	}
@@ -103,7 +103,7 @@ public class SystemClass extends Class {
 		/*
 		 * id which must be unique
 		 */
-		this.getProperties().put("id", new DataTypeProperty(getSystemSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+		this.getProperties().put("id", new DataTypeProperty(getSystemSubjectClassInstance(), "id", Prefix.IOT_LITE,
 				XSDDataTypes.string_typed, false, false));
 
 		/*
@@ -112,14 +112,14 @@ public class SystemClass extends Class {
 		 * relation)
 		 */
 		this.getProperties().put("hasSubSystem", new ObjectProperty(getSystemSubjectClassInstance(), "hasSubSystem",
-				Prefixes.SSN, SystemClass.getSystemInstance(), true, false));
+				Prefix.SSN, SystemClass.getSystemInstance(), true, false));
 
 		/*
 		 * A Relation from a System to a SurvivalRange. It is a one to one
 		 * relationShip because a system/device has only one survivalRange
 		 */
 		this.getProperties().put("hasSurvivalRange", new ObjectProperty(getSystemSubjectClassInstance(),
-				"hasSurvivalRange", Prefixes.SSN, SurvivalRange.getSurvivalRangeInstance(), true, false));
+				"hasSurvivalRange", Prefix.SSN, SurvivalRange.getSurvivalRangeInstance(), true, false));
 
 		/*
 		 * Relation from a System to an OperatingRange describing the normal
@@ -127,12 +127,12 @@ public class SystemClass extends Class {
 		 * because a system/device has only one operatingRange
 		 */
 		this.getProperties().put("hasOperatingRange", new ObjectProperty(getSystemSubjectClassInstance(),
-				"hasOperatingRange", Prefixes.SSN, OperatingRange.getOperatingRangeInstance(), true, false));
+				"hasOperatingRange", Prefix.SSN, OperatingRange.getOperatingRangeInstance(), true, false));
 
-		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSubSystem", "hasSubSystem");
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalRange", "hasSurvivalRange");
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingRange", "hasOperatingRange");
+		this.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasSubSystem", "hasSubSystem");
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasSurvivalRange", "hasSurvivalRange");
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasOperatingRange", "hasOperatingRange");
 
 		if (this.isHasTypeClasses()) {
 			this.getClassTypesList().put("Device", Device.getDeviceInstance());
@@ -145,7 +145,7 @@ public class SystemClass extends Class {
 		 * id which must be unique
 		 */
 		systemInstance.getProperties().put("id", new DataTypeProperty(systemInstance.getSystemSubjectClassInstance(),
-				"id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				"id", Prefix.IOT_LITE, XSDDataTypes.string_typed, false, true));
 
 		/*
 		 * relation between a system and its parts. A system or its subclasses
@@ -153,7 +153,7 @@ public class SystemClass extends Class {
 		 * relation)
 		 */
 		systemInstance.getProperties().put("hasSubSystem",
-				new ObjectProperty(systemInstance.getSystemSubjectClassInstance(), "hasSubSystem", Prefixes.SSN,
+				new ObjectProperty(systemInstance.getSystemSubjectClassInstance(), "hasSubSystem", Prefix.SSN,
 						SystemClass.getSystemInstance(), true, false));
 
 		/*
@@ -161,7 +161,7 @@ public class SystemClass extends Class {
 		 * relationShip because a system/device has only one survivalRange
 		 */
 		systemInstance.getProperties().put("hasSurvivalRange",
-				new ObjectProperty(systemInstance.getSystemSubjectClassInstance(), "hasSurvivalRange", Prefixes.SSN,
+				new ObjectProperty(systemInstance.getSystemSubjectClassInstance(), "hasSurvivalRange", Prefix.SSN,
 						SurvivalRange.getSurvivalRangeInstance(), true, false));
 
 		/*
@@ -170,13 +170,13 @@ public class SystemClass extends Class {
 		 * because a system/device has only one operatingRange
 		 */
 		systemInstance.getProperties().put("hasOperatingRange",
-				new ObjectProperty(systemInstance.getSystemSubjectClassInstance(), "hasOperatingRange", Prefixes.SSN,
+				new ObjectProperty(systemInstance.getSystemSubjectClassInstance(), "hasOperatingRange", Prefix.SSN,
 						OperatingRange.getOperatingRangeInstance(), true, false));
 
-		systemInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
-		systemInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSubSystem", "hasSubSystem");
-		systemInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalRange", "hasSurvivalRange");
-		systemInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingRange", "hasOperatingRange");
+		systemInstance.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
+		systemInstance.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasSubSystem", "hasSubSystem");
+		systemInstance.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasSurvivalRange", "hasSurvivalRange");
+		systemInstance.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasOperatingRange", "hasOperatingRange");
 
 	}
 

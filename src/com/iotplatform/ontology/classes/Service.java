@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -21,14 +21,14 @@ public class Service extends Class {
 	private Class serviceSubjectClassInstance;
 
 	public Service() {
-		super("Service", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service", Prefixes.IOT_LITE, null, false);
+		super("Service", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service", Prefix.IOT_LITE, null, false);
 		init();
 	}
 
 	private Class getServiceSubjectClassInstance() {
 		if (serviceSubjectClassInstance == null)
 			serviceSubjectClassInstance = new Class("Service", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service",
-					Prefixes.IOT_LITE, null, false);
+					Prefix.IOT_LITE, null, false);
 
 		return serviceSubjectClassInstance;
 	}
@@ -48,27 +48,27 @@ public class Service extends Class {
 		 * access a service) ,
 		 */
 		super.getProperties().put("endpoint", new DataTypeProperty(getServiceSubjectClassInstance(), "endpoint",
-				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * Description of the service.
 		 */
 		super.getProperties().put("interfaceDescription", new DataTypeProperty(getServiceSubjectClassInstance(),
-				"interfaceDescription", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				"interfaceDescription", Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
 		/*
 		 * Defines the type of interface of the service endpoint.
 		 */
 		super.getProperties().put("interfaceType", new DataTypeProperty(getServiceSubjectClassInstance(),
-				"interfaceType", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				"interfaceType", Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
-		super.getProperties().put("id", new DataTypeProperty(getServiceSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+		super.getProperties().put("id", new DataTypeProperty(getServiceSubjectClassInstance(), "id", Prefix.IOT_LITE,
 				XSDDataTypes.string_typed, false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "endpoint", "endpoint");
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "interfaceDescription", "interfaceDescription");
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "interfaceType", "interfaceType");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "endpoint", "endpoint");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "interfaceDescription", "interfaceDescription");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "interfaceType", "interfaceType");
 
 	}
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 /*
  * This class maps ssn:SurvivalRange class in the ontology
@@ -27,20 +27,20 @@ public class SurvivalRange extends Property {
 	private Class survivalRangeSubjectClassInstance;
 
 	public SurvivalRange() {
-		super("SurvivalRange", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefixes.SSN, null, false);
+		super("SurvivalRange", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefix.SSN, null, false);
 		init();
 	}
 
 	private Class getSurvivalRangeSubjectClassInstance() {
 		if (survivalRangeSubjectClassInstance == null)
 			survivalRangeSubjectClassInstance = new Class("SurvivalRange",
-					"http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefixes.SSN, null, false);
+					"http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefix.SSN, null, false);
 
 		return survivalRangeSubjectClassInstance;
 	}
 
 	public SurvivalRange(String nothing) {
-		super("SurvivalRange", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefixes.SSN, null, false, null);
+		super("SurvivalRange", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange", Prefix.SSN, null, false, null);
 	}
 
 	public synchronized static SurvivalRange getSurvivalRangeInstance() {
@@ -57,7 +57,7 @@ public class SurvivalRange extends Property {
 		 * Relation from an SurvivalProperty to a Property.
 		 */
 		super.getProperties().put("hasSurvivalProperty", new ObjectProperty(getSurvivalRangeSubjectClassInstance(),
-				"hasSurvivalProperty", Prefixes.SSN, SurvivalProperty.getSurvivalPropertyInstance(), true, false));
+				"hasSurvivalProperty", Prefix.SSN, SurvivalProperty.getSurvivalPropertyInstance(), true, false));
 
 		/*
 		 * Describes the prevailing environmental conditions for
@@ -66,10 +66,10 @@ public class SurvivalRange extends Property {
 		 * particular conditions. (see also MeasurementCapability)
 		 */
 		super.getProperties().put("inCondition", new ObjectProperty(getSurvivalRangeSubjectClassInstance(),
-				"inCondition", Prefixes.SSN, Condition.getConditionInstance(), false, false));
+				"inCondition", Prefix.SSN, Condition.getConditionInstance(), false, false));
 
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalProperty", "hasSurvivalProperty");
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
+		super.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasSurvivalProperty", "hasSurvivalProperty");
+		super.getHtblPropUriName().put(Prefix.SSN.getUri() + "inCondition", "inCondition");
 
 		super.getSuperClassesList().add(Property.getPropertyInstance());
 	}
@@ -85,7 +85,7 @@ public class SurvivalRange extends Property {
 		 */
 		survivalRangeInstance.getProperties().put("hasSurvivalProperty",
 				new ObjectProperty(survivalRangeInstance.getSurvivalRangeSubjectClassInstance(), "hasSurvivalProperty",
-						Prefixes.SSN, SurvivalProperty.getSurvivalPropertyInstance(), true, false));
+						Prefix.SSN, SurvivalProperty.getSurvivalPropertyInstance(), true, false));
 
 		/*
 		 * Describes the prevailing environmental conditions for
@@ -95,11 +95,11 @@ public class SurvivalRange extends Property {
 		 */
 		survivalRangeInstance.getProperties().put("inCondition",
 				new ObjectProperty(survivalRangeInstance.getSurvivalRangeSubjectClassInstance(), "inCondition",
-						Prefixes.SSN, Condition.getConditionInstance(), false, false));
+						Prefix.SSN, Condition.getConditionInstance(), false, false));
 
-		survivalRangeInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasSurvivalProperty",
+		survivalRangeInstance.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasSurvivalProperty",
 				"hasSurvivalProperty");
-		survivalRangeInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
+		survivalRangeInstance.getHtblPropUriName().put(Prefix.SSN.getUri() + "inCondition", "inCondition");
 
 		survivalRangeInstance.getSuperClassesList().add(Property.getPropertyInstance());
 	}

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 import com.iotplatform.utilities.PropertyValue;
@@ -55,7 +55,7 @@ public class MainDao {
 
 			if (prefixesString == null) {
 				StringBuilder prefixStringBuilder = new StringBuilder();
-				for (Prefixes prefix : Prefixes.values()) {
+				for (Prefix prefix : Prefix.values()) {
 					prefixStringBuilder.append("PREFIX	" + prefix.getPrefix() + "	<" + prefix.getUri() + ">\n");
 				}
 
@@ -210,7 +210,7 @@ public class MainDao {
 		 * add subjectUniqueIdentifier and add triple that tells that
 		 * subjectUniqueIdentifier is of type subjectClass
 		 */
-		triplesBuilder.append(Prefixes.IOT_PLATFORM.getPrefix() + subjectUniqueIdentifier + "  a  "
+		triplesBuilder.append(Prefix.IOT_PLATFORM.getPrefix() + subjectUniqueIdentifier + "  a  "
 				+ subjectClass.getPrefix().getPrefix() + subjectClass.getName() + "  ; \n");
 
 		/*
@@ -243,7 +243,7 @@ public class MainDao {
 			value = "\"" + value.toString() + "\"" + xsdDataType.getXsdType();
 			return value;
 		} else {
-			return Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase().replaceAll(" ", "");
+			return Prefix.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase().replaceAll(" ", "");
 		}
 	}
 
@@ -404,8 +404,8 @@ public class MainDao {
 		 */
 		StringBuilder prefixStringBuilder = new StringBuilder();
 		int counter = 0;
-		int stop = Prefixes.values().length - 1;
-		for (Prefixes prefix : Prefixes.values()) {
+		int stop = Prefix.values().length - 1;
+		for (Prefix prefix : Prefix.values()) {
 			if (counter == stop) {
 				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "')");
 			} else {

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -18,7 +18,7 @@ public class Organization extends Agent {
 	private Class organizationSubjectClassInstance;
 
 	public Organization() {
-		super("Organization", "http://xmlns.com/foaf/0.1/Organization", Prefixes.FOAF, "name", false);
+		super("Organization", "http://xmlns.com/foaf/0.1/Organization", Prefix.FOAF, "name", false);
 
 		init();
 	}
@@ -33,13 +33,13 @@ public class Organization extends Agent {
 	 * 
 	 */
 	public Organization(String nothing) {
-		super("Organization", "http://xmlns.com/foaf/0.1/Organization", Prefixes.FOAF, "name", null, false);
+		super("Organization", "http://xmlns.com/foaf/0.1/Organization", Prefix.FOAF, "name", null, false);
 	}
 
 	private Class getOrganizationSubjectClassInstance() {
 		if (organizationSubjectClassInstance == null)
 			organizationSubjectClassInstance = new Class("Organization", "http://xmlns.com/foaf/0.1/Organization",
-					Prefixes.FOAF, "name", false);
+					Prefix.FOAF, "name", false);
 
 		return organizationSubjectClassInstance;
 	}
@@ -56,14 +56,14 @@ public class Organization extends Agent {
 
 	public static void initOrganizationStaticInstance(Organization organizationInstance) {
 		organizationInstance.getProperties().put("name",
-				new DataTypeProperty(organizationInstance.getOrganizationSubjectClassInstance(), "name", Prefixes.FOAF,
+				new DataTypeProperty(organizationInstance.getOrganizationSubjectClassInstance(), "name", Prefix.FOAF,
 						XSDDataTypes.string_typed, false, true));
 		organizationInstance.getProperties().put("description",
 				new DataTypeProperty(organizationInstance.getOrganizationSubjectClassInstance(), "description",
-						Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+						Prefix.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
 
-		organizationInstance.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
-		organizationInstance.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
+		organizationInstance.getHtblPropUriName().put(Prefix.FOAF.getUri() + "name", "name");
+		organizationInstance.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "description", "description");
 
 		organizationInstance.getSuperClassesList().add(Agent.getAgentInstance());
 
@@ -71,12 +71,12 @@ public class Organization extends Agent {
 
 	private void init() {
 		super.getProperties().put("name", new DataTypeProperty(getOrganizationSubjectClassInstance(), "name",
-				Prefixes.FOAF, XSDDataTypes.string_typed, false, true));
+				Prefix.FOAF, XSDDataTypes.string_typed, false, true));
 		super.getProperties().put("description", new DataTypeProperty(getOrganizationSubjectClassInstance(),
-				"description", Prefixes.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+				"description", Prefix.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
 
-		super.getHtblPropUriName().put(Prefixes.FOAF.getUri() + "name", "name");
-		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "description", "description");
+		super.getHtblPropUriName().put(Prefix.FOAF.getUri() + "name", "name");
+		super.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "description", "description");
 
 		super.getSuperClassesList().add(Agent.getAgentInstance());
 	}

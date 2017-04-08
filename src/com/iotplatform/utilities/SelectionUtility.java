@@ -16,7 +16,7 @@ import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDataTypes;
 
@@ -55,7 +55,7 @@ public class SelectionUtility {
 		Property property = subjectClass.getProperties().get(propertyName);
 
 		if (property instanceof ObjectProperty) {
-			value = value.toString().substring(Prefixes.IOT_PLATFORM.getUri().length(), value.toString().length());
+			value = value.toString().substring(Prefix.IOT_PLATFORM.getUri().length(), value.toString().length());
 		} else {
 			/*
 			 * datatype property

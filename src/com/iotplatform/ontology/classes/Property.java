@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -22,7 +22,7 @@ public class Property extends Class {
 	private static Property propertyInstance;
 	private Class propertySubjectClassInstance;
 
-	public Property(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+	public Property(String name, String uri, Prefix prefix, String uniqueIdentifierPropertyName,
 			boolean hasTypeClasses) {
 		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 		init();
@@ -40,7 +40,7 @@ public class Property extends Class {
 	 * I will use subClassesStaticInstances to add them to typeClassesList of
 	 * Property
 	 */
-	public Property(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+	public Property(String name, String uri, Prefix prefix, String uniqueIdentifierPropertyName,
 			boolean hasTypeClasses, String nothing) {
 		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 	}
@@ -48,13 +48,13 @@ public class Property extends Class {
 	private Class getPropertySubjectClassInstance() {
 		if (propertySubjectClassInstance == null)
 			propertySubjectClassInstance = new Class("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property",
-					Prefixes.SSN, null, true);
+					Prefix.SSN, null, true);
 
 		return propertySubjectClassInstance;
 	}
 
 	public Property() {
-		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN, null, true);
+		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefix.SSN, null, true);
 		init();
 	}
 
@@ -70,7 +70,7 @@ public class Property extends Class {
 	 * subClasses want to point to PropertyClass as their superClass
 	 */
 	public Property(String nothing) {
-		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefixes.SSN, null, true);
+		super("Property", "http://purl.oclc.org/NET/ssnx/ssn#Property", Prefix.SSN, null, true);
 	}
 
 	public synchronized static Property getPropertyInstance() {
@@ -87,13 +87,13 @@ public class Property extends Class {
 		 * relation between a Property and its value of type Amount
 		 */
 		this.getProperties().put("hasValue", new ObjectProperty(getPropertySubjectClassInstance(), "hasValue",
-				Prefixes.SSN, Amount.getAmountInstance(), false, false));
+				Prefix.SSN, Amount.getAmountInstance(), false, false));
 
-		this.getProperties().put("id", new DataTypeProperty(getPropertySubjectClassInstance(), "id", Prefixes.IOT_LITE,
+		this.getProperties().put("id", new DataTypeProperty(getPropertySubjectClassInstance(), "id", Prefix.IOT_LITE,
 				XSDDataTypes.string_typed, false, false));
 
-		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasValue", "hasValue");
+		this.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasValue", "hasValue");
 
 		if (this.isHasTypeClasses()) {
 
@@ -129,15 +129,15 @@ public class Property extends Class {
 		 * relation between a Property and its value of type Amount
 		 */
 		propertyInstance.getProperties().put("hasValue",
-				new ObjectProperty(propertyInstance.getPropertySubjectClassInstance(), "hasValue", Prefixes.SSN,
+				new ObjectProperty(propertyInstance.getPropertySubjectClassInstance(), "hasValue", Prefix.SSN,
 						Amount.getAmountInstance(), false, false));
 
 		propertyInstance.getProperties().put("id",
-				new DataTypeProperty(propertyInstance.getPropertySubjectClassInstance(), "id", Prefixes.IOT_LITE,
+				new DataTypeProperty(propertyInstance.getPropertySubjectClassInstance(), "id", Prefix.IOT_LITE,
 						XSDDataTypes.string_typed, false, false));
 
-		propertyInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
-		propertyInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasValue", "hasValue");
+		propertyInstance.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
+		propertyInstance.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasValue", "hasValue");
 
 		if (propertyInstance.isHasTypeClasses()) {
 

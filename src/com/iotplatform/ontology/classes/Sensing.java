@@ -2,7 +2,7 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 /*
  *  This class maps ssn:Sensing class in the ontology
@@ -21,12 +21,12 @@ public class Sensing extends Process {
 	private static Sensing sensingInstance;
 
 	public Sensing() {
-		super("Sensing", "http://purl.oclc.org/NET/ssnx/ssn#Sensing", Prefixes.SSN, null, false);
+		super("Sensing", "http://purl.oclc.org/NET/ssnx/ssn#Sensing", Prefix.SSN, null, false);
 		init();
 	}
 
 	public Sensing(String nothing) {
-		super("Sensing", "http://purl.oclc.org/NET/ssnx/ssn#Sensing", Prefixes.SSN, null, false, null);
+		super("Sensing", "http://purl.oclc.org/NET/ssnx/ssn#Sensing", Prefix.SSN, null, false, null);
 	}
 
 	public synchronized static Sensing getSensingInstance() {

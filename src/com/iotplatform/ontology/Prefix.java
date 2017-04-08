@@ -1,6 +1,6 @@
 package com.iotplatform.ontology;
 
-public enum Prefixes {
+public enum Prefix {
 	SSN("http://purl.oclc.org/NET/ssnx/ssn#","ssn:","ssn"), 
 	GEO("http://www.w3.org/2003/01/geo/wgs84_pos#","geo:","geo"), 
 	IOT_LITE( "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#","iot-lite:","iot-lite"),
@@ -18,7 +18,7 @@ public enum Prefixes {
 	private final String prefixName;
 	
 	
-	private Prefixes(final String uri,final String prefix,String prefixName) {
+	private Prefix(final String uri,final String prefix,String prefixName) {
 		this.uri = uri;
 		this.prefix = prefix;
 		this.prefixName = prefixName;

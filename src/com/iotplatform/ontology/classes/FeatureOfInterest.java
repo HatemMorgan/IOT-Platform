@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -28,14 +28,14 @@ public class FeatureOfInterest extends Class {
 	private Class featureOfInterestSubjectClassInstance;
 
 	public FeatureOfInterest() {
-		super("FeatureOfInterest", "http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN, null, false);
+		super("FeatureOfInterest", "http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefix.SSN, null, false);
 		init();
 	}
 
 	private Class getFeatureOfInterestSubjectClassInstance() {
 		if (featureOfInterestSubjectClassInstance == null)
 			featureOfInterestSubjectClassInstance = new Class("FeatureOfInterest",
-					"http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefixes.SSN, null, false);
+					"http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest", Prefix.SSN, null, false);
 
 		return featureOfInterestSubjectClassInstance;
 	}
@@ -49,18 +49,18 @@ public class FeatureOfInterest extends Class {
 
 	private void init() {
 		this.getProperties().put("id", new DataTypeProperty(getFeatureOfInterestSubjectClassInstance(), "id",
-				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
-		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		this.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 
 		/*
 		 * A relation between a FeatureOfInterest and a Property of that
 		 * feature. A FeatureOfInterest can have more than one property.
 		 */
 		this.getProperties().put("hasProperty", new ObjectProperty(getFeatureOfInterestSubjectClassInstance(),
-				"hasProperty", Prefixes.SSN, Property.getPropertyInstance(), false, false));
+				"hasProperty", Prefix.SSN, Property.getPropertyInstance(), false, false));
 
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasProperty", "hasProperty");
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasProperty", "hasProperty");
 	}
 
 }

@@ -5,7 +5,7 @@ import java.util.Hashtable;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 
 /*
@@ -22,24 +22,24 @@ public class Device extends SystemClass {
 	private com.iotplatform.ontology.Class systemSubjectClassInstance;
 
 	public Device() {
-		super("Device", "http://purl.oclc.org/NET/ssnx/ssn#Device", Prefixes.SSN, null, true);
+		super("Device", "http://purl.oclc.org/NET/ssnx/ssn#Device", Prefix.SSN, null, true);
 		init();
 	}
 
-	public Device(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+	public Device(String name, String uri, Prefix prefix, String uniqueIdentifierPropertyName,
 			boolean hasTypeClasses) {
 		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 		init();
 	}
 
 	public Device(String nothing) {
-		super("Device", "http://purl.oclc.org/NET/ssnx/ssn#Device", Prefixes.SSN, null, true, null);
+		super("Device", "http://purl.oclc.org/NET/ssnx/ssn#Device", Prefix.SSN, null, true, null);
 	}
 
 	private com.iotplatform.ontology.Class getSystemSubjectClassInstance() {
 		if (systemSubjectClassInstance == null)
 			systemSubjectClassInstance = new com.iotplatform.ontology.Class("Device",
-					"http://purl.oclc.org/NET/ssnx/ssn#Device", Prefixes.SSN, null, true);
+					"http://purl.oclc.org/NET/ssnx/ssn#Device", Prefix.SSN, null, true);
 
 		return systemSubjectClassInstance;
 	}
@@ -68,23 +68,23 @@ public class Device extends SystemClass {
 		 * because a device can have only on coverage
 		 */
 		this.getProperties().put("hasCoverage", new ObjectProperty(getSystemSubjectClassInstance(), "hasCoverage",
-				Prefixes.IOT_LITE, Coverage.getCoverageInstance(), false, false));
+				Prefix.IOT_LITE, Coverage.getCoverageInstance(), false, false));
 
 		/*
 		 * A device has a service.
 		 */
 		this.getProperties().put("exposedBy", new ObjectProperty(getSystemSubjectClassInstance(), "exposedBy",
-				Prefixes.IOT_LITE, Service.getServiceInstance(), false, false));
+				Prefix.IOT_LITE, Service.getServiceInstance(), false, false));
 
 		/*
 		 * Links a Device with custom metadata about that device.
 		 */
 		this.getProperties().put("hasMetadata", new ObjectProperty(getSystemSubjectClassInstance(), "hasMetadata",
-				Prefixes.IOT_LITE, Metadata.getMetadataInstance(), true, false));
+				Prefix.IOT_LITE, Metadata.getMetadataInstance(), true, false));
 
-		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasCoverage", "hasCoverage");
-		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "exposedBy", "exposedBy");
-		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasMetadata", "hasMetadata");
+		this.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "hasCoverage", "hasCoverage");
+		this.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "exposedBy", "exposedBy");
+		this.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "hasMetadata", "hasMetadata");
 
 		if (this.isHasTypeClasses()) {
 			this.setClassTypesList(new Hashtable<>());
@@ -117,26 +117,26 @@ public class Device extends SystemClass {
 		 * because a device can have only on coverage
 		 */
 		deviceInstance.getProperties().put("hasCoverage",
-				new ObjectProperty(deviceInstance.getSystemSubjectClassInstance(), "hasCoverage", Prefixes.IOT_LITE,
+				new ObjectProperty(deviceInstance.getSystemSubjectClassInstance(), "hasCoverage", Prefix.IOT_LITE,
 						Coverage.getCoverageInstance(), false, false));
 
 		/*
 		 * A device has a service.
 		 */
 		deviceInstance.getProperties().put("exposedBy",
-				new ObjectProperty(deviceInstance.getSystemSubjectClassInstance(), "exposedBy", Prefixes.IOT_LITE,
+				new ObjectProperty(deviceInstance.getSystemSubjectClassInstance(), "exposedBy", Prefix.IOT_LITE,
 						Service.getServiceInstance(), false, false));
 
 		/*
 		 * Links a Device with custom metadata about that device.
 		 */
 		deviceInstance.getProperties().put("hasMetadata",
-				new ObjectProperty(deviceInstance.getSystemSubjectClassInstance(), "hasMetadata", Prefixes.IOT_LITE,
+				new ObjectProperty(deviceInstance.getSystemSubjectClassInstance(), "hasMetadata", Prefix.IOT_LITE,
 						Metadata.getMetadataInstance(), true, false));
 
-		deviceInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasCoverage", "hasCoverage");
-		deviceInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "exposedBy", "exposedBy");
-		deviceInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasMetadata", "hasMetadata");
+		deviceInstance.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "hasCoverage", "hasCoverage");
+		deviceInstance.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "exposedBy", "exposedBy");
+		deviceInstance.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "hasMetadata", "hasMetadata");
 
 	}
 

@@ -5,7 +5,7 @@ import java.util.Hashtable;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 /*
  *  This Class maps SurvivalProperty class in the ontology
@@ -22,7 +22,7 @@ public class SurvivalProperty extends Property {
 	private static SurvivalProperty survivalPropertyInstance;
 
 	public SurvivalProperty() {
-		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN, null, true);
+		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefix.SSN, null, true);
 		init();
 	}
 
@@ -36,7 +36,7 @@ public class SurvivalProperty extends Property {
 	 * 
 	 */
 	public SurvivalProperty(String nothing) {
-		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefixes.SSN, null, true, null);
+		super("SurvivalProperty", "http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty", Prefix.SSN, null, true, null);
 	}
 
 	public synchronized static SurvivalProperty getSurvivalPropertyInstance() {
@@ -62,7 +62,7 @@ public class SurvivalProperty extends Property {
 		 * Total useful life of a battery.
 		 */
 		Class batteryLifetime = new Class("BatteryLifetime", "http://purl.oclc.org/NET/ssnx/ssn#BatteryLifetime",
-				Prefixes.SSN, null, false);
+				Prefix.SSN, null, false);
 
 		/*
 		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
@@ -81,7 +81,7 @@ public class SurvivalProperty extends Property {
 		 */
 
 		Class systemLifetime = new Class("SystemLifetime", "http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime",
-				Prefixes.SSN, null, false);
+				Prefix.SSN, null, false);
 
 		/*
 		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
@@ -109,7 +109,7 @@ public class SurvivalProperty extends Property {
 		 * Total useful life of a battery.
 		 */
 		Class batteryLifetime = new Class("BatteryLifetime", "http://purl.oclc.org/NET/ssnx/ssn#BatteryLifetime",
-				Prefixes.SSN, null, false);
+				Prefix.SSN, null, false);
 
 		/*
 		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao
@@ -128,7 +128,7 @@ public class SurvivalProperty extends Property {
 		 */
 
 		Class systemLifetime = new Class("SystemLifetime", "http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime",
-				Prefixes.SSN, null, false);
+				Prefix.SSN, null, false);
 
 		/*
 		 * adding ssn:SurvivalProperty class to superClassesList to tell the dao

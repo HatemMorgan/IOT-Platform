@@ -2,7 +2,7 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 /*
  * This class maps the iot-lite:ActuatingDevice class in the ontology
@@ -16,7 +16,7 @@ public class ActuatingDevice extends Device {
 	private static ActuatingDevice actuatingDeviceInstance;
 
 	public ActuatingDevice() {
-		super("ActuatingDevice", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice", Prefixes.IOT_LITE,
+		super("ActuatingDevice", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice", Prefix.IOT_LITE,
 				null, false);
 
 		super.getSuperClassesList().add(Device.getDeviceInstance());

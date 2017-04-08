@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -27,14 +27,14 @@ public class SensorDataSheet extends Class {
 	private Class sensorDataSheetSubjectClassInstance;
 
 	public SensorDataSheet() {
-		super("SensorDataSheet", "http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet", Prefixes.SSN, null, false);
+		super("SensorDataSheet", "http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet", Prefix.SSN, null, false);
 		init();
 	}
 
 	private Class getSensorDataSheetSubjectClassInstance() {
 		if (sensorDataSheetSubjectClassInstance == null)
 			sensorDataSheetSubjectClassInstance = new Class("SensorDataSheet",
-					"http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet", Prefixes.SSN, null, false);
+					"http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet", Prefix.SSN, null, false);
 
 		return sensorDataSheetSubjectClassInstance;
 	}
@@ -48,9 +48,9 @@ public class SensorDataSheet extends Class {
 
 	private void init() {
 		super.getProperties().put("id", new DataTypeProperty(getSensorDataSheetSubjectClassInstance(), "id",
-				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 	}
 
 }

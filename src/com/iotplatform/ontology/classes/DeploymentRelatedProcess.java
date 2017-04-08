@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -23,7 +23,7 @@ public class DeploymentRelatedProcess extends Class {
 	private static DeploymentRelatedProcess deploymentRelatedProcessInstance;
 	private Class deploymentRelatedProcessSubjectClassInstance;
 
-	public DeploymentRelatedProcess(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+	public DeploymentRelatedProcess(String name, String uri, Prefix prefix, String uniqueIdentifierPropertyName,
 			boolean hasTypeClasses) {
 		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 		init();
@@ -42,13 +42,13 @@ public class DeploymentRelatedProcess extends Class {
 	 * I will use subClassesStaticInstances to add them to typeClassesList of
 	 * DeploymentRelatedProcess
 	 */
-	public DeploymentRelatedProcess(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
+	public DeploymentRelatedProcess(String name, String uri, Prefix prefix, String uniqueIdentifierPropertyName,
 			boolean hasTypeClasses, String nothing) {
 		super(name, uri, prefix, uniqueIdentifierPropertyName, hasTypeClasses);
 	}
 
 	public DeploymentRelatedProcess() {
-		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN,
+		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefix.SSN,
 				null, true);
 		init();
 	}
@@ -63,14 +63,14 @@ public class DeploymentRelatedProcess extends Class {
 	 * 
 	 */
 	public DeploymentRelatedProcess(String nothing) {
-		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN,
+		super("DeploymentRelatedProcess", "http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefix.SSN,
 				null, true);
 	}
 
 	private Class getDeploymentRelatedProcessSubjectClassInstance() {
 		if (deploymentRelatedProcessSubjectClassInstance == null)
 			deploymentRelatedProcessSubjectClassInstance = new Class("DeploymentRelatedProcess",
-					"http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefixes.SSN, null, true);
+					"http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess", Prefix.SSN, null, true);
 
 		return deploymentRelatedProcessSubjectClassInstance;
 	}
@@ -98,16 +98,16 @@ public class DeploymentRelatedProcess extends Class {
 
 		this.getProperties().put("deploymentProcessPart",
 				new ObjectProperty(getDeploymentRelatedProcessSubjectClassInstance(), "deploymentProcessPart",
-						Prefixes.SSN, DeploymentRelatedProcess.getDeploymentRelatedProcessInstance(), true, false));
+						Prefix.SSN, DeploymentRelatedProcess.getDeploymentRelatedProcessInstance(), true, false));
 
 		/*
 		 * id and it must be unique
 		 */
 		super.getProperties().put("id", new DataTypeProperty(getDeploymentRelatedProcessSubjectClassInstance(), "id",
-				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deploymentProcessPart", "deploymentProcessPart");
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		super.getHtblPropUriName().put(Prefix.SSN.getUri() + "deploymentProcessPart", "deploymentProcessPart");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 
 		if (this.isHasTypeClasses()) {
 			initDeploymentRelatedProcessTypeClasses();
@@ -138,7 +138,7 @@ public class DeploymentRelatedProcess extends Class {
 
 		deploymentRelatedProcessInstance.getProperties().put("deploymentProcessPart",
 				new ObjectProperty(deploymentRelatedProcessInstance.getDeploymentRelatedProcessSubjectClassInstance(),
-						"deploymentProcessPart", Prefixes.SSN,
+						"deploymentProcessPart", Prefix.SSN,
 						DeploymentRelatedProcess.getDeploymentRelatedProcessInstance(), true, false));
 
 		/*
@@ -146,11 +146,11 @@ public class DeploymentRelatedProcess extends Class {
 		 */
 		deploymentRelatedProcessInstance.getProperties().put("id",
 				new DataTypeProperty(deploymentRelatedProcessInstance.getDeploymentRelatedProcessSubjectClassInstance(),
-						"id", Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+						"id", Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
-		deploymentRelatedProcessInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deploymentProcessPart",
+		deploymentRelatedProcessInstance.getHtblPropUriName().put(Prefix.SSN.getUri() + "deploymentProcessPart",
 				"deploymentProcessPart");
-		deploymentRelatedProcessInstance.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		deploymentRelatedProcessInstance.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 	}
 
 	public static void main(String[] args) {

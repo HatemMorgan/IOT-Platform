@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 /*
  * This Class maps the Deployment Class in the ontology
@@ -22,18 +22,18 @@ public class Deployment extends DeploymentRelatedProcess {
 	private Class deploymentSubjectClassInstance;
 
 	public Deployment() {
-		super("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment", Prefixes.SSN, null, false);
+		super("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment", Prefix.SSN, null, false);
 		init();
 	}
 
 	public Deployment(String nothing) {
-		super("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment", Prefixes.SSN, null, false, null);
+		super("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment", Prefix.SSN, null, false, null);
 	}
 
 	private Class getDeploymentSubjectClassInstance() {
 		if (deploymentSubjectClassInstance == null)
 			deploymentSubjectClassInstance = new Class("Deployment", "http://purl.oclc.org/NET/ssnx/ssn#Deployment",
-					Prefixes.SSN, null, false);
+					Prefix.SSN, null, false);
 
 		return deploymentSubjectClassInstance;
 	}
@@ -56,9 +56,9 @@ public class Deployment extends DeploymentRelatedProcess {
 		 * place (which is the place of the platform)
 		 */
 		super.getProperties().put("deployedOnPlatform", new ObjectProperty(getDeploymentSubjectClassInstance(),
-				"deployedOnPlatform", Prefixes.SSN, Platform.getPlatformInstance(), false, false));
+				"deployedOnPlatform", Prefix.SSN, Platform.getPlatformInstance(), false, false));
 
-		super.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deployedOnPlatform", "deployedOnPlatform");
+		super.getHtblPropUriName().put(Prefix.SSN.getUri() + "deployedOnPlatform", "deployedOnPlatform");
 
 		super.getSuperClassesList().add(DeploymentRelatedProcess.getDeploymentRelatedProcessInstance());
 
@@ -73,9 +73,9 @@ public class Deployment extends DeploymentRelatedProcess {
 		 */
 		deploymentInstance.getProperties().put("deployedOnPlatform",
 				new ObjectProperty(deploymentInstance.getDeploymentSubjectClassInstance(), "deployedOnPlatform",
-						Prefixes.SSN, Platform.getPlatformInstance(), false, false));
+						Prefix.SSN, Platform.getPlatformInstance(), false, false));
 
-		deploymentInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "deployedOnPlatform", "deployedOnPlatform");
+		deploymentInstance.getHtblPropUriName().put(Prefix.SSN.getUri() + "deployedOnPlatform", "deployedOnPlatform");
 
 		deploymentInstance.getSuperClassesList().add(DeploymentRelatedProcess.getDeploymentRelatedProcessInstance());
 

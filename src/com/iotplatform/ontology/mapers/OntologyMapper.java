@@ -14,6 +14,7 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.Prefix;
 
 /*
  * OntologyMapper is used to map the main ontology into some data structures that holds instances which 
@@ -85,8 +86,63 @@ public class OntologyMapper {
 	 * htblMainOntologyClasses
 	 */
 	private static void createClassInstance(OntClass ontologyClass) {
-
+		String className = ontologyClass.getLocalName();
+		String classUri = ontologyClass.getURI();
+		 
 	}
+	
+	/*
+	 * get Prefix enum that maps the String nameSpace from a dynamicProperty
+	 */
+	private Prefix getPrefix(String nameSpace) {
+
+		if (Prefix.FOAF.getUri().equals(nameSpace)) {
+			return Prefix.FOAF;
+		}
+
+		if (Prefix.SSN.getUri().equals(nameSpace)) {
+			return Prefix.SSN;
+		}
+
+		if (Prefix.IOT_LITE.getUri().equals(nameSpace)) {
+			return Prefix.IOT_LITE;
+		}
+
+		if (Prefix.IOT_PLATFORM.getUri().equals(nameSpace)) {
+			return Prefix.IOT_PLATFORM;
+		}
+
+		if (Prefix.GEO.getUri().equals(nameSpace)) {
+			return Prefix.GEO;
+		}
+
+		if (Prefix.XSD.getUri().equals(nameSpace)) {
+			return Prefix.XSD;
+		}
+
+		if (Prefix.OWL.getUri().equals(nameSpace)) {
+			return Prefix.OWL;
+		}
+
+		if (Prefix.RDFS.getUri().equals(nameSpace)) {
+			return Prefix.RDFS;
+		}
+
+		if (Prefix.RDF.getUri().equals(nameSpace)) {
+			return Prefix.RDF;
+		}
+
+		if (Prefix.QU.getUri().equals(nameSpace)) {
+			return Prefix.QU;
+		}
+
+		if (Prefix.DUL.getUri().equals(nameSpace)) {
+			return Prefix.DUL;
+		}
+
+		return null;
+	}
+
 
 	public static void main(String[] args) {
 		OntologyMapper ontologyMapper = new OntologyMapper();

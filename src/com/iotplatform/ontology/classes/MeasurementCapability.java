@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 /*
  * This Class maps MeasurementCapability Class in the ontology
@@ -35,7 +35,7 @@ public class MeasurementCapability extends Property {
 	private Class measurementCapabilitySubjectClassInstance;
 
 	public MeasurementCapability() {
-		super("MeasurementCapability", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefixes.SSN, null,
+		super("MeasurementCapability", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefix.SSN, null,
 				false);
 		init();
 	}
@@ -43,13 +43,13 @@ public class MeasurementCapability extends Property {
 	private Class getMeasurementCapabilitySubjectClassInstance() {
 		if (measurementCapabilitySubjectClassInstance == null)
 			measurementCapabilitySubjectClassInstance = new Class("MeasurementCapability",
-					"http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefixes.SSN, null, false);
+					"http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefix.SSN, null, false);
 
 		return measurementCapabilitySubjectClassInstance;
 	}
 
 	public MeasurementCapability(String nothing) {
-		super("MeasurementCapability", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefixes.SSN, null,
+		super("MeasurementCapability", "http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability", Prefix.SSN, null,
 				false, null);
 	}
 
@@ -81,9 +81,9 @@ public class MeasurementCapability extends Property {
 		 * property who must be a ssn:Condition
 		 */
 		this.getProperties().put("forProperty", new ObjectProperty(getMeasurementCapabilitySubjectClassInstance(),
-				"forProperty", Prefixes.SSN, getPropertyInstance(), true, false));
+				"forProperty", Prefix.SSN, getPropertyInstance(), true, false));
 
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "forProperty", "forProperty");
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "forProperty", "forProperty");
 
 		/*
 		 * Relation from a MeasurementCapability to a MeasurementProperty. For
@@ -91,9 +91,9 @@ public class MeasurementCapability extends Property {
 		 */
 		this.getProperties().put("hasMeasurementProperty",
 				new ObjectProperty(getMeasurementCapabilitySubjectClassInstance(), "hasMeasurementProperty",
-						Prefixes.SSN, MeasurementProperty.getMeasurementPropertyInstance(), true, false));
+						Prefix.SSN, MeasurementProperty.getMeasurementPropertyInstance(), true, false));
 
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasMeasurementProperty", "hasMeasurementProperty");
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasMeasurementProperty", "hasMeasurementProperty");
 
 		/*
 		 * Describes the prevailing environmental conditions for
@@ -102,8 +102,8 @@ public class MeasurementCapability extends Property {
 		 * particular conditions. (see also MeasurementCapability)
 		 */
 		this.getProperties().put("inCondition", new ObjectProperty(getMeasurementCapabilitySubjectClassInstance(),
-				"inCondition", Prefixes.SSN, Condition.getConditionInstance(), false, false));
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
+				"inCondition", Prefix.SSN, Condition.getConditionInstance(), false, false));
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "inCondition", "inCondition");
 
 	}
 
@@ -132,9 +132,9 @@ public class MeasurementCapability extends Property {
 		 */
 		measurementCapabilityInstance.getProperties().put("forProperty",
 				new ObjectProperty(measurementCapabilityInstance.getMeasurementCapabilitySubjectClassInstance(),
-						"forProperty", Prefixes.SSN, getPropertyInstance(), true, false));
+						"forProperty", Prefix.SSN, getPropertyInstance(), true, false));
 
-		measurementCapabilityInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "forProperty", "forProperty");
+		measurementCapabilityInstance.getHtblPropUriName().put(Prefix.SSN.getUri() + "forProperty", "forProperty");
 
 		/*
 		 * Relation from a MeasurementCapability to a MeasurementProperty. For
@@ -142,10 +142,10 @@ public class MeasurementCapability extends Property {
 		 */
 		measurementCapabilityInstance.getProperties().put("hasMeasurementProperty",
 				new ObjectProperty(measurementCapabilityInstance.getMeasurementCapabilitySubjectClassInstance(),
-						"hasMeasurementProperty", Prefixes.SSN, MeasurementProperty.getMeasurementPropertyInstance(),
+						"hasMeasurementProperty", Prefix.SSN, MeasurementProperty.getMeasurementPropertyInstance(),
 						true, false));
 
-		measurementCapabilityInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasMeasurementProperty",
+		measurementCapabilityInstance.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasMeasurementProperty",
 				"hasMeasurementProperty");
 
 		/*
@@ -156,8 +156,8 @@ public class MeasurementCapability extends Property {
 		 */
 		measurementCapabilityInstance.getProperties().put("inCondition",
 				new ObjectProperty(measurementCapabilityInstance.getMeasurementCapabilitySubjectClassInstance(),
-						"inCondition", Prefixes.SSN, Condition.getConditionInstance(), false, false));
-		measurementCapabilityInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
+						"inCondition", Prefix.SSN, Condition.getConditionInstance(), false, false));
+		measurementCapabilityInstance.getHtblPropUriName().put(Prefix.SSN.getUri() + "inCondition", "inCondition");
 
 	}
 }

@@ -13,7 +13,7 @@ import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.exceptions.InvalidPropertyValuesException;
 import com.iotplatform.exceptions.UniqueConstraintViolationException;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.utilities.ValueOfTypeClass;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -149,8 +149,8 @@ public class ValidationDao {
 				+ datauniqueConstraintViolationCheckSubQueryStr);
 
 		int counter = 0;
-		int stop = Prefixes.values().length - 1;
-		for (Prefixes prefix : Prefixes.values()) {
+		int stop = Prefix.values().length - 1;
+		for (Prefix prefix : Prefix.values()) {
 			/*
 			 * 8 because there are only 9 prefixes and the counter started from
 			 * 0
@@ -199,7 +199,7 @@ public class ValidationDao {
 			 * subject will have the iot-platform prefix
 			 */
 
-			String subject = Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase().replaceAll(" ", "");
+			String subject = Prefix.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase().replaceAll(" ", "");
 			String object = valueClassType.getPrefix().getPrefix() + valueClassType.getName();
 
 			stringBuilder.append(subject + " a " + object + " . ");

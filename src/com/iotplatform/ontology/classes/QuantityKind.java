@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -25,14 +25,14 @@ public class QuantityKind extends Class {
 	private Class quantityKindSubjectClassInstance;
 
 	public QuantityKind() {
-		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefixes.QU, null, false);
+		super("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind", Prefix.QU, null, false);
 		init();
 	}
 
 	private Class getQuantityKindSubjectClassInstance() {
 		if (quantityKindSubjectClassInstance == null)
 			quantityKindSubjectClassInstance = new Class("QuantityKind", "http://purl.org/NET/ssnx/qu/qu#QuantityKind",
-					Prefixes.QU, null, false);
+					Prefix.QU, null, false);
 
 		return quantityKindSubjectClassInstance;
 	}
@@ -46,9 +46,9 @@ public class QuantityKind extends Class {
 
 	private void init() {
 		super.getProperties().put("id", new DataTypeProperty(getQuantityKindSubjectClassInstance(), "id",
-				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 	}
 
 }

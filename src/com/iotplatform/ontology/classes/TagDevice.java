@@ -2,7 +2,7 @@ package com.iotplatform.ontology.classes;
 
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 /*
  * This class maps the iot-lite:TagDevice class in the ontology
@@ -16,7 +16,7 @@ public class TagDevice extends Device {
 	private static TagDevice tagDeviceInstance;
 
 	public TagDevice() {
-		super("TagDevice", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice", Prefixes.IOT_LITE, null, false);
+		super("TagDevice", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice", Prefix.IOT_LITE, null, false);
 		super.getSuperClassesList().add(Device.getDeviceInstance());
 	}
 

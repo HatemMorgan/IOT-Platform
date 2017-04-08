@@ -14,7 +14,7 @@ import com.iotplatform.exceptions.InvalidDynamicConceptException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.models.SuccessfullInsertionModel;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.ontology.XSDDataTypes;
 
@@ -123,7 +123,7 @@ public class DynamicConceptService {
 		boolean validPropertyURI = false;
 		boolean validObjectTypeURI = false;
 
-		for (Prefixes prefix : Prefixes.values()) {
+		for (Prefix prefix : Prefix.values()) {
 
 			if (!validClassURI) {
 				if (newConcept.getClass_uri().contains(prefix.getUri())

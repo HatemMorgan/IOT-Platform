@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 /*
  *  This class maps the NormalUser class in the ontology
@@ -17,14 +17,14 @@ public class NormalUser extends Person {
 	private Class normalUserSubjectClassInstance;
 
 	public NormalUser() {
-		super("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM, "userName", false);
+		super("NormalUser", "http://iot-platform#NormalUser", Prefix.IOT_PLATFORM, "userName", false);
 		init();
 	}
 
 	private Class getNormalUserSubjectClassInstance() {
 		if (normalUserSubjectClassInstance == null)
 			normalUserSubjectClassInstance = new Class("NormalUser", "http://iot-platform#NormalUser",
-					Prefixes.IOT_PLATFORM, "userName", false);
+					Prefix.IOT_PLATFORM, "userName", false);
 
 		return normalUserSubjectClassInstance;
 	}
@@ -39,7 +39,7 @@ public class NormalUser extends Person {
 	 * 
 	 */
 	public NormalUser(String nothing) {
-		super("NormalUser", "http://iot-platform#NormalUser", Prefixes.IOT_PLATFORM, "userName", false);
+		super("NormalUser", "http://iot-platform#NormalUser", Prefix.IOT_PLATFORM, "userName", false);
 	}
 
 	public synchronized static NormalUser getNormalUserInstance() {
@@ -54,9 +54,9 @@ public class NormalUser extends Person {
 	public static void initNormalUserStaticInstance(NormalUser normalUserInstance) {
 		normalUserInstance.getProperties().put("usesApplication",
 				new ObjectProperty(normalUserInstance.getNormalUserSubjectClassInstance(), "usesApplication",
-						Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
+						Prefix.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
-		normalUserInstance.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "usesApplication",
+		normalUserInstance.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "usesApplication",
 				"usesApplication");
 
 		normalUserInstance.getSuperClassesList().add(Person.getPersonInstance());
@@ -64,9 +64,9 @@ public class NormalUser extends Person {
 
 	private void init() {
 		super.getProperties().put("usesApplication", new ObjectProperty(getNormalUserSubjectClassInstance(),
-				"usesApplication", Prefixes.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
+				"usesApplication", Prefix.IOT_PLATFORM, Application.getApplicationInstance(), false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "usesApplication", "usesApplication");
+		super.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "usesApplication", "usesApplication");
 
 		super.getSuperClassesList().add(Person.getPersonInstance());
 	}

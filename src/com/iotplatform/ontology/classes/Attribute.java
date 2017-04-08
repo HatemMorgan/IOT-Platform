@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -21,14 +21,14 @@ public class Attribute extends Class {
 	private Class attributeSubjectClassInstance;
 
 	public Attribute() {
-		super("Attribute", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", Prefixes.IOT_LITE, null, false);
+		super("Attribute", "http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", Prefix.IOT_LITE, null, false);
 		init();
 	}
 
 	private Class getAttributeSubjectClassInstance() {
 		if (attributeSubjectClassInstance == null)
 			attributeSubjectClassInstance = new Class("Attribute",
-					"http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", Prefixes.IOT_LITE, null, false);
+					"http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute", Prefix.IOT_LITE, null, false);
 
 		return attributeSubjectClassInstance;
 	}
@@ -43,9 +43,9 @@ public class Attribute extends Class {
 
 	private void init() {
 		super.getProperties().put("id", new DataTypeProperty(getAttributeSubjectClassInstance(), "id",
-				Prefixes.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 
 	}
 

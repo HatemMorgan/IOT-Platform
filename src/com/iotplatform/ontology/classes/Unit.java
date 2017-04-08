@@ -3,7 +3,7 @@ package com.iotplatform.ontology.classes;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 /*
  * This Class maps  qu:Unit class in the ontology
@@ -17,7 +17,7 @@ public class Unit extends Class {
 	private static Unit unitInstance;
 
 	public Unit() {
-		super("Unit", "http://purl.org/NET/ssnx/qu/qu#Unit", Prefixes.QU, null, false);
+		super("Unit", "http://purl.org/NET/ssnx/qu/qu#Unit", Prefix.QU, null, false);
 	}
 
 	public synchronized static Unit getUnitInstance() {

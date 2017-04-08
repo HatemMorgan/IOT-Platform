@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 /*
  *  This class maps the ssn:SensingDevice class in the ontology
@@ -19,14 +19,14 @@ public class SensingDevice extends Sensor {
 	private Class sensingDeviceSubjectClassInstance;
 
 	public SensingDevice() {
-		super("SensingDevice", "http://purl.oclc.org/NET/ssnx/ssn#SensingDevice", Prefixes.SSN, null, false);
+		super("SensingDevice", "http://purl.oclc.org/NET/ssnx/ssn#SensingDevice", Prefix.SSN, null, false);
 		init();
 	}
 
 	private Class getSensingDeviceSubjectClassInstance() {
 		if (sensingDeviceSubjectClassInstance == null)
 			sensingDeviceSubjectClassInstance = new Class("SensingDevice",
-					"http://purl.oclc.org/NET/ssnx/ssn#SensingDevice", Prefixes.SSN, null, false);
+					"http://purl.oclc.org/NET/ssnx/ssn#SensingDevice", Prefix.SSN, null, false);
 
 		return sensingDeviceSubjectClassInstance;
 	}
@@ -56,7 +56,7 @@ public class SensingDevice extends Sensor {
 		 * sensor has only one qunatityKind
 		 */
 		this.getProperties().put("hasQuantityKind", new ObjectProperty(getSensingDeviceSubjectClassInstance(),
-				"hasQuantityKind", Prefixes.IOT_LITE, QuantityKind.getQuantityKindInstance(), false, false));
+				"hasQuantityKind", Prefix.IOT_LITE, QuantityKind.getQuantityKindInstance(), false, false));
 
 		/*
 		 * A relation between an entity that implements a method in some
@@ -65,7 +65,7 @@ public class SensingDevice extends Sensor {
 		 * method that the Sensor uses to observe a Property.
 		 */
 		this.getProperties().put("implements", new ObjectProperty(getSensingDeviceSubjectClassInstance(), "implements",
-				Prefixes.SSN, Sensing.getSensingInstance(), false, false));
+				Prefix.SSN, Sensing.getSensingInstance(), false, false));
 
 		/*
 		 * Relation between a producer and a produced entity: for example,
@@ -73,7 +73,7 @@ public class SensingDevice extends Sensor {
 		 * relationship
 		 */
 		this.getProperties().put("isProducedBy", new ObjectProperty(getSensingDeviceSubjectClassInstance(),
-				"isProducedBy", Prefixes.SSN, SensorOutput.getSensorOutputInstance(), true, false));
+				"isProducedBy", Prefix.SSN, SensorOutput.getSensorOutputInstance(), true, false));
 
 		/*
 		 * Relation between a Sensor and a Property that the sensor can observe.
@@ -81,7 +81,7 @@ public class SensingDevice extends Sensor {
 		 * acceleration, wind speed). it is a one to many relationship
 		 */
 		this.getProperties().put("observes", new ObjectProperty(getSensingDeviceSubjectClassInstance(), "observes",
-				Prefixes.SSN, Property.getPropertyInstance(), true, false));
+				Prefix.SSN, Property.getPropertyInstance(), true, false));
 
 		/*
 		 * A relation from a sensor to the Stimulus that the sensor can detect.
@@ -89,14 +89,14 @@ public class SensingDevice extends Sensor {
 		 * some observable property. It is a one to many relationship
 		 */
 		this.getProperties().put("detects", new ObjectProperty(getSensingDeviceSubjectClassInstance(), "detects",
-				Prefixes.SSN, Stimulus.getStimulusInstance(), true, false));
+				Prefix.SSN, Stimulus.getStimulusInstance(), true, false));
 
 		/*
 		 * Relation from a Sensor to a MeasurementCapability describing the
 		 * measurement properties of the sensor. it is one to many relationship
 		 */
 		this.getProperties().put("hasMeasurementCapability",
-				new ObjectProperty(getSensingDeviceSubjectClassInstance(), "hasMeasurementCapability", Prefixes.SSN,
+				new ObjectProperty(getSensingDeviceSubjectClassInstance(), "hasMeasurementCapability", Prefix.SSN,
 						MeasurementCapability.getMeasurementCapabilityInstance(), true, false));
 
 		/*
@@ -107,15 +107,15 @@ public class SensingDevice extends Sensor {
 		 */
 		this.getProperties().put("hasCommunicatingDevice",
 				new ObjectProperty(getSensingDeviceSubjectClassInstance(), "hasCommunicatingDevice",
-						Prefixes.IOT_PLATFORM, CommunicatingDevice.getCommunicatingDeviceInstance(), false, true));
+						Prefix.IOT_PLATFORM, CommunicatingDevice.getCommunicatingDeviceInstance(), false, true));
 
-		this.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasQuantityKind", "hasQuantityKind");
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "implements", "implements");
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "isProducedBy", "isProducedBy");
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "observes", "observes");
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "detects", "detects");
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasMeasurementCapability", "hasMeasurementCapability");
-		this.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasCommunicatingDevice",
+		this.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "hasQuantityKind", "hasQuantityKind");
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "implements", "implements");
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "isProducedBy", "isProducedBy");
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "observes", "observes");
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "detects", "detects");
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasMeasurementCapability", "hasMeasurementCapability");
+		this.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "hasCommunicatingDevice",
 				"hasCommunicatingDevice");
 	}
 

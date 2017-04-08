@@ -8,13 +8,13 @@ public class DataTypeProperty extends Property {
 
 	private XSDDataTypes dataType;
 
-	public DataTypeProperty(Class subjectClass, String name, Prefixes prefix, XSDDataTypes dataType,
+	public DataTypeProperty(Class subjectClass, String name, Prefix prefix, XSDDataTypes dataType,
 			boolean mulitpleValues, boolean unique) {
 		super(subjectClass, name, prefix, mulitpleValues, unique);
 		this.dataType = dataType;
 	}
 
-	public DataTypeProperty(Class subjectClass, String name, Prefixes prefix, XSDDataTypes dataType,
+	public DataTypeProperty(Class subjectClass, String name, Prefix prefix, XSDDataTypes dataType,
 			String applicationName, int mulitpleValues, int unique) {
 		super(subjectClass, name, prefix, applicationName, mulitpleValues, unique);
 		this.dataType = dataType;

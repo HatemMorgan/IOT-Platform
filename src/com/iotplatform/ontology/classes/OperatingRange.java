@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 
 /*
  * This class maps ssn:OperatingRange class in the ontology
@@ -30,18 +30,18 @@ public class OperatingRange extends Property {
 	private Class operatingRangeSubjectClassInstance;
 
 	public OperatingRange() {
-		super("OperatingRange", "http://purl.oclc.org/NET/ssnx/ssn#OperatingRange", Prefixes.SSN, null, false);
+		super("OperatingRange", "http://purl.oclc.org/NET/ssnx/ssn#OperatingRange", Prefix.SSN, null, false);
 		init();
 	}
 
 	public OperatingRange(String nothing) {
-		super("OperatingRange", "http://purl.oclc.org/NET/ssnx/ssn#OperatingRange", Prefixes.SSN, null, false, null);
+		super("OperatingRange", "http://purl.oclc.org/NET/ssnx/ssn#OperatingRange", Prefix.SSN, null, false, null);
 	}
 
 	private Class getOperatingRangeSubjectClassInstance() {
 		if (operatingRangeSubjectClassInstance == null)
 			operatingRangeSubjectClassInstance = new Class("OperatingRange",
-					"http://purl.oclc.org/NET/ssnx/ssn#OperatingRange", Prefixes.SSN, null, false);
+					"http://purl.oclc.org/NET/ssnx/ssn#OperatingRange", Prefix.SSN, null, false);
 
 		return operatingRangeSubjectClassInstance;
 	}
@@ -62,7 +62,7 @@ public class OperatingRange extends Property {
 		 * battery lifetime.
 		 */
 		this.getProperties().put("hasOperatingProperty", new ObjectProperty(getOperatingRangeSubjectClassInstance(),
-				"hasOperatingProperty", Prefixes.SSN, OperatingProperty.getOperatingPropertyInstance(), false, false));
+				"hasOperatingProperty", Prefix.SSN, OperatingProperty.getOperatingPropertyInstance(), false, false));
 
 		/*
 		 * Describes the prevailing environmental conditions for
@@ -71,10 +71,10 @@ public class OperatingRange extends Property {
 		 * particular conditions. (see also MeasurementCapability)
 		 */
 		this.getProperties().put("inCondition", new ObjectProperty(getOperatingRangeSubjectClassInstance(),
-				"inCondition", Prefixes.SSN, Condition.getConditionInstance(), false, false));
+				"inCondition", Prefix.SSN, Condition.getConditionInstance(), false, false));
 
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingProperty", "hasOperatingProperty");
-		this.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasOperatingProperty", "hasOperatingProperty");
+		this.getHtblPropUriName().put(Prefix.SSN.getUri() + "inCondition", "inCondition");
 
 		this.getSuperClassesList().add(Property.getPropertyInstance());
 	}
@@ -92,7 +92,7 @@ public class OperatingRange extends Property {
 		 */
 		operatingRangeInstance.getProperties().put("hasOperatingProperty",
 				new ObjectProperty(operatingRangeInstance.getOperatingRangeSubjectClassInstance(),
-						"hasOperatingProperty", Prefixes.SSN, OperatingProperty.getOperatingPropertyInstance(), false,
+						"hasOperatingProperty", Prefix.SSN, OperatingProperty.getOperatingPropertyInstance(), false,
 						false));
 
 		/*
@@ -103,11 +103,11 @@ public class OperatingRange extends Property {
 		 */
 		operatingRangeInstance.getProperties().put("inCondition",
 				new ObjectProperty(operatingRangeInstance.getOperatingRangeSubjectClassInstance(), "inCondition",
-						Prefixes.SSN, Condition.getConditionInstance(), false, false));
+						Prefix.SSN, Condition.getConditionInstance(), false, false));
 
-		operatingRangeInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "hasOperatingProperty",
+		operatingRangeInstance.getHtblPropUriName().put(Prefix.SSN.getUri() + "hasOperatingProperty",
 				"hasOperatingProperty");
-		operatingRangeInstance.getHtblPropUriName().put(Prefixes.SSN.getUri() + "inCondition", "inCondition");
+		operatingRangeInstance.getHtblPropUriName().put(Prefix.SSN.getUri() + "inCondition", "inCondition");
 
 		operatingRangeInstance.getSuperClassesList().add(Property.getPropertyInstance());
 	}

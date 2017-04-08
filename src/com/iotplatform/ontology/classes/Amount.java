@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.XSDDataTypes;
 
 /*
@@ -21,13 +21,13 @@ public class Amount extends Class {
 	private Class amountSubjectClassInstance;
 
 	public Amount() {
-		super("Amount", "http://iot-platform#Amount", Prefixes.IOT_PLATFORM, null, false);
+		super("Amount", "http://iot-platform#Amount", Prefix.IOT_PLATFORM, null, false);
 		init();
 	}
 
 	private Class getAmountSubjectClassInstance() {
 		if (amountSubjectClassInstance == null) {
-			amountSubjectClassInstance = new Class("Amount", "http://iot-platform#Amount", Prefixes.IOT_PLATFORM, null,
+			amountSubjectClassInstance = new Class("Amount", "http://iot-platform#Amount", Prefix.IOT_PLATFORM, null,
 					false);
 		}
 		return amountSubjectClassInstance;
@@ -42,7 +42,7 @@ public class Amount extends Class {
 
 	private void init() {
 
-		super.getProperties().put("id", new DataTypeProperty(getAmountSubjectClassInstance(), "id", Prefixes.IOT_LITE,
+		super.getProperties().put("id", new DataTypeProperty(getAmountSubjectClassInstance(), "id", Prefix.IOT_LITE,
 				XSDDataTypes.string_typed, false, false));
 
 		/*
@@ -50,21 +50,21 @@ public class Amount extends Class {
 		 * operatingPowerRange
 		 */
 		super.getProperties().put("hasRangeMaxValue", new DataTypeProperty(getAmountSubjectClassInstance(),
-				"hasRangeMaxValue", Prefixes.IOT_PLATFORM, XSDDataTypes.double_typed, false, false));
+				"hasRangeMaxValue", Prefix.IOT_PLATFORM, XSDDataTypes.double_typed, false, false));
 
 		/*
 		 * It describes the min value amount of a range of a property like
 		 * operatingPowerRange
 		 */
 		super.getProperties().put("hasRangeMinValue", new DataTypeProperty(getAmountSubjectClassInstance(),
-				"hasRangeMinValue", Prefixes.IOT_PLATFORM, XSDDataTypes.double_typed, false, false));
+				"hasRangeMinValue", Prefix.IOT_PLATFORM, XSDDataTypes.double_typed, false, false));
 
 		/*
 		 * "Describes the value of an amount. The value of property like
 		 * frequency or senstivity or batteryLifeTime. eg: 21 μA"
 		 */
 		super.getProperties().put("hasDataValue", new DataTypeProperty(getAmountSubjectClassInstance(), "hasDataValue",
-				Prefixes.IOT_PLATFORM, XSDDataTypes.double_typed, false, false));
+				Prefix.IOT_PLATFORM, XSDDataTypes.double_typed, false, false));
 
 		/*
 		 * Links a thing that has a measurment unit with the units of the
@@ -73,13 +73,13 @@ public class Amount extends Class {
 		 */
 
 		super.getProperties().put("hasUnit", new ObjectProperty(getAmountSubjectClassInstance(), "hasUnit",
-				Prefixes.IOT_LITE, Unit.getUnitInstance(), false, false));
+				Prefix.IOT_LITE, Unit.getUnitInstance(), false, false));
 
-		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasRangeMaxValue", "hasRangeMaxValue");
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "id", "id");
-		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasRangeMinValue", "hasRangeMinValue");
-		super.getHtblPropUriName().put(Prefixes.IOT_PLATFORM.getUri() + "hasDataValue", "hasDataValue");
-		super.getHtblPropUriName().put(Prefixes.IOT_LITE.getUri() + "hasUnit", "hasUnit");
+		super.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "hasRangeMaxValue", "hasRangeMaxValue");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
+		super.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "hasRangeMinValue", "hasRangeMinValue");
+		super.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "hasDataValue", "hasDataValue");
+		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "hasUnit", "hasUnit");
 	}
 
 }
