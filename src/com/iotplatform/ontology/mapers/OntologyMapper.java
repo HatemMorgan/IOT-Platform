@@ -79,6 +79,15 @@ public class OntologyMapper {
 		while (ontologyClassesIter.hasNext()) {
 			OntClass ontologyClass = ontologyClassesIter.next();
 			if (ontologyClass.isClass() && ontologyClass.getURI() != null) {
+
+				/*
+				 * Skip ontology class with uri rdfs:class because it is not one
+				 * of the main ontology class it is only used by the ontology to
+				 * tell that rdfs:Class is a owl:Class
+				 */
+				if (ontologyClass.getLocalName().equals("Class"))
+					continue;
+
 				/*
 				 * get className , classURI and classPrefix
 				 */
@@ -106,10 +115,32 @@ public class OntologyMapper {
 		while (ontologyClassesIter.hasNext()) {
 			OntClass ontologyClass = ontologyClassesIter.next();
 
+			/*
+			 * check that ontology class is a proper owl:class not a restriction
+			 * or blank nodes
+			 */
 			if (ontologyClass.isClass() && ontologyClass.getURI() != null) {
+				/*
+				 * Skip ontology class with uri rdfs:class because it is not one
+				 * of the main ontology class it is only used by the ontology to
+				 * tell that rdfs:Class is a owl:Class
+				 */
+				if (ontologyClass.getLocalName().equals("Class"))
+					continue;
 
+				/*
+				 * populate superClassList if the given ontology class has
+				 * superClasses
+				 */
 				if (ontologyClass.hasSuperClass())
 					addSuperClasses(ontologyClass);
+
+				/*
+				 * populate subClassesList if the given ontology class has
+				 * subClasses
+				 */
+				if (ontologyClass.hasSubClass())
+					addSubClasses(ontologyClass);
 			}
 		}
 
@@ -123,7 +154,7 @@ public class OntologyMapper {
 		Class ontologyClassMapper = htblMainOntologyClasses.get(ontologyClass.getLocalName());
 
 		/*
-		 * get superClass list
+		 * populate superClass list
 		 */
 		ExtendedIterator<OntClass> superClassesIter = ontologyClass.listSuperClasses();
 		while (superClassesIter.hasNext()) {
@@ -142,6 +173,46 @@ public class OntologyMapper {
 
 				Class superClassMapper = htblMainOntologyClasses.get(superClassName);
 				ontologyClassMapper.getSuperClassesList().add(superClassMapper);
+			}
+
+		}
+
+	}
+
+	private static void addSubClasses(OntClass ontologyClass) {
+
+		
+		
+		/*
+		 * get ontology class mapper
+		 */
+		Class ontologyClassMapper = htblMainOntologyClasses.get(ontologyClass.getLocalName());
+
+		/*
+		 * set hasTypeClasses boolean in the ontologyClassMapper
+		 */
+		ontologyClassMapper.setHasTypeClasses(true);
+		
+		/*
+		 * populate subCLass list
+		 */
+		ExtendedIterator<OntClass> subClassesIter = ontologyClass.listSubClasses();
+		while (subClassesIter.hasNext()) {
+			OntClass subClass = subClassesIter.next();
+
+			if (subClass.isClass() && subClass.getURI() != null) {
+				String subClassName = subClass.getLocalName();
+
+				/*
+				 * resource is the root class of ontology (like Thing class ) so
+				 * I will skip it because I do not need to add it to superClass
+				 * list of any classMapper
+				 */
+				if (subClassName.equals("Resource"))
+					continue;
+
+				Class subClassMapper = htblMainOntologyClasses.get(subClassName);
+				ontologyClassMapper.getClassTypesList().put(subClassName, subClassMapper);
 			}
 
 		}
@@ -209,10 +280,11 @@ public class OntologyMapper {
 		System.out.println(ontologyMapper.htblMainOntologyClasses.size());
 		System.out.println(ontologyMapper.htblMainOntologyProperties.size());
 
-		for (Class superClass : htblMainOntologyClasses.get("Resolution").getSuperClassesList()) {
-			System.out.println(superClass.getName());
-		}
-		
+//		for (Class superClass : htblMainOntologyClasses.get("Resolution").getSuperClassesList()) {
+//			System.out.println(superClass.getName());
+//		}
+
+//		System.out.println(htblMainOntologyClasses.get("Coverage").getClassTypesList().toString());
 	}
 
 }
