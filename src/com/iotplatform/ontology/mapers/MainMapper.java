@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.jena.ontology.AllValuesFromRestriction;
+import org.apache.jena.ontology.AnnotationProperty;
 import org.apache.jena.ontology.CardinalityRestriction;
 import org.apache.jena.ontology.DatatypeProperty;
 import org.apache.jena.ontology.HasValueRestriction;
@@ -44,10 +45,10 @@ public class MainMapper {
 	 */
 	public static void traverseStart(OntModel model, OntClass ontClass) {
 		// if ontClass is specified we only traverse down that branch
-		if (ontClass != null) {
-			traverse(ontClass, new ArrayList<OntClass>(), 0);
-			return;
-		}
+		// if (ontClass != null) {
+		// traverse(ontClass, new ArrayList<OntClass>(), 0);
+		// return;
+		// }
 
 		// create an iterator over the root classes
 		// Iterator<OntClass> i = model.listHierarchyRootClasses();
@@ -59,15 +60,32 @@ public class MainMapper {
 		//// traverse(tmp, new ArrayList<OntClass>(), 0);
 		// }
 
+		ExtendedIterator<AnnotationProperty> annotationsItr = model.listAnnotationProperties();
+		while (annotationsItr.hasNext()) {
+			AnnotationProperty annotationProperty = annotationsItr.next();
+			System.out.println("Annotation Property : " + annotationProperty.getURI());
+		}
+
 		ExtendedIterator<OntClass> itr = model.listClasses();
 
 		while (itr.hasNext()) {
 			OntClass c = itr.next();
-
 			if (c.getLocalName() == null)
 				continue;
 
-			if (c.getLocalName().equals("Observation")) {
+			if (c.getLocalName().equals("Group")) {
+				ExtendedIterator<OntProperty> propertyItr = c.listDeclaredProperties();
+				System.out.println("--->>"+c.getIsDefinedBy().getLocalName());
+				while (propertyItr.hasNext()) {
+					OntProperty prop = propertyItr.next();
+					if (prop.getLocalName().equals("uniqueIdentifierProperty")) {
+						System.out.println(prop.isAnnotationProperty());
+						AnnotationProperty annotationProperty = prop.asAnnotationProperty();
+						
+						
+					}
+				}
+
 				ExtendedIterator<OntClass> subClassItr = c.listSubClasses();
 
 				while (subClassItr.hasNext()) {
@@ -82,6 +100,7 @@ public class MainMapper {
 					if (superClass != null) {
 
 						if (superClass.isRestriction()) {
+
 							Restriction restriction = superClass.asRestriction();
 							OntProperty prop = restriction.getOnProperty();
 
@@ -125,9 +144,9 @@ public class MainMapper {
 								CardinalityRestriction cardinalityRestriction = restriction.asCardinalityRestriction();
 								System.out.println(" Cardinality number : " + cardinalityRestriction.getCardinality());
 							}
-							
-//							if(restriction.is)
 
+						} else {
+							System.out.println("---> " + superClass.getLocalName());
 						}
 
 					}
