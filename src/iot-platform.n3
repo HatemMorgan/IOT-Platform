@@ -42,10 +42,6 @@ rdfs:label a owl:AnnotationProperty .
 
 rdfs:seeAlso a owl:AnnotationProperty .
 # 
-# http://www.w3.org/2003/06/sw-vocab-status/ns#term_status
-
-<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> a owl:AnnotationProperty .
-# 
 # 
 # 
 # #################################################################
@@ -157,7 +153,6 @@ iot-lite:isAssociatedWith a owl:ObjectProperty ;
 
 ssn:deployedOnPlatform a owl:ObjectProperty ;
 	rdfs:comment "Relation between a deployment and the platform on which the system was deployed." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "deployed on platform" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Deploy#Deployment" .
 # 
@@ -167,7 +162,6 @@ ssn:deploymentProcessPart a owl:ObjectProperty ;
 	rdfs:comment """Has part relation between a deployment process and its constituent processes.
 
 It says that a ssn:deploymentProcess is part of another ssn:deploymentProcess""" ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "deployment process part" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Deploy#Deployment" .
 # 
@@ -176,7 +170,6 @@ It says that a ssn:deploymentProcess is part of another ssn:deploymentProcess"""
 ssn:detects a owl:ObjectProperty ;
 	rdfs:comment """A relation from a sensor to the Stimulus that the sensor can detect.   
 The Stimulus itself will be serving as a proxy for (see isProxyOf) some observable property.""" ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "detects" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
 # 
@@ -184,7 +177,6 @@ The Stimulus itself will be serving as a proxy for (see isProxyOf) some observab
 
 ssn:featureOfInterest a owl:ObjectProperty ;
 	rdfs:comment "A relation between an observation and the entity whose quality was observed.   For example, in an observation of the weight of a person, the feature of interest is the person and the quality is weight." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "feature of interest" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
 # 
@@ -196,7 +188,6 @@ ssn:forProperty a owl:ObjectProperty ;
 A ssn:MeasurementCapability is something that is a ssn:Property and has a ssn:hasMeasurementProperty property who must be a ssn:MeasurementProperty . 
 
 So ssn:MeasurementCapability instance will have a ssn:forProperty property who must be a ssn:Property and has a ssn:inCondition property who must be a ssn:Condition""" ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "for property" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
 # 
@@ -204,14 +195,12 @@ So ssn:MeasurementCapability instance will have a ssn:forProperty property who m
 
 ssn:hasDeployment a owl:ObjectProperty ;
 	rdfs:comment "Relation between an IOTSystem and a Deployment, recording that the IOTSystem was deployed in that Deployment." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "has deployment" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Deploy#Deployment" .
 # 
 # http://purl.oclc.org/NET/ssnx/ssn#hasInput
 
 ssn:hasInput a owl:ObjectProperty ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "has input" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Model#Process" .
 # 
@@ -220,7 +209,6 @@ ssn:hasInput a owl:ObjectProperty ;
 ssn:hasMeasurementCapability a owl:ObjectProperty ;
 	rdfs:subPropertyOf ssn:hasProperty ;
 	rdfs:comment "Relation from a Sensor to a MeasurementCapability describing the measurement properties of the sensor." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "has measurement  capability" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Sensor#MeasuringCapability" .
 # 
@@ -229,7 +217,6 @@ ssn:hasMeasurementCapability a owl:ObjectProperty ;
 ssn:hasMeasurementProperty a owl:ObjectProperty ;
 	rdfs:subPropertyOf ssn:hasProperty ;
 	rdfs:comment "Relation from a MeasurementCapability to a MeasurementProperty.  For example, to an accuracy (see notes at MeasurementCapability)." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "has measurement property" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Sensor#MeasuringCapability" .
 # 
@@ -238,7 +225,6 @@ ssn:hasMeasurementProperty a owl:ObjectProperty ;
 ssn:hasOperatingProperty a owl:ObjectProperty ;
 	rdfs:subPropertyOf ssn:hasProperty ;
 	rdfs:comment "Relation from an OperatingRange to a Property.  For example, to a battery lifetime." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "has operating property" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Deploy#OperatingRestriction" .
 # 
@@ -247,14 +233,12 @@ ssn:hasOperatingProperty a owl:ObjectProperty ;
 ssn:hasOperatingRange a owl:ObjectProperty ;
 	rdfs:subPropertyOf ssn:hasProperty ;
 	rdfs:comment "Relation from a System to an OperatingRange describing the normal operating environment of the System." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "has operating range" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Deploy#OperatingRestriction" .
 # 
 # http://purl.oclc.org/NET/ssnx/ssn#hasOutput
 
 ssn:hasOutput a owl:ObjectProperty ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "has output" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Model#Process" .
 # 
@@ -262,7 +246,6 @@ ssn:hasOutput a owl:ObjectProperty ;
 
 ssn:hasProperty a owl:ObjectProperty ;
 	rdfs:comment "A relation between a FeatureOfInterest and a Property of that feature. A FeatureOfInterest can have more than one property." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "has property" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
 # 
@@ -272,7 +255,6 @@ ssn:hasSubSystem a owl:ObjectProperty ;
 	rdfs:domain ssn:System ;
 	rdfs:range ssn:System ;
 	rdfs:comment "Haspart relation between a system and its parts." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "has subsystem" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Model#System" .
 # 
@@ -281,7 +263,6 @@ ssn:hasSubSystem a owl:ObjectProperty ;
 ssn:hasSurvivalProperty a owl:ObjectProperty ;
 	rdfs:subPropertyOf ssn:hasProperty ;
 	rdfs:comment "Relation from a SurvivalRange to a Property describing the survial range of a system.  For example, to the temperature extreme that a system can withstand before being considered damaged." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "has survival property" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Deploy#OperatingRestriction" .
 # 
@@ -290,14 +271,12 @@ ssn:hasSurvivalProperty a owl:ObjectProperty ;
 ssn:hasSurvivalRange a owl:ObjectProperty ;
 	rdfs:subPropertyOf ssn:hasProperty ;
 	rdfs:comment "A Relation from a System to a SurvivalRange." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "has survival range" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Deploy#OperatingRestriction" .
 # 
 # http://purl.oclc.org/NET/ssnx/ssn#hasValue
 
 ssn:hasValue a owl:ObjectProperty ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "has value" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Base#Data" .
 # 
@@ -305,7 +284,6 @@ ssn:hasValue a owl:ObjectProperty ;
 
 ssn:implements a owl:ObjectProperty ;
 	rdfs:comment "A relation between an entity that implements a method in some executable way and the description of an algorithm, procedure or method.  For example, between a Sensor and the scientific measuring method that the Sensor uses to observe a Property." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "implements" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
 # 
@@ -313,7 +291,6 @@ ssn:implements a owl:ObjectProperty ;
 
 ssn:inCondition a owl:ObjectProperty ;
 	rdfs:comment "Describes the prevailing environmental conditions for MeasurementCapabilites, OperatingConditions and SurvivalRanges.  Used for example to say that a sensor has a particular accuracy in particular conditions.  (see also MeasurementCapability)" ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "in condition" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Base#ConstraintBlock" .
 # 
@@ -321,7 +298,6 @@ ssn:inCondition a owl:ObjectProperty ;
 
 ssn:isProducedBy a owl:ObjectProperty ;
 	rdfs:comment "Relation between a producer and a produced entity: for example, between a sensor and the produced output." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "is produced by" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Model#Process" .
 # 
@@ -331,7 +307,6 @@ ssn:isProxyFor a owl:ObjectProperty ;
 	rdfs:comment """A relation from a Stimulus to the Property that the Stimulus is serving as a proxy for.
 
 For example, the expansion of the quicksilver is a stimulus that serves as a proxy for temperature, or an increase or decrease in the spinning of cups on a wind sensor is serving as a proxy for wind speed.""" ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "isProxyFor" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
 # 
@@ -339,7 +314,6 @@ For example, the expansion of the quicksilver is a stimulus that serves as a pro
 
 ssn:observationResult a owl:ObjectProperty ;
 	rdfs:comment "Relation linking an Observation (i.e., a description of the context, the Situation, in which the observatioin was made) and a Result(Sensor Output), which contains a value representing the value associated with the observed Property." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "observation result" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
 # 
@@ -347,7 +321,6 @@ ssn:observationResult a owl:ObjectProperty ;
 
 ssn:observedProperty a owl:ObjectProperty ;
 	rdfs:comment "Relation linking an Observation to the Property that was observed.  The observedProperty should be a Property (hasProperty) of the FeatureOfInterest (linked by featureOfInterest) of this observation." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "observed property" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
 # 
@@ -355,7 +328,6 @@ ssn:observedProperty a owl:ObjectProperty ;
 
 ssn:observes a owl:ObjectProperty ;
 	rdfs:comment "Relation between a Sensor and a Property that the sensor can observe. It points to a property observed by a sensor (e.g., temperature, acceleration, wind speed)." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "observes" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Sensor#Measuring" .
 # 
@@ -363,7 +335,6 @@ ssn:observes a owl:ObjectProperty ;
 
 ssn:onPlatform a owl:ObjectProperty ;
 	rdfs:comment "Relation between a System (e.g., a Sensor) and a Platform.  The relation locates the sensor relative to other described entities entities: i.e., the Sensor s1's location is Platform p1.  More precise locations for sensors in space (relative to other entities, where attached to another entity, or in 3D space) are made using DOLCE's Regions (SpaceRegion)." ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "on platform" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Deploy#PlatformSite" .
 # 
@@ -371,7 +342,6 @@ ssn:onPlatform a owl:ObjectProperty ;
 
 ssn:sensingMethodUsed a owl:ObjectProperty ;
 	rdfs:comment "A (measurement) procedure is a detailed description of a measurement according to one or more measurement principles and to a given measurement method, based on a measurement model and including any calculation to obtain a measurement result [VIM 2.6]" ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "sensing method used" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
 # 
@@ -391,7 +361,6 @@ foaf:fundedBy a owl:ObjectProperty ;
 	rdfs:domain :Application ;
 	rdfs:range foaf:Organization ;
 	rdfs:comment "An organization funding a project or person." ;
-	rdfs:isDefinedBy "http://xmlns.com/foaf/0.1/" ;
 	rdfs:label "funded by" .
 # 
 # http://xmlns.com/foaf/0.1/knows
@@ -400,9 +369,7 @@ foaf:knows a owl:ObjectProperty ;
 	rdfs:domain foaf:Person ;
 	rdfs:range foaf:Person ;
 	rdfs:comment "A person known by this person (indicating some level of reciprocated interaction between the parties)." ;
-	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
-	rdfs:label "knows" ;
-	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
+	rdfs:label "knows" .
 # 
 # http://xmlns.com/foaf/0.1/member
 
@@ -410,9 +377,7 @@ foaf:member a owl:ObjectProperty ;
 	rdfs:domain foaf:Group ;
 	rdfs:range foaf:Agent ;
 	rdfs:comment "Indicates a member of a Group" ;
-	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
-	rdfs:label "member" ;
-	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
+	rdfs:label "member" .
 # 
 # 
 # 
@@ -566,7 +531,6 @@ iot-lite:radius a owl:DatatypeProperty ;
 
 ssn:endTime a owl:DatatypeProperty ;
 	rdfs:range xsd:string ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "end time" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Base#Time" .
 # 
@@ -578,7 +542,6 @@ ssn:observationResultTime a owl:DatatypeProperty ;
 	rdfs:comment """The result time is the time when the procedure associated with the observation act was applied.
 
 The result time shall describe the time when the result became available, typically when the procedure associated with the observation was completed For some observations this is identical to the phenomenonTime. However, there are important cases where they differ.[O&M]""" ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "observation result time" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Observation#Observation" .
 # 
@@ -590,7 +553,6 @@ ssn:observationSamplingTime a owl:DatatypeProperty ;
 	rdfs:comment """Rebadged as phenomenon time in [O&M]. The phenomenon time shall describe the time that the result applies to the property of the feature-of-interest. This is often the time of interaction by a sampling procedure or observation procedure with a real-world feature.
 
 The sampling time is the time that the result applies to the feature-of-interest. This is the time usually required for geospatial analysis of the result.""" ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "observation sampling time" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Observation#Observation" .
 # 
@@ -604,7 +566,6 @@ ssn:qualityOfObservation a owl:DatatypeProperty ;
 
 ssn:startTime a owl:DatatypeProperty ;
 	rdfs:range xsd:string ;
-	rdfs:isDefinedBy "http://purl.oclc.org/NET/ssnx/ssn" ;
 	rdfs:label "start time" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Base#Time" .
 # 
@@ -628,9 +589,7 @@ foaf:age a owl:DatatypeProperty , owl:FunctionalProperty ;
 	rdfs:domain foaf:Person ;
 	rdfs:range rdfs:Literal ;
 	rdfs:comment "The age in years of some agent." ;
-	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
-	rdfs:label "age" ;
-	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "unstable" .
+	rdfs:label "age" .
 # 
 # http://xmlns.com/foaf/0.1/birthday
 
@@ -638,9 +597,7 @@ foaf:birthday a owl:DatatypeProperty , owl:FunctionalProperty ;
 	rdfs:domain foaf:Agent ;
 	rdfs:range xsd:string ;
 	rdfs:comment "The birthday of this Agent, represented in mm-dd string form, eg. '12-31'." ;
-	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
-	rdfs:label "birthday" ;
-	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "unstable" .
+	rdfs:label "birthday" .
 # 
 # http://xmlns.com/foaf/0.1/familyName
 
@@ -648,9 +605,7 @@ foaf:familyName a owl:DatatypeProperty ;
 	rdfs:domain foaf:Person ;
 	rdfs:range xsd:string ;
 	rdfs:comment "The family name of some person." ;
-	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
-	rdfs:label "familyName" ;
-	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "testing" .
+	rdfs:label "familyName" .
 # 
 # http://xmlns.com/foaf/0.1/firstName
 
@@ -658,9 +613,7 @@ foaf:firstName a owl:DatatypeProperty ;
 	rdfs:domain foaf:Person ;
 	rdfs:range xsd:string ;
 	rdfs:comment "The first name of a person." ;
-	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
-	rdfs:label "firstName" ;
-	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "testing" .
+	rdfs:label "firstName" .
 # 
 # http://xmlns.com/foaf/0.1/gender
 
@@ -668,9 +621,7 @@ foaf:gender a owl:DatatypeProperty , owl:FunctionalProperty ;
 	rdfs:domain foaf:Agent ;
 	rdfs:range xsd:string ;
 	rdfs:comment "The gender of this Agent (typically but not necessarily 'male' or 'female')." ;
-	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
-	rdfs:label "gender" ;
-	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "testing" .
+	rdfs:label "gender" .
 # 
 # http://xmlns.com/foaf/0.1/mbox
 
@@ -684,9 +635,7 @@ foaf:middleName a owl:DatatypeProperty ;
 	rdfs:domain foaf:Person ;
 	rdfs:range xsd:string ;
 	rdfs:comment "The last name of a person." ;
-	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
-	rdfs:label "middleName" ;
-	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "testing" .
+	rdfs:label "middleName" .
 # 
 # http://xmlns.com/foaf/0.1/name
 
@@ -700,9 +649,7 @@ foaf:name a owl:DatatypeProperty ;
 
 foaf:title a owl:DatatypeProperty ;
 	rdfs:comment "Title (Mr, Mrs, Ms, Dr. etc)" ;
-	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
-	rdfs:label "title" ;
-	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "testing" .
+	rdfs:label "title" .
 # 
 # http://xmlns.com/foaf/0.1/topic_interest
 
@@ -710,7 +657,6 @@ foaf:topic_interest a owl:DatatypeProperty ;
 	rdfs:domain foaf:Agent ;
 	rdfs:range xsd:string ;
 	rdfs:comment "A thing of interest to this person." ;
-	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
 	rdfs:label "topic of interest" .
 # 
 # http://xmlns.com/foaf/0.1/userName
@@ -1429,8 +1375,7 @@ Ex: <geo:Point>
 
 foaf:Agent a owl:Class ;
 	rdfs:comment "An agent (eg. person, group, software or physical artifact)." ;
-	rdfs:label "Agent" ;
-	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
+	rdfs:label "Agent" .
 # 
 # http://xmlns.com/foaf/0.1/Group
 
@@ -1438,8 +1383,7 @@ foaf:Group a owl:Class ;
 	rdfs:subClassOf foaf:Agent ;
 	rdfs:comment "A class of Agents." ;
 	rdfs:isDefinedBy foaf:name ;
-	rdfs:label "Group" ;
-	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
+	rdfs:label "Group" .
 # 
 # http://xmlns.com/foaf/0.1/Organization
 
@@ -1448,8 +1392,7 @@ foaf:Organization a owl:Class ;
 	owl:disjointWith foaf:Person ;
 	rdfs:comment "An organization." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
-	rdfs:label "Organization" ;
-	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
+	rdfs:label "Organization" .
 # 
 # http://xmlns.com/foaf/0.1/Person
 
@@ -1457,8 +1400,7 @@ foaf:Person a owl:Class ;
 	rdfs:subClassOf foaf:Agent ;
 	rdfs:comment "A person." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
-	rdfs:label "Person" ;
-	<http://www.w3.org/2003/06/sw-vocab-status/ns#term_status> "stable" .
+	rdfs:label "Person" .
 # 
 
 _:genid38 foaf:name "" .

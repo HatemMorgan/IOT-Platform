@@ -71,4 +71,8 @@ public abstract class Property {
 		this.unique = unique;
 	}
 
+	public void setMulitpleValues(boolean mulitpleValues) {
+		this.mulitpleValues = mulitpleValues;
+	}
+
 }

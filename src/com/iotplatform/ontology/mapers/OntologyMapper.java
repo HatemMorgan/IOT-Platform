@@ -7,15 +7,23 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import org.apache.jena.ontology.AllValuesFromRestriction;
+import org.apache.jena.ontology.CardinalityRestriction;
+import org.apache.jena.ontology.HasValueRestriction;
+import org.apache.jena.ontology.MaxCardinalityRestriction;
+import org.apache.jena.ontology.MinCardinalityRestriction;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntProperty;
+import org.apache.jena.ontology.Restriction;
+import org.apache.jena.ontology.SomeValuesFromRestriction;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.util.FileManager;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 
 /*
@@ -181,8 +189,6 @@ public class OntologyMapper {
 
 	private static void addSubClasses(OntClass ontologyClass) {
 
-		
-		
 		/*
 		 * get ontology class mapper
 		 */
@@ -192,7 +198,7 @@ public class OntologyMapper {
 		 * set hasTypeClasses boolean in the ontologyClassMapper
 		 */
 		ontologyClassMapper.setHasTypeClasses(true);
-		
+
 		/*
 		 * populate subCLass list
 		 */
@@ -217,6 +223,58 @@ public class OntologyMapper {
 
 		}
 
+	}
+
+	private static void addPropertiesFromRestrictions(String classMapperName, Restriction restriction) {
+
+		/*
+		 * get property associated with restriction
+		 */
+		OntProperty prop = restriction.getOnProperty();
+		/*
+		 * All the Value restriction ( like owl:someValuesFrom ,
+		 * owl:allValuesFrom, owl:hasValue) the property must be an
+		 * objectProperty
+		 * 
+		 * Cardinality constraint restriction (like owl:qualifiedCardinality,
+		 * owl:maxQualifiedCardinality ,owl:minQualifiedCardinality ,
+		 * owl:minCardinality and owl:maxCardinality) the property associated
+		 * with this restriction can be ObjectProperty or DataTypeProperty
+		 * 
+		 * I will not check for Cardinality constraint restriction because I
+		 * need to know the range of the property either the if it is a class or
+		 * datatype so I will check for Value constraint restrictions only
+		 * 
+		 */
+		if (prop.isObjectProperty()) {
+
+			String objectClassName = "";
+
+			if (restriction.isSomeValuesFromRestriction()) {
+				SomeValuesFromRestriction someValuesFromRestriction = restriction.asSomeValuesFromRestriction();
+				objectClassName = someValuesFromRestriction.getSomeValuesFrom().getLocalName();
+			}
+
+			if (restriction.isAllValuesFromRestriction()) {
+				AllValuesFromRestriction allValuesFromRestriction = restriction.asAllValuesFromRestriction();
+				objectClassName = allValuesFromRestriction.getAllValuesFrom().getLocalName();
+			}
+
+			if (restriction.isHasValueRestriction()) {
+				HasValueRestriction hasValueRestriction = restriction.asHasValueRestriction();
+
+				if (hasValueRestriction.getHasValue().isResource())
+					objectClassName = hasValueRestriction.getHasValue().asResource().getLocalName();
+			}
+
+			if (objectClassName != "") {
+				Class subjectClass = htblMainOntologyClasses.get(classMapperName);
+				/*
+				 * create new ObjectProperty
+				 */
+			}
+
+		}
 	}
 
 	/*
@@ -280,11 +338,12 @@ public class OntologyMapper {
 		System.out.println(ontologyMapper.htblMainOntologyClasses.size());
 		System.out.println(ontologyMapper.htblMainOntologyProperties.size());
 
-//		for (Class superClass : htblMainOntologyClasses.get("Resolution").getSuperClassesList()) {
-//			System.out.println(superClass.getName());
-//		}
+		// for (Class superClass :
+		// htblMainOntologyClasses.get("Resolution").getSuperClassesList()) {
+		// System.out.println(superClass.getName());
+		// }
 
-//		System.out.println(htblMainOntologyClasses.get("Coverage").getClassTypesList().toString());
+		// System.out.println(htblMainOntologyClasses.get("Coverage").getClassTypesList().toString());
 	}
 
 }

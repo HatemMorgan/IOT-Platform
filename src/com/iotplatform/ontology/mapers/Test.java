@@ -73,7 +73,7 @@ public class Test {
 			if (c.getLocalName() == null)
 				continue;
 
-			if (c.getLocalName().equals("Property")) {
+			if (c.getLocalName().equals("Observation")) {
 				ExtendedIterator<OntProperty> propertyItr = c.listDeclaredProperties();
 				while (propertyItr.hasNext()) {
 					OntProperty prop = propertyItr.next();
