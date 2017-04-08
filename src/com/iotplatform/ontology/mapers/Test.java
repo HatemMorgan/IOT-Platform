@@ -80,8 +80,7 @@ public class Test {
 					if (prop.getLocalName().equals("uniqueIdentifierProperty")) {
 						System.out.println(prop.isAnnotationProperty());
 						AnnotationProperty annotationProperty = prop.asAnnotationProperty();
-						
-						
+
 					}
 				}
 

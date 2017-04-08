@@ -26,6 +26,14 @@
 # #################################################################
 # 
 # 
+# http://iot-platform#hasUniqueIdentifier
+
+:hasUniqueIdentifier a owl:AnnotationProperty .
+# 
+# http://iot-platform#isUnique
+
+:isUnique a owl:AnnotationProperty .
+# 
 # http://www.w3.org/2000/01/rdf-schema#comment
 
 rdfs:comment a owl:AnnotationProperty .
@@ -483,7 +491,8 @@ iot-lite:endpoint a owl:DatatypeProperty ;
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#id
 
 iot-lite:id a owl:DatatypeProperty ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	:isUnique "true"^^xsd:boolean .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#interfaceDescription
 
@@ -627,7 +636,8 @@ foaf:gender a owl:DatatypeProperty , owl:FunctionalProperty ;
 
 foaf:mbox a owl:DatatypeProperty ;
 	rdfs:domain foaf:Agent ;
-	rdfs:range xsd:string .
+	rdfs:range xsd:string ;
+	:isUnique "true"^^xsd:boolean .
 # 
 # http://xmlns.com/foaf/0.1/middleName
 
@@ -642,6 +652,7 @@ foaf:middleName a owl:DatatypeProperty ;
 foaf:name a owl:DatatypeProperty ;
 	rdfs:domain owl:Thing ;
 	rdfs:range xsd:string ;
+	:isUnique "true"^^xsd:boolean ;
 	rdfs:comment "Describes the name of a thing. (eg: Application,Device)." ;
 	rdfs:label "Name" .
 # 
@@ -664,6 +675,7 @@ foaf:topic_interest a owl:DatatypeProperty ;
 foaf:userName a owl:DatatypeProperty ;
 	rdfs:domain foaf:Person ;
 	rdfs:range xsd:string ;
+	:isUnique "true"^^xsd:boolean ;
 	rdfs:comment "Describes a unique user name of a user." ;
 	rdfs:label "User Name" .
 # 
@@ -725,7 +737,8 @@ _:genid2 a owl:Restriction ;
 	owl:onProperty ssn:hasDeployment ;
 	owl:allValuesFrom ssn:Deployment .
 
-:IOTSystem rdfs:comment "Describes an IOT system eg: Smart Campus, Smart City. The IOT System consists of one or more Device module." ;
+:IOTSystem :hasUniqueIdentifier foaf:name ;
+	rdfs:comment "Describes an IOT system eg: Smart Campus, Smart City. The IOT System consists of one or more Device module." ;
 	rdfs:label "IOT System" .
 # 
 # http://iot-platform#NormalUser
@@ -1381,6 +1394,7 @@ foaf:Agent a owl:Class ;
 
 foaf:Group a owl:Class ;
 	rdfs:subClassOf foaf:Agent ;
+	:hasUniqueIdentifier foaf:name ;
 	rdfs:comment "A class of Agents." ;
 	rdfs:isDefinedBy foaf:name ;
 	rdfs:label "Group" .
@@ -1390,6 +1404,7 @@ foaf:Group a owl:Class ;
 foaf:Organization a owl:Class ;
 	rdfs:subClassOf foaf:Agent ;
 	owl:disjointWith foaf:Person ;
+	:hasUniqueIdentifier foaf:name ;
 	rdfs:comment "An organization." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
 	rdfs:label "Organization" .
@@ -1398,6 +1413,7 @@ foaf:Organization a owl:Class ;
 
 foaf:Person a owl:Class ;
 	rdfs:subClassOf foaf:Agent ;
+	:hasUniqueIdentifier foaf:userName ;
 	rdfs:comment "A person." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
 	rdfs:label "Person" .

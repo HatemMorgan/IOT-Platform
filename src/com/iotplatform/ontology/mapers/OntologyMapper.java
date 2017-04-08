@@ -17,6 +17,13 @@ import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.ontology.Restriction;
 import org.apache.jena.ontology.SomeValuesFromRestriction;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.util.FileManager;
 import org.apache.jena.util.iterator.ExtendedIterator;
@@ -25,6 +32,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
+import com.iotplatform.ontology.PropertyType;
 
 /*
  * OntologyMapper is used to map the main ontology into some data structures that holds instances which 
@@ -277,6 +285,57 @@ public class OntologyMapper {
 		}
 	}
 
+	private static boolean isPropertyUnique(String propertyUri, String propertyType) {
+
+		StringBuilder queryBuilder = new StringBuilder();
+		for (Prefix prefix : Prefix.values()) {
+			queryBuilder.append("PREFIX	" + prefix.getPrefix() + "	<" + prefix.getUri() + ">\n");
+		}
+
+		String queryStr = "SELECT (COUNT(*) as ?isFound ) \n WHERE { <" + propertyUri + ">   a   owl:" + propertyType
+				+ " ; \n " + "iot-platform:isUnique  \"true\"^^xsd:boolean . \n" + "}";
+
+		queryBuilder.append(queryStr);
+		// System.out.println(queryBuilder.toString());
+		Query query = QueryFactory.create(queryBuilder.toString());
+
+		QueryExecution queryExecution = QueryExecutionFactory.create(query, model);
+		ResultSet resultSet = queryExecution.execSelect();
+
+		QuerySolution sol = resultSet.next();
+		int isFound = sol.get("isFound").asLiteral().getInt();
+
+		if (isFound == 0) {
+			return false;
+		}
+
+		return true;
+	}
+
+	private static String isClassHasUniqueIdentifier(String classUri) {
+
+		StringBuilder queryBuilder = new StringBuilder();
+		for (Prefix prefix : Prefix.values()) {
+			queryBuilder.append("PREFIX	" + prefix.getPrefix() + "	<" + prefix.getUri() + ">\n");
+		}
+
+		String queryStr = "SELECT ?uniqueIdentifierProp \n WHERE { <" + classUri + ">   a   owl:Class \n" + " ; \n "
+				+ "iot-platform:hasUniqueIdentifier  ?uniqueIdentifierProp . \n" + "}";
+
+		queryBuilder.append(queryStr);
+		// System.out.println(queryBuilder.toString());
+		Query query = QueryFactory.create(queryBuilder.toString());
+
+		QueryExecution queryExecution = QueryExecutionFactory.create(query, model);
+		ResultSet resultSet = queryExecution.execSelect();
+		if (resultSet.hasNext()) {
+			QuerySolution sol = resultSet.next();
+			String uniqueIdentifierPropName = sol.get("uniqueIdentifierProp").asResource().getLocalName();
+			return uniqueIdentifierPropName;
+		}
+		return null;
+	}
+
 	/*
 	 * get Prefix enum that maps the String nameSpace from a dynamicProperty
 	 */
@@ -337,6 +396,11 @@ public class OntologyMapper {
 		ontologyMapper.completeCreationOfOntologyClassesMappers();
 		System.out.println(ontologyMapper.htblMainOntologyClasses.size());
 		System.out.println(ontologyMapper.htblMainOntologyProperties.size());
+
+		System.out.println(ontologyMapper.isPropertyUnique("http://xmlns.com/foaf/0.1/name",
+				PropertyType.DatatypeProperty.toString()));
+
+		System.out.println(ontologyMapper.isClassHasUniqueIdentifier("http://xmlns.com/foaf/0.1/Group"));
 
 		// for (Class superClass :
 		// htblMainOntologyClasses.get("Resolution").getSuperClassesList()) {
