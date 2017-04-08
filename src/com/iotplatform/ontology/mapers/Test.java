@@ -28,7 +28,7 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MainMapper {
+public class Test {
 
 	public static void readOntology(OntModel model) {
 		try {
@@ -75,7 +75,6 @@ public class MainMapper {
 
 			if (c.getLocalName().equals("Group")) {
 				ExtendedIterator<OntProperty> propertyItr = c.listDeclaredProperties();
-				System.out.println("--->>"+c.getIsDefinedBy().getLocalName());
 				while (propertyItr.hasNext()) {
 					OntProperty prop = propertyItr.next();
 					if (prop.getLocalName().equals("uniqueIdentifierProperty")) {
