@@ -25,10 +25,9 @@ public class ObjectProperty extends Property {
 
 	@Override
 	public String toString() {
-		return "ObjectProperty [object=" + object + ", getObject()=" + getObject() + ", getName()=" + getName()
-				+ ", getPrefix()=" + getPrefix() + ", getApplicationName()=" + getApplicationName()
-				+ ", isMulitpleValues()=" + isMulitpleValues() + ", isUnique()=" + isUnique() + ", getSubjectClass()="
-				+ getSubjectClass() + "]";
+		return "ObjectProperty [ getObject()=" + getObject() + ", getName()=" + getName() + ", getPrefix()="
+				+ getPrefix() + ", getApplicationName()=" + getApplicationName() + ", isMulitpleValues()="
+				+ isMulitpleValues() + ", isUnique()=" + isUnique() + ", getSubjectClass()=" + getSubjectClass() + "]";
 	}
 
 }

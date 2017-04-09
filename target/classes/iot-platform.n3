@@ -596,7 +596,7 @@ geo:long a owl:DatatypeProperty ;
 
 foaf:age a owl:DatatypeProperty , owl:FunctionalProperty ;
 	rdfs:domain foaf:Person ;
-	rdfs:range rdfs:Literal ;
+	rdfs:range xsd:integer ;
 	rdfs:comment "The age in years of some agent." ;
 	rdfs:label "age" .
 # 
@@ -658,6 +658,8 @@ foaf:name a owl:DatatypeProperty ;
 # http://xmlns.com/foaf/0.1/title
 
 foaf:title a owl:DatatypeProperty ;
+	rdfs:domain foaf:Person ;
+	rdfs:range xsd:string ;
 	rdfs:comment "Title (Mr, Mrs, Ms, Dr. etc)" ;
 	rdfs:label "title" .
 # 

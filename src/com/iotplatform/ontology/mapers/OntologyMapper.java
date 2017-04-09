@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.jena.ontology.AllValuesFromRestriction;
 import org.apache.jena.ontology.HasValueRestriction;
 import org.apache.jena.ontology.OntClass;
@@ -25,6 +26,7 @@ import org.apache.jena.util.FileManager;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
@@ -32,6 +34,7 @@ import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.ontology.XSDDatatype;
+import com.iotplatform.utilities.DynamicPropertiesUtility;
 
 /*
  * OntologyMapper is used to map the main ontology into some data structures that holds instances which 
@@ -231,11 +234,26 @@ public class OntologyMapper {
 						Class subClassMapper = htblMainOntologyClasses.get(htbSubClassesIter.next());
 						subClassMapper.setHasUniqueIdentifierProperty(true);
 						subClassMapper.setUniqueIdentifierPropertyName(uniqueIdentifierPropertyName);
+
+						/*
+						 * remove id property if it was added to subClassMapper
+						 * before
+						 */
+						subClassMapper.getProperties().remove("id");
 					}
 
 				}
 
 			} else {
+
+				/*
+				 * check that this class has no uniqueIdentifier (it might be
+				 * added to it if one of its superClasses has a
+				 * uniqueIdentifier)
+				 */
+				if (ontologyClassMapper.isHasUniqueIdentifierProperty()) {
+					continue;
+				}
 
 				/*
 				 * if foundUniqueIdentifier = false this mean that this class
@@ -514,10 +532,11 @@ public class OntologyMapper {
 			 * and add it to its appropriate classMapper
 			 */
 			if (property.isObjectProperty()) {
+
 				/*
 				 * get objectClass
 				 */
-				Class objectClassMapper = htblMainOntologyClasses.get(property.getRange());
+				Class objectClassMapper = htblMainOntologyClasses.get(property.getRange().getLocalName());
 
 				/*
 				 * check if the property isUnique
@@ -696,10 +715,10 @@ public class OntologyMapper {
 	public static void main(String[] args) {
 		OntologyMapper ontologyMapper = new OntologyMapper();
 
-		System.out.println(ontologyMapper.htblMainOntologyClasses.size());
-		System.out.println(ontologyMapper.htblMainOntologyProperties.size());
+//		System.out.println(ontologyMapper.htblMainOntologyClasses.size());
+//		System.out.println(ontologyMapper.htblMainOntologyProperties.size());
 
-		Hashtable<String, Property> htblProperties = ontologyMapper.htblMainOntologyClasses.get("Admin")
+		Hashtable<String, Property> htblProperties = ontologyMapper.htblMainOntologyClasses.get("Person")
 				.getProperties();
 		Iterator<String> itr = htblProperties.keySet().iterator();
 
@@ -716,12 +735,30 @@ public class OntologyMapper {
 		//
 		// System.out.println(ontologyMapper.isClassHasUniqueIdentifier("http://xmlns.com/foaf/0.1/Group"));
 
-		for (Class superClass : htblMainOntologyClasses.get("Admin").getSuperClassesList()) {
-			System.out.println(superClass.getName() + "  " + superClass.isHasUniqueIdentifierProperty());
-		}
+		// for (Class superClass :
+		// htblMainOntologyClasses.get("Admin").getSuperClassesList()) {
+		// System.out.println(superClass.getName() + " " +
+		// superClass.isHasUniqueIdentifierProperty());
+		// }
 		System.out.println(htblMainOntologyClasses.get("Admin").isHasUniqueIdentifierProperty());
 
 		// System.out.println(htblMainOntologyClasses.get("Coverage").getClassTypesList().toString());
+
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(szJdbcDriver);
+		dataSource.setUrl(szJdbcURL);
+		dataSource.setUsername(szUser);
+		dataSource.setPassword(szPasswd);
+
+		DynamicPropertiesUtility dynamicPropertiesUtility = new DynamicPropertiesUtility(
+				new DynamicConceptDao(dataSource));
+		System.out.println(dynamicPropertiesUtility.getHtblAllStaticClasses().get("http://iot-platform#Admin")
+				.getProperties().size());
 	}
 
 }
