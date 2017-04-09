@@ -241,8 +241,8 @@ public class OntologyMapper {
 		OntProperty prop = restriction.getOnProperty();
 		/*
 		 * All the Value restriction ( like owl:someValuesFrom ,
-		 * owl:allValuesFrom, owl:hasValue) the property must be an
-		 * objectProperty
+		 * owl:allValuesFrom, owl:hasValue) It will have the object class if the
+		 * property is an objectProperty
 		 * 
 		 * Cardinality constraint restriction (like owl:qualifiedCardinality,
 		 * owl:maxQualifiedCardinality ,owl:minQualifiedCardinality ,
@@ -303,8 +303,29 @@ public class OntologyMapper {
 			 * if property is a datatype property so I have to get its dataType
 			 * from htblMainOntologyProperties if the restriction does not have
 			 * the dataType
+			 * 
+			 * All the Value restriction ( like owl:someValuesFrom ,
+			 * owl:allValuesFrom, owl:hasValue) It will have the range datatype
+			 * if the property is an datatypeProperty
 			 */
 			if (prop.isDatatypeProperty()) {
+				String datatype = "";
+				if (restriction.isSomeValuesFromRestriction()) {
+					SomeValuesFromRestriction someValuesFromRestriction = restriction.asSomeValuesFromRestriction();
+					datatype = someValuesFromRestriction.getSomeValuesFrom().getLocalName();
+				}
+
+				if (restriction.isAllValuesFromRestriction()) {
+					AllValuesFromRestriction allValuesFromRestriction = restriction.asAllValuesFromRestriction();
+					datatype = allValuesFromRestriction.getAllValuesFrom().getLocalName();
+				}
+
+				if (restriction.isHasValueRestriction()) {
+					HasValueRestriction hasValueRestriction = restriction.asHasValueRestriction();
+
+					if (hasValueRestriction.getHasValue().isResource())
+						datatype = hasValueRestriction.getHasValue().asResource().getLocalName();
+				}
 
 			}
 		}
