@@ -712,14 +712,18 @@ public class OntologyMapper {
 		return null;
 	}
 
+	public static Hashtable<String, Class> getHtblMainOntologyClassesMappers() {
+		return htblMainOntologyClasses;
+	}
+
 	public static void main(String[] args) {
 		OntologyMapper ontologyMapper = new OntologyMapper();
 
-//		System.out.println(ontologyMapper.htblMainOntologyClasses.size());
-//		System.out.println(ontologyMapper.htblMainOntologyProperties.size());
+		// System.out.println(ontologyMapper.htblMainOntologyClasses.size());
+		// System.out.println(ontologyMapper.htblMainOntologyProperties.size());
 
-		String className = "Amount";
-		
+		String className = "SurvivalProperty";
+
 		Hashtable<String, Property> htblProperties = ontologyMapper.htblMainOntologyClasses.get(className)
 				.getProperties();
 		Iterator<String> itr = htblProperties.keySet().iterator();
@@ -759,7 +763,7 @@ public class OntologyMapper {
 
 		DynamicPropertiesUtility dynamicPropertiesUtility = new DynamicPropertiesUtility(
 				new DynamicConceptDao(dataSource));
-		System.out.println(dynamicPropertiesUtility.getHtblAllStaticClasses().get(Prefix.IOT_PLATFORM.getUri()+className)
+		System.out.println(dynamicPropertiesUtility.getHtblAllStaticClasses().get(Prefix.SSN.getUri() + className)
 				.getProperties());
 	}
 
