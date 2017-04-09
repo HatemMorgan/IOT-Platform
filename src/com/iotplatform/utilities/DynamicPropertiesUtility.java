@@ -18,52 +18,8 @@ import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.ontology.XSDDatatype;
-import com.iotplatform.ontology.classes.ActuatingDevice;
-import com.iotplatform.ontology.classes.Admin;
-import com.iotplatform.ontology.classes.Agent;
-import com.iotplatform.ontology.classes.Amount;
-import com.iotplatform.ontology.classes.Application;
-import com.iotplatform.ontology.classes.Attribute;
-import com.iotplatform.ontology.classes.CommunicatingDevice;
-import com.iotplatform.ontology.classes.Condition;
-import com.iotplatform.ontology.classes.Coverage;
-import com.iotplatform.ontology.classes.Deployment;
-import com.iotplatform.ontology.classes.DeploymentRelatedProcess;
-import com.iotplatform.ontology.classes.Developer;
-import com.iotplatform.ontology.classes.Device;
-import com.iotplatform.ontology.classes.DeviceModule;
-import com.iotplatform.ontology.classes.FeatureOfInterest;
-import com.iotplatform.ontology.classes.Group;
-import com.iotplatform.ontology.classes.IOTSystem;
-import com.iotplatform.ontology.classes.Input;
-import com.iotplatform.ontology.classes.MeasurementCapability;
-import com.iotplatform.ontology.classes.MeasurementProperty;
-import com.iotplatform.ontology.classes.Metadata;
-import com.iotplatform.ontology.classes.NormalUser;
-import com.iotplatform.ontology.classes.ObjectClass;
-import com.iotplatform.ontology.classes.Observation;
-import com.iotplatform.ontology.classes.ObservationValue;
-import com.iotplatform.ontology.classes.OperatingProperty;
-import com.iotplatform.ontology.classes.OperatingRange;
-import com.iotplatform.ontology.classes.Organization;
-import com.iotplatform.ontology.classes.Output;
-import com.iotplatform.ontology.classes.Person;
-import com.iotplatform.ontology.classes.Platform;
-import com.iotplatform.ontology.classes.Point;
-import com.iotplatform.ontology.classes.Process;
-import com.iotplatform.ontology.classes.QuantityKind;
-import com.iotplatform.ontology.classes.Sensing;
-import com.iotplatform.ontology.classes.SensingDevice;
-import com.iotplatform.ontology.classes.Sensor;
-import com.iotplatform.ontology.classes.SensorDataSheet;
-import com.iotplatform.ontology.classes.SensorOutput;
-import com.iotplatform.ontology.classes.Service;
-import com.iotplatform.ontology.classes.Stimulus;
-import com.iotplatform.ontology.classes.SurvivalProperty;
-import com.iotplatform.ontology.classes.SurvivalRange;
-import com.iotplatform.ontology.classes.SystemClass;
-import com.iotplatform.ontology.classes.TagDevice;
-import com.iotplatform.ontology.classes.Unit;
+
+import com.iotplatform.ontology.mapers.OntologyMapper;
 
 /*
  * DynamicPropertiesUtility is used to load dynamic properties and perform caching of loaded dynamic properties
@@ -72,7 +28,7 @@ import com.iotplatform.ontology.classes.Unit;
 @Component
 public class DynamicPropertiesUtility {
 
-	public static Hashtable<String, Class> htblAllStaticClasses;
+	// public static Hashtable<String, Class> htblAllStaticClasses;
 
 	/*
 	 * dynamicConceptDao class is used to get all dynamic properties or dynamic
@@ -84,7 +40,6 @@ public class DynamicPropertiesUtility {
 	public DynamicPropertiesUtility(DynamicConceptDao dynamicConceptDao) {
 		this.dynamicConceptDao = dynamicConceptDao;
 
-		init();
 	}
 
 	/*
@@ -207,7 +162,8 @@ public class DynamicPropertiesUtility {
 
 		for (DynamicConceptModel dynamicProperty : res) {
 
-			Class subjectClass = htblAllStaticClasses.get(dynamicProperty.getClass_uri());
+			Class subjectClass = OntologyMapper.getHtblMainOntologyClassesUriMappers()
+					.get(dynamicProperty.getClass_uri());
 
 			cacheLoadedDynamicProperty(dynamicProperty, subjectClass, applicationName);
 
@@ -231,22 +187,27 @@ public class DynamicPropertiesUtility {
 					dynamicProperty.getProperty_name());
 
 			if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty.toString())) {
-				htblAllStaticClasses.get(subjectClass.getUri()).getProperties().put(dynamicProperty.getProperty_name(),
-						new DataTypeProperty(htblAllStaticClasses.get(dynamicProperty.getClass_uri()),
+				OntologyMapper.getHtblMainOntologyClassesUriMappers().get(subjectClass.getUri()).getProperties()
+						.put(dynamicProperty.getProperty_name(), new DataTypeProperty(
+								OntologyMapper.getHtblMainOntologyClassesUriMappers()
+										.get(dynamicProperty.getClass_uri()),
 								dynamicProperty.getProperty_name(),
 								getPrefix(dynamicProperty.getProperty_prefix_alias()),
 								getXSDDataTypeEnum(dynamicProperty.getProperty_object_type_uri()), applicationName,
 								dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
 			} else {
 				if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
-					htblAllStaticClasses.get(subjectClass.getUri()).getProperties().put(
-							dynamicProperty.getProperty_name(),
-							new ObjectProperty(htblAllStaticClasses.get(dynamicProperty.getClass_uri()),
-									dynamicProperty.getProperty_name(),
-									getPrefix(dynamicProperty.getProperty_prefix_alias()),
-									htblAllStaticClasses.get(dynamicProperty.getProperty_object_type_uri()),
-									applicationName, dynamicProperty.getHasMultipleValues(),
-									dynamicProperty.getIsUnique()));
+					OntologyMapper.getHtblMainOntologyClassesUriMappers().get(subjectClass.getUri()).getProperties()
+							.put(dynamicProperty.getProperty_name(),
+									new ObjectProperty(
+											OntologyMapper.getHtblMainOntologyClassesUriMappers().get(
+													dynamicProperty.getClass_uri()),
+											dynamicProperty.getProperty_name(),
+											getPrefix(dynamicProperty.getProperty_prefix_alias()),
+											OntologyMapper.getHtblMainOntologyClassesUriMappers().get(
+													dynamicProperty.getProperty_object_type_uri()),
+											applicationName, dynamicProperty.getHasMultipleValues(),
+											dynamicProperty.getIsUnique()));
 				}
 			}
 		}
@@ -274,20 +235,24 @@ public class DynamicPropertiesUtility {
 						dynamicProperty.getProperty_name());
 
 				if (dynamicProperty.getProperty_type().equals(PropertyType.DatatypeProperty.toString())) {
-					htblAllStaticClasses.get(subClass.getUri()).getProperties().put(dynamicProperty.getProperty_name(),
-							new DataTypeProperty(htblAllStaticClasses.get(dynamicProperty.getClass_uri()),
+					OntologyMapper.getHtblMainOntologyClassesUriMappers().get(subClass.getUri()).getProperties()
+							.put(dynamicProperty.getProperty_name(), new DataTypeProperty(
+									OntologyMapper.getHtblMainOntologyClassesUriMappers()
+											.get(dynamicProperty.getClass_uri()),
 									dynamicProperty.getProperty_name(),
 									getPrefix(dynamicProperty.getProperty_prefix_alias()),
 									getXSDDataTypeEnum(dynamicProperty.getProperty_object_type_uri()), applicationName,
 									dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
 				} else {
 					if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
-						htblAllStaticClasses.get(subClass.getUri()).getProperties().put(
-								dynamicProperty.getProperty_name(),
-								new ObjectProperty(htblAllStaticClasses.get(dynamicProperty.getClass_uri()),
+						OntologyMapper.getHtblMainOntologyClassesUriMappers().get(subClass.getUri()).getProperties()
+								.put(dynamicProperty.getProperty_name(), new ObjectProperty(
+										OntologyMapper.getHtblMainOntologyClassesUriMappers().get(
+												dynamicProperty.getClass_uri()),
 										dynamicProperty.getProperty_name(),
 										getPrefix(dynamicProperty.getProperty_prefix_alias()),
-										htblAllStaticClasses.get(dynamicProperty.getProperty_object_type_uri()),
+										OntologyMapper.getHtblMainOntologyClassesUriMappers()
+												.get(dynamicProperty.getProperty_object_type_uri()),
 										applicationName, dynamicProperty.getHasMultipleValues(),
 										dynamicProperty.getIsUnique()));
 					}
@@ -433,7 +398,8 @@ public class DynamicPropertiesUtility {
 
 		for (DynamicConceptModel dynamicProperty : res) {
 
-			Class propertySubjectClass = htblAllStaticClasses.get(dynamicProperty.getClass_uri());
+			Class propertySubjectClass = OntologyMapper.getHtblMainOntologyClassesUriMappers()
+					.get(dynamicProperty.getClass_uri());
 
 			// skip if the property was cached before
 			if (propertySubjectClass.getProperties().contains(dynamicProperty.getProperty_name())) {
@@ -453,115 +419,142 @@ public class DynamicPropertiesUtility {
 		return dynamicProperties;
 	}
 
-	public Hashtable<String, Class> getHtblAllStaticClasses() {
-		if (htblAllStaticClasses == null)
-			init();
+	// public Hashtable<String, Class> getHtblAllStaticClasses() {
+	// if (htblAllStaticClasses == null)
+	// init();
+	//
+	// return htblAllStaticClasses;
+	// }
 
-		return htblAllStaticClasses;
-	}
-
-	private void init() {
-		htblAllStaticClasses = new Hashtable<>();
-		htblAllStaticClasses.put("http://iot-platform#Application", Application.getApplicationInstance());
-		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Person", Person.getPersonInstance());
-		htblAllStaticClasses.put("http://iot-platform#Admin", Admin.getAdminInstance());
-		htblAllStaticClasses.put("http://iot-platform#Developer", Developer.getDeveloperInstance());
-		htblAllStaticClasses.put("http://iot-platform#NormalUser", NormalUser.getNormalUserInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice",
-				ActuatingDevice.getActuatingDeviceInstance());
-		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Agent", Agent.getAgentInstance());
-		htblAllStaticClasses.put("http://iot-platform#Amount", Amount.getAmountInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute",
-				Attribute.getAttributeInstance());
-		htblAllStaticClasses.put("http://iot-platform#CommunicatingDevice",
-				CommunicatingDevice.getCommunicatingDeviceInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Condition", Condition.getConditionInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage",
-				Coverage.getCoverageInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Deployment", Deployment.getDeploymentInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess",
-				DeploymentRelatedProcess.getDeploymentRelatedProcessInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Device", Device.getDeviceInstance());
-		htblAllStaticClasses.put("http://iot-platform#DeviceModule", DeviceModule.getDeviceModuleInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest",
-				FeatureOfInterest.getFeatureOfInterestInstance());
-		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Group", Group.getGroupInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Input", Input.getInputInstance());
-		htblAllStaticClasses.put("http://iot-platform#IOTSystem", IOTSystem.getIOTSystemInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability",
-				MeasurementCapability.getMeasurementCapabilityInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementProperty",
-				MeasurementProperty.getMeasurementPropertyInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata",
-				Metadata.getMetadataInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Object",
-				ObjectClass.getObjectClassInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Observation", Observation.getObservationInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#ObservationValue",
-				ObservationValue.getObservationValueInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty",
-				OperatingProperty.getOperatingPropertyInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingRange",
-				OperatingRange.getOperatingRangeInstance());
-		htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Organization", Organization.getOrganizationInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Output", Output.getOutputInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Platform", Platform.getPlatformInstance());
-		htblAllStaticClasses.put("http://www.w3.org/2003/01/geo/wgs84_pos#Point", Point.getPointInstacne());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Process", Process.getProcessInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Property",
-				com.iotplatform.ontology.classes.Property.getPropertyInstance());
-		htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#QuantityKind", QuantityKind.getQuantityKindInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensing", Sensing.getSensingInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensingDevice",
-				SensingDevice.getSensingDeviceInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensor", Sensor.getSensorInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet",
-				SensorDataSheet.getSensorDataSheetInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensorOutput",
-				SensorOutput.getSensorOutputInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service", Service.getServiceInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Stimulus", Stimulus.getStimulusInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty",
-				SurvivalProperty.getSurvivalPropertyInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange",
-				SurvivalRange.getSurvivalRangeInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#System", SystemClass.getSystemInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice",
-				TagDevice.getTagDeviceInstance());
-		htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#Unit", Unit.getUnitInstance());
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#BatteryLifetime",
-				SurvivalProperty.getSurvivalPropertyInstance().getClassTypesList().get("BatteryLifetime"));
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime",
-				SurvivalProperty.getSurvivalPropertyInstance().getClassTypesList().get("SystemLifetime"));
-
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MaintenanceSchedule",
-				OperatingProperty.getOperatingPropertyInstance().getClassTypesList().get("MaintenanceSchedule"));
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingPowerRange",
-				OperatingProperty.getOperatingPropertyInstance().getClassTypesList().get("OperatingPowerRange"));
-
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Accuracy",
-				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Accuracy"));
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#DetectionLimit",
-				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("DetectionLimit"));
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Drift",
-				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Drift"));
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Frequency",
-				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Frequency"));
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Latency",
-				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Latency"));
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementRange",
-				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("MeasurementRange"));
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Precision",
-				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Precision"));
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Resolution",
-				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Resolution"));
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#ResponseTime",
-				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("ResponseTime"));
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Selectivity",
-				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Selectivity"));
-		htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensitivity",
-				MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Sensitivity"));
-
-	}
+	// private void init() {
+	// htblAllStaticClasses = new Hashtable<>();
+	// htblAllStaticClasses.put("http://iot-platform#Application",
+	// Application.getApplicationInstance());
+	// htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Person",
+	// Person.getPersonInstance());
+	// htblAllStaticClasses.put("http://iot-platform#Admin",
+	// Admin.getAdminInstance());
+	// htblAllStaticClasses.put("http://iot-platform#Developer",
+	// Developer.getDeveloperInstance());
+	// htblAllStaticClasses.put("http://iot-platform#NormalUser",
+	// NormalUser.getNormalUserInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#ActuatingDevice",
+	// ActuatingDevice.getActuatingDeviceInstance());
+	// htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Agent",
+	// Agent.getAgentInstance());
+	// htblAllStaticClasses.put("http://iot-platform#Amount",
+	// Amount.getAmountInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Attribute",
+	// Attribute.getAttributeInstance());
+	// htblAllStaticClasses.put("http://iot-platform#CommunicatingDevice",
+	// CommunicatingDevice.getCommunicatingDeviceInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Condition",
+	// Condition.getConditionInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Coverage",
+	// Coverage.getCoverageInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Deployment",
+	// Deployment.getDeploymentInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#DeploymentRelatedProcess",
+	// DeploymentRelatedProcess.getDeploymentRelatedProcessInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Device",
+	// Device.getDeviceInstance());
+	// htblAllStaticClasses.put("http://iot-platform#DeviceModule",
+	// DeviceModule.getDeviceModuleInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#FeatureOfInterest",
+	// FeatureOfInterest.getFeatureOfInterestInstance());
+	// htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Group",
+	// Group.getGroupInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Input",
+	// Input.getInputInstance());
+	// htblAllStaticClasses.put("http://iot-platform#IOTSystem",
+	// IOTSystem.getIOTSystemInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementCapability",
+	// MeasurementCapability.getMeasurementCapabilityInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementProperty",
+	// MeasurementProperty.getMeasurementPropertyInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Metadata",
+	// Metadata.getMetadataInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Object",
+	// ObjectClass.getObjectClassInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Observation",
+	// Observation.getObservationInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#ObservationValue",
+	// ObservationValue.getObservationValueInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingProperty",
+	// OperatingProperty.getOperatingPropertyInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingRange",
+	// OperatingRange.getOperatingRangeInstance());
+	// htblAllStaticClasses.put("http://xmlns.com/foaf/0.1/Organization",
+	// Organization.getOrganizationInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Output",
+	// Output.getOutputInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Platform",
+	// Platform.getPlatformInstance());
+	// htblAllStaticClasses.put("http://www.w3.org/2003/01/geo/wgs84_pos#Point",
+	// Point.getPointInstacne());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Process",
+	// Process.getProcessInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Property",
+	// com.iotplatform.ontology.classes.Property.getPropertyInstance());
+	// htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#QuantityKind",
+	// QuantityKind.getQuantityKindInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensing",
+	// Sensing.getSensingInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensingDevice",
+	// SensingDevice.getSensingDeviceInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensor",
+	// Sensor.getSensorInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensorDataSheet",
+	// SensorDataSheet.getSensorDataSheetInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SensorOutput",
+	// SensorOutput.getSensorOutputInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#Service",
+	// Service.getServiceInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Stimulus",
+	// Stimulus.getStimulusInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty",
+	// SurvivalProperty.getSurvivalPropertyInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SurvivalRange",
+	// SurvivalRange.getSurvivalRangeInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#System",
+	// SystemClass.getSystemInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/UNIS/fiware/iot-lite#TagDevice",
+	// TagDevice.getTagDeviceInstance());
+	// htblAllStaticClasses.put("http://purl.org/NET/ssnx/qu/qu#Unit",
+	// Unit.getUnitInstance());
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#BatteryLifetime",
+	// SurvivalProperty.getSurvivalPropertyInstance().getClassTypesList().get("BatteryLifetime"));
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#SystemLifetime",
+	// SurvivalProperty.getSurvivalPropertyInstance().getClassTypesList().get("SystemLifetime"));
+	//
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MaintenanceSchedule",
+	// OperatingProperty.getOperatingPropertyInstance().getClassTypesList().get("MaintenanceSchedule"));
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#OperatingPowerRange",
+	// OperatingProperty.getOperatingPropertyInstance().getClassTypesList().get("OperatingPowerRange"));
+	//
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Accuracy",
+	// MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Accuracy"));
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#DetectionLimit",
+	// MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("DetectionLimit"));
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Drift",
+	// MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Drift"));
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Frequency",
+	// MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Frequency"));
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Latency",
+	// MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Latency"));
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#MeasurementRange",
+	// MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("MeasurementRange"));
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Precision",
+	// MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Precision"));
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Resolution",
+	// MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Resolution"));
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#ResponseTime",
+	// MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("ResponseTime"));
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Selectivity",
+	// MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Selectivity"));
+	// htblAllStaticClasses.put("http://purl.oclc.org/NET/ssnx/ssn#Sensitivity",
+	// MeasurementProperty.getMeasurementPropertyInstance().getClassTypesList().get("Sensitivity"));
+	//
+	// }
 
 }

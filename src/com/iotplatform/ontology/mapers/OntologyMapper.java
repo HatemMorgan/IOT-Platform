@@ -46,6 +46,7 @@ public class OntologyMapper {
 
 	private static OntModel model;
 	private static Hashtable<String, Class> htblMainOntologyClasses;
+	private static Hashtable<String, Class> htblMainOntologyClassesUri;
 	private static Hashtable<String, OntProperty> htblMainOntologyProperties;
 
 	public OntologyMapper() {
@@ -142,6 +143,7 @@ public class OntologyMapper {
 				 * add new ontologyClassMapper to htblMainOntologyClasses
 				 */
 				htblMainOntologyClasses.put(className, ontologyClassMapper);
+				htblMainOntologyClassesUri.put(classUri, ontologyClassMapper);
 			}
 		}
 
@@ -716,6 +718,10 @@ public class OntologyMapper {
 		return htblMainOntologyClasses;
 	}
 
+	public static Hashtable<String, Class> getHtblMainOntologyClassesUriMappers() {
+		return htblMainOntologyClassesUri;
+	}
+
 	public static void main(String[] args) {
 		OntologyMapper ontologyMapper = new OntologyMapper();
 
@@ -763,8 +769,9 @@ public class OntologyMapper {
 
 		DynamicPropertiesUtility dynamicPropertiesUtility = new DynamicPropertiesUtility(
 				new DynamicConceptDao(dataSource));
-		System.out.println(dynamicPropertiesUtility.getHtblAllStaticClasses().get(Prefix.SSN.getUri() + className)
-				.getProperties());
+		// System.out.println(dynamicPropertiesUtility.getHtblAllStaticClasses().get(Prefix.SSN.getUri()
+		// + className)
+		// .getProperties());
 	}
 
 }

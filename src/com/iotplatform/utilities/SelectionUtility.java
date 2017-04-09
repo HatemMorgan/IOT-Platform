@@ -19,6 +19,7 @@ import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 
 @Component
 public class SelectionUtility {
@@ -313,7 +314,7 @@ public class SelectionUtility {
 						 * subjectVariable to objectVariable (columnName)
 						 */
 						String classUri = queryVariable.getSubjectClassUri();
-						Class propertyClass = DynamicPropertiesUtility.htblAllStaticClasses.get(classUri);
+						Class propertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(classUri);
 						Property property = propertyClass.getProperties().get(propertyName);
 
 						Hashtable<String, Object> htblSubjectVariablehtblpropVal = helperList.get(index);
@@ -520,7 +521,7 @@ public class SelectionUtility {
 						 * subjectVariable to objectVariable (columnName)
 						 */
 						String classUri = queryVariable.getSubjectClassUri();
-						Class propertyClass = DynamicPropertiesUtility.htblAllStaticClasses.get(classUri);
+						Class propertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(classUri);
 						Property property = propertyClass.getProperties().get(propertyName);
 
 						/*

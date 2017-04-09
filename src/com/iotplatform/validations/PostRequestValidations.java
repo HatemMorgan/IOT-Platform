@@ -27,7 +27,7 @@ import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
 import com.iotplatform.ontology.classes.ActuatingDevice;
-
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
@@ -92,7 +92,7 @@ public class PostRequestValidations {
 		 * set subClass to its static instace
 		 */
 
-		subjectClass = dynamicPropertiesUtility.getHtblAllStaticClasses().get(subjectClass.getUri());
+		subjectClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(subjectClass.getUri());
 
 		Iterator<String> htblFieldValueIterator = htblFieldValue.keySet().iterator();
 
@@ -833,7 +833,7 @@ public class PostRequestValidations {
 					 * else it will be a dynamic property in another application
 					 * domain which will happen rarely
 					 */
-					Class dynamicPropertyClass = dynamicPropertiesUtility.getHtblAllStaticClasses()
+					Class dynamicPropertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers()
 							.get(loadedDynamicProperties.get(field).getClass_uri());
 					Property property = dynamicPropertyClass.getProperties().get(field);
 

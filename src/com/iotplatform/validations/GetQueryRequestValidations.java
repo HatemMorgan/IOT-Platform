@@ -19,6 +19,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.classes.Admin;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.NotMappedDynamicQueryFields;
 import com.iotplatform.utilities.QueryField;
@@ -449,7 +450,7 @@ public class GetQueryRequestValidations {
 					 * else it will be a dynamic property in another application
 					 * domain which will happen rarely
 					 */
-					Class dynamicPropertyClass = dynamicPropertiesUtility.getHtblAllStaticClasses()
+					Class dynamicPropertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers()
 							.get(loadedDynamicProperties.get(field).getClass_uri());
 					Property property = dynamicPropertyClass.getProperties().get(field);
 
@@ -556,8 +557,8 @@ public class GetQueryRequestValidations {
 		ArrayList<Object> lovesPersonFieldList = new ArrayList<>();
 		lovesPersonFieldList.add("title");
 		lovesPersonFieldList.add("job");
-//		lovesPersonFieldList.add(tempMap);
-		
+		// lovesPersonFieldList.add(tempMap);
+
 		lovesPersonFieldMap.put("fieldName", "love");
 		lovesPersonFieldMap.put("classType", "Developer");
 		lovesPersonFieldMap.put("fields", lovesPersonFieldList);
@@ -566,8 +567,8 @@ public class GetQueryRequestValidations {
 		hatesPersonFieldList.add("firstName");
 		hatesPersonFieldList.add("mbox");
 		hatesPersonFieldList.add("birthday");
-//		hatesPersonFieldList.add(lovesPersonFieldMap);
-//		hatesPersonFieldList.add(tempMap);
+		// hatesPersonFieldList.add(lovesPersonFieldMap);
+		// hatesPersonFieldList.add(tempMap);
 
 		LinkedHashMap<String, Object> personFieldMap = new LinkedHashMap<>();
 		personFieldMap.put("fieldName", "knows");
