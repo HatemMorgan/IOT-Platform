@@ -169,7 +169,7 @@ public class DynamicInsertionService {
 		/*
 		 * check if the className has a valid class Mapping
 		 */
-		if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(className)) {
+		if (OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().containsKey(className)) {
 			Class subjectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(className);
 
 			/*
@@ -360,7 +360,7 @@ public class DynamicInsertionService {
 
 		LinkedHashMap<String, Object> survivalPropertyMap = new LinkedHashMap<>();
 		survivalPropertyMap.put("fieldName", "hasSurvivalProperty");
-		survivalPropertyMap.put("classType", "BatteryLifetime");
+//		survivalPropertyMap.put("classType", "BatteryLifetime");
 		ArrayList<Object> survivalPropertyList = new ArrayList<>();
 		survivalPropertyMap.put("fields", survivalPropertyList);
 		survivalPropertyList.add("id");

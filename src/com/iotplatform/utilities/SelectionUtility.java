@@ -380,6 +380,10 @@ public class SelectionUtility {
 									 * (pointers) the same list so adding it in
 									 * one of them reflect the other
 									 */
+									System.out.println(helperList);
+									System.out.println("==<"+htblParentPropValue);
+									System.out.println(valueList+ "  "+ propertyName+"  "+property.getName());
+									
 									valueList.add(htblPropValue);
 
 									/*
