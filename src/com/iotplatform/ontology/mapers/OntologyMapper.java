@@ -48,22 +48,22 @@ public class OntologyMapper {
 	private static Hashtable<String, Class> htblMainOntologyClasses;
 	private static Hashtable<String, Class> htblMainOntologyClassesUri;
 	private static Hashtable<String, OntProperty> htblMainOntologyProperties;
-	
-	private static OntologyMapper ontologyMapper ;
-	
-	public static OntologyMapper getOntologyMapper(){
-		if(ontologyMapper == null)
+
+	private static OntologyMapper ontologyMapper;
+
+	public static OntologyMapper getOntologyMapper() {
+		if (ontologyMapper == null)
 			ontologyMapper = new OntologyMapper();
-		
+
 		return ontologyMapper;
 	}
-	
+
 	public OntologyMapper() {
 		model = ModelFactory.createOntologyModel();
 		htblMainOntologyClasses = new Hashtable<>();
 		htblMainOntologyProperties = new Hashtable<>();
 		htblMainOntologyClassesUri = new Hashtable<>();
-		
+
 		/*
 		 * read main ontology from iot-platform.n3 (ontology turtle file)
 		 */
@@ -426,7 +426,7 @@ public class OntologyMapper {
 				ObjectProperty objectProperty = new ObjectProperty(subjectClass, prop.getLocalName(), prefix,
 						ObjectClass, true, isPropertyUnique);
 				subjectClass.getProperties().put(propName, objectProperty);
-
+				subjectClass.getHtblPropUriName().put(prop.getURI(), propName);
 			}
 
 		} else {
@@ -478,6 +478,7 @@ public class OntologyMapper {
 					DataTypeProperty dataTypeProperty = new DataTypeProperty(subjectClass, propName, prefix,
 							xsdDataType, true, isPropertyUnique);
 					subjectClass.getProperties().put(propName, dataTypeProperty);
+					subjectClass.getHtblPropUriName().put(prop.getURI(), propName);
 
 				}
 
@@ -537,6 +538,8 @@ public class OntologyMapper {
 				DataTypeProperty dataTypeProperty = new DataTypeProperty(subjectClassMapper, propertyName, prefix,
 						xsdDatatype, true, isPropertyUnique);
 				subjectClassMapper.getProperties().put(propertyName, dataTypeProperty);
+				subjectClassMapper.getHtblPropUriName().put(property.getURI(), propertyName);
+
 			}
 
 			/*
@@ -562,6 +565,7 @@ public class OntologyMapper {
 				ObjectProperty objectProperty = new ObjectProperty(subjectClassMapper, propertyName, prefix,
 						objectClassMapper, true, isPropertyUnique);
 				subjectClassMapper.getProperties().put(propertyName, objectProperty);
+				subjectClassMapper.getHtblPropUriName().put(property.getURI(), propertyName);
 			}
 
 		}
@@ -579,6 +583,7 @@ public class OntologyMapper {
 			for (Class superClassMapper : classMapper.getSuperClassesList()) {
 
 				classMapper.getProperties().putAll(superClassMapper.getProperties());
+				classMapper.getHtblPropUriName().putAll(superClassMapper.getHtblPropUriName());
 			}
 
 		}
