@@ -15,7 +15,7 @@ import com.iotplatform.exceptions.CannotCreateApplicationModelException;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.classes.Application;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
@@ -80,10 +80,10 @@ public class ApplicationService {
 			 */
 
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
-					.validateRequestFields(applicationName, htblPropValue, Application.getApplicationInstance());
+					.validateRequestFields(applicationName, htblPropValue, OntologyMapper.getHtblMainOntologyClassesMappers().get("Application"));
 
 			mainDao.insertData(applicationDao.getHtblApplicationNameModelName().get(applicationName),
-					Application.getApplicationInstance().getName(), htblClassPropertyValue);
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("Application").getName(), htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application", timeTaken);

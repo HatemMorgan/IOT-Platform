@@ -19,7 +19,7 @@ import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.classes.Admin;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
@@ -72,14 +72,16 @@ public class AdminService {
 			 * Check if the request is valid or not
 			 */
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
-					.validateRequestFields(applicationNameCode, htblFieldValue, Admin.getAdminInstance());
+					.validateRequestFields(applicationNameCode, htblFieldValue,
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("Admin"));
 
 			/*
 			 * get application modelName
 			 */
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-			mainDao.insertData(applicationModelName, Admin.getAdminInstance().getName(), htblClassPropertyValue);
+			mainDao.insertData(applicationModelName,
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("Admin").getName(), htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Admin", timeTaken);
