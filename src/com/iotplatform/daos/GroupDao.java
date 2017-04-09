@@ -38,7 +38,7 @@ public class GroupDao {
 				applicationModelName.length() - 6);
 
 		String queryString = QueryUtility.constructSelectAllQueryNoFilters(
-				OntologyMapper.getHtblMainOntologyClassesMappers().get("Group"), applicationModelName);
+				OntologyMapper.getHtblMainOntologyClassesMappers().get("group"), applicationModelName);
 		List<Hashtable<String, Object>> groupsList = new ArrayList<>();
 
 		try {
@@ -49,7 +49,7 @@ public class GroupDao {
 			 */
 
 			groupsList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					OntologyMapper.getHtblMainOntologyClassesMappers().get("Group"));
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("group"));
 
 		} catch (SQLException e) {
 			e.printStackTrace();

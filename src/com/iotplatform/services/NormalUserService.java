@@ -77,7 +77,7 @@ public class NormalUserService {
 			 */
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
 					.validateRequestFields(applicationNameCode, htblFieldValue,
-							OntologyMapper.getHtblMainOntologyClassesMappers().get("NormalUser"));
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("normaluser"));
 
 			/*
 			 * get application modelName
@@ -85,7 +85,7 @@ public class NormalUserService {
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
 			mainDao.insertData(applicationModelName,
-					OntologyMapper.getHtblMainOntologyClassesMappers().get("NormalUser").getName(),
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("normaluser").getName(),
 					htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);

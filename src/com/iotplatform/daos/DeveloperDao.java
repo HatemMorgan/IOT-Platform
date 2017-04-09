@@ -39,7 +39,7 @@ public class DeveloperDao {
 				applicationModelName.length() - 6);
 
 		String queryString = QueryUtility.constructSelectAllQueryNoFilters(
-				OntologyMapper.getHtblMainOntologyClassesMappers().get("Developer"), applicationModelName);
+				OntologyMapper.getHtblMainOntologyClassesMappers().get("developer"), applicationModelName);
 		System.out.println(queryString);
 		List<Hashtable<String, Object>> developersList = new ArrayList<>();
 
@@ -52,7 +52,7 @@ public class DeveloperDao {
 			 */
 
 			developersList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					OntologyMapper.getHtblMainOntologyClassesMappers().get("Developer"));
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("developer"));
 
 		} catch (SQLException e) {
 			e.printStackTrace();

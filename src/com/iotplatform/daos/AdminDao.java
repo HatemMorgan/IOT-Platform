@@ -38,7 +38,7 @@ public class AdminDao {
 				applicationModelName.length() - 6);
 
 		String queryString = QueryUtility.constructSelectAllQueryNoFilters(
-				OntologyMapper.getHtblMainOntologyClassesMappers().get("Admin"), applicationModelName);
+				OntologyMapper.getHtblMainOntologyClassesMappers().get("admin"), applicationModelName);
 		List<Hashtable<String, Object>> adminsList = new ArrayList<>();
 
 		try {
@@ -50,7 +50,7 @@ public class AdminDao {
 			 */
 
 			adminsList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					OntologyMapper.getHtblMainOntologyClassesMappers().get("Admin"));
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("admin"));
 
 		} catch (SQLException e) {
 			throw new DatabaseException(e.getMessage(), "Admin");

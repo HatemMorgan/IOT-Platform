@@ -48,7 +48,16 @@ public class OntologyMapper {
 	private static Hashtable<String, Class> htblMainOntologyClasses;
 	private static Hashtable<String, Class> htblMainOntologyClassesUri;
 	private static Hashtable<String, OntProperty> htblMainOntologyProperties;
-
+	
+	private static OntologyMapper ontologyMapper ;
+	
+	public static OntologyMapper getOntologyMapper(){
+		if(ontologyMapper == null)
+			ontologyMapper = new OntologyMapper();
+		
+		return ontologyMapper;
+	}
+	
 	public OntologyMapper() {
 		model = ModelFactory.createOntologyModel();
 		htblMainOntologyClasses = new Hashtable<>();
@@ -143,7 +152,7 @@ public class OntologyMapper {
 				/*
 				 * add new ontologyClassMapper to htblMainOntologyClasses
 				 */
-				htblMainOntologyClasses.put(className, ontologyClassMapper);
+				htblMainOntologyClasses.put(className.toLowerCase(), ontologyClassMapper);
 				htblMainOntologyClassesUri.put(classUri, ontologyClassMapper);
 			}
 		}
@@ -234,7 +243,7 @@ public class OntologyMapper {
 					Iterator<String> htbSubClassesIter = ontologyClassMapper.getClassTypesList().keySet().iterator();
 
 					while (htbSubClassesIter.hasNext()) {
-						Class subClassMapper = htblMainOntologyClasses.get(htbSubClassesIter.next());
+						Class subClassMapper = htblMainOntologyClasses.get(htbSubClassesIter.next().toLowerCase());
 						subClassMapper.setHasUniqueIdentifierProperty(true);
 						subClassMapper.setUniqueIdentifierPropertyName(uniqueIdentifierPropertyName);
 
@@ -280,7 +289,7 @@ public class OntologyMapper {
 		/*
 		 * get ontology class mapper
 		 */
-		Class ontologyClassMapper = htblMainOntologyClasses.get(ontologyClass.getLocalName());
+		Class ontologyClassMapper = htblMainOntologyClasses.get(ontologyClass.getLocalName().toLowerCase());
 
 		/*
 		 * populate superClass list
@@ -300,7 +309,7 @@ public class OntologyMapper {
 				if (superClassName.equals("Resource") || superClassName.equals("Thing"))
 					continue;
 
-				Class superClassMapper = htblMainOntologyClasses.get(superClassName);
+				Class superClassMapper = htblMainOntologyClasses.get(superClassName.toLowerCase());
 				ontologyClassMapper.getSuperClassesList().add(superClassMapper);
 			}
 
@@ -323,7 +332,7 @@ public class OntologyMapper {
 		/*
 		 * get ontology class mapper
 		 */
-		Class ontologyClassMapper = htblMainOntologyClasses.get(ontologyClass.getLocalName());
+		Class ontologyClassMapper = htblMainOntologyClasses.get(ontologyClass.getLocalName().toLowerCase());
 
 		/*
 		 * set hasTypeClasses boolean in the ontologyClassMapper
@@ -348,7 +357,7 @@ public class OntologyMapper {
 				if (subClassName.equals("Resource"))
 					continue;
 
-				Class subClassMapper = htblMainOntologyClasses.get(subClassName);
+				Class subClassMapper = htblMainOntologyClasses.get(subClassName.toLowerCase());
 				ontologyClassMapper.getClassTypesList().put(subClassName, subClassMapper);
 			}
 
@@ -403,11 +412,11 @@ public class OntologyMapper {
 			 */
 			if (objectClassName != "") {
 
-				Class subjectClass = htblMainOntologyClasses.get(classMapperName);
+				Class subjectClass = htblMainOntologyClasses.get(classMapperName.toLowerCase());
 				boolean isPropertyUnique = isPropertyUnique(prop.getURI(), PropertyType.ObjectProperty.toString());
 				String propName = prop.getLocalName();
 				Prefix prefix = getPrefix(prop.getNameSpace());
-				Class ObjectClass = htblMainOntologyClasses.get(objectClassName);
+				Class ObjectClass = htblMainOntologyClasses.get(objectClassName.toLowerCase());
 
 				/*
 				 * create new ObjectProperty. I will make the default for
@@ -455,7 +464,7 @@ public class OntologyMapper {
 				 */
 				if (datatype != "") {
 
-					Class subjectClass = htblMainOntologyClasses.get(classMapperName);
+					Class subjectClass = htblMainOntologyClasses.get(classMapperName.toLowerCase());
 					boolean isPropertyUnique = isPropertyUnique(prop.getURI(), PropertyType.ObjectProperty.toString());
 					String propName = prop.getLocalName();
 					Prefix prefix = getPrefix(prop.getNameSpace());
@@ -502,7 +511,7 @@ public class OntologyMapper {
 			if (range == null)
 				continue;
 
-			Class subjectClassMapper = htblMainOntologyClasses.get(domain.getLocalName());
+			Class subjectClassMapper = htblMainOntologyClasses.get(domain.getLocalName().toLowerCase());
 			Prefix prefix = getPrefix(property.getNameSpace());
 			String propertyName = property.getLocalName();
 			/*
@@ -539,7 +548,7 @@ public class OntologyMapper {
 				/*
 				 * get objectClass
 				 */
-				Class objectClassMapper = htblMainOntologyClasses.get(property.getRange().getLocalName());
+				Class objectClassMapper = htblMainOntologyClasses.get(property.getRange().getLocalName().toLowerCase());
 
 				/*
 				 * check if the property isUnique

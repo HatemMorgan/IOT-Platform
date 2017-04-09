@@ -77,12 +77,12 @@ public class DeveloperService {
 			 */
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
 					.validateRequestFields(applicationNameCode, htblFieldValue,
-							OntologyMapper.getHtblMainOntologyClassesMappers().get("Developer"));
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("developer"));
 
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
 			mainDao.insertData(applicationModelName,
-					OntologyMapper.getHtblMainOntologyClassesMappers().get("Developer").getName(),
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("developer").getName(),
 					htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);

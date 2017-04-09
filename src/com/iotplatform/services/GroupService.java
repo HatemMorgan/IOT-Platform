@@ -70,7 +70,7 @@ public class GroupService {
 
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
 					.validateRequestFields(applicationNameCode, htblFieldValue,
-							OntologyMapper.getHtblMainOntologyClassesMappers().get("Group"));
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("group"));
 
 			/*
 			 * get application modelName
@@ -78,7 +78,7 @@ public class GroupService {
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
 			mainDao.insertData(applicationModelName,
-					OntologyMapper.getHtblMainOntologyClassesMappers().get("Group").getName(), htblClassPropertyValue);
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("group").getName(), htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Group", timeTaken);

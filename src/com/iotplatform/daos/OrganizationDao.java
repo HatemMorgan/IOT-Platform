@@ -38,7 +38,7 @@ public class OrganizationDao {
 				applicationModelName.length() - 6);
 
 		String queryString = QueryUtility.constructSelectAllQueryNoFilters(
-				OntologyMapper.getHtblMainOntologyClassesMappers().get("Organization"), applicationModelName);
+				OntologyMapper.getHtblMainOntologyClassesMappers().get("organization"), applicationModelName);
 		List<Hashtable<String, Object>> organizationsList = new ArrayList<>();
 
 		try {
@@ -51,7 +51,7 @@ public class OrganizationDao {
 			 */
 
 			organizationsList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					OntologyMapper.getHtblMainOntologyClassesMappers().get("Organization"));
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("0rganization"));
 
 		} catch (SQLException e) {
 			e.printStackTrace();

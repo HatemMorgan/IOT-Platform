@@ -37,8 +37,8 @@ public class NormalUserDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(OntologyMapper.getHtblMainOntologyClassesMappers().get("NormalUser"),
-				applicationModelName);
+		String queryString = QueryUtility.constructSelectAllQueryNoFilters(
+				OntologyMapper.getHtblMainOntologyClassesMappers().get("normaluser"), applicationModelName);
 		List<Hashtable<String, Object>> normalUsersList = new ArrayList<>();
 
 		try {
@@ -49,7 +49,7 @@ public class NormalUserDao {
 			 */
 
 			normalUsersList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					OntologyMapper.getHtblMainOntologyClassesMappers().get("NormalUser"));
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("normaluser"));
 
 		} catch (SQLException e) {
 			e.printStackTrace();

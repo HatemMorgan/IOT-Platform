@@ -70,14 +70,16 @@ public class OrganizationService {
 			 * Check if the request is valid or not
 			 */
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
-					.validateRequestFields(applicationNameCode, htblFieldValue, OntologyMapper.getHtblMainOntologyClassesMappers().get("Organization"));
+					.validateRequestFields(applicationNameCode, htblFieldValue,
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("organization"));
 
 			/*
 			 * get application modelName
 			 */
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-			mainDao.insertData(applicationModelName, OntologyMapper.getHtblMainOntologyClassesMappers().get("Organization").getName(),
+			mainDao.insertData(applicationModelName,
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("organization").getName(),
 					htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);

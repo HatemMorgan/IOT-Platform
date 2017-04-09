@@ -53,6 +53,7 @@ public class SelectionUtility {
 			propertyName = subjectClass.getHtblPropUriName().get(propertyURI);
 
 		}
+		System.out.println(propertyName);
 		Property property = subjectClass.getProperties().get(propertyName);
 
 		if (property instanceof ObjectProperty) {

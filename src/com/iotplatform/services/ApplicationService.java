@@ -80,10 +80,12 @@ public class ApplicationService {
 			 */
 
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
-					.validateRequestFields(applicationName, htblPropValue, OntologyMapper.getHtblMainOntologyClassesMappers().get("Application"));
+					.validateRequestFields(applicationName, htblPropValue,
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("application"));
 
 			mainDao.insertData(applicationDao.getHtblApplicationNameModelName().get(applicationName),
-					OntologyMapper.getHtblMainOntologyClassesMappers().get("Application").getName(), htblClassPropertyValue);
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("application").getName(),
+					htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application", timeTaken);

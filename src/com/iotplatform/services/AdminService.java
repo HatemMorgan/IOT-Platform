@@ -73,7 +73,7 @@ public class AdminService {
 			 */
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
 					.validateRequestFields(applicationNameCode, htblFieldValue,
-							OntologyMapper.getHtblMainOntologyClassesMappers().get("Admin"));
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("admin"));
 
 			/*
 			 * get application modelName
@@ -81,7 +81,7 @@ public class AdminService {
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
 			mainDao.insertData(applicationModelName,
-					OntologyMapper.getHtblMainOntologyClassesMappers().get("Admin").getName(), htblClassPropertyValue);
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("admin").getName(), htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Admin", timeTaken);
@@ -221,8 +221,7 @@ public class AdminService {
 		AdminService adminService = new AdminService(requestFieldsValidation, new ApplicationDao(oracle), adminDao,
 				mainDao);
 
-		Hashtable<String, Object> Admins = adminService.getAdmins("TESTAPPLICATION");
-		System.out.println(Admins);
+		Hashtable<String, Object> res = adminService.getAdmins("TESTAPPLICATION");
 
 		// Hashtable<String, Object> res =
 		// adminService.insertAdmin(htblFieldValue, "TESTAPPLICATION");
