@@ -275,13 +275,38 @@ public class OntologyMapper {
 					objectClassName = hasValueRestriction.getHasValue().asResource().getLocalName();
 			}
 
+			/*
+			 * check that their is a objectClass for object Property
+			 */
 			if (objectClassName != "") {
+
 				Class subjectClass = htblMainOntologyClasses.get(classMapperName);
+				boolean isPropertyUnique = isPropertyUnique(prop.getURI(), PropertyType.ObjectProperty.toString());
+				String propName = prop.getLocalName();
+				Prefix prefix = getPrefix(prop.getNameSpace());
+				Class ObjectClass = htblMainOntologyClasses.get(objectClassName);
+
 				/*
-				 * create new ObjectProperty
+				 * create new ObjectProperty. I will make the default for
+				 * multipleValues true untill their is a macCardinalty
+				 * restriction with value 1
 				 */
+				ObjectProperty objectProperty = new ObjectProperty(subjectClass, prop.getLocalName(), prefix,
+						ObjectClass, true, isPropertyUnique);
+				subjectClass.getProperties().put(propName, objectProperty);
+
 			}
 
+		} else {
+
+			/*
+			 * if property is a datatype property so I have to get its dataType
+			 * from htblMainOntologyProperties if the restriction does not have
+			 * the dataType
+			 */
+			if (prop.isDatatypeProperty()) {
+
+			}
 		}
 	}
 
