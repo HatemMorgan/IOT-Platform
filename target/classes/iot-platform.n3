@@ -603,7 +603,7 @@ foaf:age a owl:DatatypeProperty , owl:FunctionalProperty ;
 # http://xmlns.com/foaf/0.1/birthday
 
 foaf:birthday a owl:DatatypeProperty , owl:FunctionalProperty ;
-	rdfs:domain foaf:Agent ;
+	rdfs:domain foaf:Person ;
 	rdfs:range xsd:string ;
 	rdfs:comment "The birthday of this Agent, represented in mm-dd string form, eg. '12-31'." ;
 	rdfs:label "birthday" .
@@ -627,7 +627,7 @@ foaf:firstName a owl:DatatypeProperty ;
 # http://xmlns.com/foaf/0.1/gender
 
 foaf:gender a owl:DatatypeProperty , owl:FunctionalProperty ;
-	rdfs:domain foaf:Agent ;
+	rdfs:domain foaf:Person ;
 	rdfs:range xsd:string ;
 	rdfs:comment "The gender of this Agent (typically but not necessarily 'male' or 'female')." ;
 	rdfs:label "gender" .
@@ -1394,8 +1394,19 @@ foaf:Agent a owl:Class ;
 # http://xmlns.com/foaf/0.1/Group
 
 foaf:Group a owl:Class ;
-	rdfs:subClassOf foaf:Agent ;
-	:hasUniqueIdentifier foaf:name ;
+	rdfs:subClassOf foaf:Agent , _:genid38 .
+
+_:genid38 a owl:Restriction ;
+	owl:onProperty :description ;
+	owl:allValuesFrom xsd:string .
+
+foaf:Group rdfs:subClassOf _:genid39 .
+
+_:genid39 a owl:Restriction ;
+	owl:onProperty foaf:name ;
+	owl:allValuesFrom xsd:string .
+
+foaf:Group :hasUniqueIdentifier foaf:name ;
 	rdfs:comment "A class of Agents." ;
 	rdfs:isDefinedBy foaf:name ;
 	rdfs:label "Group" .
@@ -1403,8 +1414,19 @@ foaf:Group a owl:Class ;
 # http://xmlns.com/foaf/0.1/Organization
 
 foaf:Organization a owl:Class ;
-	rdfs:subClassOf foaf:Agent ;
-	owl:disjointWith foaf:Person ;
+	rdfs:subClassOf foaf:Agent , _:genid40 .
+
+_:genid40 a owl:Restriction ;
+	owl:onProperty :description ;
+	owl:allValuesFrom xsd:string .
+
+foaf:Organization rdfs:subClassOf _:genid41 .
+
+_:genid41 a owl:Restriction ;
+	owl:onProperty foaf:name ;
+	owl:allValuesFrom xsd:string .
+
+foaf:Organization owl:disjointWith foaf:Person ;
 	:hasUniqueIdentifier foaf:name ;
 	rdfs:comment "An organization." ;
 	rdfs:isDefinedBy <http://xmlns.com/foaf/0.1/> ;
@@ -1420,7 +1442,7 @@ foaf:Person a owl:Class ;
 	rdfs:label "Person" .
 # 
 
-_:genid38 foaf:name "" .
+_:genid42 foaf:name "" .
 # 
 # 
 # #################################################################

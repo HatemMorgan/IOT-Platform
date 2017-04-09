@@ -432,19 +432,19 @@ public class OntologyMapper {
 				String datatype = "";
 				if (restriction.isSomeValuesFromRestriction()) {
 					SomeValuesFromRestriction someValuesFromRestriction = restriction.asSomeValuesFromRestriction();
-					datatype = someValuesFromRestriction.getSomeValuesFrom().getLocalName();
+					datatype = someValuesFromRestriction.getSomeValuesFrom().getURI();
 				}
 
 				if (restriction.isAllValuesFromRestriction()) {
 					AllValuesFromRestriction allValuesFromRestriction = restriction.asAllValuesFromRestriction();
-					datatype = allValuesFromRestriction.getAllValuesFrom().getLocalName();
+					datatype = allValuesFromRestriction.getAllValuesFrom().getURI();
 				}
 
 				if (restriction.isHasValueRestriction()) {
 					HasValueRestriction hasValueRestriction = restriction.asHasValueRestriction();
 
 					if (hasValueRestriction.getHasValue().isResource())
-						datatype = hasValueRestriction.getHasValue().asResource().getLocalName();
+						datatype = hasValueRestriction.getHasValue().asResource().getURI();
 				}
 
 				/*
@@ -718,7 +718,9 @@ public class OntologyMapper {
 //		System.out.println(ontologyMapper.htblMainOntologyClasses.size());
 //		System.out.println(ontologyMapper.htblMainOntologyProperties.size());
 
-		Hashtable<String, Property> htblProperties = ontologyMapper.htblMainOntologyClasses.get("Person")
+		String className = "CommunicatingDevice";
+		
+		Hashtable<String, Property> htblProperties = ontologyMapper.htblMainOntologyClasses.get(className)
 				.getProperties();
 		Iterator<String> itr = htblProperties.keySet().iterator();
 
@@ -740,7 +742,7 @@ public class OntologyMapper {
 		// System.out.println(superClass.getName() + " " +
 		// superClass.isHasUniqueIdentifierProperty());
 		// }
-		System.out.println(htblMainOntologyClasses.get("Admin").isHasUniqueIdentifierProperty());
+		System.out.println(htblMainOntologyClasses.get(className).getUniqueIdentifierPropertyName());
 
 		// System.out.println(htblMainOntologyClasses.get("Coverage").getClassTypesList().toString());
 
@@ -757,8 +759,8 @@ public class OntologyMapper {
 
 		DynamicPropertiesUtility dynamicPropertiesUtility = new DynamicPropertiesUtility(
 				new DynamicConceptDao(dataSource));
-		System.out.println(dynamicPropertiesUtility.getHtblAllStaticClasses().get("http://iot-platform#Admin")
-				.getProperties().size());
+		System.out.println(dynamicPropertiesUtility.getHtblAllStaticClasses().get(Prefix.IOT_PLATFORM.getUri()+className)
+				.getProperties());
 	}
 
 }

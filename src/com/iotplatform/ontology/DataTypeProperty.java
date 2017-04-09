@@ -26,10 +26,9 @@ public class DataTypeProperty extends Property {
 
 	@Override
 	public String toString() {
-		return "DataTypeProperty [dataType=" + dataType + ", getDataType()=" + getDataType() + ", getName()="
-				+ getName() + ", getPrefix()=" + getPrefix() + ", getApplicationName()=" + getApplicationName()
-				+ ", isMulitpleValues()=" + isMulitpleValues() + ", isUnique()=" + isUnique() + ", getSubjectClass()="
-				+ getSubjectClass()+ "]";
+		return "DataTypeProperty [ getDataType()=" + getDataType() + ", getName()=" + getName() + ", getPrefix()="
+				+ getPrefix() + ", getApplicationName()=" + getApplicationName() + ", isMulitpleValues()="
+				+ isMulitpleValues() + ", isUnique()=" + isUnique() + ", getSubjectClass()=" + getSubjectClass() + "]";
 	}
 
 }
