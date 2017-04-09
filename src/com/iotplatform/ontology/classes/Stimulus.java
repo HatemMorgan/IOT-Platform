@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  * This Class maps ssn:Stimulus Class in the ontology
@@ -57,7 +57,7 @@ public class Stimulus extends Class {
 
 	private void init() {
 		super.getProperties().put("id", new DataTypeProperty(getStimulusSubjectClassInstance(), "id", Prefix.IOT_LITE,
-				XSDDataTypes.string_typed, false, false));
+				XSDDatatype.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 	}

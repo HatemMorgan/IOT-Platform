@@ -17,7 +17,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.QueryField;
 import com.iotplatform.utilities.QueryUtility;
@@ -239,7 +239,7 @@ public class MainDao {
 	private static Object getValue(Property property, Object value) {
 
 		if (property instanceof DataTypeProperty) {
-			XSDDataTypes xsdDataType = ((DataTypeProperty) property).getDataType();
+			XSDDatatype xsdDataType = ((DataTypeProperty) property).getDataType();
 			value = "\"" + value.toString() + "\"" + xsdDataType.getXsdType();
 			return value;
 		} else {

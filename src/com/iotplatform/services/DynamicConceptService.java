@@ -16,7 +16,7 @@ import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.PropertyType;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 @Service("dynamicConceptService")
 public class DynamicConceptService {
@@ -184,7 +184,7 @@ public class DynamicConceptService {
 		 */
 		if (newConcept.getProperty_type().equals(PropertyType.DatatypeProperty.toString()) && validObjectTypeURI) {
 			boolean check = false;
-			for (XSDDataTypes xsdDataType : XSDDataTypes.values()) {
+			for (XSDDatatype xsdDataType : XSDDatatype.values()) {
 				if (newConcept.getProperty_object_type_uri().equals(xsdDataType.getXsdTypeURI())) {
 					check = true;
 					break;

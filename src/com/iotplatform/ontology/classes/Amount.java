@@ -6,7 +6,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  * This Class maps iot-platform:Amount class in the main ontology
@@ -43,28 +43,28 @@ public class Amount extends Class {
 	private void init() {
 
 		super.getProperties().put("id", new DataTypeProperty(getAmountSubjectClassInstance(), "id", Prefix.IOT_LITE,
-				XSDDataTypes.string_typed, false, false));
+				XSDDatatype.string_typed, false, false));
 
 		/*
 		 * It describes the max value amount of a range of a property like
 		 * operatingPowerRange
 		 */
 		super.getProperties().put("hasRangeMaxValue", new DataTypeProperty(getAmountSubjectClassInstance(),
-				"hasRangeMaxValue", Prefix.IOT_PLATFORM, XSDDataTypes.double_typed, false, false));
+				"hasRangeMaxValue", Prefix.IOT_PLATFORM, XSDDatatype.double_typed, false, false));
 
 		/*
 		 * It describes the min value amount of a range of a property like
 		 * operatingPowerRange
 		 */
 		super.getProperties().put("hasRangeMinValue", new DataTypeProperty(getAmountSubjectClassInstance(),
-				"hasRangeMinValue", Prefix.IOT_PLATFORM, XSDDataTypes.double_typed, false, false));
+				"hasRangeMinValue", Prefix.IOT_PLATFORM, XSDDatatype.double_typed, false, false));
 
 		/*
 		 * "Describes the value of an amount. The value of property like
 		 * frequency or senstivity or batteryLifeTime. eg: 21 μA"
 		 */
 		super.getProperties().put("hasDataValue", new DataTypeProperty(getAmountSubjectClassInstance(), "hasDataValue",
-				Prefix.IOT_PLATFORM, XSDDataTypes.double_typed, false, false));
+				Prefix.IOT_PLATFORM, XSDDatatype.double_typed, false, false));
 
 		/*
 		 * Links a thing that has a measurment unit with the units of the

@@ -6,7 +6,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  *  This class maps the ssn:System class in the ontology 
@@ -104,7 +104,7 @@ public class SystemClass extends Class {
 		 * id which must be unique
 		 */
 		this.getProperties().put("id", new DataTypeProperty(getSystemSubjectClassInstance(), "id", Prefix.IOT_LITE,
-				XSDDataTypes.string_typed, false, false));
+				XSDDatatype.string_typed, false, false));
 
 		/*
 		 * relation between a system and its parts. A system or its subclasses
@@ -145,7 +145,7 @@ public class SystemClass extends Class {
 		 * id which must be unique
 		 */
 		systemInstance.getProperties().put("id", new DataTypeProperty(systemInstance.getSystemSubjectClassInstance(),
-				"id", Prefix.IOT_LITE, XSDDataTypes.string_typed, false, true));
+				"id", Prefix.IOT_LITE, XSDDatatype.string_typed, false, true));
 
 		/*
 		 * relation between a system and its parts. A system or its subclasses

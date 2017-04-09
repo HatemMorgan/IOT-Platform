@@ -6,7 +6,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  *  This class maps the group class in the ontology 
@@ -57,10 +57,10 @@ public class Group extends Agent {
 
 	public static void initGroupStaticInstance(Group groupInstance) {
 		groupInstance.getProperties().put("name", new DataTypeProperty(groupInstance.getGroupSubjectClassInstance(),
-				"name", Prefix.FOAF, XSDDataTypes.string_typed, false, true));
+				"name", Prefix.FOAF, XSDDatatype.string_typed, false, true));
 		groupInstance.getProperties().put("description",
 				new DataTypeProperty(groupInstance.getGroupSubjectClassInstance(), "description", Prefix.IOT_PLATFORM,
-						XSDDataTypes.string_typed, false, false));
+						XSDDatatype.string_typed, false, false));
 		groupInstance.getProperties().put("member", new ObjectProperty(groupInstance.getGroupSubjectClassInstance(),
 				"member", Prefix.FOAF, Agent.getAgentInstance(), true, false));
 
@@ -73,9 +73,9 @@ public class Group extends Agent {
 
 	private void init() {
 		super.getProperties().put("name", new DataTypeProperty(getGroupSubjectClassInstance(), "name", Prefix.FOAF,
-				XSDDataTypes.string_typed, false, true));
+				XSDDatatype.string_typed, false, true));
 		super.getProperties().put("description", new DataTypeProperty(getGroupSubjectClassInstance(), "description",
-				Prefix.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+				Prefix.IOT_PLATFORM, XSDDatatype.string_typed, false, false));
 		super.getProperties().put("member", new ObjectProperty(getGroupSubjectClassInstance(), "member", Prefix.FOAF,
 				Agent.getAgentInstance(), true, false));
 

@@ -1,6 +1,6 @@
 package com.iotplatform.ontology;
 
-public enum XSDDataTypes {
+public enum XSDDatatype {
 	string_typed("^^xsd:string", "string", "http://www.w3.org/2001/XMLSchema#string"), 
 	integer_typed("^^xsd:integer","integer", "http://www.w3.org/2001/XMLSchema#integer"),
 	decimal_typed("^^xsd:decimal", "decimal","http://www.w3.org/2001/XMLSchema#decimal"), 
@@ -13,7 +13,7 @@ public enum XSDDataTypes {
 	private final String dataType;
 	private final String xsdTypeURI;
 
-	private XSDDataTypes(final String xsdType, final String dataType, final String xsdTypeURI) {
+	private XSDDatatype(final String xsdType, final String dataType, final String xsdTypeURI) {
 		this.xsdType = xsdType;
 		this.dataType = dataType;
 		this.xsdTypeURI = xsdTypeURI;

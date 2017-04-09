@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  *  This Class maps ssn:Condition class in the ontology
@@ -57,7 +57,7 @@ public class Condition extends Property {
 		 * Condition description
 		 */
 		super.getProperties().put("description", new DataTypeProperty(getConditionSubjectClassInstance(), "description",
-				Prefix.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+				Prefix.IOT_PLATFORM, XSDDatatype.string_typed, false, false));
 		super.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "description", "description");
 
 		super.getSuperClassesList().add(Property.getPropertyInstance());
@@ -76,7 +76,7 @@ public class Condition extends Property {
 		 */
 		conditionInstance.getProperties().put("description",
 				new DataTypeProperty(conditionInstance.getConditionSubjectClassInstance(), "description",
-						Prefix.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+						Prefix.IOT_PLATFORM, XSDDatatype.string_typed, false, false));
 		conditionInstance.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "description", "description");
 
 		conditionInstance.getSuperClassesList().add(Property.getPropertyInstance());

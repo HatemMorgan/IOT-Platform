@@ -4,7 +4,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  * This class maps the DeviceModule class in the ontology
@@ -44,7 +44,7 @@ public class DeviceModule extends Class {
 		 * DeviceModule id which must be unique
 		 */
 		super.getProperties().put("id", new DataTypeProperty(getDeviceModuleSubjectClassInstance(), "id",
-				Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				Prefix.IOT_LITE, XSDDatatype.string_typed, false, false));
 
 		/*
 		 * Describes relation between Device module and its device

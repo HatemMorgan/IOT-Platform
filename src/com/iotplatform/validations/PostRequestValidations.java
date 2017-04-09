@@ -25,7 +25,7 @@ import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 import com.iotplatform.ontology.classes.ActuatingDevice;
 
 import com.iotplatform.utilities.DynamicPropertiesUtility;
@@ -936,7 +936,7 @@ public class PostRequestValidations {
 	private Object getValue(Property property, Object value) {
 
 		if (property instanceof DataTypeProperty) {
-			XSDDataTypes xsdDataType = ((DataTypeProperty) property).getDataType();
+			XSDDatatype xsdDataType = ((DataTypeProperty) property).getDataType();
 			value = "\"" + value.toString() + "\"" + xsdDataType.getXsdType();
 			return value;
 		} else {
@@ -950,7 +950,7 @@ public class PostRequestValidations {
 	 * 
 	 */
 	private boolean isDataValueValid(DataTypeProperty dataProperty, Object value) {
-		XSDDataTypes xsdDataType = dataProperty.getDataType();
+		XSDDatatype xsdDataType = dataProperty.getDataType();
 		switch (xsdDataType) {
 		case boolean_type:
 			if (value instanceof Boolean) {

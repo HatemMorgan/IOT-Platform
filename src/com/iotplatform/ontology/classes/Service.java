@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  * This Class maps iot-lite:Service Class in the ontology
@@ -48,22 +48,22 @@ public class Service extends Class {
 		 * access a service) ,
 		 */
 		super.getProperties().put("endpoint", new DataTypeProperty(getServiceSubjectClassInstance(), "endpoint",
-				Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				Prefix.IOT_LITE, XSDDatatype.string_typed, false, false));
 
 		/*
 		 * Description of the service.
 		 */
 		super.getProperties().put("interfaceDescription", new DataTypeProperty(getServiceSubjectClassInstance(),
-				"interfaceDescription", Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				"interfaceDescription", Prefix.IOT_LITE, XSDDatatype.string_typed, false, false));
 
 		/*
 		 * Defines the type of interface of the service endpoint.
 		 */
 		super.getProperties().put("interfaceType", new DataTypeProperty(getServiceSubjectClassInstance(),
-				"interfaceType", Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				"interfaceType", Prefix.IOT_LITE, XSDDatatype.string_typed, false, false));
 
 		super.getProperties().put("id", new DataTypeProperty(getServiceSubjectClassInstance(), "id", Prefix.IOT_LITE,
-				XSDDataTypes.string_typed, false, false));
+				XSDDatatype.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "endpoint", "endpoint");

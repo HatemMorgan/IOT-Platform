@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  * This Class maps the geo:Point class in the ontology
@@ -51,25 +51,25 @@ public class Point extends Class {
 		 * point id which must be unique
 		 */
 		super.getProperties().put("id", new DataTypeProperty(getPointSubjectClassInstance(), "id", Prefix.IOT_LITE,
-				XSDDataTypes.string_typed, false, false));
+				XSDDatatype.string_typed, false, false));
 
 		/*
 		 * point latitude
 		 */
 		super.getProperties().put("lat", new DataTypeProperty(getPointSubjectClassInstance(), "lat", Prefix.GEO,
-				XSDDataTypes.double_typed, false, false));
+				XSDDatatype.double_typed, false, false));
 
 		/*
 		 * point longitude
 		 */
 		super.getProperties().put("long", new DataTypeProperty(getPointSubjectClassInstance(), "long", Prefix.GEO,
-				XSDDataTypes.double_typed, false, false));
+				XSDDatatype.double_typed, false, false));
 
 		/*
 		 * point google maps url
 		 */
 		super.getProperties().put("googleMapsUrl", new DataTypeProperty(getPointSubjectClassInstance(), "googleMapsUrl",
-				Prefix.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+				Prefix.IOT_PLATFORM, XSDDatatype.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefix.GEO.getUri() + "lat", "lat");

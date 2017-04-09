@@ -6,7 +6,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  * This Class maps the Observation Class in the ontology
@@ -88,7 +88,7 @@ public class Observation extends Class {
 				"includesEvent", Prefix.DUL, Stimulus.getStimulusInstance(), false, false));
 
 		super.getProperties().put("id", new DataTypeProperty(getObservationSubjectClassInstance(), "id",
-				Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				Prefix.IOT_LITE, XSDDatatype.string_typed, false, false));
 
 		/*
 		 * The result time is the time when the procedure associated with the
@@ -101,7 +101,7 @@ public class Observation extends Class {
 		 * differ.[O&M]
 		 */
 		super.getProperties().put("observationResultTime", new DataTypeProperty(getObservationSubjectClassInstance(),
-				"observationResultTime", Prefix.SSN, XSDDataTypes.string_typed, false, false));
+				"observationResultTime", Prefix.SSN, XSDDatatype.string_typed, false, false));
 
 		/*
 		 * Rebadged as phenomenon time in [O&M]. The phenomenon time shall
@@ -115,10 +115,10 @@ public class Observation extends Class {
 		 * analysis of the result.
 		 */
 		super.getProperties().put("observationSamplingTime", new DataTypeProperty(getObservationSubjectClassInstance(),
-				"observationSamplingTime", Prefix.SSN, XSDDataTypes.string_typed, false, false));
+				"observationSamplingTime", Prefix.SSN, XSDDatatype.string_typed, false, false));
 
 		super.getProperties().put("qualityOfObservation", new DataTypeProperty(getObservationSubjectClassInstance(),
-				"qualityOfObservation", Prefix.SSN, XSDDataTypes.double_typed, false, false));
+				"qualityOfObservation", Prefix.SSN, XSDDatatype.double_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefix.SSN.getUri() + "sensingMethodUsed", "sensingMethodUsed");

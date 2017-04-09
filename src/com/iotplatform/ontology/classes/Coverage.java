@@ -6,7 +6,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  * This Class maps iot-lite:Coverage Class in the ontology
@@ -65,7 +65,7 @@ public class Coverage extends Class {
 				Prefix.GEO, Point.getPointInstacne(), false, false));
 
 		super.getProperties().put("id", new DataTypeProperty(getCoverageSubjectClassinstance(), "id", Prefix.IOT_LITE,
-				XSDDataTypes.string_typed, false, false));
+				XSDDatatype.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefix.GEO.getUri() + "location", "location");
@@ -91,7 +91,7 @@ public class Coverage extends Class {
 
 		circle.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "radius", "radius");
 		circle.getProperties().put("radius",
-				new DataTypeProperty(circle, "radius", Prefix.IOT_LITE, XSDDataTypes.double_typed, false, false));
+				new DataTypeProperty(circle, "radius", Prefix.IOT_LITE, XSDDatatype.double_typed, false, false));
 
 		/*
 		 * adding coverage class to superClassesList to tell the dao to add
@@ -147,7 +147,7 @@ public class Coverage extends Class {
 
 		coverageInstance.getProperties().put("id",
 				new DataTypeProperty(coverageInstance.getCoverageSubjectClassinstance(), "id", Prefix.IOT_LITE,
-						XSDDataTypes.string_typed, false, false));
+						XSDDatatype.string_typed, false, false));
 
 		coverageInstance.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 		coverageInstance.getHtblPropUriName().put(Prefix.GEO.getUri() + "location", "location");
@@ -177,7 +177,7 @@ public class Coverage extends Class {
 		circle.setHtblPropUriName(coverageInstance.getHtblPropUriName());
 
 		circle.getProperties().put("radius",
-				new DataTypeProperty(circle, "radius", Prefix.IOT_LITE, XSDDataTypes.double_typed, false, false));
+				new DataTypeProperty(circle, "radius", Prefix.IOT_LITE, XSDDatatype.double_typed, false, false));
 		circle.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "radius", "radius");
 
 		coverageInstance.getClassTypesList().put("Circle", circle);

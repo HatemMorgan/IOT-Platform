@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  *  This class maps the iot-platform:CommunicatingDevice class in the ontology
@@ -46,46 +46,46 @@ public class CommunicatingDevice extends Device {
 		 * Describes the bandwidth of a communicating device.
 		 */
 		super.getProperties().put("hasBandwidth", new DataTypeProperty(getCommunicatingDeviceSubjectClassInstance(),
-				"hasBandwidth", Prefix.IOT_PLATFORM, XSDDataTypes.double_typed, false, false));
+				"hasBandwidth", Prefix.IOT_PLATFORM, XSDDatatype.double_typed, false, false));
 
 		/*
 		 * Describes the frequency of transmission of a communictating device
 		 */
 		super.getProperties().put("hasFrequency", new DataTypeProperty(getCommunicatingDeviceSubjectClassInstance(),
-				"hasFrequency", Prefix.IOT_PLATFORM, XSDDataTypes.double_typed, false, false));
+				"hasFrequency", Prefix.IOT_PLATFORM, XSDDatatype.double_typed, false, false));
 
 		/*
 		 * Describes the network topology of a communicating device
 		 */
 		super.getProperties().put("hasNetworkTopology",
 				new DataTypeProperty(getCommunicatingDeviceSubjectClassInstance(), "hasNetworkTopology",
-						Prefix.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+						Prefix.IOT_PLATFORM, XSDDatatype.string_typed, false, false));
 
 		/*
 		 * Describes the transmission power of a communicating device
 		 */
 		super.getProperties().put("hasTransmissionPower",
 				new DataTypeProperty(getCommunicatingDeviceSubjectClassInstance(), "hasTransmissionPower",
-						Prefix.IOT_PLATFORM, XSDDataTypes.double_typed, false, false));
+						Prefix.IOT_PLATFORM, XSDDatatype.double_typed, false, false));
 
 		/*
 		 * Describes the type of a communicating device ie: BLE .
 		 */
 		super.getProperties().put("hasType", new DataTypeProperty(getCommunicatingDeviceSubjectClassInstance(),
-				"hasType", Prefix.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+				"hasType", Prefix.IOT_PLATFORM, XSDDatatype.string_typed, false, false));
 
 		/*
 		 * Describes the range of transmission of a communicating device.
 		 */
 		super.getProperties().put("rangeOfTransmission",
 				new DataTypeProperty(getCommunicatingDeviceSubjectClassInstance(), "rangeOfTransmission",
-						Prefix.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+						Prefix.IOT_PLATFORM, XSDDatatype.string_typed, false, false));
 
 		/*
 		 * Describes the duty cycle of a communicating device.
 		 */
 		super.getProperties().put("dutyCycle", new DataTypeProperty(getCommunicatingDeviceSubjectClassInstance(),
-				"dutyCycle", Prefix.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+				"dutyCycle", Prefix.IOT_PLATFORM, XSDDatatype.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "hasBandwidth", "hasBandwidth");
 		super.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "hasFrequency", "hasFrequency");

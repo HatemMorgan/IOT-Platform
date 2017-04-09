@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  * Organization class maps the organization class in the ontology. 
@@ -57,10 +57,10 @@ public class Organization extends Agent {
 	public static void initOrganizationStaticInstance(Organization organizationInstance) {
 		organizationInstance.getProperties().put("name",
 				new DataTypeProperty(organizationInstance.getOrganizationSubjectClassInstance(), "name", Prefix.FOAF,
-						XSDDataTypes.string_typed, false, true));
+						XSDDatatype.string_typed, false, true));
 		organizationInstance.getProperties().put("description",
 				new DataTypeProperty(organizationInstance.getOrganizationSubjectClassInstance(), "description",
-						Prefix.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+						Prefix.IOT_PLATFORM, XSDDatatype.string_typed, false, false));
 
 		organizationInstance.getHtblPropUriName().put(Prefix.FOAF.getUri() + "name", "name");
 		organizationInstance.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "description", "description");
@@ -71,9 +71,9 @@ public class Organization extends Agent {
 
 	private void init() {
 		super.getProperties().put("name", new DataTypeProperty(getOrganizationSubjectClassInstance(), "name",
-				Prefix.FOAF, XSDDataTypes.string_typed, false, true));
+				Prefix.FOAF, XSDDatatype.string_typed, false, true));
 		super.getProperties().put("description", new DataTypeProperty(getOrganizationSubjectClassInstance(),
-				"description", Prefix.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+				"description", Prefix.IOT_PLATFORM, XSDDatatype.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefix.FOAF.getUri() + "name", "name");
 		super.getHtblPropUriName().put(Prefix.IOT_PLATFORM.getUri() + "description", "description");

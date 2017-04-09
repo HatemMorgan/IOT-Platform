@@ -6,7 +6,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  *  THis class maps the ssn:Platform class in the ontology
@@ -53,7 +53,7 @@ public class Platform extends Class {
 		 * DeviceModule id which must be unique
 		 */
 		super.getProperties().put("id", new DataTypeProperty(getPlatformSubjectClassInstance(), "id", Prefix.IOT_LITE,
-				XSDDataTypes.string_typed, false, false));
+				XSDDatatype.string_typed, false, false));
 
 		/*
 		 * Relation between Platform and its physical location described by
@@ -67,7 +67,7 @@ public class Platform extends Class {
 		 * platform because a sensor can be attached to it)
 		 */
 		super.getProperties().put("isMobile", new DataTypeProperty(getPlatformSubjectClassInstance(), "isMobile",
-				Prefix.IOT_LITE, XSDDataTypes.boolean_type, false, false));
+				Prefix.IOT_LITE, XSDDatatype.boolean_type, false, false));
 
 		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 		super.getHtblPropUriName().put(Prefix.GEO.getUri() + "hasLocation", "hasLocation");

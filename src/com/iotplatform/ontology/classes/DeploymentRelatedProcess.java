@@ -6,7 +6,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  * This Class maps the ssn:DeploymentRelatedProcess class in the ontology
@@ -104,7 +104,7 @@ public class DeploymentRelatedProcess extends Class {
 		 * id and it must be unique
 		 */
 		super.getProperties().put("id", new DataTypeProperty(getDeploymentRelatedProcessSubjectClassInstance(), "id",
-				Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
+				Prefix.IOT_LITE, XSDDatatype.string_typed, false, false));
 
 		super.getHtblPropUriName().put(Prefix.SSN.getUri() + "deploymentProcessPart", "deploymentProcessPart");
 		super.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
@@ -146,7 +146,7 @@ public class DeploymentRelatedProcess extends Class {
 		 */
 		deploymentRelatedProcessInstance.getProperties().put("id",
 				new DataTypeProperty(deploymentRelatedProcessInstance.getDeploymentRelatedProcessSubjectClassInstance(),
-						"id", Prefix.IOT_LITE, XSDDataTypes.string_typed, false, false));
+						"id", Prefix.IOT_LITE, XSDDatatype.string_typed, false, false));
 
 		deploymentRelatedProcessInstance.getHtblPropUriName().put(Prefix.SSN.getUri() + "deploymentProcessPart",
 				"deploymentProcessPart");

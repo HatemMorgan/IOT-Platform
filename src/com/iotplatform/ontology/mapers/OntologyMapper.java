@@ -30,9 +30,11 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.PropertyType;
+import com.iotplatform.ontology.XSDDataTypes;
 
 /*
  * OntologyMapper is used to map the main ontology into some data structures that holds instances which 
@@ -327,6 +329,28 @@ public class OntologyMapper {
 						datatype = hasValueRestriction.getHasValue().asResource().getLocalName();
 				}
 
+				/*
+				 * check that their is a objectClass for object Property
+				 */
+				if (datatype != "") {
+
+					Class subjectClass = htblMainOntologyClasses.get(classMapperName);
+					boolean isPropertyUnique = isPropertyUnique(prop.getURI(), PropertyType.ObjectProperty.toString());
+					String propName = prop.getLocalName();
+					Prefix prefix = getPrefix(prop.getNameSpace());
+					XSDDataTypes xsdDataType = getXSDDataTypeEnum(datatype);
+
+					/*
+					 * create new dataTypeProperty. I will make the default for
+					 * multipleValues true untill their is a maxCardinalty
+					 * restriction with value 1
+					 */
+					DataTypeProperty dataTypeProperty = new DataTypeProperty(subjectClass, propName, prefix,
+							xsdDataType, true, isPropertyUnique);
+					subjectClass.getProperties().put(propName, dataTypeProperty);
+
+				}
+
 			}
 		}
 	}
@@ -429,6 +453,42 @@ public class OntologyMapper {
 
 		if (Prefix.DUL.getUri().equals(nameSpace)) {
 			return Prefix.DUL;
+		}
+
+		return null;
+	}
+
+	/*
+	 * getXSDDataTypeEnum return XsdDataType enum instance
+	 */
+	private static XSDDataTypes getXSDDataTypeEnum(String dataType) {
+
+		if (XSDDataTypes.boolean_type.getXsdTypeURI().equals(dataType)) {
+			return XSDDataTypes.boolean_type;
+		}
+
+		if (XSDDataTypes.decimal_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDataTypes.decimal_typed;
+		}
+
+		if (XSDDataTypes.float_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDataTypes.float_typed;
+		}
+
+		if (XSDDataTypes.integer_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDataTypes.integer_typed;
+		}
+
+		if (XSDDataTypes.string_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDataTypes.string_typed;
+		}
+
+		if (XSDDataTypes.dateTime_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDataTypes.dateTime_typed;
+		}
+
+		if (XSDDataTypes.double_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDataTypes.double_typed;
 		}
 
 		return null;

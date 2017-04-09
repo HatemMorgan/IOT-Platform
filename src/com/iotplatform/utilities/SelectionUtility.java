@@ -18,7 +18,7 @@ import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 @Component
 public class SelectionUtility {
@@ -70,31 +70,31 @@ public class SelectionUtility {
 	}
 
 	private static Object typeCastValueToItsDataType(DataTypeProperty dataTypeProperty, Object value) {
-		if (XSDDataTypes.boolean_type.equals(dataTypeProperty.getDataType())) {
+		if (XSDDatatype.boolean_type.equals(dataTypeProperty.getDataType())) {
 			return Boolean.parseBoolean(value.toString());
 		}
 
-		if (XSDDataTypes.decimal_typed.equals(dataTypeProperty.getDataType())) {
+		if (XSDDatatype.decimal_typed.equals(dataTypeProperty.getDataType())) {
 			return Double.parseDouble(value.toString());
 		}
 
-		if (XSDDataTypes.float_typed.equals(dataTypeProperty.getDataType())) {
+		if (XSDDatatype.float_typed.equals(dataTypeProperty.getDataType())) {
 			return Float.parseFloat(value.toString());
 		}
 
-		if (XSDDataTypes.integer_typed.equals(dataTypeProperty.getDataType())) {
+		if (XSDDatatype.integer_typed.equals(dataTypeProperty.getDataType())) {
 			return Integer.parseInt(value.toString());
 		}
 
-		if (XSDDataTypes.string_typed.equals(dataTypeProperty.getDataType())) {
+		if (XSDDatatype.string_typed.equals(dataTypeProperty.getDataType())) {
 			return value.toString();
 		}
 
-		if (XSDDataTypes.dateTime_typed.equals(dataTypeProperty.getDataType())) {
+		if (XSDDatatype.dateTime_typed.equals(dataTypeProperty.getDataType())) {
 			return Date.parse(value.toString());
 		}
 
-		if (XSDDataTypes.double_typed.equals(dataTypeProperty.getDataType())) {
+		if (XSDDatatype.double_typed.equals(dataTypeProperty.getDataType())) {
 			return Double.parseDouble(value.toString());
 		}
 		return null;

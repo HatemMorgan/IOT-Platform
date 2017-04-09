@@ -17,7 +17,7 @@ import com.iotplatform.ontology.DynamicConceptColumns;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.PropertyType;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 import com.iotplatform.ontology.classes.ActuatingDevice;
 import com.iotplatform.ontology.classes.Admin;
 import com.iotplatform.ontology.classes.Agent;
@@ -353,34 +353,34 @@ public class DynamicPropertiesUtility {
 	/*
 	 * getXSDDataTypeEnum return XsdDataType enum instance
 	 */
-	private XSDDataTypes getXSDDataTypeEnum(String dataType) {
+	private XSDDatatype getXSDDataTypeEnum(String dataType) {
 
-		if (XSDDataTypes.boolean_type.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.boolean_type;
+		if (XSDDatatype.boolean_type.getXsdTypeURI().equals(dataType)) {
+			return XSDDatatype.boolean_type;
 		}
 
-		if (XSDDataTypes.decimal_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.decimal_typed;
+		if (XSDDatatype.decimal_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDatatype.decimal_typed;
 		}
 
-		if (XSDDataTypes.float_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.float_typed;
+		if (XSDDatatype.float_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDatatype.float_typed;
 		}
 
-		if (XSDDataTypes.integer_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.integer_typed;
+		if (XSDDatatype.integer_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDatatype.integer_typed;
 		}
 
-		if (XSDDataTypes.string_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.string_typed;
+		if (XSDDatatype.string_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDatatype.string_typed;
 		}
 
-		if (XSDDataTypes.dateTime_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.dateTime_typed;
+		if (XSDDatatype.dateTime_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDatatype.dateTime_typed;
 		}
 
-		if (XSDDataTypes.double_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.double_typed;
+		if (XSDDatatype.double_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDatatype.double_typed;
 		}
 
 		return null;

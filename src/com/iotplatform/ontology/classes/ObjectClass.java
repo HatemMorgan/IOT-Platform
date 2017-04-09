@@ -6,7 +6,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  *  This Class maps the Object class in the ontology
@@ -43,7 +43,7 @@ public class ObjectClass extends Class {
 
 	private void init() {
 		this.getProperties().put("id", new DataTypeProperty(getObjectSubjectClassInstance(), "id", Prefix.IOT_LITE,
-				XSDDataTypes.string_typed, false, false));
+				XSDDatatype.string_typed, false, false));
 
 		this.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 

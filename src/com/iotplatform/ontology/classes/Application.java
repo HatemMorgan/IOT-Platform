@@ -6,7 +6,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  * This class maps the application class in the ontology
@@ -46,13 +46,13 @@ public class Application extends Class {
 		 * Application Describption
 		 */
 		super.getProperties().put("description", new DataTypeProperty(getApplicationSubjectClassInstance(),
-				"description", Prefix.IOT_PLATFORM, XSDDataTypes.string_typed, false, false));
+				"description", Prefix.IOT_PLATFORM, XSDDatatype.string_typed, false, false));
 
 		/*
 		 * Application name
 		 */
 		super.getProperties().put("name", new DataTypeProperty(getApplicationSubjectClassInstance(), "name",
-				Prefix.FOAF, XSDDataTypes.string_typed, false, false));
+				Prefix.FOAF, XSDDatatype.string_typed, false, false));
 
 		/*
 		 * relation between an application and an organization the funds it . It
