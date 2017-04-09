@@ -10,8 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.iotplatform.exceptions.DatabaseException;
-
-import com.iotplatform.ontology.classes.Developer;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.utilities.QueryUtility;
 
@@ -39,8 +38,8 @@ public class DeveloperDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(Developer.getDeveloperInstance(),
-				applicationModelName);
+		String queryString = QueryUtility.constructSelectAllQueryNoFilters(
+				OntologyMapper.getHtblMainOntologyClassesMappers().get("Developer"), applicationModelName);
 		System.out.println(queryString);
 		List<Hashtable<String, Object>> developersList = new ArrayList<>();
 
@@ -53,7 +52,7 @@ public class DeveloperDao {
 			 */
 
 			developersList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					Developer.getDeveloperInstance());
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("Developer"));
 
 		} catch (SQLException e) {
 			e.printStackTrace();

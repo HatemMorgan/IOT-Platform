@@ -10,8 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.iotplatform.exceptions.DatabaseException;
-
-import com.iotplatform.ontology.classes.Admin;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.utilities.QueryUtility;
 
@@ -38,8 +37,8 @@ public class AdminDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(Admin.getAdminInstance(),
-				applicationModelName);
+		String queryString = QueryUtility.constructSelectAllQueryNoFilters(
+				OntologyMapper.getHtblMainOntologyClassesMappers().get("Admin"), applicationModelName);
 		List<Hashtable<String, Object>> adminsList = new ArrayList<>();
 
 		try {
@@ -51,7 +50,7 @@ public class AdminDao {
 			 */
 
 			adminsList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					Admin.getAdminInstance());
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("Admin"));
 
 		} catch (SQLException e) {
 			throw new DatabaseException(e.getMessage(), "Admin");

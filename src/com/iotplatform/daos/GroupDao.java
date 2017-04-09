@@ -10,8 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.iotplatform.exceptions.DatabaseException;
-
-import com.iotplatform.ontology.classes.Group;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.utilities.QueryUtility;
 
@@ -38,8 +37,8 @@ public class GroupDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(Group.getGroupInstance(),
-				applicationModelName);
+		String queryString = QueryUtility.constructSelectAllQueryNoFilters(
+				OntologyMapper.getHtblMainOntologyClassesMappers().get("Group"), applicationModelName);
 		List<Hashtable<String, Object>> groupsList = new ArrayList<>();
 
 		try {
@@ -50,7 +49,7 @@ public class GroupDao {
 			 */
 
 			groupsList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					Group.getGroupInstance());
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("Group"));
 
 		} catch (SQLException e) {
 			e.printStackTrace();

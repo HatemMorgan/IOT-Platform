@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.iotplatform.exceptions.DatabaseException;
-import com.iotplatform.ontology.classes.NormalUser;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.utilities.QueryUtility;
 
@@ -37,7 +37,7 @@ public class NormalUserDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(NormalUser.getNormalUserInstance(),
+		String queryString = QueryUtility.constructSelectAllQueryNoFilters(OntologyMapper.getHtblMainOntologyClassesMappers().get("NormalUser"),
 				applicationModelName);
 		List<Hashtable<String, Object>> normalUsersList = new ArrayList<>();
 
@@ -49,7 +49,7 @@ public class NormalUserDao {
 			 */
 
 			normalUsersList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					NormalUser.getNormalUserInstance());
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("NormalUser"));
 
 		} catch (SQLException e) {
 			e.printStackTrace();
