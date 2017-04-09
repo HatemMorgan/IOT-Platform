@@ -718,7 +718,7 @@ public class OntologyMapper {
 //		System.out.println(ontologyMapper.htblMainOntologyClasses.size());
 //		System.out.println(ontologyMapper.htblMainOntologyProperties.size());
 
-		String className = "CommunicatingDevice";
+		String className = "Amount";
 		
 		Hashtable<String, Property> htblProperties = ontologyMapper.htblMainOntologyClasses.get(className)
 				.getProperties();
