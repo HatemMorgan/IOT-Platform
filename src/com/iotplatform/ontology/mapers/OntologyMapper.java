@@ -53,7 +53,8 @@ public class OntologyMapper {
 		model = ModelFactory.createOntologyModel();
 		htblMainOntologyClasses = new Hashtable<>();
 		htblMainOntologyProperties = new Hashtable<>();
-
+		htblMainOntologyClassesUri = new Hashtable<>();
+		
 		/*
 		 * read main ontology from iot-platform.n3 (ontology turtle file)
 		 */
