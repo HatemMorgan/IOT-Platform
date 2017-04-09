@@ -139,4 +139,8 @@ public class Class {
 		this.hasTypeClasses = hasTypeClasses;
 	}
 
+	public void setUniqueIdentifierPropertyName(String uniqueIdentifierPropertyName) {
+		this.uniqueIdentifierPropertyName = uniqueIdentifierPropertyName;
+	}
+
 }

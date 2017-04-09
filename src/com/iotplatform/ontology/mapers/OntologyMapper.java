@@ -3,15 +3,11 @@ package com.iotplatform.ontology.mapers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 
 import org.apache.jena.ontology.AllValuesFromRestriction;
-import org.apache.jena.ontology.CardinalityRestriction;
 import org.apache.jena.ontology.HasValueRestriction;
-import org.apache.jena.ontology.MaxCardinalityRestriction;
-import org.apache.jena.ontology.MinCardinalityRestriction;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntProperty;
@@ -23,8 +19,8 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.util.FileManager;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.springframework.stereotype.Component;
@@ -33,8 +29,9 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
+import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.PropertyType;
-import com.iotplatform.ontology.XSDDataTypes;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  * OntologyMapper is used to map the main ontology into some data structures that holds instances which 
@@ -53,6 +50,26 @@ public class OntologyMapper {
 		htblMainOntologyClasses = new Hashtable<>();
 		htblMainOntologyProperties = new Hashtable<>();
 
+		/*
+		 * read main ontology from iot-platform.n3 (ontology turtle file)
+		 */
+		readOntology();
+
+		/*
+		 * load mainOtology classes
+		 */
+		getMainOntologyClasses();
+
+		/*
+		 * load mainOtology properties
+		 */
+		getMainOntologyProperties();
+
+		/*
+		 * complete mapping by added properties to classesMappers and add map
+		 * class relation hierarchy
+		 */
+		completeCreationOfOntologyClassesMappers();
 	}
 
 	/*
@@ -147,19 +164,92 @@ public class OntologyMapper {
 					continue;
 
 				/*
+				 * populate subClassesList if the given ontology class has
+				 * subClasses
+				 */
+				if (ontologyClass.hasSubClass())
+					addSubClasses(ontologyClass);
+
+				/*
 				 * populate superClassList if the given ontology class has
 				 * superClasses
 				 */
 				if (ontologyClass.hasSuperClass())
 					addSuperClasses(ontologyClass);
 
-				/*
-				 * populate subClassesList if the given ontology class has
-				 * subClasses
-				 */
-				if (ontologyClass.hasSubClass())
-					addSubClasses(ontologyClass);
 			}
+		}
+
+		/*
+		 * add Properties
+		 */
+		addPropertiesToClassesMappersUsingDomainAndRange();
+
+		/*
+		 * add inherited Properties from superClasses to subClasses
+		 */
+		addInheritedPropertiesToSubClasses();
+
+		/*
+		 * add uniqueIdentifier to ontology class mappers
+		 */
+		addUniqueIdentifierToOntologyClassesMappers();
+
+	}
+
+	private static void addUniqueIdentifierToOntologyClassesMappers() {
+
+		Iterator<String> htblMainOntologyClassesIter = htblMainOntologyClasses.keySet().iterator();
+
+		while (htblMainOntologyClassesIter.hasNext()) {
+			String className = htblMainOntologyClassesIter.next();
+			Class ontologyClassMapper = htblMainOntologyClasses.get(className);
+
+			/*
+			 * add uniqueIdentifierProperty if it exists
+			 */
+			String uniqueIdentifierPropertyName = isClassHasUniqueIdentifier(ontologyClassMapper.getUri());
+
+			/*
+			 * check that uniqueIdentifierPropertyName is not null and this
+			 * class has no uniqueIdentifier (it might be added to it if one of
+			 * its superClasses has a uniqueIdentifier)
+			 */
+			if (uniqueIdentifierPropertyName != null && !ontologyClassMapper.isHasUniqueIdentifierProperty()) {
+
+				ontologyClassMapper.setHasUniqueIdentifierProperty(true);
+				ontologyClassMapper.setUniqueIdentifierPropertyName(uniqueIdentifierPropertyName);
+
+				/*
+				 * add uniqueIdentifier to subClasses if exist because
+				 * subClasses have to inherit uniqueIdentifer of its superClass
+				 */
+				if (ontologyClassMapper.isHasTypeClasses()) {
+					Iterator<String> htbSubClassesIter = ontologyClassMapper.getClassTypesList().keySet().iterator();
+
+					while (htbSubClassesIter.hasNext()) {
+						Class subClassMapper = htblMainOntologyClasses.get(htbSubClassesIter.next());
+						subClassMapper.setHasUniqueIdentifierProperty(true);
+						subClassMapper.setUniqueIdentifierPropertyName(uniqueIdentifierPropertyName);
+					}
+
+				}
+
+			} else {
+
+				/*
+				 * if foundUniqueIdentifier = false this mean that this class
+				 * has no uniqueIdentfifier so the platform has to generate an
+				 * id for it
+				 * 
+				 * I will add an id property for this classes to present the id
+				 * of an individual
+				 */
+				DataTypeProperty dataTypeProperty = new DataTypeProperty(ontologyClassMapper, "id", Prefix.IOT_LITE,
+						XSDDatatype.string_typed, false, false);
+				ontologyClassMapper.getProperties().put("id", dataTypeProperty);
+			}
+
 		}
 
 	}
@@ -186,11 +276,21 @@ public class OntologyMapper {
 				 * I will skip it because I do not need to add it to superClass
 				 * list of any classMapper
 				 */
-				if (superClassName.equals("Resource"))
+				if (superClassName.equals("Resource") || superClassName.equals("Thing"))
 					continue;
 
 				Class superClassMapper = htblMainOntologyClasses.get(superClassName);
 				ontologyClassMapper.getSuperClassesList().add(superClassMapper);
+			}
+
+			/*
+			 * if it is a restriction then call addPropertiesFromRestrictions to
+			 * get properties from restriction and add it to properties list of
+			 * ontologyClassMapper
+			 */
+			if (superClass.isRestriction()) {
+				Restriction restriction = superClass.asRestriction();
+				addPropertiesFromRestrictions(ontologyClass.getLocalName(), restriction);
 			}
 
 		}
@@ -338,7 +438,7 @@ public class OntologyMapper {
 					boolean isPropertyUnique = isPropertyUnique(prop.getURI(), PropertyType.ObjectProperty.toString());
 					String propName = prop.getLocalName();
 					Prefix prefix = getPrefix(prop.getNameSpace());
-					XSDDataTypes xsdDataType = getXSDDataTypeEnum(datatype);
+					XSDDatatype xsdDataType = getXSDDataTypeEnum(datatype);
 
 					/*
 					 * create new dataTypeProperty. I will make the default for
@@ -353,6 +453,105 @@ public class OntologyMapper {
 
 			}
 		}
+	}
+
+	private static void addPropertiesToClassesMappersUsingDomainAndRange() {
+		Iterator<String> htblMainOntologyPropertiesIter = htblMainOntologyProperties.keySet().iterator();
+
+		while (htblMainOntologyPropertiesIter.hasNext()) {
+
+			String propertyUri = htblMainOntologyPropertiesIter.next();
+			OntProperty property = htblMainOntologyProperties.get(propertyUri);
+
+			/*
+			 * check if the property has domain or not. If it has no domain so I
+			 * will skip it because I will not be able to know its subjectClass
+			 */
+			Resource domain = property.getDomain();
+			if (domain == null)
+				continue;
+
+			/*
+			 * check if the property has range or not. If it has no range so I
+			 * will skip it because I will not be able to know its objectClass
+			 * if its an objectProperty or its dataType if it is a
+			 * datatypeProperty
+			 */
+			Resource range = property.getRange();
+			if (range == null)
+				continue;
+
+			Class subjectClassMapper = htblMainOntologyClasses.get(domain.getLocalName());
+			Prefix prefix = getPrefix(property.getNameSpace());
+			String propertyName = property.getLocalName();
+			/*
+			 * if the property is DatatypeProperty so create a new
+			 * datatypeProperty and add it to its appropriate classMapper
+			 */
+			if (property.isDatatypeProperty()) {
+				/*
+				 * get datatype range of the dataTypeProperty
+				 */
+				XSDDatatype xsdDatatype = getXSDDataTypeEnum(property.getRange().getURI());
+
+				/*
+				 * check if the property isUnique
+				 */
+				boolean isPropertyUnique = isPropertyUnique(property.getURI(),
+						PropertyType.DatatypeProperty.toString());
+
+				/*
+				 * create a new DataTypeProperty and add it to the
+				 * subjectClassMapper
+				 */
+				DataTypeProperty dataTypeProperty = new DataTypeProperty(subjectClassMapper, propertyName, prefix,
+						xsdDatatype, true, isPropertyUnique);
+				subjectClassMapper.getProperties().put(propertyName, dataTypeProperty);
+			}
+
+			/*
+			 * if the property is ObjectProperty so create a new ObjectProperty
+			 * and add it to its appropriate classMapper
+			 */
+			if (property.isObjectProperty()) {
+				/*
+				 * get objectClass
+				 */
+				Class objectClassMapper = htblMainOntologyClasses.get(property.getRange());
+
+				/*
+				 * check if the property isUnique
+				 */
+				boolean isPropertyUnique = isPropertyUnique(property.getURI(), PropertyType.ObjectProperty.toString());
+
+				/*
+				 * create a new ObjectProperty and add it to the
+				 * subjectClassMapper
+				 */
+				ObjectProperty objectProperty = new ObjectProperty(subjectClassMapper, propertyName, prefix,
+						objectClassMapper, true, isPropertyUnique);
+				subjectClassMapper.getProperties().put(propertyName, objectProperty);
+			}
+
+		}
+
+	}
+
+	private static void addInheritedPropertiesToSubClasses() {
+
+		Iterator<String> htblMainOntologyClassesIter = htblMainOntologyClasses.keySet().iterator();
+
+		while (htblMainOntologyClassesIter.hasNext()) {
+			String className = htblMainOntologyClassesIter.next();
+			Class classMapper = htblMainOntologyClasses.get(className);
+
+			for (Class superClassMapper : classMapper.getSuperClassesList()) {
+
+				classMapper.getProperties().putAll(superClassMapper.getProperties());
+			}
+
+		}
+
 	}
 
 	private static boolean isPropertyUnique(String propertyUri, String propertyType) {
@@ -461,34 +660,34 @@ public class OntologyMapper {
 	/*
 	 * getXSDDataTypeEnum return XsdDataType enum instance
 	 */
-	private static XSDDataTypes getXSDDataTypeEnum(String dataType) {
+	private static XSDDatatype getXSDDataTypeEnum(String dataType) {
 
-		if (XSDDataTypes.boolean_type.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.boolean_type;
+		if (XSDDatatype.boolean_type.getXsdTypeURI().equals(dataType)) {
+			return XSDDatatype.boolean_type;
 		}
 
-		if (XSDDataTypes.decimal_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.decimal_typed;
+		if (XSDDatatype.decimal_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDatatype.decimal_typed;
 		}
 
-		if (XSDDataTypes.float_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.float_typed;
+		if (XSDDatatype.float_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDatatype.float_typed;
 		}
 
-		if (XSDDataTypes.integer_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.integer_typed;
+		if (XSDDatatype.integer_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDatatype.integer_typed;
 		}
 
-		if (XSDDataTypes.string_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.string_typed;
+		if (XSDDatatype.string_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDatatype.string_typed;
 		}
 
-		if (XSDDataTypes.dateTime_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.dateTime_typed;
+		if (XSDDatatype.dateTime_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDatatype.dateTime_typed;
 		}
 
-		if (XSDDataTypes.double_typed.getXsdTypeURI().equals(dataType)) {
-			return XSDDataTypes.double_typed;
+		if (XSDDatatype.double_typed.getXsdTypeURI().equals(dataType)) {
+			return XSDDatatype.double_typed;
 		}
 
 		return null;
@@ -496,22 +695,31 @@ public class OntologyMapper {
 
 	public static void main(String[] args) {
 		OntologyMapper ontologyMapper = new OntologyMapper();
-		ontologyMapper.readOntology();
-		ontologyMapper.getMainOntologyProperties();
-		ontologyMapper.getMainOntologyClasses();
-		ontologyMapper.completeCreationOfOntologyClassesMappers();
+
 		System.out.println(ontologyMapper.htblMainOntologyClasses.size());
 		System.out.println(ontologyMapper.htblMainOntologyProperties.size());
 
-		System.out.println(ontologyMapper.isPropertyUnique("http://xmlns.com/foaf/0.1/name",
-				PropertyType.DatatypeProperty.toString()));
+		Hashtable<String, Property> htblProperties = ontologyMapper.htblMainOntologyClasses.get("Admin")
+				.getProperties();
+		Iterator<String> itr = htblProperties.keySet().iterator();
 
-		System.out.println(ontologyMapper.isClassHasUniqueIdentifier("http://xmlns.com/foaf/0.1/Group"));
+		while (itr.hasNext()) {
+			String propertyName = itr.next();
+			Property property = htblProperties.get(propertyName);
 
-		// for (Class superClass :
-		// htblMainOntologyClasses.get("Resolution").getSuperClassesList()) {
-		// System.out.println(superClass.getName());
-		// }
+			System.out.println(propertyName + " = " + property);
+
+		}
+
+		// System.out.println(ontologyMapper.isPropertyUnique("http://xmlns.com/foaf/0.1/name",
+		// PropertyType.DatatypeProperty.toString()));
+		//
+		// System.out.println(ontologyMapper.isClassHasUniqueIdentifier("http://xmlns.com/foaf/0.1/Group"));
+
+		for (Class superClass : htblMainOntologyClasses.get("Admin").getSuperClassesList()) {
+			System.out.println(superClass.getName() + "  " + superClass.isHasUniqueIdentifierProperty());
+		}
+		System.out.println(htblMainOntologyClasses.get("Admin").isHasUniqueIdentifierProperty());
 
 		// System.out.println(htblMainOntologyClasses.get("Coverage").getClassTypesList().toString());
 	}

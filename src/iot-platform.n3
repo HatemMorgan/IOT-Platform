@@ -650,7 +650,6 @@ foaf:middleName a owl:DatatypeProperty ;
 # http://xmlns.com/foaf/0.1/name
 
 foaf:name a owl:DatatypeProperty ;
-	rdfs:domain owl:Thing ;
 	rdfs:range xsd:string ;
 	:isUnique "true"^^xsd:boolean ;
 	rdfs:comment "Describes the name of a thing. (eg: Application,Device)." ;
