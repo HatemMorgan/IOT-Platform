@@ -53,7 +53,7 @@ public class SelectionUtility {
 			propertyName = subjectClass.getHtblPropUriName().get(propertyURI);
 
 		}
-		System.out.println(propertyName+ "   "+ propertyURI);
+		System.out.println(propertyName + "   " + propertyURI);
 		Property property = subjectClass.getProperties().get(propertyName);
 
 		if (property instanceof ObjectProperty) {
@@ -246,7 +246,8 @@ public class SelectionUtility {
 		LinkedHashMap<String, Integer> htblIndividualIndex = new LinkedHashMap<>();
 
 		/*
-		 * 
+		 * helperList is the list of all hashtables created to hold the
+		 * propertyValues of each new subject
 		 */
 		List<Hashtable<String, Object>> helperList = new ArrayList<>();
 
@@ -325,9 +326,14 @@ public class SelectionUtility {
 						/*
 						 * check if the subject variable exist
 						 * 
-						 * if it exist so I will skip this iteration because I
-						 * don't have to create a new Hashtable<String, Object>
-						 * instance to hold it data
+						 * if it exist so it means the this subject has a
+						 * repeated value either it is the same as the previous
+						 * one or it is a new value and I will know which case
+						 * by checking the individualUniqueIdentifier
+						 * 
+						 * the value might be repeated because every record is
+						 * repeated once their is a one graph pattern that have
+						 * different result than the previous one
 						 */
 						if (htblSubjectVariablehtblpropVal.containsKey(columnName)) {
 
@@ -372,6 +378,35 @@ public class SelectionUtility {
 											.get(propertyName);
 
 									/*
+									 * if valueList is null it means that the
+									 * subjectVariable is a totaly new result so
+									 * I will create a new list of htblPropValue
+									 * because it is a property with multiple
+									 * values
+									 * 
+									 * then add valueList to parentSUbject's
+									 * htblPropertyValue and then create a new
+									 * subjectPropValue and add it to
+									 * htblSubjectVariablehtblpropVal
+									 * 
+									 */
+									if (valueList == null) {
+										valueList = new ArrayList<Hashtable<String, Object>>();
+										htblParentPropValue.put(propertyName, valueList);
+
+										// ArrayList<Hashtable<String, Object>>
+										// htblSubjectPropValue =
+										// (ArrayList<Hashtable<String,
+										// Object>>)
+										// htblSubjectVariablehtblpropVal
+										// .get(columnName);
+										//
+										// htblSubjectPropValue.add(htblPropValue);
+										htblSubjectVariablehtblpropVal.put(columnName, valueList);
+
+									}
+
+									/*
 									 * adding new individual to value List
 									 * 
 									 * this will also be added to list of
@@ -380,10 +415,13 @@ public class SelectionUtility {
 									 * (pointers) the same list so adding it in
 									 * one of them reflect the other
 									 */
-									System.out.println(helperList);
-									System.out.println("==<"+htblParentPropValue);
-									System.out.println(valueList+ "  "+ propertyName+"  "+property.getName());
-									
+									// System.out.println(helperList);
+									// System.out.println("==<" +
+									// htblParentPropValue);
+									System.out.println(valueList + "  " + propertyName + "  " + property.getName()
+											+ "  " + individualUniqueIdentifier + "  " + htblParentPropValue + "  "
+											+ htblPropValue);
+
 									valueList.add(htblPropValue);
 
 									/*
@@ -528,7 +566,8 @@ public class SelectionUtility {
 						String classUri = queryVariable.getSubjectClassUri();
 						Class propertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(classUri);
 						Property property = propertyClass.getProperties().get(propertyName);
-
+						// System.out.println("---> " + propertyName + " " +
+						// classUri);
 						/*
 						 * construct value datatype of propValue if the property
 						 * is a datatype property
@@ -631,6 +670,20 @@ public class SelectionUtility {
 		return consturctedQueryResult;
 	}
 
+	/*
+	 * getHtblPropValue is used to get the htblPropValue
+	 * 
+	 * I created this method because I can have two type of propertiesValueList
+	 * 
+	 * 1- a list of Hashtable<String, Object> if the property has multiple
+	 * values
+	 * 
+	 * 2- A single Hashtable<String, Object> if the property has a single value
+	 * 
+	 * I store them as an object in htblSubjectVariablehtblpropVal so this
+	 * method is used to get the htblPropValue which contains the property and
+	 * its value
+	 */
 	private static Hashtable<String, Object> getHtblPropValue(Object subjectVariablePropValueObject) {
 		/*
 		 * get target htblfieldObject that holds the propValues of
@@ -653,7 +706,7 @@ public class SelectionUtility {
 
 			/*
 			 * get the index of the last individual because I am iterating on
-			 * values so I am adding values in order s
+			 * values so I am adding values in order
 			 */
 			int lastIndividualIndex = htblIndividualshtblPropValueList.size() - 1;
 			htblPropValue = htblIndividualshtblPropValueList.get(lastIndividualIndex);

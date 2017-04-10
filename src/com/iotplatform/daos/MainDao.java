@@ -251,7 +251,7 @@ public class MainDao {
 	public List<Hashtable<String, Object>> queryData(
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
 			String applicationModelName) {
-		System.out.println(htblClassNameProperty);
+
 		Iterator<String> htblClassNamePropertyIterator = htblClassNameProperty.keySet().iterator();
 
 		/*
@@ -268,7 +268,7 @@ public class MainDao {
 
 		String queryString = returnObject[0].toString();
 		Hashtable<String, QueryVariable> htblSubjectVariables = (Hashtable<String, QueryVariable>) returnObject[1];
-		System.out.println(queryString);
+//		System.out.println(queryString);
 
 		try {
 			ResultSet results = oracle.executeQuery(queryString, 0, 1);
