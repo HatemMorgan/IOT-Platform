@@ -122,6 +122,10 @@ public class OntologyMapper {
 
 	}
 
+	/*
+	 * load all ontology classes (it will load owl:class instances , blank nodes
+	 * and restriction classes)
+	 */
 	private static void getMainOntologyClasses() {
 		ExtendedIterator<OntClass> ontologyClassesIter = model.listClasses();
 
@@ -159,6 +163,12 @@ public class OntologyMapper {
 
 	}
 
+	/*
+	 * completeCreationOfOntologyClassesMappers is used to complete classMapper
+	 * creation by adding subClasses, superClasses, properties , properties
+	 * inheritance from superClasses and add uniqueIdentifier property if exist
+	 * and add id property if not exist
+	 */
 	private static void completeCreationOfOntologyClassesMappers() {
 		ExtendedIterator<OntClass> ontologyClassesIter = model.listClasses();
 
@@ -212,6 +222,16 @@ public class OntologyMapper {
 
 	}
 
+	/*
+	 * addUniqueIdentifierToOntologyClassesMappers method is used to add unique
+	 * identifier properties to classes if they have and also make the
+	 * subClasses of inherit unique identifier
+	 * 
+	 * It adds Id property for classes that does not have any uniqueIdentifier
+	 * properties in order to allow the system to create a unique id as a
+	 * uniqueIdentifer of individual of that class and attach the value to id
+	 * property
+	 */
 	private static void addUniqueIdentifierToOntologyClassesMappers() {
 
 		Iterator<String> htblMainOntologyClassesIter = htblMainOntologyClasses.keySet().iterator();
@@ -286,6 +306,18 @@ public class OntologyMapper {
 
 	}
 
+	/*
+	 * addSuperClasses it iterates on the superClass list of passed
+	 * ontologyClass
+	 * 
+	 * it adds the superClass if it is an instance of owl:class to superClass
+	 * list of the mapper of the passed ontologyClass
+	 * 
+	 * if the superClass is an instance of restriction so it represents a
+	 * property so it calls addPropertiesFromRestrictions method to get the
+	 * restricted property
+	 * 
+	 */
 	private static void addSuperClasses(OntClass ontologyClass) {
 
 		/*
@@ -329,6 +361,10 @@ public class OntologyMapper {
 
 	}
 
+	/*
+	 * addSubClasses method gets the subclass list of the passed ontologyClass
+	 * and add them to classTypeList of the mapper of the passed ontologyClass
+	 */
 	private static void addSubClasses(OntClass ontologyClass) {
 
 		/*
@@ -367,6 +403,22 @@ public class OntologyMapper {
 
 	}
 
+	/*
+	 * addPropertiesFromRestrictions method is used to get property from passed
+	 * restriction and add it to classMaper
+	 * 
+	 * Some properties might have no domain and range, but they may be attached
+	 * to a class by restrictions where value restrictions ensure that for this
+	 * restricted property on the ontologyClass with passed classMaperName has a
+	 * range of type ontology class
+	 * 
+	 * example : _:genid15 a owl:Restriction ; owl:onProperty DUL:includesEvent
+	 * ; owl:someValuesFrom ssn:Stimulus .
+	 * 
+	 * where the restricted property is DUL:includesEvent and property value is
+	 * of type ssn:Stimulus
+	 * 
+	 */
 	private static void addPropertiesFromRestrictions(String classMapperName, Restriction restriction) {
 
 		/*
@@ -488,6 +540,12 @@ public class OntologyMapper {
 		}
 	}
 
+	/*
+	 * addPropertiesToClassesMappersUsingDomainAndRange method iterates on all
+	 * the properties in the ontology and according to the domain and range of
+	 * the property it create a mapper of the property and add it to the mapper
+	 * of the domain class
+	 */
 	private static void addPropertiesToClassesMappersUsingDomainAndRange() {
 		Iterator<String> htblMainOntologyPropertiesIter = htblMainOntologyProperties.keySet().iterator();
 
@@ -574,6 +632,13 @@ public class OntologyMapper {
 
 	}
 
+	/*
+	 * addInheritedPropertiesToSubClasses method is used to add inhered
+	 * properties to subclasses
+	 * 
+	 * According to the ontology engineering. A subClass inherit all the
+	 * properties of the superClass
+	 */
 	private static void addInheritedPropertiesToSubClasses() {
 
 		Iterator<String> htblMainOntologyClassesIter = htblMainOntologyClasses.keySet().iterator();
@@ -592,6 +657,11 @@ public class OntologyMapper {
 
 	}
 
+	/*
+	 * isPropertyUnique method queries the ontology for a given property to
+	 * check if it has an annotation property (iot-platform:isUnique) which
+	 * tells that this propertyValue must be a unique one
+	 */
 	private static boolean isPropertyUnique(String propertyUri, String propertyType) {
 
 		StringBuilder queryBuilder = new StringBuilder();
@@ -619,6 +689,23 @@ public class OntologyMapper {
 		return true;
 	}
 
+	/*
+	 * isClassHasUniqueIdentifier method queries the ontology to check if the
+	 * passed classUri has uniqueIdentifier Property or not by checking that the
+	 * owl:class instance with passed classUri has an annotationProperty
+	 * (iot-platform:hasUniqueIdentifier) and it returns the value of this
+	 * annotationProperty which represent the uniqueIdentifierProperty of that
+	 * class
+	 * 
+	 * The uniqueIdentiferProperty is used when inserting an individual the user
+	 * must add a value for this property and this value will the subject of the
+	 * Individual
+	 * 
+	 * If a class has no annotationProperty(iot-platform:hasUniqueIdentifier)
+	 * the system will automatically add n id property to be the
+	 * uniqueIdentifier of that class
+	 * 
+	 */
 	private static String isClassHasUniqueIdentifier(String classUri) {
 
 		StringBuilder queryBuilder = new StringBuilder();
@@ -644,7 +731,7 @@ public class OntologyMapper {
 	}
 
 	/*
-	 * get Prefix enum that maps the String nameSpace from a dynamicProperty
+	 * get Prefix Enum that maps the String nameSpace
 	 */
 	private static Prefix getPrefix(String nameSpace) {
 
@@ -696,7 +783,8 @@ public class OntologyMapper {
 	}
 
 	/*
-	 * getXSDDataTypeEnum return XsdDataType enum instance
+	 * getXSDDataTypeEnum return XsdDataType enum instance that maps the passed
+	 * dataType uri (eg. http://www.w3.org/2001/XMLSchema#string)
 	 */
 	private static XSDDatatype getXSDDataTypeEnum(String dataType) {
 
