@@ -18,7 +18,6 @@ import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
-import com.iotplatform.ontology.classes.Admin;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.NotMappedDynamicQueryFields;
@@ -598,7 +597,8 @@ public class GetQueryRequestValidations {
 
 		try {
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = getQueryRequestValidations
-					.validateRequest("TESTAPPLICATION", htblFieldValue, Admin.getAdminInstance());
+					.validateRequest("TESTAPPLICATION", htblFieldValue,
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("admin"));
 			System.out.println(htblClassNameProperty.toString());
 			System.out.println("============================================");
 

@@ -26,7 +26,6 @@ import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
-import com.iotplatform.ontology.classes.ActuatingDevice;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
@@ -1195,7 +1194,7 @@ public class PostRequestValidations {
 			long startTime = System.currentTimeMillis();
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
 					.validateRequestFields("TESTAPPLICATION", htblFieldValue,
-							ActuatingDevice.getActuatingDeviceInstance());
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("actuatingdevice"));
 			// Hashtable<Class, ArrayList<ArrayList<PropertyValue>>>
 			// htblClassPropertyValue = requestFieldsValidation
 			// .validateRequestFields("TESTAPPLICATION", htblFieldValue, new
