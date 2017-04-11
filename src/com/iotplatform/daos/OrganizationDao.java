@@ -51,7 +51,7 @@ public class OrganizationDao {
 			 */
 
 			organizationsList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					OntologyMapper.getHtblMainOntologyClassesMappers().get("0rganization"));
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("organization"));
 
 		} catch (SQLException e) {
 			e.printStackTrace();

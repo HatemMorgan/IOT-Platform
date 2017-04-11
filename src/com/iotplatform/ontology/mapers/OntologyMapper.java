@@ -252,6 +252,7 @@ public class OntologyMapper {
 						 * before
 						 */
 						subClassMapper.getProperties().remove("id");
+						ontologyClassMapper.getHtblPropUriName().remove(Prefix.IOT_LITE.getUri() + "id");
 					}
 
 				}
@@ -278,6 +279,7 @@ public class OntologyMapper {
 				DataTypeProperty dataTypeProperty = new DataTypeProperty(ontologyClassMapper, "id", Prefix.IOT_LITE,
 						XSDDatatype.string_typed, false, false);
 				ontologyClassMapper.getProperties().put("id", dataTypeProperty);
+				ontologyClassMapper.getHtblPropUriName().put(Prefix.IOT_LITE.getUri() + "id", "id");
 			}
 
 		}
