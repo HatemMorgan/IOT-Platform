@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
 
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.mapers.OntologyMapper;
+import com.iotplatform.queries.SelectionQuery;
 import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.utilities.QueryUtility;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -37,7 +37,7 @@ public class AdminDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(
+		String queryString = SelectionQuery.constructSelectAllQueryNoFilters(
 				OntologyMapper.getHtblMainOntologyClassesMappers().get("admin"), applicationModelName);
 		List<Hashtable<String, Object>> adminsList = new ArrayList<>();
 
