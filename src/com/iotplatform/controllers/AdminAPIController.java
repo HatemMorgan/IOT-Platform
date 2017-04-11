@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.iotplatform.services.AdminService;
 
 @RestController
-public class AdminController {
+public class AdminAPIController {
 
 	@Autowired
 	AdminService adminService;

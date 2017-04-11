@@ -1,4 +1,4 @@
-package com.iotplatform.ontology.dynamicConcepts;
+package com.iotplatform.daos;
 
 import java.util.ArrayList;
 import java.util.List;

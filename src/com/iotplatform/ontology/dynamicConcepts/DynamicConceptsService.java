@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
+import com.iotplatform.daos.DynamicConceptsDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.DynamicConceptModel;

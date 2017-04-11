@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.jena.ontology.AllValuesFromRestriction;
 import org.apache.jena.ontology.HasValueRestriction;
 import org.apache.jena.ontology.OntClass;
@@ -33,8 +32,6 @@ import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.ontology.XSDDatatype;
-import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsDao;
-import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 
 /*
  * OntologyMapper is used to map the main ontology into some data structures that holds instances which 
@@ -49,14 +46,14 @@ public class OntologyMapper {
 	private static Hashtable<String, Class> htblMainOntologyClassesUri;
 	private static Hashtable<String, OntProperty> htblMainOntologyProperties;
 
-	private static OntologyMapper ontologyMapper;
-
-	public static OntologyMapper getOntologyMapper() {
-		if (ontologyMapper == null)
-			ontologyMapper = new OntologyMapper();
-
-		return ontologyMapper;
-	}
+	// private static OntologyMapper ontologyMapper;
+	//
+	// public static OntologyMapper getOntologyMapper() {
+	// if (ontologyMapper == null)
+	// ontologyMapper = new OntologyMapper();
+	//
+	// return ontologyMapper;
+	// }
 
 	public OntologyMapper() {
 		model = ModelFactory.createOntologyModel();
@@ -828,14 +825,13 @@ public class OntologyMapper {
 	}
 
 	public static void main(String[] args) {
-		OntologyMapper ontologyMapper = new OntologyMapper();
 
 		// System.out.println(ontologyMapper.htblMainOntologyClasses.size());
 		// System.out.println(ontologyMapper.htblMainOntologyProperties.size());
 
 		String className = "SurvivalProperty";
 
-		Hashtable<String, Property> htblProperties = ontologyMapper.htblMainOntologyClasses.get(className)
+		Hashtable<String, Property> htblProperties = OntologyMapper.getHtblMainOntologyClassesMappers().get(className)
 				.getProperties();
 		Iterator<String> itr = htblProperties.keySet().iterator();
 
@@ -861,22 +857,24 @@ public class OntologyMapper {
 
 		// System.out.println(htblMainOntologyClasses.get("Coverage").getClassTypesList().toString());
 
-		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
-		String szUser = "rdfusr";
-		String szPasswd = "rdfusr";
-		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
-
-		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName(szJdbcDriver);
-		dataSource.setUrl(szJdbcURL);
-		dataSource.setUsername(szUser);
-		dataSource.setPassword(szPasswd);
-
-		DynamicConceptsUtility dynamicPropertiesUtility = new DynamicConceptsUtility(
-				new DynamicConceptsDao(dataSource));
+		// String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		// String szUser = "rdfusr";
+		// String szPasswd = "rdfusr";
+		// String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+		//
+		// BasicDataSource dataSource = new BasicDataSource();
+		// dataSource.setDriverClassName(szJdbcDriver);
+		// dataSource.setUrl(szJdbcURL);
+		// dataSource.setUsername(szUser);
+		// dataSource.setPassword(szPasswd);
+		//
+		// DynamicConceptsUtility dynamicPropertiesUtility = new
+		// DynamicConceptsUtility(
+		// new DynamicConceptsDao(dataSource));
+		// //
 		// System.out.println(dynamicPropertiesUtility.getHtblAllStaticClasses().get(Prefix.SSN.getUri()
-		// + className)
-		// .getProperties());
+		// // + className)
+		// // .getProperties());
 	}
 
 }

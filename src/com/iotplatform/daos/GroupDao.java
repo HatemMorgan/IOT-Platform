@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.queries.SelectionQuery;
-import com.iotplatform.utilities.SelectionUtility;
+import com.iotplatform.query.results.SelectionQueryResults;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -20,10 +20,10 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class GroupDao {
 
 	private Oracle oracle;
-	private SelectionUtility selectionUtility;
+	private SelectionQueryResults selectionUtility;
 
 	@Autowired
-	public GroupDao(Oracle oracle, SelectionUtility selectionUtility) {
+	public GroupDao(Oracle oracle, SelectionQueryResults selectionUtility) {
 		this.oracle = oracle;
 		this.selectionUtility = selectionUtility;
 	}

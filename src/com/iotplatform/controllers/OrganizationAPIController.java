@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.iotplatform.services.OrganizationService;
 
 @RestController
-public class OrganizationController {
+public class OrganizationAPIController {
 
 	@Autowired
 	OrganizationService organizationService;

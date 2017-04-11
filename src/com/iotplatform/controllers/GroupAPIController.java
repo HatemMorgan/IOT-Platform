@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.iotplatform.services.GroupService;
 
 @RestController
-public class GroupController {
+public class GroupAPIController {
 
 	@Autowired
 	GroupService groupService;

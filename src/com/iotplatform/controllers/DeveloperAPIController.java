@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.iotplatform.services.DeveloperService;
 
 @RestController
-public class DeveloperController {
+public class DeveloperAPIController {
 
 	@Autowired
 	DeveloperService developerService;

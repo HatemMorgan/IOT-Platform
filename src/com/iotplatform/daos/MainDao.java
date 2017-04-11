@@ -17,9 +17,9 @@ import com.iotplatform.ontology.Class;
 
 import com.iotplatform.queries.InsertionQuery;
 import com.iotplatform.queries.SelectionQuery;
+import com.iotplatform.query.results.SelectionQueryResults;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.QueryField;
-import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.utilities.QueryVariable;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
@@ -34,10 +34,10 @@ public class MainDao {
 
 	private Oracle oracle;
 
-	private SelectionUtility selectionUtility;
+	private SelectionQueryResults selectionUtility;
 
 	@Autowired
-	public MainDao(Oracle oracle, SelectionUtility selectionUtility) {
+	public MainDao(Oracle oracle, SelectionQueryResults selectionUtility) {
 		this.oracle = oracle;
 		this.selectionUtility = selectionUtility;
 	}
@@ -103,7 +103,7 @@ public class MainDao {
 
 			ResultSet results = oracle.executeQuery(queryString, 0, 1);
 
-			return SelectionUtility.constructQueryResult(applicationModelName, results, prefixedClassName,
+			return SelectionQueryResults.constructQueryResult(applicationModelName, results, prefixedClassName,
 					htblSubjectVariables);
 
 			// ResultSetMetaData rsmd = results.getMetaData();

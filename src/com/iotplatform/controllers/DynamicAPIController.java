@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.iotplatform.services.DynamicInsertionService;
 
 @RestController
-public class DynamicApiController {
+public class DynamicAPIController {
 
 	DynamicInsertionService dynamicInsertionService;
 
 	@Autowired
-	public DynamicApiController(DynamicInsertionService dynamicInsertionService) {
+	public DynamicAPIController(DynamicInsertionService dynamicInsertionService) {
 		this.dynamicInsertionService = dynamicInsertionService;
 		System.out.println("DynamicAPIController Created");
 	}

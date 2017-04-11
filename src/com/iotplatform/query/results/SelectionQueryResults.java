@@ -1,4 +1,4 @@
-package com.iotplatform.utilities;
+package com.iotplatform.query.results;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -21,14 +21,15 @@ import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
 import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
+import com.iotplatform.utilities.QueryVariable;
 
 @Component
-public class SelectionUtility {
+public class SelectionQueryResults {
 
 	private DynamicConceptsUtility dynamicPropertiesUtility;
 
 	@Autowired
-	public SelectionUtility(DynamicConceptsUtility dynamicPropertiesUtility) {
+	public SelectionQueryResults(DynamicConceptsUtility dynamicPropertiesUtility) {
 		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
 	}
 

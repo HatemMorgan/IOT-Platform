@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.DeveloperDao;
+import com.iotplatform.daos.DynamicConceptsDao;
 import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
@@ -17,11 +18,10 @@ import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsDao;
 import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
+import com.iotplatform.query.results.SelectionQueryResults;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.PostRequestValidations;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -150,12 +150,12 @@ public class DeveloperService {
 		ValidationDao validationDao = new ValidationDao(oracle);
 
 		DeveloperDao developerDao = new DeveloperDao(oracle,
-				new SelectionUtility(new DynamicConceptsUtility(dynamicConceptDao)));
+				new SelectionQueryResults(new DynamicConceptsUtility(dynamicConceptDao)));
 
 		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
 				new DynamicConceptsUtility(dynamicConceptDao));
 
-		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicConceptsUtility(dynamicConceptDao)));
+		MainDao mainDao = new MainDao(oracle, new SelectionQueryResults(new DynamicConceptsUtility(dynamicConceptDao)));
 
 		DeveloperService developerService = new DeveloperService(developerDao, requestFieldsValidation, mainDao,
 				new ApplicationDao(oracle));

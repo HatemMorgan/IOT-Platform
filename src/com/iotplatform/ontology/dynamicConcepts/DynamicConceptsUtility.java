@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.daos.DynamicConceptsDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.Class;

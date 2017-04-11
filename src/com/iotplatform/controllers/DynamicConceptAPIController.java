@@ -13,7 +13,7 @@ import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsService;
 
 @RestController
-public class DynamicConceptController {
+public class DynamicConceptAPIController {
 
 	@Autowired
 	DynamicConceptsService dynamicConceptService;

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.iotplatform.services.NormalUserService;
 
 @RestController
-public class NormalUserController {
+public class NormalUserAPIController {
 
 	@Autowired
 	NormalUserService normalUserService;

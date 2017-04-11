@@ -12,6 +12,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.daos.DynamicConceptsDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidPropertyValuesException;
@@ -25,7 +26,6 @@ import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
-import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsDao;
 import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.PropertyValue;

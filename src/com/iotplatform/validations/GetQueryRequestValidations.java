@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.daos.DynamicConceptsDao;
 import com.iotplatform.daos.MainDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidQueryRequestBodyFormatException;
@@ -17,12 +18,11 @@ import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
-import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsDao;
 import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
+import com.iotplatform.query.results.SelectionQueryResults;
 import com.iotplatform.utilities.NotMappedDynamicQueryFields;
 import com.iotplatform.utilities.QueryField;
-import com.iotplatform.utilities.SelectionUtility;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -605,7 +605,7 @@ public class GetQueryRequestValidations {
 			Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
 			MainDao mainDao = new MainDao(oracle,
-					new SelectionUtility(new DynamicConceptsUtility(dynamicConceptDao)));
+					new SelectionQueryResults(new DynamicConceptsUtility(dynamicConceptDao)));
 
 			mainDao.queryData(htblClassNameProperty, "TESTAPPLICATION_MODEL");
 
