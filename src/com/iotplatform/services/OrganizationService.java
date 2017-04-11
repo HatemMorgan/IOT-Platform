@@ -15,8 +15,7 @@ import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
-
-import com.iotplatform.ontology.classes.Organization;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.validations.PostRequestValidations;
 
@@ -71,14 +70,16 @@ public class OrganizationService {
 			 * Check if the request is valid or not
 			 */
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
-					.validateRequestFields(applicationNameCode, htblFieldValue, Organization.getOrganizationInstance());
+					.validateRequestFields(applicationNameCode, htblFieldValue,
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("organization"));
 
 			/*
 			 * get application modelName
 			 */
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-			mainDao.insertData(applicationModelName, Organization.getOrganizationInstance().getName(),
+			mainDao.insertData(applicationModelName,
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("organization").getName(),
 					htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);

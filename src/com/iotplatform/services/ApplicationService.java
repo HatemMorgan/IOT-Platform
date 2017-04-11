@@ -8,17 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
-import com.iotplatform.daos.DynamicConceptDao;
+import com.iotplatform.daos.DynamicConceptsDao;
 import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.CannotCreateApplicationModelException;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.classes.Application;
-import com.iotplatform.utilities.DynamicPropertiesUtility;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
+import com.iotplatform.ontology.mapers.OntologyMapper;
+import com.iotplatform.query.results.SelectionQueryResults;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.PostRequestValidations;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -80,10 +80,12 @@ public class ApplicationService {
 			 */
 
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
-					.validateRequestFields(applicationName, htblPropValue, Application.getApplicationInstance());
+					.validateRequestFields(applicationName, htblPropValue,
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("application"));
 
 			mainDao.insertData(applicationDao.getHtblApplicationNameModelName().get(applicationName),
-					Application.getApplicationInstance().getName(), htblClassPropertyValue);
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("application").getName(),
+					htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application", timeTaken);
@@ -111,13 +113,13 @@ public class ApplicationService {
 
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
-		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+		DynamicConceptsDao dynamicConceptDao = new DynamicConceptsDao(dataSource);
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
 		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
-				new DynamicPropertiesUtility(dynamicConceptDao));
-		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+				new DynamicConceptsUtility(dynamicConceptDao));
+		MainDao mainDao = new MainDao(oracle, new SelectionQueryResults(new DynamicConceptsUtility(dynamicConceptDao)));
 
 		ApplicationDao applicationDao = new ApplicationDao(oracle);
 		ApplicationService applicationService = new ApplicationService(applicationDao, requestFieldsValidation,

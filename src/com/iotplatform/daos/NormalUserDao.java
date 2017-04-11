@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.iotplatform.exceptions.DatabaseException;
-import com.iotplatform.ontology.classes.NormalUser;
-import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.utilities.QueryUtility;
+import com.iotplatform.ontology.mapers.OntologyMapper;
+import com.iotplatform.queries.SelectionQuery;
+import com.iotplatform.query.results.SelectionQueryResults;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -20,10 +20,10 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class NormalUserDao {
 
 	private Oracle oracle;
-	private SelectionUtility selectionUtility;
+	private SelectionQueryResults selectionUtility;
 
 	@Autowired
-	public NormalUserDao(Oracle oracle, SelectionUtility selectionUtility) {
+	public NormalUserDao(Oracle oracle, SelectionQueryResults selectionUtility) {
 		this.oracle = oracle;
 		this.selectionUtility = selectionUtility;
 	}
@@ -37,8 +37,8 @@ public class NormalUserDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(NormalUser.getNormalUserInstance(),
-				applicationModelName);
+		String queryString = SelectionQuery.constructSelectAllQueryNoFilters(
+				OntologyMapper.getHtblMainOntologyClassesMappers().get("normaluser"), applicationModelName);
 		List<Hashtable<String, Object>> normalUsersList = new ArrayList<>();
 
 		try {
@@ -49,7 +49,7 @@ public class NormalUserDao {
 			 */
 
 			normalUsersList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					NormalUser.getNormalUserInstance());
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("normaluser"));
 
 		} catch (SQLException e) {
 			e.printStackTrace();

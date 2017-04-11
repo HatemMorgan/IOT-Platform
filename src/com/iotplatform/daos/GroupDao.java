@@ -10,10 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.iotplatform.exceptions.DatabaseException;
-
-import com.iotplatform.ontology.classes.Group;
-import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.utilities.QueryUtility;
+import com.iotplatform.ontology.mapers.OntologyMapper;
+import com.iotplatform.queries.SelectionQuery;
+import com.iotplatform.query.results.SelectionQueryResults;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -21,10 +20,10 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class GroupDao {
 
 	private Oracle oracle;
-	private SelectionUtility selectionUtility;
+	private SelectionQueryResults selectionUtility;
 
 	@Autowired
-	public GroupDao(Oracle oracle, SelectionUtility selectionUtility) {
+	public GroupDao(Oracle oracle, SelectionQueryResults selectionUtility) {
 		this.oracle = oracle;
 		this.selectionUtility = selectionUtility;
 	}
@@ -38,8 +37,8 @@ public class GroupDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(Group.getGroupInstance(),
-				applicationModelName);
+		String queryString = SelectionQuery.constructSelectAllQueryNoFilters(
+				OntologyMapper.getHtblMainOntologyClassesMappers().get("group"), applicationModelName);
 		List<Hashtable<String, Object>> groupsList = new ArrayList<>();
 
 		try {
@@ -50,7 +49,7 @@ public class GroupDao {
 			 */
 
 			groupsList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					Group.getGroupInstance());
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("group"));
 
 		} catch (SQLException e) {
 			e.printStackTrace();

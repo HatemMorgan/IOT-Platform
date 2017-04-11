@@ -9,7 +9,7 @@ import java.util.Hashtable;
 public class Class {
 	private String name;
 	private String uri;
-	private Prefixes prefix;
+	private Prefix prefix;
 
 	/*
 	 * uniqueIdentifier of the class it will be null if the plarform will
@@ -53,8 +53,7 @@ public class Class {
 	 */
 	private Hashtable<String, Class> classTypesList;
 
-	public Class(String name, String uri, Prefixes prefix, String uniqueIdentifierPropertyName,
-			boolean hasTypeClasses) {
+	public Class(String name, String uri, Prefix prefix, String uniqueIdentifierPropertyName, boolean hasTypeClasses) {
 		this.name = name;
 		this.uri = uri;
 		this.prefix = prefix;
@@ -67,6 +66,17 @@ public class Class {
 		this.superClassesList = new ArrayList<>();
 		this.hasUniqueIdentifierProperty = uniqueIdentifierPropertyName == null ? false : true;
 
+	}
+
+	public Class(String name, String uri, Prefix prefix) {
+		this.name = name;
+		this.uri = uri;
+		this.prefix = prefix;
+		this.htblPropUriName = new Hashtable<>();
+
+		this.classTypesList = new Hashtable<>();
+		this.properties = new Hashtable<>();
+		this.superClassesList = new ArrayList<>();
 	}
 
 	public String getUniqueIdentifierPropertyName() {
@@ -85,7 +95,7 @@ public class Class {
 		return uri;
 	}
 
-	public Prefixes getPrefix() {
+	public Prefix getPrefix() {
 		return prefix;
 	}
 
@@ -119,6 +129,18 @@ public class Class {
 
 	public void setClassTypesList(Hashtable<String, Class> classTypesList) {
 		this.classTypesList = classTypesList;
+	}
+
+	public void setHasUniqueIdentifierProperty(boolean hasUniqueIdentifierProperty) {
+		this.hasUniqueIdentifierProperty = hasUniqueIdentifierProperty;
+	}
+
+	public void setHasTypeClasses(boolean hasTypeClasses) {
+		this.hasTypeClasses = hasTypeClasses;
+	}
+
+	public void setUniqueIdentifierPropertyName(String uniqueIdentifierPropertyName) {
+		this.uniqueIdentifierPropertyName = uniqueIdentifierPropertyName;
 	}
 
 }

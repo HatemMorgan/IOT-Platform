@@ -12,7 +12,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.daos.DynamicConceptDao;
+import com.iotplatform.daos.DynamicConceptsDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidPropertyValuesException;
@@ -23,12 +23,11 @@ import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
-import com.iotplatform.ontology.Prefixes;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
-import com.iotplatform.ontology.XSDDataTypes;
-import com.iotplatform.ontology.classes.ActuatingDevice;
-
-import com.iotplatform.utilities.DynamicPropertiesUtility;
+import com.iotplatform.ontology.XSDDatatype;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
 import com.iotplatform.utilities.ValueOfTypeClass;
@@ -54,10 +53,10 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class PostRequestValidations {
 
 	private ValidationDao validationDao;
-	private DynamicPropertiesUtility dynamicPropertiesUtility;
+	private DynamicConceptsUtility dynamicPropertiesUtility;
 
 	@Autowired
-	public PostRequestValidations(ValidationDao validationDao, DynamicPropertiesUtility dynamicPropertiesUtility) {
+	public PostRequestValidations(ValidationDao validationDao, DynamicConceptsUtility dynamicPropertiesUtility) {
 		this.validationDao = validationDao;
 		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
 	}
@@ -92,7 +91,7 @@ public class PostRequestValidations {
 		 * set subClass to its static instace
 		 */
 
-		subjectClass = dynamicPropertiesUtility.getHtblAllStaticClasses().get(subjectClass.getUri());
+		subjectClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(subjectClass.getUri());
 
 		Iterator<String> htblFieldValueIterator = htblFieldValue.keySet().iterator();
 
@@ -833,7 +832,7 @@ public class PostRequestValidations {
 					 * else it will be a dynamic property in another application
 					 * domain which will happen rarely
 					 */
-					Class dynamicPropertyClass = dynamicPropertiesUtility.getHtblAllStaticClasses()
+					Class dynamicPropertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers()
 							.get(loadedDynamicProperties.get(field).getClass_uri());
 					Property property = dynamicPropertyClass.getProperties().get(field);
 
@@ -936,11 +935,11 @@ public class PostRequestValidations {
 	private Object getValue(Property property, Object value) {
 
 		if (property instanceof DataTypeProperty) {
-			XSDDataTypes xsdDataType = ((DataTypeProperty) property).getDataType();
+			XSDDatatype xsdDataType = ((DataTypeProperty) property).getDataType();
 			value = "\"" + value.toString() + "\"" + xsdDataType.getXsdType();
 			return value;
 		} else {
-			return Prefixes.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase().replaceAll(" ", "");
+			return Prefix.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase().replaceAll(" ", "");
 		}
 	}
 
@@ -950,7 +949,7 @@ public class PostRequestValidations {
 	 * 
 	 */
 	private boolean isDataValueValid(DataTypeProperty dataProperty, Object value) {
-		XSDDataTypes xsdDataType = dataProperty.getDataType();
+		XSDDatatype xsdDataType = dataProperty.getDataType();
 		switch (xsdDataType) {
 		case boolean_type:
 			if (value instanceof Boolean) {
@@ -1012,13 +1011,13 @@ public class PostRequestValidations {
 		dataSource.setUsername(szUser);
 		dataSource.setPassword(szPasswd);
 
-		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+		DynamicConceptsDao dynamicConceptDao = new DynamicConceptsDao(dataSource);
 		ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL, szUser, szPasswd));
 
 		System.out.println("Connected to Database");
 
 		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
-				new DynamicPropertiesUtility(dynamicConceptDao));
+				new DynamicConceptsUtility(dynamicConceptDao));
 
 		// { "hasCoverage":[
 		// {"type":"Circle","location": [
@@ -1195,7 +1194,7 @@ public class PostRequestValidations {
 			long startTime = System.currentTimeMillis();
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
 					.validateRequestFields("TESTAPPLICATION", htblFieldValue,
-							ActuatingDevice.getActuatingDeviceInstance());
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("actuatingdevice"));
 			// Hashtable<Class, ArrayList<ArrayList<PropertyValue>>>
 			// htblClassPropertyValue = requestFieldsValidation
 			// .validateRequestFields("TESTAPPLICATION", htblFieldValue, new

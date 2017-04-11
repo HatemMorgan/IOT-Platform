@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.AdminDao;
 import com.iotplatform.daos.ApplicationDao;
-import com.iotplatform.daos.DynamicConceptDao;
+import com.iotplatform.daos.DynamicConceptsDao;
 import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
@@ -19,10 +19,10 @@ import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.classes.Admin;
-import com.iotplatform.utilities.DynamicPropertiesUtility;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
+import com.iotplatform.ontology.mapers.OntologyMapper;
+import com.iotplatform.query.results.SelectionQueryResults;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.PostRequestValidations;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -72,14 +72,16 @@ public class AdminService {
 			 * Check if the request is valid or not
 			 */
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
-					.validateRequestFields(applicationNameCode, htblFieldValue, Admin.getAdminInstance());
+					.validateRequestFields(applicationNameCode, htblFieldValue,
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("admin"));
 
 			/*
 			 * get application modelName
 			 */
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-			mainDao.insertData(applicationModelName, Admin.getAdminInstance().getName(), htblClassPropertyValue);
+			mainDao.insertData(applicationModelName,
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("admin").getName(), htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Admin", timeTaken);
@@ -141,11 +143,11 @@ public class AdminService {
 
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
-		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+		DynamicConceptsDao dynamicConceptDao = new DynamicConceptsDao(dataSource);
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		AdminDao adminDao = new AdminDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+		AdminDao adminDao = new AdminDao(oracle, new SelectionQueryResults(new DynamicConceptsUtility(dynamicConceptDao)));
 
 		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
 		LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
@@ -212,15 +214,14 @@ public class AdminService {
 		// htblFieldValue.put("love", loveList);
 		// htblFieldValue.put("job", "Engineeer");
 		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
-				new DynamicPropertiesUtility(dynamicConceptDao));
+				new DynamicConceptsUtility(dynamicConceptDao));
 
-		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+		MainDao mainDao = new MainDao(oracle, new SelectionQueryResults(new DynamicConceptsUtility(dynamicConceptDao)));
 
 		AdminService adminService = new AdminService(requestFieldsValidation, new ApplicationDao(oracle), adminDao,
 				mainDao);
 
-		Hashtable<String, Object> Admins = adminService.getAdmins("TESTAPPLICATION");
-		System.out.println(Admins);
+		Hashtable<String, Object> res = adminService.getAdmins("TESTAPPLICATION");
 
 		// Hashtable<String, Object> res =
 		// adminService.insertAdmin(htblFieldValue, "TESTAPPLICATION");
@@ -229,6 +230,6 @@ public class AdminService {
 		// res.get("errors");
 		// System.out.println(json[0].toString());
 
-		// System.out.println(res.toString());
+		 System.out.println(res.toString());
 	}
 }

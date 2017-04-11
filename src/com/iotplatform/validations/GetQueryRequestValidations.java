@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.daos.DynamicConceptDao;
+import com.iotplatform.daos.DynamicConceptsDao;
 import com.iotplatform.daos.MainDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidQueryRequestBodyFormatException;
@@ -18,20 +18,20 @@ import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
-import com.iotplatform.ontology.classes.Admin;
-import com.iotplatform.utilities.DynamicPropertiesUtility;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
+import com.iotplatform.ontology.mapers.OntologyMapper;
+import com.iotplatform.query.results.SelectionQueryResults;
 import com.iotplatform.utilities.NotMappedDynamicQueryFields;
 import com.iotplatform.utilities.QueryField;
-import com.iotplatform.utilities.SelectionUtility;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
 @Component
 public class GetQueryRequestValidations {
 
-	private DynamicPropertiesUtility dynamicPropertiesUtility;
+	private DynamicConceptsUtility dynamicPropertiesUtility;
 
-	public GetQueryRequestValidations(DynamicPropertiesUtility dynamicPropertiesUtility) {
+	public GetQueryRequestValidations(DynamicConceptsUtility dynamicPropertiesUtility) {
 		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
 	}
 
@@ -449,7 +449,7 @@ public class GetQueryRequestValidations {
 					 * else it will be a dynamic property in another application
 					 * domain which will happen rarely
 					 */
-					Class dynamicPropertyClass = dynamicPropertiesUtility.getHtblAllStaticClasses()
+					Class dynamicPropertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers()
 							.get(loadedDynamicProperties.get(field).getClass_uri());
 					Property property = dynamicPropertyClass.getProperties().get(field);
 
@@ -534,7 +534,7 @@ public class GetQueryRequestValidations {
 		dataSource.setUsername(szUser);
 		dataSource.setPassword(szPasswd);
 
-		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+		DynamicConceptsDao dynamicConceptDao = new DynamicConceptsDao(dataSource);
 
 		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
 
@@ -556,8 +556,8 @@ public class GetQueryRequestValidations {
 		ArrayList<Object> lovesPersonFieldList = new ArrayList<>();
 		lovesPersonFieldList.add("title");
 		lovesPersonFieldList.add("job");
-//		lovesPersonFieldList.add(tempMap);
-		
+		// lovesPersonFieldList.add(tempMap);
+
 		lovesPersonFieldMap.put("fieldName", "love");
 		lovesPersonFieldMap.put("classType", "Developer");
 		lovesPersonFieldMap.put("fields", lovesPersonFieldList);
@@ -566,8 +566,8 @@ public class GetQueryRequestValidations {
 		hatesPersonFieldList.add("firstName");
 		hatesPersonFieldList.add("mbox");
 		hatesPersonFieldList.add("birthday");
-//		hatesPersonFieldList.add(lovesPersonFieldMap);
-//		hatesPersonFieldList.add(tempMap);
+		// hatesPersonFieldList.add(lovesPersonFieldMap);
+		// hatesPersonFieldList.add(tempMap);
 
 		LinkedHashMap<String, Object> personFieldMap = new LinkedHashMap<>();
 		personFieldMap.put("fieldName", "knows");
@@ -593,18 +593,19 @@ public class GetQueryRequestValidations {
 		System.out.println(htblFieldValue);
 
 		GetQueryRequestValidations getQueryRequestValidations = new GetQueryRequestValidations(
-				new DynamicPropertiesUtility(dynamicConceptDao));
+				new DynamicConceptsUtility(dynamicConceptDao));
 
 		try {
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = getQueryRequestValidations
-					.validateRequest("TESTAPPLICATION", htblFieldValue, Admin.getAdminInstance());
+					.validateRequest("TESTAPPLICATION", htblFieldValue,
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("admin"));
 			System.out.println(htblClassNameProperty.toString());
 			System.out.println("============================================");
 
 			Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
 			MainDao mainDao = new MainDao(oracle,
-					new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+					new SelectionQueryResults(new DynamicConceptsUtility(dynamicConceptDao)));
 
 			mainDao.queryData(htblClassNameProperty, "TESTAPPLICATION_MODEL");
 

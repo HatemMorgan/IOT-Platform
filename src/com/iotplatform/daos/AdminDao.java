@@ -10,10 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.iotplatform.exceptions.DatabaseException;
-
-import com.iotplatform.ontology.classes.Admin;
-import com.iotplatform.utilities.SelectionUtility;
-import com.iotplatform.utilities.QueryUtility;
+import com.iotplatform.ontology.mapers.OntologyMapper;
+import com.iotplatform.queries.SelectionQuery;
+import com.iotplatform.query.results.SelectionQueryResults;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -21,10 +20,10 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class AdminDao {
 
 	private Oracle oracle;
-	private SelectionUtility selectionUtility;
+	private SelectionQueryResults selectionUtility;
 
 	@Autowired
-	public AdminDao(Oracle oracle, SelectionUtility selectionUtility) {
+	public AdminDao(Oracle oracle, SelectionQueryResults selectionUtility) {
 		this.oracle = oracle;
 		this.selectionUtility = selectionUtility;
 	}
@@ -38,8 +37,8 @@ public class AdminDao {
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
 
-		String queryString = QueryUtility.constructSelectAllQueryNoFilters(Admin.getAdminInstance(),
-				applicationModelName);
+		String queryString = SelectionQuery.constructSelectAllQueryNoFilters(
+				OntologyMapper.getHtblMainOntologyClassesMappers().get("admin"), applicationModelName);
 		List<Hashtable<String, Object>> adminsList = new ArrayList<>();
 
 		try {
@@ -51,7 +50,7 @@ public class AdminDao {
 			 */
 
 			adminsList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName, results,
-					Admin.getAdminInstance());
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("admin"));
 
 		} catch (SQLException e) {
 			throw new DatabaseException(e.getMessage(), "Admin");

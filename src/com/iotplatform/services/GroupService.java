@@ -15,8 +15,7 @@ import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
-
-import com.iotplatform.ontology.classes.Group;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.validations.PostRequestValidations;
 
@@ -70,14 +69,16 @@ public class GroupService {
 			 */
 
 			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
-					.validateRequestFields(applicationNameCode, htblFieldValue, Group.getGroupInstance());
+					.validateRequestFields(applicationNameCode, htblFieldValue,
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("group"));
 
 			/*
 			 * get application modelName
 			 */
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-			mainDao.insertData(applicationModelName, Group.getGroupInstance().getName(), htblClassPropertyValue);
+			mainDao.insertData(applicationModelName,
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("group").getName(), htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Group", timeTaken);
