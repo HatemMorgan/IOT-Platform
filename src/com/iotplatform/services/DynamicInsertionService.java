@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
-import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
@@ -19,9 +18,9 @@ import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
-
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsDao;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.QueryField;
 import com.iotplatform.utilities.SelectionUtility;
@@ -302,17 +301,17 @@ public class DynamicInsertionService {
 
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
-		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+		DynamicConceptsDao dynamicConceptDao = new DynamicConceptsDao(dataSource);
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
 		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
-				new DynamicPropertiesUtility(dynamicConceptDao));
+				new DynamicConceptsUtility(dynamicConceptDao));
 
-		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicConceptsUtility(dynamicConceptDao)));
 
 		GetQueryRequestValidations getQueryRequestValidations = new GetQueryRequestValidations(
-				new DynamicPropertiesUtility(dynamicConceptDao));
+				new DynamicConceptsUtility(dynamicConceptDao));
 
 		DynamicInsertionService dynamicInsertionService = new DynamicInsertionService(requestFieldsValidation,
 				new ApplicationDao(oracle), mainDao, getQueryRequestValidations);

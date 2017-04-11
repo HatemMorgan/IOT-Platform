@@ -19,15 +19,16 @@ import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 
 @Component
 public class SelectionUtility {
 
-	private DynamicPropertiesUtility dynamicPropertiesUtility;
+	private DynamicConceptsUtility dynamicPropertiesUtility;
 
 	@Autowired
-	public SelectionUtility(DynamicPropertiesUtility dynamicPropertiesUtility) {
+	public SelectionUtility(DynamicConceptsUtility dynamicPropertiesUtility) {
 		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
 	}
 

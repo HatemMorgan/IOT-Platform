@@ -1,4 +1,4 @@
-package com.iotplatform.utilities;
+package com.iotplatform.ontology.dynamicConcepts;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -8,7 +8,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.Class;
@@ -18,15 +17,15 @@ import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.ontology.XSDDatatype;
-
 import com.iotplatform.ontology.mapers.OntologyMapper;
+import com.iotplatform.utilities.SqlCondition;
 
 /*
  * DynamicPropertiesUtility is used to load dynamic properties and perform caching of loaded dynamic properties
  */
 
 @Component
-public class DynamicPropertiesUtility {
+public class DynamicConceptsUtility {
 
 	// public static Hashtable<String, Class> htblAllStaticClasses;
 
@@ -34,10 +33,10 @@ public class DynamicPropertiesUtility {
 	 * dynamicConceptDao class is used to get all dynamic properties or dynamic
 	 * classes added to the ontology
 	 */
-	private DynamicConceptDao dynamicConceptDao;
+	private DynamicConceptsDao dynamicConceptDao;
 
 	@Autowired
-	public DynamicPropertiesUtility(DynamicConceptDao dynamicConceptDao) {
+	public DynamicConceptsUtility(DynamicConceptsDao dynamicConceptDao) {
 		this.dynamicConceptDao = dynamicConceptDao;
 
 	}

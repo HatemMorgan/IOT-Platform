@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.AdminDao;
 import com.iotplatform.daos.ApplicationDao;
-import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
@@ -19,8 +18,9 @@ import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsDao;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.PostRequestValidations;
@@ -143,11 +143,11 @@ public class AdminService {
 
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
-		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+		DynamicConceptsDao dynamicConceptDao = new DynamicConceptsDao(dataSource);
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		AdminDao adminDao = new AdminDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+		AdminDao adminDao = new AdminDao(oracle, new SelectionUtility(new DynamicConceptsUtility(dynamicConceptDao)));
 
 		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
 		LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
@@ -214,9 +214,9 @@ public class AdminService {
 		// htblFieldValue.put("love", loveList);
 		// htblFieldValue.put("job", "Engineeer");
 		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
-				new DynamicPropertiesUtility(dynamicConceptDao));
+				new DynamicConceptsUtility(dynamicConceptDao));
 
-		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicConceptsUtility(dynamicConceptDao)));
 
 		AdminService adminService = new AdminService(requestFieldsValidation, new ApplicationDao(oracle), adminDao,
 				mainDao);

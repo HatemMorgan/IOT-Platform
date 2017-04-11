@@ -1,4 +1,4 @@
-package com.iotplatform.daos;
+package com.iotplatform.ontology.dynamicConcepts;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,17 +18,21 @@ import org.springframework.stereotype.Repository;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.models.DynamicConceptModel;
-import com.iotplatform.ontology.DynamicConceptColumns;
 import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.utilities.SqlCondition;
 
+/*
+ * DynamicConceptDao is used to deal with database and perform any CRUD operations related to dynamicConcepts
+ * added to mainOntology for the scope of a specified application
+ */
+
 @Repository("dynamicConceptsDao")
-public class DynamicConceptDao extends JdbcDaoSupport {
+public class DynamicConceptsDao extends JdbcDaoSupport {
 
 	private JdbcTemplate jdbcTemplate;
 
 	@Autowired
-	public DynamicConceptDao(DataSource dataSource) {
+	public DynamicConceptsDao(DataSource dataSource) {
 		this.setDataSource(dataSource);
 		this.jdbcTemplate = this.getJdbcTemplate();
 		System.out.println("Connected");
@@ -237,7 +241,7 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 		dataSource.setUsername(szUser);
 		dataSource.setPassword(szPasswd);
 
-		DynamicConceptDao dao = new DynamicConceptDao(dataSource);
+		DynamicConceptsDao dao = new DynamicConceptsDao(dataSource);
 
 		// DynamicConceptModel newConcept = new
 		// DynamicConceptModel("TestApplication", "Person",
@@ -255,22 +259,25 @@ public class DynamicConceptDao extends JdbcDaoSupport {
 		// "http://iot-platform#", "iot-platform:",
 		// PropertyType.ObjectProperty.toString(), "Person",0,1);
 		//
-		
-		
+
 		DynamicConceptModel newConcept = new DynamicConceptModel("TestApplication", "System",
 				"http://purl.oclc.org/NET/ssnx/ssn#System", "http://purl.oclc.org/NET/ssnx/ssn#", "ssn:", "test",
 				"http://iot-platform#test", "http://iot-platform#", "iot-platform:",
-				PropertyType.ObjectProperty.toString(), "http://purl.oclc.org/NET/ssnx/ssn#System",0,0);
+				PropertyType.ObjectProperty.toString(), "http://purl.oclc.org/NET/ssnx/ssn#System", 0, 0);
 		System.out.println(dao.insertNewConcept(newConcept));
-		 System.out.println(dao.getConceptsOfApplication("testapplication").toString());
-		
-//
-//		ArrayList<SqlCondition> orConditionList = new ArrayList<>();
-//
-//		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Person"));
-//		orConditionList.add(new SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Developer"));
-//
-//		System.out.println(dao.getConceptsOfApplicationByFilters("TESTAPPLICATION", null, orConditionList).toString());
+		System.out.println(dao.getConceptsOfApplication("testapplication").toString());
+
+		//
+		// ArrayList<SqlCondition> orConditionList = new ArrayList<>();
+		//
+		// orConditionList.add(new
+		// SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(), "Person"));
+		// orConditionList.add(new
+		// SqlCondition(DynamicConceptColumns.CLASS_NAME.toString(),
+		// "Developer"));
+		//
+		// System.out.println(dao.getConceptsOfApplicationByFilters("TESTAPPLICATION",
+		// null, orConditionList).toString());
 	}
 
 }

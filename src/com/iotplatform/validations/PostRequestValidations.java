@@ -12,7 +12,6 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidPropertyValuesException;
@@ -26,8 +25,9 @@ import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsDao;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
 import com.iotplatform.utilities.ValueOfTypeClass;
@@ -53,10 +53,10 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class PostRequestValidations {
 
 	private ValidationDao validationDao;
-	private DynamicPropertiesUtility dynamicPropertiesUtility;
+	private DynamicConceptsUtility dynamicPropertiesUtility;
 
 	@Autowired
-	public PostRequestValidations(ValidationDao validationDao, DynamicPropertiesUtility dynamicPropertiesUtility) {
+	public PostRequestValidations(ValidationDao validationDao, DynamicConceptsUtility dynamicPropertiesUtility) {
 		this.validationDao = validationDao;
 		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
 	}
@@ -1011,13 +1011,13 @@ public class PostRequestValidations {
 		dataSource.setUsername(szUser);
 		dataSource.setPassword(szPasswd);
 
-		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+		DynamicConceptsDao dynamicConceptDao = new DynamicConceptsDao(dataSource);
 		ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL, szUser, szPasswd));
 
 		System.out.println("Connected to Database");
 
 		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
-				new DynamicPropertiesUtility(dynamicConceptDao));
+				new DynamicConceptsUtility(dynamicConceptDao));
 
 		// { "hasCoverage":[
 		// {"type":"Circle","location": [

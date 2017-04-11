@@ -26,7 +26,6 @@ import org.apache.jena.util.FileManager;
 import org.apache.jena.util.iterator.ExtendedIterator;
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
@@ -34,7 +33,8 @@ import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.PropertyType;
 import com.iotplatform.ontology.XSDDatatype;
-import com.iotplatform.utilities.DynamicPropertiesUtility;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsDao;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 
 /*
  * OntologyMapper is used to map the main ontology into some data structures that holds instances which 
@@ -872,8 +872,8 @@ public class OntologyMapper {
 		dataSource.setUsername(szUser);
 		dataSource.setPassword(szPasswd);
 
-		DynamicPropertiesUtility dynamicPropertiesUtility = new DynamicPropertiesUtility(
-				new DynamicConceptDao(dataSource));
+		DynamicConceptsUtility dynamicPropertiesUtility = new DynamicConceptsUtility(
+				new DynamicConceptsDao(dataSource));
 		// System.out.println(dynamicPropertiesUtility.getHtblAllStaticClasses().get(Prefix.SSN.getUri()
 		// + className)
 		// .getProperties());

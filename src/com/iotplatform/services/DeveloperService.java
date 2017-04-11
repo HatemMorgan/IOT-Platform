@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.DeveloperDao;
-import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
@@ -18,8 +17,9 @@ import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsDao;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.PostRequestValidations;
@@ -145,17 +145,17 @@ public class DeveloperService {
 
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
-		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+		DynamicConceptsDao dynamicConceptDao = new DynamicConceptsDao(dataSource);
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
 		DeveloperDao developerDao = new DeveloperDao(oracle,
-				new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+				new SelectionUtility(new DynamicConceptsUtility(dynamicConceptDao)));
 
 		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
-				new DynamicPropertiesUtility(dynamicConceptDao));
+				new DynamicConceptsUtility(dynamicConceptDao));
 
-		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicConceptsUtility(dynamicConceptDao)));
 
 		DeveloperService developerService = new DeveloperService(developerDao, requestFieldsValidation, mainDao,
 				new ApplicationDao(oracle));

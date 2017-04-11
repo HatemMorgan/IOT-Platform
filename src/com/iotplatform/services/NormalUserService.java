@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
-import com.iotplatform.daos.DynamicConceptDao;
 import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.NormalUserDao;
 import com.iotplatform.daos.ValidationDao;
@@ -18,8 +17,9 @@ import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsDao;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.utilities.DynamicPropertiesUtility;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.SelectionUtility;
 import com.iotplatform.validations.PostRequestValidations;
@@ -147,12 +147,12 @@ public class NormalUserService {
 
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
-		DynamicConceptDao dynamicConceptDao = new DynamicConceptDao(dataSource);
+		DynamicConceptsDao dynamicConceptDao = new DynamicConceptsDao(dataSource);
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
 		NormalUserDao normalUserDao = new NormalUserDao(oracle,
-				new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+				new SelectionUtility(new DynamicConceptsUtility(dynamicConceptDao)));
 
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		htblPropValue.put("age", 20);
@@ -175,9 +175,9 @@ public class NormalUserService {
 		htblPropValue.put("hates", "HatemMorgan");
 
 		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
-				new DynamicPropertiesUtility(dynamicConceptDao));
+				new DynamicConceptsUtility(dynamicConceptDao));
 
-		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicPropertiesUtility(dynamicConceptDao)));
+		MainDao mainDao = new MainDao(oracle, new SelectionUtility(new DynamicConceptsUtility(dynamicConceptDao)));
 
 		NormalUserService normalUserService = new NormalUserService(requestFieldsValidation, new ApplicationDao(oracle),
 				normalUserDao, mainDao);

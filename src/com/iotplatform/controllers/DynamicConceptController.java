@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iotplatform.models.DynamicConceptModel;
-import com.iotplatform.services.DynamicConceptService;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsService;
 
 @RestController
 public class DynamicConceptController {
 
 	@Autowired
-	DynamicConceptService dynamicConceptService;
+	DynamicConceptsService dynamicConceptService;
 
 	@RequestMapping(value = "/ontology/{applicationCode}", method = RequestMethod.POST, produces = "application/json")
 	public Hashtable<String, Object> createDynamicOntologyConcept(@PathVariable("applicationCode") String applicationCode,
