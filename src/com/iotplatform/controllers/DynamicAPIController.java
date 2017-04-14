@@ -23,18 +23,7 @@ public class DynamicAPIController {
 		System.out.println("DynamicAPIController Created");
 	}
 
-	@RequestMapping(value = "/dynamicInsertionAPI/{applicationNameCode}/{instanceType}", method = RequestMethod.POST)
-	public Hashtable<String, Object> insertNewdata(
-			@PathVariable(value = "applicationNameCode") String applicationNameCode,
-			@PathVariable(value = "instanceType") String instanceType,
-			@RequestBody Hashtable<String, Object> htblFieldValue) {
-
-		Hashtable<String, Object> responseJSON = dynamicInsertionService.insertNewFieldValueList(htblFieldValue,
-				applicationNameCode, instanceType);
-
-		return responseJSON;
-	}
-
+	
 	@RequestMapping(value = "/dynamicSelectAllAPI/{applicationNameCode}/{instanceType}", method = RequestMethod.GET)
 	public Hashtable<String, Object> getData(@PathVariable(value = "applicationNameCode") String applicationNameCode,
 			@PathVariable(value = "instanceType") String instanceType) {
