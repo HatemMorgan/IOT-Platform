@@ -1,49 +1,50 @@
 package com.iotplatform.services;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
-import com.iotplatform.daos.SelectQueryDao;
+import com.iotplatform.daos.SelectAllQueryDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidClassNameException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.utilities.QueryField;
-import com.iotplatform.validations.SelectQueryRequestValidation;
 
 /*
- * SelectQueryService is used to serve SelectQueryAPIController to insert new data 
+ * InsertionService is used to serve SelectAllQueryAPIController to get data
  * 
- * 1- It calls SelectQueryRequestValidation class to validate the request and parse the request body
- * 2- It calls the SelectQueryDao which is responsible to query database and return results
- * 3- It takes the results and passed it to SelectQueryAPIController
+ * 
+ * 1- It calls the SelectAllQueryDao which is responsible to query database and return results
+ * 2- It takes the results and passed it to SelectAllQueryAPIController
+ * 
  */
 
-@Service("selectQueryService")
-public class SelectQueryService {
+@Service("selectAllQueryService")
+public class SelectAllQueryService {
 
-	private SelectQueryRequestValidation selectQueryRequestValidation;
 	private ApplicationDao applicationDao;
-	private SelectQueryDao selectQueryDao;
+	private SelectAllQueryDao selectAllQueryDao;
 
 	@Autowired
-	public SelectQueryService(SelectQueryRequestValidation selectQueryRequestValidation, ApplicationDao applicationDao,
-			SelectQueryDao selectQueryDao) {
-		this.selectQueryRequestValidation = selectQueryRequestValidation;
+	public SelectAllQueryService(ApplicationDao applicationDao, SelectAllQueryDao selectAllQueryDao) {
 		this.applicationDao = applicationDao;
-		this.selectQueryDao = selectQueryDao;
+		this.selectAllQueryDao = selectAllQueryDao;
 	}
 
-	public Hashtable<String, Object> QueryData(String applicationNameCode, String className,
-			Hashtable<String, Object> htblFieldValue) {
+	/*
+	 * selectAll method is used :
+	 * 
+	 * 1- validate that applicationName and className passed by the request are
+	 * valid 2- call selectAllQueryDao to perform a selectAll query on the data
+	 * of the passed className in the applicationModel of the passed
+	 * applicationNameCode
+	 */
+	public Hashtable<String, Object> selectAll(String applicationNameCode, String className) {
 
 		long startTime = System.currentTimeMillis();
 		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
@@ -65,23 +66,19 @@ public class SelectQueryService {
 				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 				return new SuccessfullSelectAllJsonModel(exception.getExceptionHashTable(timeTaken)).getJson();
 			}
+
 			try {
-				/*
-				 * validate query request
-				 */
-				LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = selectQueryRequestValidation
-						.validateRequest(applicationNameCode, htblFieldValue, subjectClass);
 
 				/*
 				 * get application modelName
 				 */
 				String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-				List<Hashtable<String, Object>> resultsList = selectQueryDao.queryData(htblClassNameProperty,
-						applicationModelName);
+				List<Hashtable<String, Object>> htblPropValue = selectAllQueryDao.selectAll(applicationModelName,
+						subjectClass);
 
 				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-				return new SuccessfullSelectAllJsonModel(resultsList, timeTaken).getJson();
+				return new SuccessfullSelectAllJsonModel(htblPropValue, timeTaken).getJson();
 
 			} catch (ErrorObjException e) {
 				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
@@ -96,4 +93,5 @@ public class SelectQueryService {
 		}
 
 	}
+
 }

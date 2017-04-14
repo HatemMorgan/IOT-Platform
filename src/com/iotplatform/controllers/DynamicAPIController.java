@@ -24,24 +24,5 @@ public class DynamicAPIController {
 	}
 
 	
-	@RequestMapping(value = "/dynamicSelectAllAPI/{applicationNameCode}/{instanceType}", method = RequestMethod.GET)
-	public Hashtable<String, Object> getData(@PathVariable(value = "applicationNameCode") String applicationNameCode,
-			@PathVariable(value = "instanceType") String instanceType) {
-
-		Hashtable<String, Object> responseJSON = dynamicInsertionService.selectAll(applicationNameCode, instanceType);
-
-		return responseJSON;
-	}
-
-	@RequestMapping(value = "/query/{applicationNameCode}/{instanceType}", method = RequestMethod.POST)
-	public Hashtable<String, Object> queryData(@PathVariable(value = "applicationNameCode") String applicationNameCode,
-			@PathVariable(value = "instanceType") String instanceType,
-			@RequestBody Hashtable<String, Object> htblFieldValue) {
-
-		Hashtable<String, Object> responseJSON = dynamicInsertionService.QueryData(applicationNameCode, instanceType,
-				htblFieldValue);
-
-		return responseJSON;
-	}
-
+	
 }

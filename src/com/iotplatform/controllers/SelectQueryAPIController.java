@@ -17,7 +17,7 @@ public class SelectQueryAPIController {
 	@Autowired
 	SelectQueryService selectQueryService;
 	
-	@RequestMapping(value = "/selectQuery/{applicationNameCode}/{instanceType}", method = RequestMethod.POST)
+	@RequestMapping(value = "/selectQueryAPI/{applicationNameCode}/{instanceType}", method = RequestMethod.POST)
 	public Hashtable<String, Object> queryData(@PathVariable(value = "applicationNameCode") String applicationNameCode,
 			@PathVariable(value = "instanceType") String instanceType,
 			@RequestBody Hashtable<String, Object> htblFieldValue) {

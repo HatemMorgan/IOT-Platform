@@ -21,7 +21,7 @@ import com.iotplatform.validations.SelectQueryRequestValidation;
  * InsertionService is used to serve InsertionAPIController to insert new data 
  * 
  * 1- It calls InsertRequestValidation class to validate the request and parse the request body
- * 2- It calls the InsertionDao which is responsible to query database and return results
+ * 2- It calls the InsertionDao which is responsible to insert data into database 
  * 3- It takes the results and passed it to InsertionAPIController
  */
 
