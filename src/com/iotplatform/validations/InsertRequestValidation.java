@@ -50,13 +50,13 @@ import oracle.spatial.rdf.client.jena.Oracle;
  */
 
 @Component
-public class PostRequestValidations {
+public class InsertRequestValidation {
 
 	private ValidationDao validationDao;
 	private DynamicConceptsUtility dynamicPropertiesUtility;
 
 	@Autowired
-	public PostRequestValidations(ValidationDao validationDao, DynamicConceptsUtility dynamicPropertiesUtility) {
+	public InsertRequestValidation(ValidationDao validationDao, DynamicConceptsUtility dynamicPropertiesUtility) {
 		this.validationDao = validationDao;
 		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
 	}
@@ -1016,7 +1016,7 @@ public class PostRequestValidations {
 
 		System.out.println("Connected to Database");
 
-		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
+		InsertRequestValidation requestFieldsValidation = new InsertRequestValidation(validationDao,
 				new DynamicConceptsUtility(dynamicConceptDao));
 
 		// { "hasCoverage":[

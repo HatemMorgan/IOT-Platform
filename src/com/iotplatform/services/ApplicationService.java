@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.DynamicConceptsDao;
+import com.iotplatform.daos.InsertionDao;
 import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.CannotCreateApplicationModelException;
@@ -19,7 +20,7 @@ import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.query.results.SelectionQueryResults;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.validations.PostRequestValidations;
+import com.iotplatform.validations.InsertRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -27,15 +28,15 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class ApplicationService {
 
 	private ApplicationDao applicationDao;
-	private PostRequestValidations requestFieldsValidation;
-	private MainDao mainDao;
+	private InsertRequestValidation requestFieldsValidation;
+	private InsertionDao insertionDao;
 
 	@Autowired
-	public ApplicationService(ApplicationDao applicationDao, PostRequestValidations requestFieldsValidation,
-			MainDao mainDao) {
+	public ApplicationService(ApplicationDao applicationDao, InsertRequestValidation requestFieldsValidation,
+			InsertionDao insertionDao) {
 		this.applicationDao = applicationDao;
 		this.requestFieldsValidation = requestFieldsValidation;
-		this.mainDao = mainDao;
+		this.insertionDao = insertionDao;
 	}
 
 	/*
@@ -83,7 +84,7 @@ public class ApplicationService {
 					.validateRequestFields(applicationName, htblPropValue,
 							OntologyMapper.getHtblMainOntologyClassesMappers().get("application"));
 
-			mainDao.insertData(applicationDao.getHtblApplicationNameModelName().get(applicationName),
+			insertionDao.insertData(applicationDao.getHtblApplicationNameModelName().get(applicationName),
 					OntologyMapper.getHtblMainOntologyClassesMappers().get("application").getName(),
 					htblClassPropertyValue);
 
@@ -117,13 +118,13 @@ public class ApplicationService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
+		InsertRequestValidation requestFieldsValidation = new InsertRequestValidation(validationDao,
 				new DynamicConceptsUtility(dynamicConceptDao));
-		MainDao mainDao = new MainDao(oracle, new SelectionQueryResults(new DynamicConceptsUtility(dynamicConceptDao)));
+		InsertionDao insertionDao = new InsertionDao(oracle);
 
 		ApplicationDao applicationDao = new ApplicationDao(oracle);
 		ApplicationService applicationService = new ApplicationService(applicationDao, requestFieldsValidation,
-				mainDao);
+				insertionDao);
 
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		htblPropValue.put("name", "Test Applications");

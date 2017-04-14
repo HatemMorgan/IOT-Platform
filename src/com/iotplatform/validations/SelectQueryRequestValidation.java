@@ -9,7 +9,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.daos.DynamicConceptsDao;
-import com.iotplatform.daos.MainDao;
+import com.iotplatform.daos.SelectQueryDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidQueryRequestBodyFormatException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
@@ -20,21 +20,44 @@ import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.query.results.SelectionQueryResults;
 import com.iotplatform.utilities.NotMappedDynamicQueryFields;
 import com.iotplatform.utilities.QueryField;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
+/*
+ * QueryRequestValidations class is used to validate and parse query request body to be used to after that to 
+ * generate SPARQL-in-SQL query to get required data
+ */
+
 @Component
-public class GetQueryRequestValidations {
+public class SelectQueryRequestValidation {
 
 	private DynamicConceptsUtility dynamicPropertiesUtility;
 
-	public GetQueryRequestValidations(DynamicConceptsUtility dynamicPropertiesUtility) {
+	public SelectQueryRequestValidation(DynamicConceptsUtility dynamicPropertiesUtility) {
 		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
 	}
 
+	/*
+	 * validateRequest is takes the applicationName and request body
+	 * (htblFieldValue) and subjectCLass all this inputs are customized by the
+	 * user
+	 * 
+	 * It validates that fields passed are mapped to existing properties of the
+	 * passed subjectClass and it dynamically parse the body to generate
+	 * LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> which
+	 * is the result of parsing and that will be returned
+	 * 
+	 * The returned data structure LinkedHashMap<String, LinkedHashMap<String,
+	 * ArrayList<QueryField>>> holds the classUri as key and its value is
+	 * another LinkedHashMap<String, ArrayList<QueryField>> which holds a random
+	 * generated id as a key and value is list of queryField object
+	 * 
+	 * I used random generated id to represent each single instance of a class
+	 * because a query may target two instances of the same class and need to
+	 * have different fields for each instance. So the id will separate them
+	 */
 	public LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> validateRequest(String applicationName,
 			Hashtable<String, Object> htblFieldValue, Class subjectClass) {
 
@@ -107,8 +130,9 @@ public class GetQueryRequestValidations {
 	 * notMappedFieldList that holds NotMappedDynamicQueryFields to be checked
 	 * again after loading dynamicProperties
 	 * 
-	 * htblClassNameProperty holds prefixedClassName as a key and list of
-	 * QueryFields
+	 * htblClassNameProperty holds the classUri as key and its value is another
+	 * LinkedHashMap<String, ArrayList<QueryField>> which holds a random
+	 * generated id as a key and value is list of queryField object
 	 * 
 	 */
 	private void validateProjectionFields(Class subjectClass, Hashtable<String, Class> htblNotMappedFieldsClasses,
@@ -227,10 +251,6 @@ public class GetQueryRequestValidations {
 							 * objectValueTypeClassName because the field has
 							 * object value (not an literal)
 							 */
-
-							// String objectValueTypeClassPrefixedName =
-							// objectValueClassType.getPrefix().getPrefix()
-							// + objectValueClassType.getName();
 							QueryField queryField = new QueryField(
 									property.getPrefix().getPrefix() + property.getName(),
 									objectValueClassType.getUri(), randomUUID);
@@ -239,9 +259,6 @@ public class GetQueryRequestValidations {
 							 * add objectProperty to subjectClass individual
 							 * with uniqueIdentifier
 							 */
-							// String prefixedClassName =
-							// subjectClass.getPrefix().getPrefix() +
-							// subjectClass.getName();
 							htblClassNameProperty.get(subjectClass.getUri()).get(uniqueIdentifier).add(queryField);
 
 							/*
@@ -592,7 +609,7 @@ public class GetQueryRequestValidations {
 
 		System.out.println(htblFieldValue);
 
-		GetQueryRequestValidations getQueryRequestValidations = new GetQueryRequestValidations(
+		SelectQueryRequestValidation getQueryRequestValidations = new SelectQueryRequestValidation(
 				new DynamicConceptsUtility(dynamicConceptDao));
 
 		try {
@@ -604,10 +621,9 @@ public class GetQueryRequestValidations {
 
 			Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
-			MainDao mainDao = new MainDao(oracle,
-					new SelectionQueryResults(new DynamicConceptsUtility(dynamicConceptDao)));
+			SelectQueryDao selectQueryDao = new SelectQueryDao(oracle);
 
-			mainDao.queryData(htblClassNameProperty, "TESTAPPLICATION_MODEL");
+			selectQueryDao.queryData(htblClassNameProperty, "TESTAPPLICATION_MODEL");
 
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());

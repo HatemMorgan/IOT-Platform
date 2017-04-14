@@ -9,6 +9,16 @@ import com.iotplatform.ontology.Prefix;
 import com.iotplatform.utilities.QueryField;
 import com.iotplatform.utilities.QueryVariable;
 
+/*
+ * SelectionQuery is used to construct the appropriate select query to query data.
+ * 
+ * 1- It constructs a select queries with graph patterns and optional patterns after taking 
+ * LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty
+ * input from queryRequestValidation which was called by the service 
+ * 
+ * 2- It constructs a selectAll query for a given applicationName and a className
+ */
+
 public class SelectionQuery {
 
 	/*
@@ -162,7 +172,7 @@ public class SelectionQuery {
 		// queryBuilder.append(" " + filterConditionsBuilder.toString() + " \n
 		// }}");
 
-		System.out.println(htblSubjectVariables);
+		// System.out.println(htblSubjectVariables);
 		Object[] returnObject = { mainBuilder.toString(), htblSubjectVariables };
 		return returnObject;
 	}
