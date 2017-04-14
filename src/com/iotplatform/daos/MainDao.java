@@ -3,44 +3,21 @@ package com.iotplatform.daos;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-
-import org.apache.jena.update.UpdateAction;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 
 import com.iotplatform.exceptions.DatabaseException;
-import com.iotplatform.ontology.Class;
 
-import com.iotplatform.queries.InsertionQuery;
-import com.iotplatform.queries.SelectionQuery;
-import com.iotplatform.query.results.SelectionQueryResults;
-import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.utilities.QueryField;
-import com.iotplatform.utilities.QueryVariable;
-
-import oracle.spatial.rdf.client.jena.ModelOracleSem;
 import oracle.spatial.rdf.client.jena.Oracle;
 
 /*
  * MainDao is used to insert triples to application model
  */
 
-@Repository("mainDao")
 public class MainDao {
 
 	private Oracle oracle;
 
-	private SelectionQueryResults selectionUtility;
-
-	@Autowired
-	public MainDao(Oracle oracle, SelectionQueryResults selectionUtility) {
+	public MainDao(Oracle oracle) {
 		this.oracle = oracle;
-		this.selectionUtility = selectionUtility;
 	}
 
 	public void test() {
@@ -89,7 +66,7 @@ public class MainDao {
 
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
-		MainDao mainDao = new MainDao(oracle, null);
+		MainDao mainDao = new MainDao(oracle);
 
 		mainDao.test();
 	}

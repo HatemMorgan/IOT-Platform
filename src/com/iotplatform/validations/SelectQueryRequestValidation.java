@@ -20,7 +20,6 @@ import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.query.results.SelectionQueryResults;
 import com.iotplatform.utilities.NotMappedDynamicQueryFields;
 import com.iotplatform.utilities.QueryField;
 
