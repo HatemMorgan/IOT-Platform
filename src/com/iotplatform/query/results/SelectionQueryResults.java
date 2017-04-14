@@ -23,6 +23,15 @@ import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.QueryVariable;
 
+/*
+ * SelectionQueryResults is used to construct the appropriate query result the will be returned to the users
+ * 
+ *  1- remove all repeated patterns 
+ *  2- remove nulls 
+ *  3- nested object to appear in the appropriate way that is expected by the user
+ *  4- remove URIs and prefixes to fully abstract semantic web field
+ */
+
 @Component
 public class SelectionQueryResults {
 
@@ -381,29 +390,40 @@ public class SelectionQueryResults {
 
 									/*
 									 * if valueList is null it means that the
-									 * subjectVariable is a totaly new result so
-									 * I will create a new list of htblPropValue
-									 * because it is a property with multiple
-									 * values
+									 * subjectVariable is a totally new result
+									 * so I will create a new list of
+									 * htblPropValue because it is a property
+									 * with multiple values
 									 * 
 									 * then add valueList to parentSUbject's
 									 * htblPropertyValue and then create a new
 									 * subjectPropValue and add it to
 									 * htblSubjectVariablehtblpropVal
 									 * 
+									 * I created a new subjectPropValue because
+									 * I am using pointer referencing, so I have
+									 * to remove the previous reference of that
+									 * subjectVariable and create a new one to
+									 * be referenced by the
+									 * parentSubjectVariable htblPropValue
+									 * 
+									 * This condition happen when we have a
+									 * property in the parentSubjectVariable
+									 * that has another subjectVariable that was
+									 * added before but with different results
+									 * so it must point to the whole
+									 * subjectVariable htblPropValue not only a
+									 * single value in the list
 									 */
 									if (valueList == null) {
 										valueList = new ArrayList<Hashtable<String, Object>>();
 										htblParentPropValue.put(propertyName, valueList);
 
-										// ArrayList<Hashtable<String, Object>>
-										// htblSubjectPropValue =
-										// (ArrayList<Hashtable<String,
-										// Object>>)
-										// htblSubjectVariablehtblpropVal
-										// .get(columnName);
-										//
-										// htblSubjectPropValue.add(htblPropValue);
+										/*
+										 * create a new subjectVariable
+										 * htblPropValueList because the
+										 * property has multiple values
+										 */
 										htblSubjectVariablehtblpropVal.put(columnName, valueList);
 
 									}
@@ -417,13 +437,6 @@ public class SelectionQueryResults {
 									 * (pointers) the same list so adding it in
 									 * one of them reflect the other
 									 */
-									// System.out.println(helperList);
-									// System.out.println("==<" +
-									// htblParentPropValue);
-									System.out.println(valueList + "  " + propertyName + "  " + property.getName()
-											+ "  " + individualUniqueIdentifier + "  " + htblParentPropValue + "  "
-											+ htblPropValue);
-
 									valueList.add(htblPropValue);
 
 									/*
@@ -568,8 +581,7 @@ public class SelectionQueryResults {
 						String classUri = queryVariable.getSubjectClassUri();
 						Class propertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(classUri);
 						Property property = propertyClass.getProperties().get(propertyName);
-						// System.out.println("---> " + propertyName + " " +
-						// classUri);
+
 						/*
 						 * construct value datatype of propValue if the property
 						 * is a datatype property
