@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.DynamicConceptsDao;
+import com.iotplatform.daos.InsertionDao;
 import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.CannotCreateApplicationModelException;
@@ -28,14 +29,14 @@ public class ApplicationService {
 
 	private ApplicationDao applicationDao;
 	private InsertRequestValidation requestFieldsValidation;
-	private MainDao mainDao;
+	private InsertionDao insertionDao;
 
 	@Autowired
 	public ApplicationService(ApplicationDao applicationDao, InsertRequestValidation requestFieldsValidation,
-			MainDao mainDao) {
+			InsertionDao insertionDao) {
 		this.applicationDao = applicationDao;
 		this.requestFieldsValidation = requestFieldsValidation;
-		this.mainDao = mainDao;
+		this.insertionDao = insertionDao;
 	}
 
 	/*
@@ -83,7 +84,7 @@ public class ApplicationService {
 					.validateRequestFields(applicationName, htblPropValue,
 							OntologyMapper.getHtblMainOntologyClassesMappers().get("application"));
 
-			mainDao.insertData(applicationDao.getHtblApplicationNameModelName().get(applicationName),
+			insertionDao.insertData(applicationDao.getHtblApplicationNameModelName().get(applicationName),
 					OntologyMapper.getHtblMainOntologyClassesMappers().get("application").getName(),
 					htblClassPropertyValue);
 
@@ -119,11 +120,11 @@ public class ApplicationService {
 
 		InsertRequestValidation requestFieldsValidation = new InsertRequestValidation(validationDao,
 				new DynamicConceptsUtility(dynamicConceptDao));
-		MainDao mainDao = new MainDao(oracle, new SelectionQueryResults(new DynamicConceptsUtility(dynamicConceptDao)));
+		InsertionDao insertionDao = new InsertionDao(oracle);
 
 		ApplicationDao applicationDao = new ApplicationDao(oracle);
 		ApplicationService applicationService = new ApplicationService(applicationDao, requestFieldsValidation,
-				mainDao);
+				insertionDao);
 
 		Hashtable<String, Object> htblPropValue = new Hashtable<>();
 		htblPropValue.put("name", "Test Applications");

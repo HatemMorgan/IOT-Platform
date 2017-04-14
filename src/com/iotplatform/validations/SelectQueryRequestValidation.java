@@ -9,7 +9,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.daos.DynamicConceptsDao;
-import com.iotplatform.daos.MainDao;
+import com.iotplatform.daos.SelectQueryDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidQueryRequestBodyFormatException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
@@ -622,10 +622,9 @@ public class SelectQueryRequestValidation {
 
 			Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
-			MainDao mainDao = new MainDao(oracle,
-					new SelectionQueryResults(new DynamicConceptsUtility(dynamicConceptDao)));
+			SelectQueryDao selectQueryDao = new SelectQueryDao(oracle);
 
-			mainDao.queryData(htblClassNameProperty, "TESTAPPLICATION_MODEL");
+			selectQueryDao.queryData(htblClassNameProperty, "TESTAPPLICATION_MODEL");
 
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());

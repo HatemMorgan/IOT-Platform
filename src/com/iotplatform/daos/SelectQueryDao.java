@@ -29,7 +29,7 @@ public class SelectQueryDao {
 	private Oracle oracle;
 
 	@Autowired
-	public SelectQueryDao(Oracle oracle, SelectionQueryResults selectionUtility) {
+	public SelectQueryDao(Oracle oracle) {
 		this.oracle = oracle;
 	}
 
