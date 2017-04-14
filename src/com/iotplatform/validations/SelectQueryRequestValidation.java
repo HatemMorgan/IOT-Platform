@@ -81,7 +81,7 @@ public class SelectQueryRequestValidation {
 		/*
 		 * get projection fields from htblFieldValue
 		 */
-		if (htblFieldValue.containsKey("fields")) {
+		if (htblFieldValue.containsKey("fields") && htblFieldValue.get("fields") instanceof java.util.ArrayList) {
 
 			/*
 			 * generate uniqueIdntifier
@@ -98,12 +98,21 @@ public class SelectQueryRequestValidation {
 			htblClassNameProperty.put(subjectClass.getUri(), htblUniqueIdentierQueryFieldsList);
 
 			validateProjectionFields(subjectClass, htblNotMappedFieldsClasses, notMappedFieldList,
-					htblFieldValue.get("fields"), htblClassNameProperty, randomUUID, subjectClass.getName());
+					htblFieldValue.get("fields"), htblClassNameProperty, randomUUID, subjectClass.getName(), null);
 
 			if (htblNotMappedFieldsClasses.size() > 0) {
 				validateNotMappedFieldsValues(applicationName, subjectClass, htblNotMappedFieldsClasses,
 						notMappedFieldList, htblClassNameProperty, subjectClass.getName());
 			}
+
+		} else {
+			/*
+			 * fields key was not available so the request body has invalid
+			 * format so I will throw an exception
+			 */
+			throw new InvalidQueryRequestBodyFormatException("fields key not found. fields key is used to "
+					+ "express the projected fields for the object field's value."
+					+ " It must be a list of one or more fields ");
 
 		}
 		return htblClassNameProperty;
@@ -134,11 +143,16 @@ public class SelectQueryRequestValidation {
 	 * LinkedHashMap<String, ArrayList<QueryField>> which holds a random
 	 * generated id as a key and value is list of queryField object
 	 * 
+	 * String valuesFieldName parameter is used to memorize the fieldName (which
+	 * maps to a property) when dealing with a values field which is a list of
+	 * classTypes and fields of the objectValue of the property mapping of this
+	 * valuesFieldName. It will be null otherwise (if it is not values key)
+	 * 
 	 */
 	private void validateProjectionFields(Class subjectClass, Hashtable<String, Class> htblNotMappedFieldsClasses,
 			ArrayList<NotMappedDynamicQueryFields> notMappedFieldList, Object field,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			String uniqueIdentifier, String requestClassName) {
+			String uniqueIdentifier, String requestClassName, String valuesFieldName) {
 
 		/*
 		 * String field which represents that the fieldValue will be the direct
@@ -168,9 +182,6 @@ public class SelectQueryRequestValidation {
 				/*
 				 * add constructed query field to htblClassNameProperty
 				 */
-				// String prefixedClassName =
-				// subjectClass.getPrefix().getPrefix() +
-				// subjectClass.getName();
 				htblClassNameProperty.get(subjectClass.getUri()).get(uniqueIdentifier).add(queryField);
 
 			}
@@ -180,9 +191,27 @@ public class SelectQueryRequestValidation {
 			 * field is an (LinkedHashMap<String, Object>) so it has a value
 			 * which is an object so it will need further checking by
 			 * recursively calling validateProjectionFields
+			 * 
+			 * 
+			 * check if the htblfieldObject contains the right fields before
+			 * perform validation computations
+			 * 
+			 * htblfieldObject must contain either :
+			 * 
+			 * 1- fieldName and fields keys which represent the fieldName which
+			 * maps to an existing objectProperty and fields which represents
+			 * the fields of the object value
+			 * 
+			 * 2-fieldName and fields keys which represent the fieldName which
+			 * maps to an existing objectProperty and values which represents a
+			 * list of objects where each object has classType and fields keys
+			 * where the classType represent the classType of objectValue and
+			 * fields represents the fields needed for the instances
 			 */
+
 			if (field instanceof java.util.LinkedHashMap<?, ?>) {
 				LinkedHashMap<String, Object> htblfieldObject = (LinkedHashMap<String, Object>) field;
+
 				Class objectValueClassType = null;
 				/*
 				 * generate uniqueIdntifier
@@ -192,133 +221,178 @@ public class SelectQueryRequestValidation {
 				/*
 				 * check if htblfieldObject contains fieldName key
 				 */
-				if (htblfieldObject.containsKey("fieldName")) {
-					String fieldName = htblfieldObject.get("fieldName").toString();
+				if (htblfieldObject.containsKey("fieldName") || valuesFieldName != null) {
 
+					String fieldName;
+
+					/*
+					 * check if the valuesFieldName is not null which means that
+					 * I am parsing the values key value so I will set fieldName
+					 * to be equal to memorized valuesFieldName
+					 */
+					if (valuesFieldName != null) {
+						fieldName = valuesFieldName;
+					} else {
+						fieldName = htblfieldObject.get("fieldName").toString();
+					}
+
+					/*
+					 * check if the fieldName maps to an existing property of
+					 * subjectClass
+					 */
 					if (isFieldMapsToStaticProperty(subjectClass, fieldName, field, uniqueIdentifier,
 							htblNotMappedFieldsClasses, notMappedFieldList)) {
 
 						Property property = subjectClass.getProperties().get(fieldName);
+
+						/*
+						 * check that the property is an objectProperty
+						 */
 						if (property instanceof ObjectProperty) {
 
 							/*
-							 * check if the user wants a specific classType not
-							 * the objectValueClassType of mapped property so
-							 * he/she will add key classType with a value
-							 * representing the classType (eg. he may need a
-							 * subClass type where the propertyObjectClassType
-							 * is the superClass) eg. knows property has
-							 * propertyObjectClassType foaf:Person and the user
-							 * want to have the classType foaf:developer
+							 * check if it is the second condition as discussed
+							 * above
 							 */
+							if (htblfieldObject.containsKey("values")) {
+								Object values = htblfieldObject.get("values");
+								validateProjectionFields(subjectClass, htblNotMappedFieldsClasses, notMappedFieldList,
+										values, htblClassNameProperty, uniqueIdentifier, requestClassName, fieldName);
+							} else {
 
-							if (htblfieldObject.containsKey("classType")) {
-								objectValueClassType = ((ObjectProperty) property).getObject();
+								// first condition as discussed above
 
 								/*
-								 * check if the passed type is a valid
-								 * type(subClasss) of objectValueClassType
+								 * check if the user wants a specific classType
+								 * not the objectValueClassType of mapped
+								 * property so he/she will add key classType
+								 * with a value representing the classType (eg.
+								 * he may need a subClass type where the
+								 * propertyObjectClassType is the superClass)
+								 * eg. knows property has
+								 * propertyObjectClassType foaf:Person and the
+								 * user want to have the classType
+								 * foaf:developer
 								 */
-								if (objectValueClassType.getClassTypesList()
-										.containsKey(htblfieldObject.get("classType"))) {
-									objectValueClassType = objectValueClassType.getClassTypesList()
-											.get(htblfieldObject.get("classType"));
+								if (htblfieldObject.containsKey("classType")) {
+									objectValueClassType = ((ObjectProperty) property).getObject();
+
+									/*
+									 * check if the passed type is a valid
+									 * type(subClasss) of objectValueClassType
+									 */
+									if (objectValueClassType.getClassTypesList()
+											.containsKey(htblfieldObject.get("classType"))) {
+										objectValueClassType = objectValueClassType.getClassTypesList()
+												.get(htblfieldObject.get("classType"));
+
+									} else {
+										/*
+										 * invalid Type so throw an exception
+										 */
+
+										throw new InvalidTypeValidationException(requestClassName,
+												objectValueClassType.getClassTypesList().keySet(),
+												objectValueClassType.getName());
+									}
 
 								} else {
-									/*
-									 * invalid Type so throw an exception
-									 */
 
-									throw new InvalidTypeValidationException(requestClassName,
-											objectValueClassType.getClassTypesList().keySet(),
-											objectValueClassType.getName());
+									/*
+									 * get objectValue class and its prefixed
+									 * class name
+									 */
+									objectValueClassType = ((ObjectProperty) property).getObject();
+
+								}
+								/*
+								 * Create queryField object that take
+								 * prefixedPropertyName and
+								 * objectValueTypeClassPrefixedName for
+								 * objectValueTypeClassName because the field
+								 * has object value (not an literal)
+								 */
+								QueryField queryField = new QueryField(
+										property.getPrefix().getPrefix() + property.getName(),
+										objectValueClassType.getUri(), randomUUID);
+
+								/*
+								 * if valuesFieldName != null it means that this
+								 * object is type value object of property the
+								 * maps valuesFieldName so I have to
+								 * setValueObjectType to true in order to be
+								 * added to the query as an optional query not
+								 * in the default graph patterns
+								 */
+								if (valuesFieldName != null) {
+									queryField.setValueObjectType(true);
 								}
 
-							} else {
+								/*
+								 * add objectProperty to subjectClass individual
+								 * with uniqueIdentifier
+								 */
+								htblClassNameProperty.get(subjectClass.getUri()).get(uniqueIdentifier).add(queryField);
 
 								/*
-								 * get objectValue class and its prefixed class
-								 * name
+								 * add new Object with generated
+								 * uniqueIdentifier(randomUUID) and
+								 * objectValueTypeClassPrefixedName as the
+								 * prefixedName of this objectType
 								 */
-								objectValueClassType = ((ObjectProperty) property).getObject();
+								if (htblClassNameProperty.containsKey(objectValueClassType.getUri())) {
 
+									ArrayList<QueryField> queryFieldsList = new ArrayList<>();
+									htblClassNameProperty.get(objectValueClassType.getUri()).put(randomUUID,
+											queryFieldsList);
+
+								} else {
+
+									/*
+									 * new subjectClass not exist in
+									 * htblClassNameProperty
+									 */
+
+									ArrayList<QueryField> queryFieldsList = new ArrayList<>();
+
+									LinkedHashMap<String, ArrayList<QueryField>> htblUniqueIdentierQueryFieldsList = new LinkedHashMap<>();
+									htblUniqueIdentierQueryFieldsList.put(randomUUID, queryFieldsList);
+									htblClassNameProperty.put(objectValueClassType.getUri(),
+											htblUniqueIdentierQueryFieldsList);
+
+								}
+
+								/*
+								 * check if the object has fields key that must
+								 * have list value
+								 */
+								if (htblfieldObject.containsKey("fields")
+										&& htblfieldObject.get("fields") instanceof java.util.ArrayList) {
+
+									/*
+									 * get fieldList and recursively call
+									 * validateProjectionFields to validate the
+									 * fieldsList
+									 */
+									ArrayList<Object> objectFieldList = (ArrayList<Object>) htblfieldObject
+											.get("fields");
+
+									validateProjectionFields(objectValueClassType, htblNotMappedFieldsClasses,
+											notMappedFieldList, objectFieldList, htblClassNameProperty, randomUUID,
+											requestClassName, null);
+								} else {
+
+									/*
+									 * fields key was not available so the
+									 * request body has invalid format so I will
+									 * throw an exception
+									 */
+									throw new InvalidQueryRequestBodyFormatException(
+											"fields key not found. fields key is used to "
+													+ "express the projected fields for the object field's value."
+													+ " It must be a list of one or more fields ");
+								}
 							}
-
-							/*
-							 * Create queryField object that take
-							 * prefixedPropertyName and
-							 * objectValueTypeClassPrefixedName for
-							 * objectValueTypeClassName because the field has
-							 * object value (not an literal)
-							 */
-							QueryField queryField = new QueryField(
-									property.getPrefix().getPrefix() + property.getName(),
-									objectValueClassType.getUri(), randomUUID);
-
-							/*
-							 * add objectProperty to subjectClass individual
-							 * with uniqueIdentifier
-							 */
-							htblClassNameProperty.get(subjectClass.getUri()).get(uniqueIdentifier).add(queryField);
-
-							/*
-							 * add new Object with generated
-							 * uniqueIdentifier(randomUUID) and
-							 * objectValueTypeClassPrefixedName as the
-							 * prefixedName of this objectType
-							 */
-							if (htblClassNameProperty.containsKey(objectValueClassType.getUri())) {
-
-								ArrayList<QueryField> queryFieldsList = new ArrayList<>();
-								htblClassNameProperty.get(objectValueClassType.getUri()).put(randomUUID,
-										queryFieldsList);
-
-							} else {
-
-								/*
-								 * new subjectClass not exist in
-								 * htblClassNameProperty
-								 */
-
-								ArrayList<QueryField> queryFieldsList = new ArrayList<>();
-
-								LinkedHashMap<String, ArrayList<QueryField>> htblUniqueIdentierQueryFieldsList = new LinkedHashMap<>();
-								htblUniqueIdentierQueryFieldsList.put(randomUUID, queryFieldsList);
-								htblClassNameProperty.put(objectValueClassType.getUri(),
-										htblUniqueIdentierQueryFieldsList);
-
-							}
-
-							/*
-							 * check if the object has fields key that must have
-							 * list value
-							 */
-							if (htblfieldObject.containsKey("fields")
-									&& htblfieldObject.get("fields") instanceof java.util.ArrayList) {
-
-								/*
-								 * get fieldList and recursively call
-								 * validateProjectionFields to validate the
-								 * fieldsList
-								 */
-								ArrayList<Object> objectFieldList = (ArrayList<Object>) htblfieldObject.get("fields");
-
-								validateProjectionFields(objectValueClassType, htblNotMappedFieldsClasses,
-										notMappedFieldList, objectFieldList, htblClassNameProperty, randomUUID,
-										requestClassName);
-							} else {
-
-								/*
-								 * fields key was not available so the request
-								 * body has invalid format so I will throw an
-								 * exception
-								 */
-								throw new InvalidQueryRequestBodyFormatException(
-										"fields key not found. fields key is used to "
-												+ "express the projected fields for the object field's value."
-												+ " It must be a list of one or more fields ");
-							}
-
 						} else {
 							/*
 							 * DataTypeProperty which is not valid because its
@@ -347,13 +421,13 @@ public class SelectQueryRequestValidation {
 
 				if (field instanceof java.util.ArrayList) {
 					ArrayList<Object> fieldList = (ArrayList<Object>) field;
-
 					/*
 					 * iterate over fieldList
 					 */
 					for (Object fieldkey : fieldList) {
+
 						validateProjectionFields(subjectClass, htblNotMappedFieldsClasses, notMappedFieldList, fieldkey,
-								htblClassNameProperty, uniqueIdentifier, requestClassName);
+								htblClassNameProperty, uniqueIdentifier, requestClassName, valuesFieldName);
 					}
 
 				} else {
@@ -367,6 +441,7 @@ public class SelectQueryRequestValidation {
 				}
 			}
 		}
+
 	}
 
 	/*
@@ -481,7 +556,7 @@ public class SelectQueryRequestValidation {
 							 */
 							validateProjectionFields(notFoundField.getSubjectClass(), new Hashtable<>(),
 									new ArrayList<>(), field, htblClassNameProperty,
-									notFoundField.getIndividualUniqueIdintifier(), requestClassName);
+									notFoundField.getIndividualUniqueIdintifier(), requestClassName, null);
 
 						} else {
 							/*
@@ -503,7 +578,7 @@ public class SelectQueryRequestValidation {
 							 */
 							validateProjectionFields(notFoundField.getSubjectClass(), htblNotMappedFieldsClassesTemp,
 									notMappedFieldListTemp, notFoundField.getFieldObject(), htblClassNameProperty,
-									notFoundField.getIndividualUniqueIdintifier(), requestClassName);
+									notFoundField.getIndividualUniqueIdintifier(), requestClassName, null);
 
 							/*
 							 * check if there was unmapped fields in the
@@ -553,71 +628,125 @@ public class SelectQueryRequestValidation {
 
 		DynamicConceptsDao dynamicConceptDao = new DynamicConceptsDao(dataSource);
 
+		// Hashtable<String, Object> htblFieldValue = new Hashtable<>();
+		//
+		// ArrayList<Object> fieldsList = new ArrayList<>();
+		//
+		//
+		// LinkedHashMap<String, Object> tempMap = new LinkedHashMap<>();
+		// ArrayList<Object> tempList = new ArrayList<>();
+		// tempList.add("title");
+		// tempList.add("job");
+		//
+		// tempMap.put("fieldName", "love");
+		// tempMap.put("classType", "Developer");
+		// tempMap.put("fields", tempList);
+		//
+		//
+		//
+		// LinkedHashMap<String, Object> lovesPersonFieldMap = new
+		// LinkedHashMap<>();
+		// ArrayList<Object> lovesPersonFieldList = new ArrayList<>();
+		// lovesPersonFieldList.add("title");
+		// lovesPersonFieldList.add("job");
+		// // lovesPersonFieldList.add(tempMap);
+		//
+		// lovesPersonFieldMap.put("fieldName", "love");
+		// lovesPersonFieldMap.put("classType", "Developer");
+		// lovesPersonFieldMap.put("fields", lovesPersonFieldList);
+		//
+		// ArrayList<Object> hatesPersonFieldList = new ArrayList<>();
+		// hatesPersonFieldList.add("firstName");
+		// hatesPersonFieldList.add("mbox");
+		// hatesPersonFieldList.add("birthday");
+		// // hatesPersonFieldList.add(lovesPersonFieldMap);
+		// // hatesPersonFieldList.add(tempMap);
+		//
+		// LinkedHashMap<String, Object> personFieldMap = new LinkedHashMap<>();
+		// personFieldMap.put("fieldName", "knows");
+		// personFieldMap.put("classType", "Developer");
+		// personFieldMap.put("fields", hatesPersonFieldList);
+		//
+		// LinkedHashMap<String, Object> knowsPersonFieldMap = new
+		// LinkedHashMap<>();
+		// ArrayList<Object> knowsPersonFieldList = new ArrayList<>();
+		// knowsPersonFieldList.add("age");
+		// knowsPersonFieldList.add("familyName");
+		//
+		// knowsPersonFieldMap.put("fieldName", "knows");
+		// knowsPersonFieldMap.put("fields", knowsPersonFieldList);
+		//
+		// fieldsList.add("firstName");
+		// // fieldsList.add("title");
+		// fieldsList.add("middleName");
+		// fieldsList.add(knowsPersonFieldMap);
+		// fieldsList.add(personFieldMap);
+		//
+		// htblFieldValue.put("fields", fieldsList);
+
+		/*
+		 * test by querying on group class instances
+		 */
 		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
-
 		ArrayList<Object> fieldsList = new ArrayList<>();
+		htblFieldValue.put("fields", fieldsList);
 
-		//
-		LinkedHashMap<String, Object> tempMap = new LinkedHashMap<>();
-		ArrayList<Object> tempList = new ArrayList<>();
-		tempList.add("title");
-		tempList.add("job");
+		fieldsList.add("name");
 
-		tempMap.put("fieldName", "love");
-		tempMap.put("classType", "Developer");
-		tempMap.put("fields", tempList);
+		LinkedHashMap<String, Object> membersFieldMap = new LinkedHashMap<>();
+		fieldsList.add(membersFieldMap);
 
-		//
+		membersFieldMap.put("fieldName", "member");
 
-		LinkedHashMap<String, Object> lovesPersonFieldMap = new LinkedHashMap<>();
-		ArrayList<Object> lovesPersonFieldList = new ArrayList<>();
-		lovesPersonFieldList.add("title");
-		lovesPersonFieldList.add("job");
-		// lovesPersonFieldList.add(tempMap);
-
-		lovesPersonFieldMap.put("fieldName", "love");
-		lovesPersonFieldMap.put("classType", "Developer");
-		lovesPersonFieldMap.put("fields", lovesPersonFieldList);
-
-		ArrayList<Object> hatesPersonFieldList = new ArrayList<>();
-		hatesPersonFieldList.add("firstName");
-		hatesPersonFieldList.add("mbox");
-		hatesPersonFieldList.add("birthday");
-		// hatesPersonFieldList.add(lovesPersonFieldMap);
-		// hatesPersonFieldList.add(tempMap);
+		ArrayList<Object> membersValueObjects = new ArrayList<>();
+		membersFieldMap.put("values", membersValueObjects);
 
 		LinkedHashMap<String, Object> personFieldMap = new LinkedHashMap<>();
-		personFieldMap.put("fieldName", "knows");
-		personFieldMap.put("classType", "Developer");
-		personFieldMap.put("fields", hatesPersonFieldList);
+		personFieldMap.put("classType", "Person");
 
 		LinkedHashMap<String, Object> knowsPersonFieldMap = new LinkedHashMap<>();
 		ArrayList<Object> knowsPersonFieldList = new ArrayList<>();
 		knowsPersonFieldList.add("age");
 		knowsPersonFieldList.add("familyName");
+		knowsPersonFieldList.add("job");
 
 		knowsPersonFieldMap.put("fieldName", "knows");
+		knowsPersonFieldMap.put("classType", "Developer");
 		knowsPersonFieldMap.put("fields", knowsPersonFieldList);
 
-		fieldsList.add("firstName");
-		// fieldsList.add("title");
-		fieldsList.add("middleName");
-		fieldsList.add(knowsPersonFieldMap);
-		fieldsList.add(personFieldMap);
+		ArrayList<Object> personFields = new ArrayList<>();
+		personFields.add("userName");
+		personFields.add("age");
+		personFields.add(knowsPersonFieldMap);
 
-		htblFieldValue.put("fields", fieldsList);
+		personFieldMap.put("fields", personFields);
+		membersValueObjects.add(personFieldMap);
 
+		LinkedHashMap<String, Object> organizationFieldMap = new LinkedHashMap<>();
+		organizationFieldMap.put("classType", "Organization");
+
+		ArrayList<Object> organizationFields = new ArrayList<>();
+		organizationFields.add("name");
+		organizationFields.add("description");
+
+		organizationFieldMap.put("fields", organizationFields);
+		membersValueObjects.add(organizationFieldMap);
+
+		fieldsList.add("description");
 		System.out.println(htblFieldValue);
 
 		SelectQueryRequestValidation getQueryRequestValidations = new SelectQueryRequestValidation(
 				new DynamicConceptsUtility(dynamicConceptDao));
 
 		try {
+			long startTime = System.currentTimeMillis();
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = getQueryRequestValidations
 					.validateRequest("TESTAPPLICATION", htblFieldValue,
-							OntologyMapper.getHtblMainOntologyClassesMappers().get("admin"));
+							OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("group"));
 			System.out.println(htblClassNameProperty.toString());
 			System.out.println("============================================");
+			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+			System.out.println("Time taken = " + timeTaken);
 
 			Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 

@@ -63,7 +63,7 @@ public class SelectQueryDao {
 
 		String queryString = returnObject[0].toString();
 		Hashtable<String, QueryVariable> htblSubjectVariables = (Hashtable<String, QueryVariable>) returnObject[1];
-
+		System.out.println(queryString);
 		try {
 
 			ResultSet results = oracle.executeQuery(queryString, 0, 1);

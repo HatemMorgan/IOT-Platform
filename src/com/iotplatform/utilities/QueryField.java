@@ -39,6 +39,19 @@ public class QueryField {
 	 */
 	private String subjectVariableName;
 
+	/*
+	 * isValueObjectType is a boolean attribute the tells if the objectValue can
+	 * have different types (the object class is a superClass of many classes so
+	 * all the subClasses can be type of individuals of this class) ex:
+	 * foaf:member in group class its range is foaf:Agent which has a lot of
+	 * subClasses
+	 * 
+	 * this boolean is used when the user request body (used to construct query)
+	 * has values field for a fieldName (which maps to property like
+	 * foaf:member)
+	 */
+	private boolean isValueObjectType;
+
 	public QueryField(String prefixedPropertyName, String objectValueTypeClassName, String individualUniqueIdentifier) {
 		this.prefixedPropertyName = prefixedPropertyName;
 		this.objectValueTypeClassName = objectValueTypeClassName;
@@ -71,11 +84,20 @@ public class QueryField {
 		this.subjectVariableName = subjectVariableName;
 	}
 
+	public boolean isValueObjectType() {
+		return isValueObjectType;
+	}
+
+	public void setValueObjectType(boolean isValueObjectType) {
+		this.isValueObjectType = isValueObjectType;
+	}
+
 	@Override
 	public String toString() {
 		return "QueryField [prefixedPropertyName=" + prefixedPropertyName + ", isValueObject=" + isValueObject
 				+ ", objectValueTypeClassName=" + objectValueTypeClassName + ", individualUniqueIdentifier="
-				+ individualUniqueIdentifier + "]";
+				+ individualUniqueIdentifier + ", subjectVariableName=" + subjectVariableName + ", isValueObjectType="
+				+ isValueObjectType + "]";
 	}
 
 }
