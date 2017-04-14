@@ -162,7 +162,7 @@ public class SelectionQuery {
 		// queryBuilder.append(" " + filterConditionsBuilder.toString() + " \n
 		// }}");
 
-		System.out.println(htblSubjectVariables);
+//		System.out.println(htblSubjectVariables);
 		Object[] returnObject = { mainBuilder.toString(), htblSubjectVariables };
 		return returnObject;
 	}

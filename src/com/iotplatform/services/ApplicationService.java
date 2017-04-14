@@ -19,7 +19,7 @@ import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.query.results.SelectionQueryResults;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.validations.PostRequestValidations;
+import com.iotplatform.validations.InsertRequestValidations;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -27,11 +27,11 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class ApplicationService {
 
 	private ApplicationDao applicationDao;
-	private PostRequestValidations requestFieldsValidation;
+	private InsertRequestValidations requestFieldsValidation;
 	private MainDao mainDao;
 
 	@Autowired
-	public ApplicationService(ApplicationDao applicationDao, PostRequestValidations requestFieldsValidation,
+	public ApplicationService(ApplicationDao applicationDao, InsertRequestValidations requestFieldsValidation,
 			MainDao mainDao) {
 		this.applicationDao = applicationDao;
 		this.requestFieldsValidation = requestFieldsValidation;
@@ -117,7 +117,7 @@ public class ApplicationService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		PostRequestValidations requestFieldsValidation = new PostRequestValidations(validationDao,
+		InsertRequestValidations requestFieldsValidation = new InsertRequestValidations(validationDao,
 				new DynamicConceptsUtility(dynamicConceptDao));
 		MainDao mainDao = new MainDao(oracle, new SelectionQueryResults(new DynamicConceptsUtility(dynamicConceptDao)));
 
