@@ -32,11 +32,11 @@ import oracle.spatial.rdf.client.jena.Oracle;
  */
 
 @Component
-public class QueryRequestValidations {
+public class SelectQueryRequestValidation {
 
 	private DynamicConceptsUtility dynamicPropertiesUtility;
 
-	public QueryRequestValidations(DynamicConceptsUtility dynamicPropertiesUtility) {
+	public SelectQueryRequestValidation(DynamicConceptsUtility dynamicPropertiesUtility) {
 		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
 	}
 
@@ -610,7 +610,7 @@ public class QueryRequestValidations {
 
 		System.out.println(htblFieldValue);
 
-		QueryRequestValidations getQueryRequestValidations = new QueryRequestValidations(
+		SelectQueryRequestValidation getQueryRequestValidations = new SelectQueryRequestValidation(
 				new DynamicConceptsUtility(dynamicConceptDao));
 
 		try {

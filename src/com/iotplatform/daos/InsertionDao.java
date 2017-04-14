@@ -25,12 +25,12 @@ import oracle.spatial.rdf.client.jena.Oracle;
  */
 
 @Repository("insertDao")
-public class InsertDao {
+public class InsertionDao {
 
 	private Oracle oracle;
 
 	@Autowired
-	public InsertDao(Oracle oracle) {
+	public InsertionDao(Oracle oracle) {
 		this.oracle = oracle;
 	}
 

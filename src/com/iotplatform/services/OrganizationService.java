@@ -17,18 +17,18 @@ import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.validations.InsertRequestValidations;
+import com.iotplatform.validations.InsertRequestValidation;
 
 @Service("organizationService")
 public class OrganizationService {
 
-	private InsertRequestValidations requestFieldsValidation;
+	private InsertRequestValidation requestFieldsValidation;
 	private ApplicationDao applicationDao;
 	private OrganizationDao organizationDao;
 	private MainDao mainDao;
 
 	@Autowired
-	public OrganizationService(InsertRequestValidations requestFieldsValidation, ApplicationDao applicationDao,
+	public OrganizationService(InsertRequestValidation requestFieldsValidation, ApplicationDao applicationDao,
 			OrganizationDao organizationDao, MainDao mainDao) {
 		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;

@@ -17,18 +17,18 @@ import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.validations.InsertRequestValidations;
+import com.iotplatform.validations.InsertRequestValidation;
 
 @Service("GroupService")
 public class GroupService {
 
-	private InsertRequestValidations requestFieldsValidation;
+	private InsertRequestValidation requestFieldsValidation;
 	private ApplicationDao applicationDao;
 	private GroupDao groupDao;
 	private MainDao mainDao;
 
 	@Autowired
-	public GroupService(InsertRequestValidations requestFieldsValidation, ApplicationDao applicationDao,
+	public GroupService(InsertRequestValidation requestFieldsValidation, ApplicationDao applicationDao,
 			GroupDao groupDao, MainDao mainDao) {
 		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;

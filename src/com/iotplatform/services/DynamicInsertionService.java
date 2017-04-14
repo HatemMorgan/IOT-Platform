@@ -24,8 +24,8 @@ import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.query.results.SelectionQueryResults;
 import com.iotplatform.utilities.PropertyValue;
 import com.iotplatform.utilities.QueryField;
-import com.iotplatform.validations.QueryRequestValidations;
-import com.iotplatform.validations.InsertRequestValidations;
+import com.iotplatform.validations.SelectQueryRequestValidation;
+import com.iotplatform.validations.InsertRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -37,15 +37,15 @@ import oracle.spatial.rdf.client.jena.Oracle;
 @Service("dynamicInsertionService")
 public class DynamicInsertionService {
 
-	private InsertRequestValidations requestFieldsValidation;
+	private InsertRequestValidation requestFieldsValidation;
 	private ApplicationDao applicationDao;
 	private MainDao mainDao;
 	// private Hashtable<String, Class> htblAllStaticClasses;
-	private QueryRequestValidations getQueryRequestValidations;
+	private SelectQueryRequestValidation getQueryRequestValidations;
 
 	@Autowired
-	public DynamicInsertionService(InsertRequestValidations requestFieldsValidation, ApplicationDao applicationDao,
-			MainDao mainDao, QueryRequestValidations getQueryRequestValidations) {
+	public DynamicInsertionService(InsertRequestValidation requestFieldsValidation, ApplicationDao applicationDao,
+			MainDao mainDao, SelectQueryRequestValidation getQueryRequestValidations) {
 		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;
 		this.mainDao = mainDao;
@@ -305,12 +305,12 @@ public class DynamicInsertionService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
-		InsertRequestValidations requestFieldsValidation = new InsertRequestValidations(validationDao,
+		InsertRequestValidation requestFieldsValidation = new InsertRequestValidation(validationDao,
 				new DynamicConceptsUtility(dynamicConceptDao));
 
 		MainDao mainDao = new MainDao(oracle, new SelectionQueryResults(new DynamicConceptsUtility(dynamicConceptDao)));
 
-		QueryRequestValidations getQueryRequestValidations = new QueryRequestValidations(
+		SelectQueryRequestValidation getQueryRequestValidations = new SelectQueryRequestValidation(
 				new DynamicConceptsUtility(dynamicConceptDao));
 
 		DynamicInsertionService dynamicInsertionService = new DynamicInsertionService(requestFieldsValidation,

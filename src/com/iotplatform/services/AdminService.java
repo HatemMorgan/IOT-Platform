@@ -23,20 +23,20 @@ import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.query.results.SelectionQueryResults;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.validations.InsertRequestValidations;
+import com.iotplatform.validations.InsertRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
 @Service("adminService")
 public class AdminService {
 
-	private InsertRequestValidations requestFieldsValidation;
+	private InsertRequestValidation requestFieldsValidation;
 	private ApplicationDao applicationDao;
 	private AdminDao adminDao;
 	private MainDao mainDao;
 
 	@Autowired
-	public AdminService(InsertRequestValidations requestFieldsValidation, ApplicationDao applicationDao,
+	public AdminService(InsertRequestValidation requestFieldsValidation, ApplicationDao applicationDao,
 			AdminDao adminDao, MainDao mainDao) {
 		this.requestFieldsValidation = requestFieldsValidation;
 		this.applicationDao = applicationDao;
@@ -213,7 +213,7 @@ public class AdminService {
 		// loveList.add(hatemmorgan);
 		// htblFieldValue.put("love", loveList);
 		// htblFieldValue.put("job", "Engineeer");
-		InsertRequestValidations requestFieldsValidation = new InsertRequestValidations(validationDao,
+		InsertRequestValidation requestFieldsValidation = new InsertRequestValidation(validationDao,
 				new DynamicConceptsUtility(dynamicConceptDao));
 
 		MainDao mainDao = new MainDao(oracle, new SelectionQueryResults(new DynamicConceptsUtility(dynamicConceptDao)));

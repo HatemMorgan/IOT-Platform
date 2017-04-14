@@ -7,15 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
-import com.iotplatform.daos.MainDao;
+import com.iotplatform.daos.InsertionDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidClassNameException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.PropertyValue;
-import com.iotplatform.validations.InsertRequestValidations;
-import com.iotplatform.validations.QueryRequestValidations;
+import com.iotplatform.validations.InsertRequestValidation;
+import com.iotplatform.validations.SelectQueryRequestValidation;
 
 /*
  * InsertionService is used to serve InsertionAPIController to insert new data 
@@ -28,16 +28,16 @@ import com.iotplatform.validations.QueryRequestValidations;
 @Service("insertionService")
 public class InsertionService {
 
-	private InsertRequestValidations insertRequestValidations;
+	private InsertRequestValidation insertRequestValidations;
 	private ApplicationDao applicationDao;
-	private MainDao mainDao;
+	private InsertionDao insertionDao;
 
 	@Autowired
-	public InsertionService(InsertRequestValidations insertRequestValidations, ApplicationDao applicationDao,
-			MainDao mainDao, QueryRequestValidations getQueryRequestValidations) {
+	public InsertionService(InsertRequestValidation insertRequestValidations, ApplicationDao applicationDao,
+			InsertionDao insertionDao, SelectQueryRequestValidation getQueryRequestValidations) {
 		this.insertRequestValidations = insertRequestValidations;
 		this.applicationDao = applicationDao;
-		this.mainDao = mainDao;
+		this.insertionDao = insertionDao;
 
 	}
 
@@ -73,7 +73,7 @@ public class InsertionService {
 				 */
 				String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-				mainDao.insertData(applicationModelName, subjectClass.getName(), htblClassPropertyValue);
+				insertionDao.insertData(applicationModelName, subjectClass.getName(), htblClassPropertyValue);
 
 				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 				SuccessfullInsertionModel successModel = new SuccessfullInsertionModel(subjectClass.getName(),
