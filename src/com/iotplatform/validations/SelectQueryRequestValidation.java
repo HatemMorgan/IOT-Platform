@@ -707,11 +707,11 @@ public class SelectQueryRequestValidation {
 		LinkedHashMap<String, Object> knowsPersonFieldMap = new LinkedHashMap<>();
 		ArrayList<Object> knowsPersonFieldList = new ArrayList<>();
 		knowsPersonFieldList.add("age");
-		knowsPersonFieldList.add("familyName");
-		knowsPersonFieldList.add("job");
+		knowsPersonFieldList.add("userName");
+//		knowsPersonFieldList.add("job");
 
 		knowsPersonFieldMap.put("fieldName", "knows");
-		knowsPersonFieldMap.put("classType", "Developer");
+//		knowsPersonFieldMap.put("classType", "Developer");
 		knowsPersonFieldMap.put("fields", knowsPersonFieldList);
 
 		ArrayList<Object> personFields = new ArrayList<>();

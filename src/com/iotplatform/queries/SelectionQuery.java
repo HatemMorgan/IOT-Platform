@@ -70,16 +70,6 @@ public class SelectionQuery {
 				.get(mainInstanceUniqueIdentifier);
 
 		/*
-		 * htblPropValue has key prefiexedPropertyName and value
-		 * valueOfProperty.
-		 *
-		 * It is used to avoid duplicating same triple patterns eg: mbox when
-		 * person has more the one email so I want to add foaf:mbox ?var only
-		 * one time for this instance
-		 */
-		Hashtable<String, Object> htblPropValue = new Hashtable<>();
-
-		/*
 		 * htblSubjectVariablePropertyName holds subjectVariable as key and its
 		 * associated property as value
 		 */
@@ -144,7 +134,7 @@ public class SelectionQuery {
 			constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
 					queryBuilder, filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
 					sqlProjectedFieldsBuilder, mainClassPrefixedName, mainInstanceUniqueIdentifier, queryField,
-					htblPropValue, vairableNum, subjectNum, htblValueTypePropObjectVariable);
+					vairableNum, subjectNum, htblValueTypePropObjectVariable);
 
 		}
 
@@ -210,8 +200,8 @@ public class SelectionQuery {
 			Hashtable<String, String> htblIndividualIDSubjVarName, StringBuilder queryBuilder,
 			StringBuilder filterConditionsBuilder, StringBuilder endGraphPatternBuilder,
 			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder, String currentClassURI,
-			String currentClassInstanceUniqueIdentifier, QueryField queryField, Hashtable<String, Object> htblPropValue,
-			int[] vairableNum, int[] subjectNum, Hashtable<String, String> htblValueTypePropObjectVariable) {
+			String currentClassInstanceUniqueIdentifier, QueryField queryField, int[] vairableNum, int[] subjectNum,
+			Hashtable<String, String> htblValueTypePropObjectVariable) {
 
 		if (!htblIndividualIDSubjVarName.containsKey(currentClassInstanceUniqueIdentifier)) {
 			/*
@@ -437,47 +427,91 @@ public class SelectionQuery {
 					.get(objectVaueUniqueIdentifier);
 
 			/*
-			 * objectValueHtblPropValue is the same htblPropValue but for this
-			 * objectValueInstance I doing this to keep every instance
-			 * independent from other instance even if more than one instance
-			 * have the same ontology class type
-			 *
-			 * objectValueHtblPropValue has key prefiexedPropertyName and value
-			 * valueOfProperty.
-			 *
-			 * It is used to avoid duplicating same triple patterns eg: mbox
-			 * when person has more the one email so I want to add foaf:mbox
-			 * ?var only one time for this instance
+			 * check if the queryField's property is multiple value type
+			 * property (this is determined by the user input request query body
+			 * by adding values field)
 			 */
-			Hashtable<String, Object> objectValueHtblPropValue = new Hashtable<>();
-
-			for (QueryField objectPropertyValue : queryFieldList) {
-
-				constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
-						tempBuilder, filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
-						sqlProjectedFieldsBuilder, objectClassTypeName, objectVaueUniqueIdentifier, objectPropertyValue,
-						objectValueHtblPropValue, vairableNum, subjectNum, htblValueTypePropObjectVariable);
-			}
-
-			/*
-			 * check if the queryField hold a property that has multiple value
-			 * type eg: foaf:member associated with foaf:Group class and it
-			 * bindPatternTemp must not be null if the
-			 * queryField.isValueObjectType() is true it is secondary check but
-			 * it will always be true if the first condition is true
-			 */
-			if (queryField.isValueObjectType() && bindPatternTemp != null) {
-				/*
-				 * append bindPatternTemp tp tempBuilder, I do this because I
-				 * need to have the bind pattern at the end of the optional
-				 * query part
-				 */
-				tempBuilder.append(bindPatternTemp);
+			if (queryField.isValueObjectType()) {
 
 				/*
-				 * end the optional query part
+				 * create a new string builder to hold all the patterns related
+				 * to the subjectVariable of the optional query to be added at
+				 * the end of the optional query
+				 * 
+				 * eg: select * where { ... OPTIONAL { ?subject1 a
+				 * <http://xmlns.com/foaf/0.1/Person> ; foaf:userName ?var1 ;
+				 * foaf:age ?var2 ; foaf:knows ?subject3 . ?subject3 a
+				 * <http://iot-platform#Developer> ; foaf:age ?var3 ;
+				 * foaf:familyName ?var4 ; foaf:job ?var5 . BIND( ?subject1 AS
+				 * ?subject2 ) } ... }
+				 * 
+				 * we use new StringBuilder and pass it instead of
+				 * endGraphPatternBuilder in the recursive call so it hold
+				 * ?subject3 variable and all its patterns and at the end of
+				 * iteration on subjectVariable of the optional query. I add it
+				 * at the end of the optional query (builded using tempBuilder)
 				 */
-				tempBuilder.append(" } \n");
+				StringBuilder optionalqueryPattern = new StringBuilder();
+				for (QueryField objectPropertyValue : queryFieldList) {
+
+					constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
+							tempBuilder, filterConditionsBuilder, optionalqueryPattern, sparqlProjectedFieldsBuilder,
+							sqlProjectedFieldsBuilder, objectClassTypeName, objectVaueUniqueIdentifier,
+							objectPropertyValue, vairableNum, subjectNum, htblValueTypePropObjectVariable);
+				}
+
+				/*
+				 * check that optionalqueryPattern is not empty to append it to
+				 * tempBuilder as discussed above
+				 */
+				if (optionalqueryPattern.length() > 0) {
+					tempBuilder.append(optionalqueryPattern.toString());
+				}
+
+				/*
+				 * check if the queryField hold a property that has multiple
+				 * value type eg: foaf:member associated with foaf:Group class
+				 * and it bindPatternTemp must not be null if the
+				 * queryField.isValueObjectType() is true it is secondary check
+				 * but it will always be true if the first condition is true
+				 */
+				if (bindPatternTemp != null) {
+					/*
+					 * append bindPatternTemp tp tempBuilder, I do this because
+					 * I need to have the bind pattern at the end of the
+					 * optional query part
+					 */
+					tempBuilder.append(bindPatternTemp);
+
+					/*
+					 * end the optional query part
+					 */
+					tempBuilder.append(" } \n");
+				}
+			} else {
+
+				/*
+				 * The queryField's property is not multiple value type so I
+				 * will not need to create a new StringBuilder to pass it
+				 * instead of endGraphPatternBuilder in the recursive call
+				 * because any related patterns has to be added to the default
+				 * patterns part
+				 * 
+				 * eg: Select * where{ .. ?subject1 a foaf:Person; foaf:knows
+				 * ?subject2 . ?subject2 a foaf:Person; foaf:userName ?userName.
+				 * ....}
+				 * 
+				 * ?subject2 patterns is added to default patterns because it is
+				 * not an optional patterns
+				 */
+
+				for (QueryField objectPropertyValue : queryFieldList) {
+
+					constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
+							tempBuilder, filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
+							sqlProjectedFieldsBuilder, objectClassTypeName, objectVaueUniqueIdentifier,
+							objectPropertyValue, vairableNum, subjectNum, htblValueTypePropObjectVariable);
+				}
 			}
 
 			/*
@@ -507,62 +541,38 @@ public class SelectionQuery {
 							.get(currentClassInstanceUniqueIdentifier).size() - 1) {
 
 				/*
-				 * Check if the prefixedPropertyName of this instance was added
-				 * before
+				 * if we add a new graph pattern (by checking if the
+				 * prefixedPropertyName was not added before for this current
+				 * instance) then increment the variableNum[0]
+				 *
+				 * add prifixedPropertyName to htblPropValue to avoid
+				 * duplicating it again for this instance
+				 *
+				 * I do this after adding filter condition and graph pattern to
+				 * maintain the same variableNames between graph pattern added
+				 * and condtion
 				 */
-				if (!htblPropValue.containsKey(queryField.getPrefixedPropertyName())) {
 
-					/*
-					 * if we add a new graph pattern (by checking if the
-					 * prefixedPropertyName was not added before for this
-					 * current instance) then increment the variableNum[0]
-					 *
-					 * add prifixedPropertyName to htblPropValue to avoid
-					 * duplicating it again for this instance
-					 *
-					 * I do this after adding filter condition and graph pattern
-					 * to maintain the same variableNames between graph pattern
-					 * added and condtion
-					 */
+				sparqlProjectedFieldsBuilder.append("  ?var" + vairableNum[0]);
+				sqlProjectedFieldsBuilder.append(" , var" + vairableNum[0]);
 
-					// if
-					// (!htblPropValue.containsKey(queryField.getPrefixedPropertyName()))
-					// {
-					//
-					// htblPropValue.put(queryField.getPrefixedPropertyName(),
-					// "?var" + vairableNum[0]);
-					sparqlProjectedFieldsBuilder.append("  ?var" + vairableNum[0]);
-					sqlProjectedFieldsBuilder.append(" , var" + vairableNum[0]);
+				/*
+				 * add var variable and it property to
+				 * htblSubjectVariablePropertyName to be used to properly
+				 * construct query results
+				 */
+				htblSubjectVariables.put("var" + vairableNum[0],
+						new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
+								getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 
-					/*
-					 * add var variable and it property to
-					 * htblSubjectVariablePropertyName to be used to properly
-					 * construct query results
-					 */
-					htblSubjectVariables.put("var" + vairableNum[0],
-							new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
-									getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
-
-					// vairableNum[0]++;
-					// }
-
-					/*
-					 * it is not the last property so we will end the previous
-					 * triple pattern with ;
-					 */
-
-					// queryBuilder.append(" ; \n" +
-					// queryField.getPrefixedPropertyName() + " "
-					// +
-					// htblPropValue.get(queryField.getPrefixedPropertyName()));
-					queryBuilder.append(" ; \n" + queryField.getPrefixedPropertyName() + " " + "?var" + vairableNum[0]);
-					vairableNum[0]++;
-				}
+				/*
+				 * it is not the last property so we will end the previous
+				 * triple pattern with ;
+				 */
+				queryBuilder.append(" ; \n" + queryField.getPrefixedPropertyName() + " " + "?var" + vairableNum[0]);
+				vairableNum[0]++;
 
 			} else {
-				// if
-				// (!htblPropValue.containsKey(queryField.getPrefixedPropertyName()))
-				// {
 
 				/*
 				 * if we add a new graph pattern (by checking if the
@@ -577,11 +587,6 @@ public class SelectionQuery {
 				 * and condtion
 				 */
 
-				// if
-				// (!htblPropValue.containsKey(queryField.getPrefixedPropertyName()))
-				// {
-				// htblPropValue.put(queryField.getPrefixedPropertyName(),
-				// "?var" + vairableNum[0]);
 				sparqlProjectedFieldsBuilder.append("  ?var" + vairableNum[0]);
 				sqlProjectedFieldsBuilder.append(" , var" + vairableNum[0]);
 
@@ -594,34 +599,14 @@ public class SelectionQuery {
 						new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
 								getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 
-				// vairableNum[0]++;
-				// }
-
 				/*
 				 * it is the last property so we will end the previous triple
 				 * pattern with ; and this one with .
 				 */
 
-				// queryBuilder.append(" ; \n" +
-				// queryField.getPrefixedPropertyName() + " "
-				// + htblPropValue.get(queryField.getPrefixedPropertyName()) + "
-				// . \n");
-
 				queryBuilder.append(
 						" ; \n" + queryField.getPrefixedPropertyName() + " " + "?var" + vairableNum[0] + " . \n");
 				vairableNum[0]++;
-
-				// } else {
-				//
-				// /*
-				// * end the previous triple pattern with .
-				// *
-				// * Because after checking it was found that the end
-				// * prefixedPropertyName was added before to this instance's
-				// * graph patterns
-				// */
-				// queryBuilder.append(" . \n");
-				// }
 
 			}
 
