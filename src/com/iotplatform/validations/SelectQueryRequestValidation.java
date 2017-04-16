@@ -212,6 +212,25 @@ public class SelectQueryRequestValidation {
 			if (field instanceof java.util.LinkedHashMap<?, ?>) {
 				LinkedHashMap<String, Object> htblfieldObject = (LinkedHashMap<String, Object>) field;
 
+				/*
+				 * check that object maps to one of the conditions discussed
+				 * above. It must have either
+				 * 
+				 * 1- fieldName and fields 2- fieldName and values '
+				 * 
+				 * I am here checking that the user did not add fields and
+				 * values keys
+				 */
+				if (htblfieldObject.containsKey("fields") && htblfieldObject.containsKey("values")) {
+
+					throw new InvalidQueryRequestBodyFormatException("Invalid query request body. You cannot"
+							+ "have both fields and values, you must have only one of them. 1- fields key is used to "
+							+ "express the projected fields for the object field's value."
+							+ " It must be a list of one or more fields. 2- Values key is used represents a list of objects "
+							+ "where each object has classType and fields keys where the classType represent the classType of "
+							+ "objectValue and fields represents the fields needed for the instances.  ");
+				}
+
 				Class objectValueClassType = null;
 				/*
 				 * generate uniqueIdntifier
@@ -388,9 +407,12 @@ public class SelectQueryRequestValidation {
 									 * throw an exception
 									 */
 									throw new InvalidQueryRequestBodyFormatException(
-											"fields key not found. fields key is used to "
+											"fields key or values key not found.  fields key is used to "
 													+ "express the projected fields for the object field's value."
-													+ " It must be a list of one or more fields ");
+													+ " It must be a list of one or more fields. Values key is used represents a list of objects "
+													+ "where each object has classType and fields keys where the classType represent the classType of "
+													+ "objectValue and fields represents the fields needed for the instances. "
+													+ "Note that you must have one of these keys not both ");
 								}
 							}
 						} else {
@@ -698,8 +720,12 @@ public class SelectQueryRequestValidation {
 
 		membersFieldMap.put("fieldName", "member");
 
+		ArrayList<String> fields = new ArrayList<>();
+		fields.add("mbox");
+
 		ArrayList<Object> membersValueObjects = new ArrayList<>();
 		membersFieldMap.put("values", membersValueObjects);
+//		membersFieldMap.put("fields", fields);
 
 		LinkedHashMap<String, Object> personFieldMap = new LinkedHashMap<>();
 		personFieldMap.put("classType", "Person");
@@ -752,7 +778,7 @@ public class SelectQueryRequestValidation {
 		groupFields.add("name");
 
 		groupFieldMap.put("fields", groupFields);
-		membersValueObjects.add(groupFieldMap);
+		// membersValueObjects.add(groupFieldMap);
 
 		fieldsList.add("description");
 		System.out.println(htblFieldValue);

@@ -187,7 +187,6 @@ public class SelectionQuery {
 		 * check if htbloptionalTypeClassList has keyValues
 		 */
 		if (htbloptionalTypeClassList.size() > 0) {
-			System.out.println(htbloptionalTypeClassList);
 
 			/*
 			 * iterate over htbloptionalTypeClassList and for each key add a new
@@ -352,40 +351,6 @@ public class SelectionQuery {
 
 					}
 
-					/*
-					 * also add superClasses to the filter because I don't want
-					 * to have instance of superClass because I am quering on
-					 * subClasses instances
-					 * 
-					 * eg. As the same example discussed above for foaf:member
-					 * property, the user specified foaf:Person in the values
-					 * field so I do not want to have any returned instances of
-					 * type foaf:Agent which is the superClass of foaf:Person
-					 * (not a logic to do such a thing)
-					 */
-					// for (Class superClass :
-					// objectValueClass.getSuperClassesList()) {
-					//
-					// /*
-					// * check that classUri was not added before
-					// */
-					// if
-					// (!htblfilterClassesURI.containsKey(superClass.getUri()))
-					// {
-					//
-					// unProjectOptionalPartBuilder.append(
-					// " && ?class" + classVariableCounter + " != <" +
-					// superClass.getUri() + "> ");
-					//
-					// /*
-					// * add classUri to htblfilterClassesURI to avoid
-					// * replicating it again in the filter condtion
-					// */
-					// htblfilterClassesURI.put(superClass.getUri(),
-					// superClass.getUri());
-					// }
-					// }
-
 				}
 
 				/*
@@ -398,7 +363,6 @@ public class SelectionQuery {
 				 * (this builder hold all the optional queries of this type)
 				 */
 				if (typeCounter == classTypesNum) {
-					System.out.println("heree");
 					continue;
 				} else {
 					unProjectOptionalPartBuilder.append(optionalQueryTempBuilder.toString());
@@ -465,16 +429,18 @@ public class SelectionQuery {
 			counter++;
 		}
 
-		/*
-		 * start filterBuilder
-		 */
-		filterBuilder.insert(0, "FILTER ( ");
+		if (filterBuilder.length() > 0) {
+			/*
+			 * start filterBuilder
+			 */
+			filterBuilder.insert(0, "FILTER ( ");
 
-		/*
-		 * end filterBuilder
-		 */
-		filterBuilder.append(" ) \n ");
+			/*
+			 * end filterBuilder
+			 */
+			filterBuilder.append(" ) \n ");
 
+		}
 		/*
 		 * Appending the endGraphPatternBuilder to the end of the queryBuilder
 		 */
