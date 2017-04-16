@@ -704,14 +704,27 @@ public class SelectQueryRequestValidation {
 		LinkedHashMap<String, Object> personFieldMap = new LinkedHashMap<>();
 		personFieldMap.put("classType", "Person");
 
+		// LinkedHashMap<String, Object> knowsPersonFieldMap2 = new
+		// LinkedHashMap<>();
+		// ArrayList<Object> knowsPersonFieldList2 = new ArrayList<>();
+		// knowsPersonFieldList2.add("age");
+		// knowsPersonFieldList2.add("userName");
+		// knowsPersonFieldList2.add("job");
+		//
+		//
+		// knowsPersonFieldMap2.put("fieldName", "knows");
+		// knowsPersonFieldMap2.put("classType", "Developer");
+		// knowsPersonFieldMap2.put("fields", knowsPersonFieldList2);
+
 		LinkedHashMap<String, Object> knowsPersonFieldMap = new LinkedHashMap<>();
 		ArrayList<Object> knowsPersonFieldList = new ArrayList<>();
 		knowsPersonFieldList.add("age");
 		knowsPersonFieldList.add("userName");
-//		knowsPersonFieldList.add("job");
+		knowsPersonFieldList.add("job");
+		// knowsPersonFieldList.add(knowsPersonFieldMap2);
 
 		knowsPersonFieldMap.put("fieldName", "knows");
-//		knowsPersonFieldMap.put("classType", "Developer");
+		knowsPersonFieldMap.put("classType", "Developer");
 		knowsPersonFieldMap.put("fields", knowsPersonFieldList);
 
 		ArrayList<Object> personFields = new ArrayList<>();

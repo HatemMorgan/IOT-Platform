@@ -2,6 +2,7 @@ package com.iotplatform.queries;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import com.iotplatform.ontology.Class;
@@ -63,6 +64,11 @@ public class SelectionQuery {
 		StringBuilder sqlProjectedFieldsBuilder = new StringBuilder();
 
 		/*
+		 * filterBuilder is used to build filter part of the query
+		 */
+		StringBuilder filterBuilder = new StringBuilder();
+
+		/*
 		 * Getting propertyList of the main subject(this list constructs the
 		 * main graph pattern)
 		 */
@@ -107,6 +113,13 @@ public class SelectionQuery {
 		Hashtable<String, String> htblValueTypePropObjectVariable = new Hashtable<>();
 
 		/*
+		 * htbloptionalTypeClassList holds subjectVariableName of objectValue of
+		 * property that has different types as key and the value is a list of
+		 * classTypes specified in the values part of the selectQueryRequest
+		 */
+		Hashtable<String, ArrayList<String>> htbloptionalTypeClassList = new Hashtable<>();
+
+		/*
 		 * start of the query graph patterns (this triple pattern minimize
 		 * search area because of specifing that the first subject variable
 		 * (?subject0) is of type certin class )
@@ -133,9 +146,80 @@ public class SelectionQuery {
 
 			constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
 					queryBuilder, filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
-					sqlProjectedFieldsBuilder, mainClassPrefixedName, mainInstanceUniqueIdentifier, queryField,
-					vairableNum, subjectNum, htblValueTypePropObjectVariable);
+					sqlProjectedFieldsBuilder, filterBuilder, mainClassPrefixedName, mainInstanceUniqueIdentifier,
+					queryField, vairableNum, subjectNum, htblValueTypePropObjectVariable, htbloptionalTypeClassList);
 
+		}
+
+		/*
+		 * unProjectOptionalPartBuilder is used to build the final optional part
+		 * that gets the other object values of a given property that were not
+		 * specified in the values field by the user
+		 * 
+		 * eg. The user specifed the values part of foaf:member of class
+		 * foaf:Group . In the values part the user specified foaf:Person and
+		 * foaf:organization only . foaf:member has valueObjectType foaf:Agent
+		 * so it can have an objectValue of type foaf:Group (because foaf:Group
+		 * is subclass of foaf:Agnet) . This builder will build the optional
+		 * query part that gets the other values subject and their classType
+		 *
+		 * This capability is enabled by default and the user can disable it in
+		 * the request option part
+		 */
+		StringBuilder unProjectOptionalPartBuilder = new StringBuilder();
+
+		/*
+		 * check if htbloptionalTypeClassList has keyValues
+		 */
+		if (htbloptionalTypeClassList.size() > 0) {
+			/*
+			 * iterate over htbloptionalTypeClassList and for each key add a new
+			 * optionalQuery (each key represent and objectValueQueryVariable
+			 * for a property. The property is different and also the
+			 * objectValueQueryVariable )
+			 */
+			Iterator<String> htbloptionalTypeClassListIter = htbloptionalTypeClassList.keySet().iterator();
+
+			int classVariableCounter = 0;
+			while (htbloptionalTypeClassListIter.hasNext()) {
+				String objectValueQueryVariable = htbloptionalTypeClassListIter.next();
+
+				/*
+				 * Start unProjectOptionalPartBuilder
+				 */
+				unProjectOptionalPartBuilder
+						.append("OPTIONAL { " + objectValueQueryVariable + " a  ?class" + classVariableCounter + " \n");
+				unProjectOptionalPartBuilder.append("FILTER (");
+
+				/*
+				 * add filterPart
+				 */
+				ArrayList<String> optionalTypeClassList = htbloptionalTypeClassList.get(objectValueQueryVariable);
+
+				/*
+				 * iterating over optionalTypeClassList
+				 */
+				boolean start = true;
+				for (String objectValueClass : optionalTypeClassList) {
+					if (start) {
+
+						/*
+						 * The first condition so I will not add or logic
+						 * operator ( || )
+						 */
+						unProjectOptionalPartBuilder
+								.append(" ?class" + classVariableCounter + " != <" + objectValueClass + ">  ");
+
+					}
+				}
+
+				/*
+				 * End unProjectOptionalPartBuilder
+				 */
+				unProjectOptionalPartBuilder.append(" ) \n");
+				unProjectOptionalPartBuilder.append(" } \n");
+
+			}
 		}
 
 		/*
@@ -155,9 +239,25 @@ public class SelectionQuery {
 		}
 
 		/*
+		 * start filterBuilder
+		 */
+		filterBuilder.insert(0, "FILTER ( ");
+
+		/*
+		 * end filterBuilder
+		 */
+		filterBuilder.append(" ) \n ");
+
+		/*
 		 * Appending the endGraphPatternBuilder to the end of the queryBuilder
 		 */
 		queryBuilder.append(endGraphPatternBuilder.toString());
+
+		/*
+		 * Append filterBuilder to query builder. It must be appended after
+		 * appending endGraphPatternBuilder (which holds graph patterns)
+		 */
+		queryBuilder.append(filterBuilder.toString());
 
 		/*
 		 * complete query by appending projection field and graph patterns
@@ -186,8 +286,9 @@ public class SelectionQuery {
 	 * A recursive method that construct a select query
 	 *
 	 * it takes the reference of
-	 * htblClassNameProperty,queryBuilder,filterConditionsBuilder and
-	 * endGraphPatternBuilder to construct query
+	 * htblClassNameProperty,queryBuilder,filterConditionsBuilder,filterBuilder,
+	 * unProjectOptionalPartBuilder and endGraphPatternBuilder to construct
+	 * query
 	 *
 	 * It also recursively take propertyValue and currentClassPrefixedName to
 	 * breakdown all values and construct a proper graph patterns and filter in
@@ -199,9 +300,11 @@ public class SelectionQuery {
 			Hashtable<String, QueryVariable> htblSubjectVariables,
 			Hashtable<String, String> htblIndividualIDSubjVarName, StringBuilder queryBuilder,
 			StringBuilder filterConditionsBuilder, StringBuilder endGraphPatternBuilder,
-			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder, String currentClassURI,
-			String currentClassInstanceUniqueIdentifier, QueryField queryField, int[] vairableNum, int[] subjectNum,
-			Hashtable<String, String> htblValueTypePropObjectVariable) {
+			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder,
+			StringBuilder filterBuilder, String currentClassURI, String currentClassInstanceUniqueIdentifier,
+			QueryField queryField, int[] vairableNum, int[] subjectNum,
+			Hashtable<String, String> htblValueTypePropObjectVariable,
+			Hashtable<String, ArrayList<String>> htblOptionalTypeClassList) {
 
 		if (!htblIndividualIDSubjVarName.containsKey(currentClassInstanceUniqueIdentifier)) {
 			/*
@@ -309,7 +412,12 @@ public class SelectionQuery {
 					 * foaf:age ?var2 ; foaf:knows subject3 . }
 					 * 
 					 * I am incrementing to have subject2 and project subject2
-					 * not subject1
+					 * not subject1 because when it the variable is not in
+					 * htblValueTypePropObjectVariable it means that it is the
+					 * first time to see this property so I have to use two
+					 * subjectVariable the first one to do the relation pattern
+					 * as discussed above and then incrementing to use another
+					 * variable when adding binding part
 					 */
 					subjectNum[0]++;
 					subjectVariable = "subject" + subjectNum[0];
@@ -323,7 +431,43 @@ public class SelectionQuery {
 
 					sparqlProjectedFieldsBuilder.append(" ?" + subjectVariable);
 					sqlProjectedFieldsBuilder.append(" , " + subjectVariable);
+
+					/*
+					 * incrementing subjectNum after using it to avoid
+					 * subjectVariables to be repeated
+					 */
 					subjectNum[0]++;
+
+					/*
+					 * add alisaed subjectVariable to filterBuilder in order to
+					 * make sure that it is bounded(has value to avoid returning
+					 * null values)
+					 */
+					if (filterBuilder.length() == 0) {
+						/*
+						 * first filter condition so do not add or logic
+						 * operator ( || )
+						 */
+						filterBuilder.append("BOUND ( ?" + subjectVariable + " )");
+					} else {
+						/*
+						 * not the first filter condition so add or logic
+						 * operator ( || )
+						 */
+						filterBuilder.append("|| BOUND ( ?" + subjectVariable + " )");
+					}
+
+					/*
+					 * 1- create a new optionalTypeClassList to hold classTypes
+					 * because it is the first time to this property
+					 * 
+					 * 2-add objectValueTypeClassName to optionalTypeClassList
+					 */
+					ArrayList<String> optionalTypeClassList = new ArrayList<>();
+					optionalTypeClassList.add("?" + queryField.getObjectValueTypeClassName());
+					htblOptionalTypeClassList.put(
+							htblValueTypePropObjectVariable.get(queryField.getPrefixedPropertyName()),
+							optionalTypeClassList);
 
 				} else {
 
@@ -362,8 +506,37 @@ public class SelectionQuery {
 					 */
 					subjectNum[0]++;
 
+					/*
+					 * add alisaed subjectVariable to filterBuilder in order to
+					 * make sure that it is bounded(has value to avoid returning
+					 * null values)
+					 */
+					if (filterBuilder.length() == 0) {
+						/*
+						 * first filter condition so do not add or logic
+						 * operator ( || )
+						 */
+						filterBuilder.append("BOUND ( ?" + subjectVariable + " )");
+					} else {
+						/*
+						 * not the first filter condition so add or logic
+						 * operator ( || )
+						 */
+						filterBuilder.append("|| BOUND ( ?" + subjectVariable + " )");
+					}
+
 				}
 
+				/*
+				 * add objectValueTypeClassName to optionalTypeClassList only
+				 * (without creating a new list or checking if the
+				 * htblOptionalTypeClassList has the
+				 * propertyObjectQueryVariable) because it is not the first time
+				 * to see this property because it was added before to
+				 * htblValueTypePropObjectVariable
+				 */
+				htblOptionalTypeClassList.get(htblValueTypePropObjectVariable.get(queryField.getPrefixedPropertyName()))
+						.add("?" + queryField.getObjectValueTypeClassName());
 			} else {
 
 				/*
@@ -456,8 +629,9 @@ public class SelectionQuery {
 
 					constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
 							tempBuilder, filterConditionsBuilder, optionalqueryPattern, sparqlProjectedFieldsBuilder,
-							sqlProjectedFieldsBuilder, objectClassTypeName, objectVaueUniqueIdentifier,
-							objectPropertyValue, vairableNum, subjectNum, htblValueTypePropObjectVariable);
+							sqlProjectedFieldsBuilder, filterBuilder, objectClassTypeName, objectVaueUniqueIdentifier,
+							objectPropertyValue, vairableNum, subjectNum, htblValueTypePropObjectVariable,
+							htblOptionalTypeClassList);
 				}
 
 				/*
@@ -497,6 +671,8 @@ public class SelectionQuery {
 				 * because any related patterns has to be added to the default
 				 * patterns part
 				 * 
+				 * So I will pass endGraphPatternBuilder to the recursive call
+				 * 
 				 * eg: Select * where{ .. ?subject1 a foaf:Person; foaf:knows
 				 * ?subject2 . ?subject2 a foaf:Person; foaf:userName ?userName.
 				 * ....}
@@ -509,8 +685,9 @@ public class SelectionQuery {
 
 					constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
 							tempBuilder, filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
-							sqlProjectedFieldsBuilder, objectClassTypeName, objectVaueUniqueIdentifier,
-							objectPropertyValue, vairableNum, subjectNum, htblValueTypePropObjectVariable);
+							sqlProjectedFieldsBuilder, filterBuilder, objectClassTypeName, objectVaueUniqueIdentifier,
+							objectPropertyValue, vairableNum, subjectNum, htblValueTypePropObjectVariable,
+							htblOptionalTypeClassList);
 				}
 			}
 
