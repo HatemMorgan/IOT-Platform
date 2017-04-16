@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.QueryField;
@@ -186,6 +187,7 @@ public class SelectionQuery {
 		 * check if htbloptionalTypeClassList has keyValues
 		 */
 		if (htbloptionalTypeClassList.size() > 0) {
+			System.out.println(htbloptionalTypeClassList);
 
 			/*
 			 * iterate over htbloptionalTypeClassList and for each key add a new
@@ -200,11 +202,44 @@ public class SelectionQuery {
 				String objectValueQueryVariable = htbloptionalTypeClassListIter.next();
 
 				/*
+				 * this first item in htbloptionalTypeClassList is the range of
+				 * the property. I add it to get all its subClassTypes in order
+				 * to avoid adding optional query if the user specified all the
+				 * types in values field in the request body
+				 */
+				String propertyRangeClassUri = htbloptionalTypeClassList.get(objectValueQueryVariable).get(0);
+
+				/*
+				 * get number of type classes of the property associated with
+				 * objectValueQueryVariable and add 1 for propertyRangeClassUri
+				 * itself (because it is also a type)
+				 */
+				int classTypesNum = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers()
+						.get(propertyRangeClassUri).getClassTypesList().size() + 1;
+
+				/*
+				 * typeCounter is used to count number of types used. I
+				 * increment this counter every time I add a condition to filter
+				 * part of this optional query
+				 * 
+				 * At the end if typeCounter == classTypesNum this means that
+				 * all the type classes were mentioned by user so no need to add
+				 * this optional query
+				 */
+				int typeCounter = 0;
+
+				/*
+				 * optionalQueryTempBuilder is used to build optional query for
+				 * this objectValueQueryVariable
+				 */
+				StringBuilder optionalQueryTempBuilder = new StringBuilder();
+
+				/*
 				 * Start unProjectOptionalPartBuilder
 				 */
-				unProjectOptionalPartBuilder
+				optionalQueryTempBuilder
 						.append("OPTIONAL { " + objectValueQueryVariable + " a  ?class" + classVariableCounter + " \n");
-				unProjectOptionalPartBuilder.append("FILTER (");
+				optionalQueryTempBuilder.append("FILTER ( ");
 
 				/*
 				 * add filterPart
@@ -212,49 +247,47 @@ public class SelectionQuery {
 				ArrayList<String> optionalTypeClassList = htbloptionalTypeClassList.get(objectValueQueryVariable);
 
 				/*
+				 * add propertyRangeClassUri to filter part
+				 */
+				optionalQueryTempBuilder
+						.append(" ?class" + classVariableCounter + " != <" + propertyRangeClassUri + ">  ");
+				typeCounter++;
+
+				/*
 				 * iterating over optionalTypeClassList
 				 */
 				boolean start = true;
 				for (String objectValueClassURI : optionalTypeClassList) {
+
+					/*
+					 * check if it is the first element which will be
+					 * propertyRangeClassUri so I skip it because I added it to
+					 * filter part before
+					 */
 					if (start) {
-
-						/*
-						 * The first condition so I will not add and logic
-						 * operator ( && )
-						 */
-						unProjectOptionalPartBuilder
-								.append(" ?class" + classVariableCounter + " != <" + objectValueClassURI + ">  ");
-						/*
-						 * set start to false to avoid getting here again to add
-						 * and logic opertator to the rest of conditions
-						 */
 						start = false;
-
-						/*
-						 * add classUri to htblfilterClassesURI to avoid
-						 * replicating it again in the filter condtion
-						 */
-						htblfilterClassesURI.put(objectValueClassURI, objectValueClassURI);
-					} else {
-
-						/*
-						 * check that classUri was not added before
-						 */
-						if (!htblfilterClassesURI.containsKey(objectValueClassURI)) {
-
-							/*
-							 * Not the first condition so I will add and logic
-							 * operator ( && )
-							 */
-							unProjectOptionalPartBuilder.append(
-									" && ?class" + classVariableCounter + " != <" + objectValueClassURI + ">  ");
-							/*
-							 * add classUri to htblfilterClassesURI to avoid
-							 * replicating it again in the filter condtion
-							 */
-							htblfilterClassesURI.put(objectValueClassURI, objectValueClassURI);
-						}
+						continue;
 					}
+
+					/*
+					 * The first condition so I will not add and logic operator
+					 * ( && )
+					 */
+					optionalQueryTempBuilder
+							.append(" && ?class" + classVariableCounter + " != <" + objectValueClassURI + ">  ");
+					/*
+					 * set start to false to avoid getting here again to add and
+					 * logic opertator to the rest of conditions
+					 */
+					start = false;
+
+					/*
+					 * add classUri to htblfilterClassesURI to avoid replicating
+					 * it again in the filter condtion
+					 */
+					htblfilterClassesURI.put(objectValueClassURI, objectValueClassURI);
+
+					typeCounter++;
 
 					/*
 					 * add to unProjectOptionalPartBuilder all the subClasses of
@@ -304,7 +337,7 @@ public class SelectionQuery {
 							 */
 							if (!htblfilterClassesURI.containsKey(subClass.getUri())) {
 
-								unProjectOptionalPartBuilder.append(
+								optionalQueryTempBuilder.append(
 										" && ?class" + classVariableCounter + " != <" + subClass.getUri() + ">  ");
 
 								/*
@@ -312,6 +345,8 @@ public class SelectionQuery {
 								 * replicating it again in the filter condtion
 								 */
 								htblfilterClassesURI.put(subClass.getUri(), subClass.getUri());
+
+								typeCounter++;
 							}
 						}
 
@@ -328,24 +363,45 @@ public class SelectionQuery {
 					 * type foaf:Agent which is the superClass of foaf:Person
 					 * (not a logic to do such a thing)
 					 */
-					for (Class superClass : objectValueClass.getSuperClassesList()) {
+					// for (Class superClass :
+					// objectValueClass.getSuperClassesList()) {
+					//
+					// /*
+					// * check that classUri was not added before
+					// */
+					// if
+					// (!htblfilterClassesURI.containsKey(superClass.getUri()))
+					// {
+					//
+					// unProjectOptionalPartBuilder.append(
+					// " && ?class" + classVariableCounter + " != <" +
+					// superClass.getUri() + "> ");
+					//
+					// /*
+					// * add classUri to htblfilterClassesURI to avoid
+					// * replicating it again in the filter condtion
+					// */
+					// htblfilterClassesURI.put(superClass.getUri(),
+					// superClass.getUri());
+					// }
+					// }
 
-						/*
-						 * check that classUri was not added before
-						 */
-						if (!htblfilterClassesURI.containsKey(superClass.getUri())) {
+				}
 
-							unProjectOptionalPartBuilder.append(
-									" && ?class" + classVariableCounter + " != <" + superClass.getUri() + ">  ");
-
-							/*
-							 * add classUri to htblfilterClassesURI to avoid
-							 * replicating it again in the filter condtion
-							 */
-							htblfilterClassesURI.put(superClass.getUri(), superClass.getUri());
-						}
-					}
-
+				/*
+				 * check if typeCounter == classTypesNum this means that all the
+				 * type classes were mentioned by user so no need to add this
+				 * optional query so I will not complete this iteration
+				 * 
+				 * if they are not equal so i will append
+				 * optionalQueryTempBuilder to unProjectOptionalPartBuilder
+				 * (this builder hold all the optional queries of this type)
+				 */
+				if (typeCounter == classTypesNum) {
+					System.out.println("heree");
+					continue;
+				} else {
+					unProjectOptionalPartBuilder.append(optionalQueryTempBuilder.toString());
 				}
 
 				/*
@@ -625,16 +681,29 @@ public class SelectionQuery {
 					}
 
 					/*
-					 * 1- create a new optionalTypeClassList to hold classTypes
+					 * create a new optionalTypeClassList to hold classTypes
 					 * because it is the first time to this property
-					 * 
-					 * 2-add objectValueTypeClassName to optionalTypeClassList
 					 */
 					ArrayList<String> optionalTypeClassList = new ArrayList<>();
-					optionalTypeClassList.add(queryField.getObjectValueTypeClassName());
 					htblOptionalTypeClassList.put(
 							"?" + htblValueTypePropObjectVariable.get(queryField.getPrefixedPropertyName()),
 							optionalTypeClassList);
+
+					/*
+					 * add range classType of property as the first element in
+					 * the list
+					 */
+					String propName = getPropertyName(queryField.getPrefixedPropertyName());
+					Class subjectClass = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers()
+							.get(currentClassURI);
+
+					optionalTypeClassList
+							.add(((ObjectProperty) subjectClass.getProperties().get(propName)).getObject().getUri());
+
+					/*
+					 * add objectValueTypeClassName to optionalTypeClassList
+					 */
+					optionalTypeClassList.add(queryField.getObjectValueTypeClassName());
 
 				} else {
 

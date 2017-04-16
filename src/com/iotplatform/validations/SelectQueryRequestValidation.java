@@ -745,6 +745,15 @@ public class SelectQueryRequestValidation {
 		organizationFieldMap.put("fields", organizationFields);
 		membersValueObjects.add(organizationFieldMap);
 
+		LinkedHashMap<String, Object> groupFieldMap = new LinkedHashMap<>();
+		groupFieldMap.put("classType", "Group");
+
+		ArrayList<Object> groupFields = new ArrayList<>();
+		groupFields.add("name");
+
+		groupFieldMap.put("fields", groupFields);
+		membersValueObjects.add(groupFieldMap);
+
 		fieldsList.add("description");
 		System.out.println(htblFieldValue);
 
