@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefix;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.QueryField;
 import com.iotplatform.utilities.QueryVariable;
 
@@ -169,9 +170,23 @@ public class SelectionQuery {
 		StringBuilder unProjectOptionalPartBuilder = new StringBuilder();
 
 		/*
+		 * htblfilterClassesURI is used to avoid replicating classURIs in the
+		 * filter condition of unProjectOptionalPart.
+		 * 
+		 * eg. Replicating happens in the same discussed example of foaf:member
+		 * property. When the user add foaf:Person and foaf:Orgnaization to
+		 * values field, foaf:Agent which is the superClass of both is
+		 * replicated in the filter condition, so this relpication will be
+		 * avoided by using this hashtable that will hold classUri as key so not
+		 * duplicates will be added
+		 */
+		Hashtable<String, String> htblfilterClassesURI = new Hashtable<>();
+
+		/*
 		 * check if htbloptionalTypeClassList has keyValues
 		 */
 		if (htbloptionalTypeClassList.size() > 0) {
+
 			/*
 			 * iterate over htbloptionalTypeClassList and for each key add a new
 			 * optionalQuery (each key represent and objectValueQueryVariable
@@ -200,25 +215,181 @@ public class SelectionQuery {
 				 * iterating over optionalTypeClassList
 				 */
 				boolean start = true;
-				for (String objectValueClass : optionalTypeClassList) {
+				for (String objectValueClassURI : optionalTypeClassList) {
 					if (start) {
 
 						/*
-						 * The first condition so I will not add or logic
-						 * operator ( || )
+						 * The first condition so I will not add and logic
+						 * operator ( && )
 						 */
 						unProjectOptionalPartBuilder
-								.append(" ?class" + classVariableCounter + " != <" + objectValueClass + ">  ");
+								.append(" ?class" + classVariableCounter + " != <" + objectValueClassURI + ">  ");
+						/*
+						 * set start to false to avoid getting here again to add
+						 * and logic opertator to the rest of conditions
+						 */
+						start = false;
+
+						/*
+						 * add classUri to htblfilterClassesURI to avoid
+						 * replicating it again in the filter condtion
+						 */
+						htblfilterClassesURI.put(objectValueClassURI, objectValueClassURI);
+					} else {
+
+						/*
+						 * check that classUri was not added before
+						 */
+						if (!htblfilterClassesURI.containsKey(objectValueClassURI)) {
+
+							/*
+							 * Not the first condition so I will add and logic
+							 * operator ( && )
+							 */
+							unProjectOptionalPartBuilder.append(
+									" && ?class" + classVariableCounter + " != <" + objectValueClassURI + ">  ");
+							/*
+							 * add classUri to htblfilterClassesURI to avoid
+							 * replicating it again in the filter condtion
+							 */
+							htblfilterClassesURI.put(objectValueClassURI, objectValueClassURI);
+						}
+					}
+
+					/*
+					 * add to unProjectOptionalPartBuilder all the subClasses of
+					 * objectValueClass if it has because every subClass
+					 * instance is also instance of superClass and the triple
+					 * that indicates this is inserted in the database
+					 * 
+					 * so I don't want to replicate data as I want to get only
+					 * the classType instances that were not added by the user
+					 * in the values list
+					 * 
+					 * eg. if the user added foaf:Person as a classType in the
+					 * values list of foaf:member property (foaf:member property
+					 * has range foaf:Agent which is the superClass of
+					 * foaf:Person so foaf:member can has an foaf:Person
+					 * instance), foaf:Person has iot-platorm:Developer as its
+					 * subClass so when the user add foaf:Person to value list
+					 * the query performed will get also and foaf:Developer
+					 * instance . So here I have to ensure the no instances of
+					 * foaf:Person or its subClasses got by this optionalQuery
+					 * to avoid replication of results and enhance query
+					 * performance
+					 */
+
+					/*
+					 * get class of the objectValueClassURI
+					 */
+					Class objectValueClass = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers()
+							.get(objectValueClassURI);
+
+					/*
+					 * check if it has subClasses in order to loop on them and
+					 * add them to unProjectOptionalPartBuilder
+					 */
+					if (objectValueClass.isHasTypeClasses()) {
+
+						Hashtable<String, Class> htblSubClasses = objectValueClass.getClassTypesList();
+						Iterator<String> htblSubClassesIter = htblSubClasses.keySet().iterator();
+
+						while (htblSubClassesIter.hasNext()) {
+
+							String subClassName = htblSubClassesIter.next();
+							Class subClass = htblSubClasses.get(subClassName);
+
+							/*
+							 * check that classUri was not added before
+							 */
+							if (!htblfilterClassesURI.containsKey(subClass.getUri())) {
+
+								unProjectOptionalPartBuilder.append(
+										" && ?class" + classVariableCounter + " != <" + subClass.getUri() + ">  ");
+
+								/*
+								 * add classUri to htblfilterClassesURI to avoid
+								 * replicating it again in the filter condtion
+								 */
+								htblfilterClassesURI.put(subClass.getUri(), subClass.getUri());
+							}
+						}
 
 					}
+
+					/*
+					 * also add superClasses to the filter because I don't want
+					 * to have instance of superClass because I am quering on
+					 * subClasses instances
+					 * 
+					 * eg. As the same example discussed above for foaf:member
+					 * property, the user specified foaf:Person in the values
+					 * field so I do not want to have any returned instances of
+					 * type foaf:Agent which is the superClass of foaf:Person
+					 * (not a logic to do such a thing)
+					 */
+					for (Class superClass : objectValueClass.getSuperClassesList()) {
+
+						/*
+						 * check that classUri was not added before
+						 */
+						if (!htblfilterClassesURI.containsKey(superClass.getUri())) {
+
+							unProjectOptionalPartBuilder.append(
+									" && ?class" + classVariableCounter + " != <" + superClass.getUri() + ">  ");
+
+							/*
+							 * add classUri to htblfilterClassesURI to avoid
+							 * replicating it again in the filter condtion
+							 */
+							htblfilterClassesURI.put(superClass.getUri(), superClass.getUri());
+						}
+					}
+
 				}
 
 				/*
-				 * End unProjectOptionalPartBuilder
+				 * End filter part of unProjectOptionalPartBuilder
 				 */
 				unProjectOptionalPartBuilder.append(" ) \n");
+
+				/*
+				 * add bind part of unProjectOptionalPartBuilder to add the
+				 * aliases to the projecting fields
+				 */
+				unProjectOptionalPartBuilder
+						.append("BIND ( " + objectValueQueryVariable + " AS ?object" + classVariableCounter + " ) ");
+				unProjectOptionalPartBuilder.append(
+						"BIND ( ?class" + classVariableCounter + " AS ?objectType" + classVariableCounter + " ) ");
+
+				/*
+				 * add bind aliases to sparqlProjectedFieldsBuilder
+				 * 
+				 */
+				sparqlProjectedFieldsBuilder.append(" ?object" + classVariableCounter);
+				sparqlProjectedFieldsBuilder.append(" ?objectType" + classVariableCounter);
+
+				/*
+				 * add bind aliases to sqlProjectedFieldsBuilder
+				 */
+				sqlProjectedFieldsBuilder.append(" , object" + classVariableCounter);
+				sqlProjectedFieldsBuilder.append(" , objectType" + classVariableCounter);
+
+				/*
+				 * add bound filter condition to filterBuilder
+				 */
+				filterBuilder.append(" || BOUND ( ?object" + classVariableCounter + " ) ");
+
+				/*
+				 * end optional query part of unProjectOptionalPartBuilder
+				 */
 				unProjectOptionalPartBuilder.append(" } \n");
 
+				/*
+				 * increment classVariableCounter to have different variable
+				 * name
+				 */
+				classVariableCounter++;
 			}
 		}
 
@@ -254,6 +425,11 @@ public class SelectionQuery {
 		queryBuilder.append(endGraphPatternBuilder.toString());
 
 		/*
+		 * append unProjectOptionalPartBuilder to queryBuilder
+		 */
+		queryBuilder.append(unProjectOptionalPartBuilder);
+
+		/*
 		 * Append filterBuilder to query builder. It must be appended after
 		 * appending endGraphPatternBuilder (which holds graph patterns)
 		 */
@@ -269,15 +445,6 @@ public class SelectionQuery {
 				+ " }' , \n sem_models('" + applicationModelName + "'),null, \n SEM_ALIASES("
 				+ prefixStringBuilder.toString() + "),null))");
 
-		// filterConditionsBuilder.append(" )");
-
-		/*
-		 * complete end of the subquery structure
-		 */
-		// queryBuilder.append(" " + filterConditionsBuilder.toString() + " \n
-		// }}");
-
-		// System.out.println(htblSubjectVariables);
 		Object[] returnObject = { mainBuilder.toString(), htblSubjectVariables };
 		return returnObject;
 	}
@@ -454,7 +621,7 @@ public class SelectionQuery {
 						 * not the first filter condition so add or logic
 						 * operator ( || )
 						 */
-						filterBuilder.append("|| BOUND ( ?" + subjectVariable + " )");
+						filterBuilder.append(" || BOUND ( ?" + subjectVariable + " )");
 					}
 
 					/*
@@ -464,9 +631,9 @@ public class SelectionQuery {
 					 * 2-add objectValueTypeClassName to optionalTypeClassList
 					 */
 					ArrayList<String> optionalTypeClassList = new ArrayList<>();
-					optionalTypeClassList.add("?" + queryField.getObjectValueTypeClassName());
+					optionalTypeClassList.add(queryField.getObjectValueTypeClassName());
 					htblOptionalTypeClassList.put(
-							htblValueTypePropObjectVariable.get(queryField.getPrefixedPropertyName()),
+							"?" + htblValueTypePropObjectVariable.get(queryField.getPrefixedPropertyName()),
 							optionalTypeClassList);
 
 				} else {
@@ -522,21 +689,23 @@ public class SelectionQuery {
 						 * not the first filter condition so add or logic
 						 * operator ( || )
 						 */
-						filterBuilder.append("|| BOUND ( ?" + subjectVariable + " )");
+						filterBuilder.append(" || BOUND ( ?" + subjectVariable + " )");
 					}
+
+					/*
+					 * add objectValueTypeClassName to optionalTypeClassList
+					 * only (without creating a new list or checking if the
+					 * htblOptionalTypeClassList has the
+					 * propertyObjectQueryVariable) because it is not the first
+					 * time to see this property because it was added before to
+					 * htblValueTypePropObjectVariable
+					 */
+					htblOptionalTypeClassList
+							.get("?" + htblValueTypePropObjectVariable.get(queryField.getPrefixedPropertyName()))
+							.add(queryField.getObjectValueTypeClassName());
 
 				}
 
-				/*
-				 * add objectValueTypeClassName to optionalTypeClassList only
-				 * (without creating a new list or checking if the
-				 * htblOptionalTypeClassList has the
-				 * propertyObjectQueryVariable) because it is not the first time
-				 * to see this property because it was added before to
-				 * htblValueTypePropObjectVariable
-				 */
-				htblOptionalTypeClassList.get(htblValueTypePropObjectVariable.get(queryField.getPrefixedPropertyName()))
-						.add("?" + queryField.getObjectValueTypeClassName());
 			} else {
 
 				/*
