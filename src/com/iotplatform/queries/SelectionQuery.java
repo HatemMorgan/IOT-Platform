@@ -389,8 +389,10 @@ public class SelectionQuery {
 				 * add queryVariable for new projected variable (?object and
 				 * ?objectType)
 				 */
-				htblSubjectVariables.put("?object" + classVariableCounter,
+				htblSubjectVariables.put("object" + classVariableCounter,
 						new QueryVariable(subjectClassQueryVariable, propertyName, subjectClassURI));
+				htblSubjectVariables.put("objectType" + classVariableCounter,
+						new QueryVariable("object" + classVariableCounter, "type", null));
 
 				/*
 				 * add bind aliases to sparqlProjectedFieldsBuilder
