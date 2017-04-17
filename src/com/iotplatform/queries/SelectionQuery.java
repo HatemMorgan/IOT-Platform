@@ -488,11 +488,19 @@ public class SelectionQuery {
 	 * htblClassNameProperty,queryBuilder,filterConditionsBuilder,filterBuilder,
 	 * unProjectOptionalPartBuilder and endGraphPatternBuilder to construct
 	 * query
+	 * 
+	 * currentClassURI holds the classURI of the subjectClassURI,
 	 *
-	 * It also recursively take propertyValue and currentClassPrefixedName to
-	 * breakdown all values and construct a proper graph patterns and filter in
-	 * the query
-	 *
+	 * currentClassInstanceUniqueIdentifier holds the uniqueIdentifer of the
+	 * current instance of subjectClassURI (for a subjectClassURI a user can
+	 * mention different instances with different patterns needed)
+	 * 
+	 * queryField is an instance of QueryFields which is created by the
+	 * selectQueryValidation after parsing and validating the query request body
+	 * 
+	 * To know what each other parameter is see the first part of
+	 * constructSelectQuery method where I initialized and document all the
+	 * parameters of this method and then call it
 	 */
 	private static void constructSelectQueryHelper(
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
@@ -703,9 +711,8 @@ public class SelectionQuery {
 					/*
 					 * add subjectClassQueryVariable as third element
 					 */
-					int subjectClassQueryVariableNum = Integer.parseInt(
-							htblValueTypePropObjectVariable.get(queryField.getPrefixedPropertyName()).substring(7));
-					optionalTypeClassList.add("subject" + (subjectClassQueryVariableNum - 1));
+
+					optionalTypeClassList.add(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier));
 
 					/*
 					 * add range classType of property as the third element in
