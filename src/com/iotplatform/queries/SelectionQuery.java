@@ -201,12 +201,30 @@ public class SelectionQuery {
 				String objectValueQueryVariable = htbloptionalTypeClassListIter.next();
 
 				/*
-				 * this first item in htbloptionalTypeClassList is the range of
+				 * The first item in the list is propertyName of
+				 * objectValueQueryVariable
+				 */
+				String propertyName = htbloptionalTypeClassList.get(objectValueQueryVariable).get(0);
+
+				/*
+				 * The second item in the list is subjectClassURI of
+				 * objectValueQueryVariable
+				 */
+				String subjectClassURI = htbloptionalTypeClassList.get(objectValueQueryVariable).get(1);
+
+				/*
+				 * The third item in the list is the subjectClassQueryVariable
+				 * of objectValueQueryVariable
+				 */
+				String subjectClassQueryVariable = htbloptionalTypeClassList.get(objectValueQueryVariable).get(2);
+
+				/*
+				 * this fourth item in htbloptionalTypeClassList is the range of
 				 * the property. I add it to get all its subClassTypes in order
 				 * to avoid adding optional query if the user specified all the
 				 * types in values field in the request body
 				 */
-				String propertyRangeClassUri = htbloptionalTypeClassList.get(objectValueQueryVariable).get(0);
+				String propertyRangeClassUri = htbloptionalTypeClassList.get(objectValueQueryVariable).get(3);
 
 				/*
 				 * get number of type classes of the property associated with
@@ -254,31 +272,16 @@ public class SelectionQuery {
 
 				/*
 				 * iterating over optionalTypeClassList
+				 * 
+				 * The loop start from 4 because I manually get and use the
+				 * first 4 elements in the list. so I will skip them here
 				 */
-				boolean start = true;
-				for (String objectValueClassURI : optionalTypeClassList) {
+				for (int i = 4; i < htbloptionalTypeClassList.size(); i++) {
 
-					/*
-					 * check if it is the first element which will be
-					 * propertyRangeClassUri so I skip it because I added it to
-					 * filter part before
-					 */
-					if (start) {
-						start = false;
-						continue;
-					}
+					String objectValueClassURI = optionalTypeClassList.get(i);
 
-					/*
-					 * The first condition so I will not add and logic operator
-					 * ( && )
-					 */
 					optionalQueryTempBuilder
 							.append(" && ?class" + classVariableCounter + " != <" + objectValueClassURI + ">  ");
-					/*
-					 * set start to false to avoid getting here again to add and
-					 * logic opertator to the rest of conditions
-					 */
-					start = false;
 
 					/*
 					 * add classUri to htblfilterClassesURI to avoid replicating
@@ -381,6 +384,13 @@ public class SelectionQuery {
 						.append("BIND ( " + objectValueQueryVariable + " AS ?object" + classVariableCounter + " ) ");
 				unProjectOptionalPartBuilder.append(
 						"BIND ( ?class" + classVariableCounter + " AS ?objectType" + classVariableCounter + " ) ");
+
+				/*
+				 * add queryVariable for new projected variable (?object and
+				 * ?objectType)
+				 */
+				htblSubjectVariables.put("?object" + classVariableCounter,
+						new QueryVariable(subjectClassQueryVariable, propertyName, subjectClassURI));
 
 				/*
 				 * add bind aliases to sparqlProjectedFieldsBuilder
@@ -656,13 +666,51 @@ public class SelectionQuery {
 							optionalTypeClassList);
 
 					/*
-					 * add range classType of property as the first element in
-					 * the list
+					 * add propertyName as first element in the list,
+					 * subjectClassURI as second element,
+					 * subjectClassQueryVariable as the third element in the
+					 * list and range classType of property as the fourth
+					 * element in the list
+					 * 
+					 * I am adding the above discussed elements in this order
+					 * because I will need them when adding optionalQuery that
+					 * get all the missing values with types not specified by
+					 * the user
+					 * 
+					 * For this results to be represented using
+					 * SelectionQueryResult class, I have to create a
+					 * queryVariable instance for the variables in the optional
+					 * query, and to do so I must have the above elements
+					 * 
+					 * See the last part in constructSelectQuery method in the
+					 * part of creating the described optionalQuery to know how
+					 * I get this elements and use them
 					 */
 					String propName = getPropertyName(queryField.getPrefixedPropertyName());
 					Class subjectClass = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers()
 							.get(currentClassURI);
 
+					/*
+					 * add propertyName as first element
+					 */
+					optionalTypeClassList.add(propName);
+
+					/*
+					 * add subjectClassURI as second element
+					 */
+					optionalTypeClassList.add(currentClassURI);
+
+					/*
+					 * add subjectClassQueryVariable as third element
+					 */
+					int subjectClassQueryVariableNum = Integer.parseInt(
+							htblValueTypePropObjectVariable.get(queryField.getPrefixedPropertyName()).substring(7));
+					optionalTypeClassList.add("subject" + (subjectClassQueryVariableNum - 1));
+
+					/*
+					 * add range classType of property as the third element in
+					 * the list
+					 */
 					optionalTypeClassList
 							.add(((ObjectProperty) subjectClass.getProperties().get(propName)).getObject().getUri());
 

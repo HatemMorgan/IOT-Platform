@@ -302,9 +302,17 @@ public class SelectionQueryResults {
 
 				}
 
+				/*
+				 * iterate over the row columns and start from i=2 to skip the
+				 * first column (subject0)
+				 */
 				for (int i = 2; i <= columnsNumber; i++) {
 
 					String columnName = rsmd.getColumnName(i).toLowerCase();
+					Object propValue = results.getObject(i);
+
+					if (propValue == null)
+						continue;
 
 					if (columnName.contains("subject")) {
 						int index = htblIndividualSubjectIndex.get(mainSubjectUri);
@@ -561,13 +569,11 @@ public class SelectionQueryResults {
 						}
 
 					} else {
+
 						/*
 						 * it is a variable not a subject so get value of the
 						 * variable
-						 */
-						Object propValue = results.getObject(i);
-
-						/*
+						 * 
 						 * get queryVariable of the subjectVariable to know its
 						 * propertyName
 						 */
