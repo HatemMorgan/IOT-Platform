@@ -391,7 +391,7 @@ public class SelectionQuery {
 				 */
 				htblSubjectVariables.put("object" + classVariableCounter,
 						new QueryVariable(subjectClassQueryVariable, propertyName, subjectClassURI));
-				htblSubjectVariables.put("objectType" + classVariableCounter,
+				htblSubjectVariables.put("objecttype" + classVariableCounter,
 						new QueryVariable("object" + classVariableCounter, "type", null));
 
 				/*

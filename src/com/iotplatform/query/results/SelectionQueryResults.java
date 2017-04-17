@@ -234,6 +234,425 @@ public class SelectionQueryResults {
 		return responseJson;
 	}
 
+	public static List<Hashtable<String, Object>> constructQueryResult2(String applicationName, ResultSet results,
+			String requestClassName, Hashtable<String, QueryVariable> htblSubjectVariables) {
+
+		/*
+		 * consturctedQueryResult is the list of constructed query result where
+		 * each element in the list represent a Hashtable<String, Object> which
+		 * contains the propValues of an individual
+		 */
+		List<Hashtable<String, Object>> consturctedQueryResult = new ArrayList<>();
+
+		/*
+		 * helperList is the list of all hashtables created to hold the
+		 * propertyValues of each new subjectVariable
+		 */
+		// List<Hashtable<String, Object>> helperList = null;
+
+		/*
+		 * htblIndividualIndex is used to hold uniqueIdentifier of an individual
+		 * (key) and index of individual in its subjectVariavle list
+		 * 
+		 */
+		LinkedHashMap<String, Integer> htblIndividualIndex = null;
+
+		/*
+		 * htblSubjectVariablehtblpropVal holds the subjectVariable as key and
+		 * its list of individuals as value
+		 */
+		Hashtable<String, Object> htblSubjectVariablehtblpropVal = null;
+
+		try {
+			/*
+			 * is used to hold subjectURI of the current individual (subjectURI
+			 * is the uniqueIdnetifier of this individual)
+			 */
+			String currentMainSubjectURI = "";
+
+			ResultSetMetaData rsmd = results.getMetaData();
+
+			int columnsNumber = rsmd.getColumnCount();
+			while (results.next()) {
+
+				/*
+				 * SUBJECT0 must be always the first column
+				 */
+				String mainSubjectUri = results.getString("SUBJECT0");
+
+				/*
+				 * check if the mainSubjectUri(which represents an individual)
+				 * exist before or not in htblIndividualSubjectIndex
+				 */
+				if (!currentMainSubjectURI.equals(mainSubjectUri)) {
+
+					/*
+					 * initialize helperList which is the list of all hashtables
+					 * created to hold the propertyValues of each new
+					 * subjectVariable
+					 */
+					// helperList = new ArrayList<>();
+
+					/*
+					 * Initialize htblIndividualIndex whic is used to hold
+					 * uniqueIdentifier of an individual (key) and index of
+					 * individual in its subjectVariavle list
+					 * 
+					 */
+					htblIndividualIndex = new LinkedHashMap<>();
+
+					/*
+					 * construct new data structures instances to hold data of
+					 * the new individual
+					 */
+					htblSubjectVariablehtblpropVal = new Hashtable<>();
+
+					Hashtable<String, Object> htblIndividualPropertyValue = new Hashtable<>();
+
+					htblSubjectVariablehtblpropVal.put("subject0", htblIndividualPropertyValue);
+
+					consturctedQueryResult.add(htblIndividualPropertyValue);
+
+				}
+
+				/*
+				 * iterate over the row columns and start from i=2 to skip the
+				 * first column (subject0)
+				 */
+				for (int i = 2; i <= columnsNumber; i++) {
+					String columnName = rsmd.getColumnName(i).toLowerCase();
+					Object propValue = results.getObject(i);
+
+					/*
+					 * skip if propValue = null
+					 */
+					if (propValue == null)
+						continue;
+
+					if (columnName.contains("subject")) {
+
+						/*
+						 * get queryVariable of the subjectVariable to know its
+						 * propertyName
+						 */
+						QueryVariable queryVariable = htblSubjectVariables.get(columnName);
+						String propertyName = queryVariable.getPropertyName();
+
+						/*
+						 * get parrentSubjectVariable of the objectVariable
+						 * (columnName)
+						 */
+						String parrentSubjectVariable = queryVariable.getSubjectVariableName();
+
+						/*
+						 * get propertyMapping of propertyName that connects
+						 * subjectVariable to objectVariable (columnName)
+						 */
+						String classUri = queryVariable.getSubjectClassUri();
+						Class propertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(classUri);
+						Property property = propertyClass.getProperties().get(propertyName);
+
+						String individualUniqueIdentifier = results.getString(columnName);
+
+						/*
+						 * check if the individual was added before or not
+						 */
+						if (!htblSubjectVariablehtblpropVal.containsKey(columnName)) {
+
+							/*
+							 * create a new ArrayList<Hashtable<String, Object>>
+							 * to hold the individuals of this subjectVariable
+							 */
+							ArrayList<Hashtable<String, Object>> htblSubjectIndividualsList = new ArrayList<>();
+
+							/*
+							 * create a new Hashtable<String, Object> to hold
+							 * individuals propValues
+							 */
+							Hashtable<String, Object> subjectIndividual = new Hashtable<>();
+
+							/*
+							 * add it to htblSubjectIndividualsList
+							 */
+							htblSubjectIndividualsList.add(subjectIndividual);
+
+							/*
+							 * add individualUniqueIdentifier with index=0 as it
+							 * is the first time to see this subjectVariable to
+							 * htblIndividualIndex
+							 */
+							htblIndividualIndex.put(individualUniqueIdentifier, 0);
+
+							/*
+							 * add new subjectVariable's individualsList to
+							 * htblSubjectVariablehtblpropVal
+							 */
+							htblSubjectVariablehtblpropVal.put(columnName, htblSubjectIndividualsList);
+
+							/*
+							 * get list of individuals of the
+							 * parentSubjectVariable
+							 * 
+							 * if the parentSubjectVairable is subject0 it will
+							 * be only one individual so I will cast it to
+							 * Hashtable<String,Object>
+							 * 
+							 * else it will be a list of individuals so I will
+							 * cast it to ArrayList<Hashtable<String,Object>>
+							 */
+							Hashtable<String, Object> parentSubjectVariableIndividual;
+							if (parrentSubjectVariable.equals("subject0")) {
+
+								parentSubjectVariableIndividual = (Hashtable<String, Object>) htblSubjectVariablehtblpropVal
+										.get(parrentSubjectVariable);
+							} else {
+								ArrayList<Hashtable<String, Object>> individualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
+										.get(parrentSubjectVariable);
+								parentSubjectVariableIndividual = individualsList.get(individualsList.size() - 1);
+							}
+
+							/*
+							 * check if the property has multipleValues in order
+							 * to add property to
+							 * parentSubjectVariableIndividual with a value list
+							 * (to hold multiple values)
+							 */
+							if (property.isMulitpleValues()) {
+
+								/*
+								 * check if the property was added before or not
+								 */
+								if (!parentSubjectVariableIndividual.containsKey(propertyName)) {
+
+									/*
+									 * create a new ArrayList<Hashtable<String,
+									 * Object>> to hold objectValues
+									 */
+									ArrayList<Hashtable<String, Object>> valueList = new ArrayList<>();
+
+									/*
+									 * add subjectIndividual to
+									 * propertyValueList (valueList)
+									 */
+									valueList.add(subjectIndividual);
+
+									/*
+									 * add property and its values list to
+									 * parentSubjectVariableIndividual
+									 */
+									parentSubjectVariableIndividual.put(propertyName, valueList);
+
+								} else {
+
+									/*
+									 * if the property existed before it means
+									 * that this subjectVariable individual with
+									 * individualUniqueIdentifier is another
+									 * value to be added to valueList
+									 * 
+									 * get the propertyValueList
+									 */
+									ArrayList<Hashtable<String, Object>> valueList = (ArrayList<Hashtable<String, Object>>) parentSubjectVariableIndividual
+											.get(propertyName);
+
+									/*
+									 * add subjectIndividual to
+									 * propertyValueList (valueList)
+									 */
+									valueList.add(subjectIndividual);
+								}
+
+							} else {
+
+								/*
+								 * check if the property was added before or not
+								 */
+								if (!parentSubjectVariableIndividual.containsKey(propertyName)) {
+
+									/*
+									 * add property and subjectIndividual to
+									 * parentSubjectVariableIndividual
+									 */
+									parentSubjectVariableIndividual.put(propertyName, subjectIndividual);
+
+								} else {
+
+									/*
+									 * it will never happen but I will skip if
+									 * it happens.
+									 * 
+									 * It will never happen that a property with
+									 * a single value has multiple values
+									 * because I checked that it never happen in
+									 * insertion
+									 */
+									continue;
+								}
+
+							}
+
+						} else {
+
+							/*
+							 * subjectVariable has been seen before.
+							 * 
+							 * Check if the individual with
+							 * individualUniqueIdentifier was seen before or not
+							 */
+							if (!htblIndividualIndex.containsKey(individualUniqueIdentifier)) {
+
+								/*
+								 * get subjectVariableIndividualsList
+								 */
+								ArrayList<Hashtable<String, Object>> individualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
+										.get(columnName);
+
+								/*
+								 * create new Hashtable<String, Object> to hold
+								 * individual's propertyValue
+								 */
+								Hashtable<String, Object> subjectIndividual = new Hashtable<>();
+								individualsList.add(subjectIndividual);
+
+								/*
+								 * add individualUniqueIdentifier to
+								 * htblIndividualIndex
+								 */
+								htblIndividualIndex.put(individualUniqueIdentifier, individualsList.size() - 1);
+
+								/*
+								 * get list of individuals of the
+								 * parentSubjectVariable
+								 * 
+								 * if the parentSubjectVairable is subject0 it
+								 * will be only one individual so I will cast it
+								 * to Hashtable<String,Object>
+								 * 
+								 * else it will be a list of individuals so I
+								 * will cast it to
+								 * ArrayList<Hashtable<String,Object>>
+								 */
+								Hashtable<String, Object> parentSubjectVariableIndividual;
+								if (parrentSubjectVariable.equals("subject0")) {
+
+									parentSubjectVariableIndividual = (Hashtable<String, Object>) htblSubjectVariablehtblpropVal
+											.get(parrentSubjectVariable);
+								} else {
+									ArrayList<Hashtable<String, Object>> parentSubjectVariableIndividualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
+											.get(parrentSubjectVariable);
+									parentSubjectVariableIndividual = individualsList.get(individualsList.size() - 1);
+								}
+
+								/*
+								 * check if the property has multipleValues in
+								 * order to add property to
+								 * parentSubjectVariableIndividual with a value
+								 * list (to hold multiple values)
+								 */
+								if (property.isMulitpleValues()) {
+
+									/*
+									 * check if the property was added before or
+									 * not
+									 */
+									if (!parentSubjectVariableIndividual.containsKey(propertyName)) {
+
+										/*
+										 * create a new
+										 * ArrayList<Hashtable<String, Object>>
+										 * to hold objectValues
+										 */
+										ArrayList<Hashtable<String, Object>> valueList = new ArrayList<>();
+
+										/*
+										 * add subjectIndividual to
+										 * propertyValueList (valueList)
+										 */
+										valueList.add(subjectIndividual);
+
+										/*
+										 * add property and its values list to
+										 * parentSubjectVariableIndividual
+										 */
+										parentSubjectVariableIndividual.put(propertyName, valueList);
+
+									} else {
+
+										/*
+										 * if the property existed before it
+										 * means that this subjectVariable
+										 * individual with
+										 * individualUniqueIdentifier is another
+										 * value to be added to valueList
+										 * 
+										 * get the propertyValueList
+										 */
+										ArrayList<Hashtable<String, Object>> valueList = (ArrayList<Hashtable<String, Object>>) parentSubjectVariableIndividual
+												.get(propertyName);
+
+										/*
+										 * add subjectIndividual to
+										 * propertyValueList (valueList)
+										 */
+										valueList.add(subjectIndividual);
+									}
+
+								} else {
+
+									/*
+									 * check if the property was added before or
+									 * not
+									 */
+									if (!parentSubjectVariableIndividual.containsKey(propertyName)) {
+
+										/*
+										 * add property and subjectIndividual to
+										 * parentSubjectVariableIndividual
+										 */
+										parentSubjectVariableIndividual.put(propertyName, subjectIndividual);
+
+									} else {
+
+										/*
+										 * it will never happen but I will skip
+										 * if it happens.
+										 * 
+										 * It will never happen that a property
+										 * with a single value has multiple
+										 * values because I checked that it
+										 * never happen in insertion
+										 */
+										continue;
+									}
+
+								}
+
+							}else{
+								/*
+								 * individual was added before so I will skip it
+								 */
+								continue;
+							}
+
+						}
+
+					} else {
+						/*
+						 * check that it is variable 
+						 */
+					}
+
+				}
+			}
+		} catch (
+
+		SQLException e) {
+			throw new DatabaseException(e.getMessage(), requestClassName);
+		}
+
+		return consturctedQueryResult;
+	}
+
 	public static List<Hashtable<String, Object>> constructQueryResult(String applicationName, ResultSet results,
 			String requestClassName, Hashtable<String, QueryVariable> htblSubjectVariables) {
 
@@ -569,113 +988,118 @@ public class SelectionQueryResults {
 						}
 
 					} else {
-
-						/*
-						 * it is a variable not a subject so get value of the
-						 * variable
-						 * 
-						 * get queryVariable of the subjectVariable to know its
-						 * propertyName
-						 */
-						QueryVariable queryVariable = htblSubjectVariables.get(columnName);
-						String propertyName = queryVariable.getPropertyName();
-
-						/*
-						 * get propertyMapping of propertyName that connects
-						 * subjectVariable to objectVariable (columnName)
-						 */
-						String classUri = queryVariable.getSubjectClassUri();
-						Class propertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(classUri);
-						Property property = propertyClass.getProperties().get(propertyName);
-
-						/*
-						 * construct value datatype of propValue if the property
-						 * is a datatype property
-						 */
-						if (property instanceof DataTypeProperty) {
-							propValue = typeCastValueToItsDataType((DataTypeProperty) property, propValue);
-						}
-
-						/*
-						 * get subjectVariable of the objectVariable
-						 * (columnName)
-						 */
-						String parentSubjectVariable = queryVariable.getSubjectVariableName();
-
-						/*
-						 * get parentSubjectVariablePropValue of the
-						 * subjectVariable
-						 */
-						int index = htblIndividualSubjectIndex.get(mainSubjectUri);
-						Object parentSubjectVariablePropValue = helperList.get(index).get(parentSubjectVariable);
-						/*
-						 * get target htblParentFieldObject that holds the
-						 * propValues of subjectVariable
-						 */
-						Hashtable<String, Object> htblParentFieldObject;
-
-						if (parentSubjectVariablePropValue instanceof java.util.Hashtable<?, ?>) {
+						if (columnName.contains("var")) {
+							/*
+							 * it is a variable not a subject so get value of
+							 * the variable
+							 * 
+							 * get queryVariable of the subjectVariable to know
+							 * its propertyName
+							 */
+							QueryVariable queryVariable = htblSubjectVariables.get(columnName);
+							String propertyName = queryVariable.getPropertyName();
 
 							/*
-							 * parentSubjectVariable has one single
-							 * Hashtable<String, Object> that holds its prop
-							 * values
+							 * get propertyMapping of propertyName that connects
+							 * subjectVariable to objectVariable (columnName)
 							 */
-							htblParentFieldObject = (Hashtable<String, Object>) parentSubjectVariablePropValue;
-
-						} else {
+							String classUri = queryVariable.getSubjectClassUri();
+							Class propertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(classUri);
+							Property property = propertyClass.getProperties().get(propertyName);
 
 							/*
-							 * subjectVariable has list of Hashtable<String,
-							 * Object> that holds all individuals' prop values
+							 * construct value datatype of propValue if the
+							 * property is a datatype property
 							 */
-							List<Hashtable<String, Object>> htblfieldObjectList = (List<Hashtable<String, Object>>) parentSubjectVariablePropValue;
-
-							/*
-							 * get the index of the last individual because I am
-							 * iterating on values so I am adding values in
-							 * order s
-							 */
-							int lastIndividualIndex = htblfieldObjectList.size() - 1;
-							htblParentFieldObject = htblfieldObjectList.get(lastIndividualIndex);
-						}
-
-						/*
-						 * check if the subjectVariablePropVal contains the
-						 * propertyName
-						 */
-						if (htblParentFieldObject.containsKey(propertyName) && property.isMulitpleValues()) {
-							Object value = htblParentFieldObject.get(propertyName);
-
-							/*
-							 * if the value exist then it must be an arrayList
-							 * of values so I have to add literalValue
-							 */
-							ArrayList<Object> valueList = (ArrayList<Object>) value;
-							if (!valueList.contains(propValue)) {
-								valueList.add(propValue);
+							if (property instanceof DataTypeProperty) {
+								propValue = typeCastValueToItsDataType((DataTypeProperty) property, propValue);
 							}
-						} else {
 
 							/*
-							 * check if the property has multipleValue in order
-							 * to create a new Arraylist to hold values
+							 * get subjectVariable of the objectVariable
+							 * (columnName)
 							 */
-							if (property.isMulitpleValues()) {
-								ArrayList<Object> valueList = new ArrayList<>();
-								valueList.add(propValue);
+							String parentSubjectVariable = queryVariable.getSubjectVariableName();
 
-								htblParentFieldObject.put(propertyName, valueList);
+							/*
+							 * get parentSubjectVariablePropValue of the
+							 * subjectVariable
+							 */
+							int index = htblIndividualSubjectIndex.get(mainSubjectUri);
+							Object parentSubjectVariablePropValue = helperList.get(index).get(parentSubjectVariable);
+							/*
+							 * get target htblParentFieldObject that holds the
+							 * propValues of subjectVariable
+							 */
+							Hashtable<String, Object> htblParentFieldObject;
+
+							if (parentSubjectVariablePropValue instanceof java.util.Hashtable<?, ?>) {
+
+								/*
+								 * parentSubjectVariable has one single
+								 * Hashtable<String, Object> that holds its prop
+								 * values
+								 */
+								htblParentFieldObject = (Hashtable<String, Object>) parentSubjectVariablePropValue;
 
 							} else {
-								htblParentFieldObject.put(propertyName, propValue);
+
+								/*
+								 * subjectVariable has list of Hashtable<String,
+								 * Object> that holds all individuals' prop
+								 * values
+								 */
+								List<Hashtable<String, Object>> htblfieldObjectList = (List<Hashtable<String, Object>>) parentSubjectVariablePropValue;
+
+								/*
+								 * get the index of the last individual because
+								 * I am iterating on values so I am adding
+								 * values in order s
+								 */
+								int lastIndividualIndex = htblfieldObjectList.size() - 1;
+								htblParentFieldObject = htblfieldObjectList.get(lastIndividualIndex);
+							}
+
+							/*
+							 * check if the subjectVariablePropVal contains the
+							 * propertyName
+							 */
+							if (htblParentFieldObject.containsKey(propertyName) && property.isMulitpleValues()) {
+								Object value = htblParentFieldObject.get(propertyName);
+
+								/*
+								 * if the value exist then it must be an
+								 * arrayList of values so I have to add
+								 * literalValue
+								 */
+								ArrayList<Object> valueList = (ArrayList<Object>) value;
+								if (!valueList.contains(propValue)) {
+									valueList.add(propValue);
+								}
+							} else {
+
+								/*
+								 * check if the property has multipleValue in
+								 * order to create a new Arraylist to hold
+								 * values
+								 */
+								if (property.isMulitpleValues()) {
+									ArrayList<Object> valueList = new ArrayList<>();
+									valueList.add(propValue);
+
+									htblParentFieldObject.put(propertyName, valueList);
+
+								} else {
+									htblParentFieldObject.put(propertyName, propValue);
+
+								}
 
 							}
 
+						} else {
+
 						}
-
 					}
-
 				}
 			}
 
