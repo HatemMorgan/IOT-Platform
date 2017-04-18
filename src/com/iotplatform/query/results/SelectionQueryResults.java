@@ -263,12 +263,13 @@ public class SelectionQueryResults {
 		 */
 		Hashtable<String, Object> htblSubjectVariablehtblpropVal = null;
 
+		/*
+		 * htblindividuals holds the individual uniqueIdentifier as key and the
+		 * Hashtable<String,Object> that hold the propValues as value of the key
+		 */
+		Hashtable<String, Hashtable<String, Object>> htblindividuals = new Hashtable<>();
+
 		try {
-			/*
-			 * is used to hold subjectURI of the current individual (subjectURI
-			 * is the uniqueIdnetifier of this individual)
-			 */
-			String currentMainSubjectURI = "";
 
 			ResultSetMetaData rsmd = results.getMetaData();
 
@@ -284,12 +285,7 @@ public class SelectionQueryResults {
 				 * check if the mainSubjectUri(which represents an individual)
 				 * exist before or not in htblIndividualSubjectIndex
 				 */
-				if (!currentMainSubjectURI.equals(mainSubjectUri)) {
-
-					/*
-					 * set currentMainSubjectURI to mainSubjectUri
-					 */
-					currentMainSubjectURI = mainSubjectUri;
+				if (!htblindividuals.containsKey(mainSubjectUri)) {
 
 					/*
 					 * Initialize htblIndividualIndex whic is used to hold
@@ -309,8 +305,25 @@ public class SelectionQueryResults {
 
 					htblSubjectVariablehtblpropVal.put("subject0", htblIndividualPropertyValue);
 
+					/*
+					 * add htblIndividualPropertyValue to
+					 * consturctedQueryResult(the returned result)
+					 */
 					consturctedQueryResult.add(htblIndividualPropertyValue);
 
+					/*
+					 * add htblIndividualPropertyValue to htblindividuals to
+					 * avoid creating a new Hashtable<String, Object> if it was
+					 * repeated
+					 */
+					htblindividuals.put(mainSubjectUri, htblSubjectVariablehtblpropVal);
+
+				} else {
+					/*
+					 * mainSubjectUri was added before so get its
+					 * Hashtable<String, Object>
+					 */
+					htblSubjectVariablehtblpropVal = htblindividuals.get(mainSubjectUri);
 				}
 
 				/*
@@ -861,7 +874,6 @@ public class SelectionQueryResults {
 		 * objectVariable (columnName)
 		 */
 		String classUri = queryVariable.getSubjectClassUri();
-		System.out.println(classUri + " " + objectColumnName);
 		Class propertyClass = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers().get(classUri);
 		Property property = propertyClass.getProperties().get(propertyName);
 
@@ -908,13 +920,12 @@ public class SelectionQueryResults {
 
 		Class objectClassType = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(objectClassTypeURI);
 		String uniqueIdentifierProperty = objectClassType.getUniqueIdentifierPropertyName();
-		// System.out.println("====> " +
-		// objectClassTypeURI);
+
 		/*
 		 * add uniqueIdentifier result and objectClassType to
 		 * htblObjectIndividualPropValue
 		 */
-		htblObjectIndividualPropValue.put(uniqueIdentifierProperty, objectUniqueIdentifier);
+		htblObjectIndividualPropValue.put(uniqueIdentifierProperty, getValueFromURI(objectUniqueIdentifier));
 		htblObjectIndividualPropValue.put("classType", objectClassType.getName());
 
 		/*
@@ -990,6 +1001,24 @@ public class SelectionQueryResults {
 			}
 
 		}
+	}
+
+	/*
+	 * getValueFromURI is used to get value from a URI.
+	 * 
+	 * URI consists of a prefixURI and value so I loop on all prefixes and
+	 * return the value by removing the matched prefexURI
+	 * 
+	 * eg: uri = http://iot-platform#enterprisecompanies the returned value =
+	 * enterprisecompanies
+	 */
+	private static String getValueFromURI(String uri) {
+		for (Prefix prefix : Prefix.values()) {
+			if (uri.contains(prefix.getUri())) {
+				return uri.substring(prefix.getUri().length());
+			}
+		}
+		return null;
 	}
 
 	/*
