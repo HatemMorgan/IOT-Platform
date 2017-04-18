@@ -187,7 +187,7 @@ public class SelectionQuery {
 		 * check if htbloptionalTypeClassList has keyValues
 		 */
 		if (htbloptionalTypeClassList.size() > 0) {
-
+			System.out.println(htbloptionalTypeClassList);
 			/*
 			 * iterate over htbloptionalTypeClassList and for each key add a new
 			 * optionalQuery (each key represent and objectValueQueryVariable
@@ -276,10 +276,9 @@ public class SelectionQuery {
 				 * The loop start from 4 because I manually get and use the
 				 * first 4 elements in the list. so I will skip them here
 				 */
-				for (int i = 4; i < htbloptionalTypeClassList.size(); i++) {
+				for (int i = 4; i < htbloptionalTypeClassList.get(objectValueQueryVariable).size(); i++) {
 
 					String objectValueClassURI = optionalTypeClassList.get(i);
-
 					optionalQueryTempBuilder
 							.append(" && ?class" + classVariableCounter + " != <" + objectValueClassURI + ">  ");
 
