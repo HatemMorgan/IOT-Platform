@@ -46,14 +46,14 @@ public class OntologyMapper {
 	private static Hashtable<String, Class> htblMainOntologyClassesUri;
 	private static Hashtable<String, OntProperty> htblMainOntologyProperties;
 
-	 private static OntologyMapper ontologyMapper;
-	
-	 public static OntologyMapper getOntologyMapper() {
-	 if (ontologyMapper == null)
-	 ontologyMapper = new OntologyMapper();
-	
-	 return ontologyMapper;
-	 }
+	// private static OntologyMapper ontologyMapper;
+	//
+	// public static OntologyMapper getOntologyMapper() {
+	// if (ontologyMapper == null)
+	// ontologyMapper = new OntologyMapper();
+	//
+	// return ontologyMapper;
+	// }
 
 	public OntologyMapper() {
 		model = ModelFactory.createOntologyModel();

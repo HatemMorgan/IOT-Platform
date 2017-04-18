@@ -64,7 +64,6 @@ public class SelectionQueryResults {
 			propertyName = subjectClass.getHtblPropUriName().get(propertyURI);
 
 		}
-		System.out.println(propertyName + "   " + propertyURI);
 		Property property = subjectClass.getProperties().get(propertyName);
 
 		if (property instanceof ObjectProperty) {
@@ -446,7 +445,7 @@ public class SelectionQueryResults {
 		 * objectVariable (columnName)
 		 */
 		String classUri = queryVariable.getSubjectClassUri();
-		Class propertyClass = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers().get(classUri);
+		Class propertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(classUri);
 		Property property = propertyClass.getProperties().get(propertyName);
 
 		/*
@@ -745,7 +744,7 @@ public class SelectionQueryResults {
 		 * objectVariable (columnName)
 		 */
 		String classUri = queryVariable.getSubjectClassUri();
-		Class propertyClass = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers().get(classUri);
+		Class propertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(classUri);
 		Property property = propertyClass.getProperties().get(propertyName);
 
 		/*
@@ -773,7 +772,7 @@ public class SelectionQueryResults {
 			 */
 			subjectVariableIndividual = subjectVariableIndividualsList.get(subjectVariableIndividualsList.size() - 1);
 		}
-
+		System.out.println(propertyName+" "+property);
 		/*
 		 * check if the property has multipleValues in order to add property to
 		 * subjectVariableIndividual with a value list (to hold multiple values)
@@ -874,7 +873,7 @@ public class SelectionQueryResults {
 		 * objectVariable (columnName)
 		 */
 		String classUri = queryVariable.getSubjectClassUri();
-		Class propertyClass = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers().get(classUri);
+		Class propertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(classUri);
 		Property property = propertyClass.getProperties().get(propertyName);
 
 		/*

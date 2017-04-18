@@ -790,7 +790,7 @@ public class SelectQueryRequestValidation {
 			long startTime = System.currentTimeMillis();
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = getQueryRequestValidations
 					.validateRequest("TESTAPPLICATION", htblFieldValue,
-							OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("group"));
+							OntologyMapper.getHtblMainOntologyClassesMappers().get("group"));
 			System.out.println(htblClassNameProperty.toString());
 			System.out.println("============================================");
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);

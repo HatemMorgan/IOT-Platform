@@ -231,8 +231,8 @@ public class SelectionQuery {
 				 * objectValueQueryVariable and add 1 for propertyRangeClassUri
 				 * itself (because it is also a type)
 				 */
-				int classTypesNum = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers()
-						.get(propertyRangeClassUri).getClassTypesList().size() + 1;
+				int classTypesNum = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(propertyRangeClassUri)
+						.getClassTypesList().size() + 1;
 
 				/*
 				 * typeCounter is used to count number of types used. I
@@ -316,7 +316,7 @@ public class SelectionQuery {
 					/*
 					 * get class of the objectValueClassURI
 					 */
-					Class objectValueClass = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers()
+					Class objectValueClass = OntologyMapper.getHtblMainOntologyClassesUriMappers()
 							.get(objectValueClassURI);
 
 					/*
@@ -696,8 +696,7 @@ public class SelectionQuery {
 					 * I get this elements and use them
 					 */
 					String propName = getPropertyName(queryField.getPrefixedPropertyName());
-					Class subjectClass = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers()
-							.get(currentClassURI);
+					Class subjectClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(currentClassURI);
 
 					/*
 					 * add propertyName as first element
