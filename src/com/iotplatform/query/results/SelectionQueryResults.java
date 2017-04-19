@@ -244,17 +244,19 @@ public class SelectionQueryResults {
 		List<Hashtable<String, Object>> consturctedQueryResult = new ArrayList<>();
 
 		/*
-		 * helperList is the list of all hashtables created to hold the
-		 * propertyValues of each new subjectVariable
-		 */
-		// List<Hashtable<String, Object>> helperList = null;
-
-		/*
-		 * htblIndividualIndex is used to hold uniqueIdentifier of an individual
-		 * (key) and index of individual in its subjectVariavle list
+		 * htblIndividualQueryVariabesList is used to hold uniqueIdentifier of
+		 * an individual (key) and a list of queryVariables of individual in its
+		 * subjectVariavle list
 		 * 
+		 * An individual can be repeated in more than one queryVariable but I
+		 * only want to remove duplicated results of the same queryVariable
+		 * because it was only repeated due to graph traversing(it has nothing
+		 * of what query done)
+		 * 
+		 * The replication I am removing happening due to projection of results
+		 * from traversing graph
 		 */
-		LinkedHashMap<String, Integer> htblIndividualIndex = null;
+		LinkedHashMap<String, ArrayList<String>> htblIndividualQueryVariabesList = null;
 
 		/*
 		 * htblSubjectVariablehtblpropVal holds the subjectVariable as key and
@@ -287,12 +289,12 @@ public class SelectionQueryResults {
 				if (!htblindividuals.containsKey(mainSubjectUri)) {
 
 					/*
-					 * Initialize htblIndividualIndex whic is used to hold
-					 * uniqueIdentifier of an individual (key) and index of
-					 * individual in its subjectVariavle list
+					 * Initialize htblIndividualQueryVariabesList which is used
+					 * to hold uniqueIdentifier of an individual (key) and
+					 * queryVariable of individual in its subjectVariavle list
 					 * 
 					 */
-					htblIndividualIndex = new LinkedHashMap<>();
+					htblIndividualQueryVariabesList = new LinkedHashMap<>();
 
 					/*
 					 * construct new data structures instances to hold data of
@@ -352,8 +354,8 @@ public class SelectionQueryResults {
 						 * call constructResultOfSubjectColumn which will
 						 * construct result for subject variables
 						 */
-						constructResultOfSubjectColumn(columnName, htblIndividualIndex, htblSubjectVariablehtblpropVal,
-								htblSubjectVariables, individualUniqueIdentifier);
+						constructResultOfSubjectColumn(columnName, htblIndividualQueryVariabesList,
+								htblSubjectVariablehtblpropVal, htblSubjectVariables, individualUniqueIdentifier);
 					} else {
 						/*
 						 * check that it is variable
@@ -398,13 +400,79 @@ public class SelectionQueryResults {
 								String objectClassTypeURI = results.getObject(i).toString();
 
 								/*
-								 * call constructResultsOfObjectColumn which
-								 * will construct result for object and
-								 * objectType variables
+								 * check if objectUniqueIdentifier was seen
+								 * before or it is the first time
 								 */
-								constructResultsOfObjectColumn(columnName, objectUniqueIdentifier, objectClassTypeURI,
-										htblSubjectVariables, htblSubjectVariablehtblpropVal);
+								if (htblIndividualQueryVariabesList.containsKey(objectUniqueIdentifier)) {
 
+									/*
+									 * check that this objectUniqueIdentifier
+									 * was not repeated for the same columnName
+									 * 
+									 * If it was repeated for the same
+									 * columnName(queryVariable) so it is
+									 * replicating due to projection after
+									 * traversing graph
+									 * 
+									 * If it was repeated but for another
+									 * columnName(queryVariable) so I have to
+									 * add it to constructed results. Therefore
+									 * I called
+									 * constructResultOfSubjectColumnHelper to
+									 * add it
+									 */
+									if (!htblIndividualQueryVariabesList.get(objectUniqueIdentifier)
+											.contains(columnName)) {
+
+										/*
+										 * call constructResultsOfObjectColumn
+										 * which will construct result for
+										 * object and objectType variables
+										 */
+										constructResultsOfObjectColumn(columnName, objectUniqueIdentifier,
+												objectClassTypeURI, htblSubjectVariables,
+												htblSubjectVariablehtblpropVal);
+
+										/*
+										 * add new columnName (queryVariable) to
+										 * list of queryVariables of this
+										 * individualUniqueIdentifier in
+										 * htblIndividualQueryVariabesList
+										 */
+										htblIndividualQueryVariabesList.get(objectUniqueIdentifier).add(columnName);
+									} else {
+										/*
+										 * individual is repeated for the same
+										 * columnName(queryVariable) so I have
+										 * to skip it
+										 */
+										continue;
+									}
+
+								} else {
+									/*
+									 * call constructResultsOfObjectColumn which
+									 * will construct result for object and
+									 * objectType variables
+									 */
+									constructResultsOfObjectColumn(columnName, objectUniqueIdentifier,
+											objectClassTypeURI, htblSubjectVariables, htblSubjectVariablehtblpropVal);
+
+									/*
+									 * add objectUniqueIdentifier to
+									 * htblIndividualQueryVariabesList and
+									 * create a new list to hold its
+									 * queryVariables
+									 */
+									htblIndividualQueryVariabesList.put(objectUniqueIdentifier, new ArrayList<>());
+									/*
+									 * add new columnName (queryVariable) to
+									 * list of queryVariables of this
+									 * individualUniqueIdentifier in
+									 * htblIndividualQueryVariabesList
+									 */
+									htblIndividualQueryVariabesList.get(objectUniqueIdentifier).add(columnName);
+								}
 							}
 
 						}
@@ -417,6 +485,7 @@ public class SelectionQueryResults {
 		SQLException e) {
 			throw new DatabaseException(e.getMessage(), requestClassName);
 		}
+		System.out.println("---> " + htblIndividualQueryVariabesList);
 		System.out.println(consturctedQueryResult);
 		return consturctedQueryResult;
 	}
@@ -426,7 +495,7 @@ public class SelectionQueryResults {
 	 * variables. This method is called by constructQueryResult
 	 */
 	private static void constructResultOfSubjectColumn(String columnName,
-			LinkedHashMap<String, Integer> htblIndividualIndex,
+			LinkedHashMap<String, ArrayList<String>> htblIndividualQueryVariabesList,
 			Hashtable<String, Object> htblSubjectVariablehtblpropVal,
 			Hashtable<String, QueryVariable> htblSubjectVariables, String individualUniqueIdentifier) {
 		/*
@@ -471,10 +540,16 @@ public class SelectionQueryResults {
 			htblSubjectIndividualsList.add(subjectIndividual);
 
 			/*
-			 * add individualUniqueIdentifier with index=0 as it is the first
-			 * time to see this subjectVariable to htblIndividualIndex
+			 * add individualUniqueIdentifier to htblIndividualQueryVariabesList
+			 * and create a new list to hold its queryVariables
 			 */
-			htblIndividualIndex.put(individualUniqueIdentifier, 0);
+			htblIndividualQueryVariabesList.put(individualUniqueIdentifier, new ArrayList<>());
+			/*
+			 * add new columnName (queryVariable) to list of queryVariables of
+			 * this individualUniqueIdentifier in
+			 * htblIndividualQueryVariabesList
+			 */
+			htblIndividualQueryVariabesList.get(individualUniqueIdentifier).add(columnName);
 
 			/*
 			 * add new subjectVariable's individualsList to
@@ -585,139 +660,192 @@ public class SelectionQueryResults {
 			 * Check if the individual with individualUniqueIdentifier was seen
 			 * before or not
 			 */
-			if (!htblIndividualIndex.containsKey(individualUniqueIdentifier)) {
+			if (!htblIndividualQueryVariabesList.containsKey(individualUniqueIdentifier)) {
+
+				constructResultOfSubjectColumnHelper(columnName, htblIndividualQueryVariabesList,
+						individualUniqueIdentifier, parrentSubjectVariable, htblSubjectVariablehtblpropVal, property,
+						propertyName);
 
 				/*
-				 * get subjectVariableIndividualsList
+				 * add individualUniqueIdentifier to
+				 * htblIndividualQueryVariabesList and create a new list to hold
+				 * its queryVariables
 				 */
-				ArrayList<Hashtable<String, Object>> individualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
-						.get(columnName);
-
+				htblIndividualQueryVariabesList.put(individualUniqueIdentifier, new ArrayList<>());
 				/*
-				 * create new Hashtable<String, Object> to hold individual's
-				 * propertyValue
+				 * add new columnName (queryVariable) to list of queryVariables
+				 * of this individualUniqueIdentifier in
+				 * htblIndividualQueryVariabesList
 				 */
-				Hashtable<String, Object> subjectIndividual = new Hashtable<>();
-				individualsList.add(subjectIndividual);
-
-				/*
-				 * add individualUniqueIdentifier to htblIndividualIndex
-				 */
-				htblIndividualIndex.put(individualUniqueIdentifier, individualsList.size() - 1);
-
-				/*
-				 * get list of individuals of the parentSubjectVariable
-				 * 
-				 * if the parentSubjectVairable is subject0 it will be only one
-				 * individual so I will cast it to Hashtable<String,Object>
-				 * 
-				 * else it will be a list of individuals so I will cast it to
-				 * ArrayList<Hashtable<String,Object>>
-				 */
-				Hashtable<String, Object> parentSubjectVariableIndividual;
-				if (parrentSubjectVariable.equals("subject0")) {
-
-					parentSubjectVariableIndividual = (Hashtable<String, Object>) htblSubjectVariablehtblpropVal
-							.get(parrentSubjectVariable);
-				} else {
-					ArrayList<Hashtable<String, Object>> parentSubjectVariableIndividualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
-							.get(parrentSubjectVariable);
-
-					/*
-					 * get parentSubjectVariableIndividual
-					 * 
-					 * It will always be the last item in the list because the
-					 * results are added in order
-					 */
-					parentSubjectVariableIndividual = parentSubjectVariableIndividualsList
-							.get(parentSubjectVariableIndividualsList.size() - 1);
-				}
-
-				/*
-				 * check if the property has multipleValues in order to add
-				 * property to parentSubjectVariableIndividual with a value list
-				 * (to hold multiple values)
-				 */
-				if (property.isMulitpleValues()) {
-
-					/*
-					 * check if the property was added before or not
-					 */
-					if (!parentSubjectVariableIndividual.containsKey(propertyName)) {
-
-						/*
-						 * create a new ArrayList<Hashtable<String, Object>> to
-						 * hold objectValues
-						 */
-						ArrayList<Hashtable<String, Object>> valueList = new ArrayList<>();
-
-						/*
-						 * add subjectIndividual to propertyValueList
-						 * (valueList)
-						 */
-						valueList.add(subjectIndividual);
-
-						/*
-						 * add property and its values list to
-						 * parentSubjectVariableIndividual
-						 */
-						parentSubjectVariableIndividual.put(propertyName, valueList);
-
-					} else {
-
-						/*
-						 * if the property existed before it means that this
-						 * subjectVariable individual with
-						 * individualUniqueIdentifier is another value to be
-						 * added to valueList
-						 * 
-						 * get the propertyValueList
-						 */
-						ArrayList<Hashtable<String, Object>> valueList = (ArrayList<Hashtable<String, Object>>) parentSubjectVariableIndividual
-								.get(propertyName);
-
-						/*
-						 * add subjectIndividual to propertyValueList
-						 * (valueList)
-						 */
-						valueList.add(subjectIndividual);
-					}
-
-				} else {
-
-					/*
-					 * check if the property was added before or not
-					 */
-					if (!parentSubjectVariableIndividual.containsKey(propertyName)) {
-
-						/*
-						 * add property and subjectIndividual to
-						 * parentSubjectVariableIndividual
-						 */
-						parentSubjectVariableIndividual.put(propertyName, subjectIndividual);
-
-					} else {
-
-						/*
-						 * it will never happen but I will skip if it happens.
-						 * 
-						 * It will never happen that a property with a single
-						 * value has multiple values because I checked that it
-						 * never happen in insertion
-						 */
-						return;
-					}
-
-				}
+				htblIndividualQueryVariabesList.get(individualUniqueIdentifier).add(columnName);
 
 			} else {
+
 				/*
-				 * individual was added before so I will skip it
+				 * check that this individualUniqueIdentifier was not repeated
+				 * for the same columnName
+				 * 
+				 * If it was repeated for the same columnName(queryVariable) so
+				 * it is replicating due to projection after traversing graph
+				 * 
+				 * If it was repeated but for another columnName(queryVariable)
+				 * so I have to add it to constructed results. Therefore I
+				 * called constructResultOfSubjectColumnHelper to add it
+				 */
+				if (!htblIndividualQueryVariabesList.get(individualUniqueIdentifier).contains(columnName)) {
+
+					constructResultOfSubjectColumnHelper(columnName, htblIndividualQueryVariabesList,
+							individualUniqueIdentifier, parrentSubjectVariable, htblSubjectVariablehtblpropVal,
+							property, propertyName);
+
+					/*
+					 * add new columnName (queryVariable) to list of
+					 * queryVariables of this individualUniqueIdentifier in
+					 * htblIndividualQueryVariabesList
+					 */
+					htblIndividualQueryVariabesList.get(individualUniqueIdentifier).add(columnName);
+				} else {
+
+					/*
+					 * individual is repeated for the same
+					 * columnName(queryVariable) so I have to skip it
+					 */
+					return;
+				}
+
+			}
+
+		}
+	}
+
+	/*
+	 * constructResultOfSubjectColumnHelper is used to construct results for
+	 * subjectVariable
+	 */
+	private static void constructResultOfSubjectColumnHelper(String columnName,
+			LinkedHashMap<String, ArrayList<String>> htblIndividualQueryVariabesList, String individualUniqueIdentifier,
+			String parrentSubjectVariable, Hashtable<String, Object> htblSubjectVariablehtblpropVal, Property property,
+			String propertyName) {
+		/*
+		 * get subjectVariableIndividualsList
+		 */
+		ArrayList<Hashtable<String, Object>> individualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
+				.get(columnName);
+
+		/*
+		 * create new Hashtable<String, Object> to hold individual's
+		 * propertyValue
+		 */
+		Hashtable<String, Object> subjectIndividual = new Hashtable<>();
+		individualsList.add(subjectIndividual);
+
+		/*
+		 * add individualUniqueIdentifier to htblIndividualQueryVariabesList
+		 */
+		htblIndividualQueryVariabesList.put(individualUniqueIdentifier, new ArrayList<>());
+
+		/*
+		 * get list of individuals of the parentSubjectVariable
+		 * 
+		 * if the parentSubjectVairable is subject0 it will be only one
+		 * individual so I will cast it to Hashtable<String,Object>
+		 * 
+		 * else it will be a list of individuals so I will cast it to
+		 * ArrayList<Hashtable<String,Object>>
+		 */
+		Hashtable<String, Object> parentSubjectVariableIndividual;
+		if (parrentSubjectVariable.equals("subject0")) {
+
+			parentSubjectVariableIndividual = (Hashtable<String, Object>) htblSubjectVariablehtblpropVal
+					.get(parrentSubjectVariable);
+		} else {
+			ArrayList<Hashtable<String, Object>> parentSubjectVariableIndividualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
+					.get(parrentSubjectVariable);
+
+			/*
+			 * get parentSubjectVariableIndividual
+			 * 
+			 * It will always be the last item in the list because the results
+			 * are added in order
+			 */
+			parentSubjectVariableIndividual = parentSubjectVariableIndividualsList
+					.get(parentSubjectVariableIndividualsList.size() - 1);
+		}
+
+		/*
+		 * check if the property has multipleValues in order to add property to
+		 * parentSubjectVariableIndividual with a value list (to hold multiple
+		 * values)
+		 */
+		if (property.isMulitpleValues()) {
+
+			/*
+			 * check if the property was added before or not
+			 */
+			if (!parentSubjectVariableIndividual.containsKey(propertyName)) {
+
+				/*
+				 * create a new ArrayList<Hashtable<String, Object>> to hold
+				 * objectValues
+				 */
+				ArrayList<Hashtable<String, Object>> valueList = new ArrayList<>();
+
+				/*
+				 * add subjectIndividual to propertyValueList (valueList)
+				 */
+				valueList.add(subjectIndividual);
+
+				/*
+				 * add property and its values list to
+				 * parentSubjectVariableIndividual
+				 */
+				parentSubjectVariableIndividual.put(propertyName, valueList);
+
+			} else {
+
+				/*
+				 * if the property existed before it means that this
+				 * subjectVariable individual with individualUniqueIdentifier is
+				 * another value to be added to valueList
+				 * 
+				 * get the propertyValueList
+				 */
+				ArrayList<Hashtable<String, Object>> valueList = (ArrayList<Hashtable<String, Object>>) parentSubjectVariableIndividual
+						.get(propertyName);
+
+				/*
+				 * add subjectIndividual to propertyValueList (valueList)
+				 */
+				valueList.add(subjectIndividual);
+			}
+
+		} else {
+
+			/*
+			 * check if the property was added before or not
+			 */
+			if (!parentSubjectVariableIndividual.containsKey(propertyName)) {
+
+				/*
+				 * add property and subjectIndividual to
+				 * parentSubjectVariableIndividual
+				 */
+				parentSubjectVariableIndividual.put(propertyName, subjectIndividual);
+
+			} else {
+
+				/*
+				 * it will never happen but I will skip if it happens.
+				 * 
+				 * It will never happen that a property with a single value has
+				 * multiple values because I checked that it never happen in
+				 * insertion
 				 */
 				return;
 			}
 
 		}
+
 	}
 
 	/*
