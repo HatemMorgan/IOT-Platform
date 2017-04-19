@@ -485,7 +485,6 @@ public class SelectionQueryResults {
 		SQLException e) {
 			throw new DatabaseException(e.getMessage(), requestClassName);
 		}
-		System.out.println("---> " + htblIndividualQueryVariabesList);
 		System.out.println(consturctedQueryResult);
 		return consturctedQueryResult;
 	}

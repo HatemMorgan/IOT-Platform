@@ -728,7 +728,7 @@ public class SelectQueryRequestValidation {
 //		membersFieldMap.put("fields", fields);
 
 		LinkedHashMap<String, Object> personFieldMap = new LinkedHashMap<>();
-		personFieldMap.put("classType", "Person");
+		personFieldMap.put("classType", "Developer");
 
 		// LinkedHashMap<String, Object> knowsPersonFieldMap2 = new
 		// LinkedHashMap<>();
@@ -778,7 +778,7 @@ public class SelectQueryRequestValidation {
 		groupFields.add("name");
 
 		groupFieldMap.put("fields", groupFields);
-		// membersValueObjects.add(groupFieldMap);
+		 membersValueObjects.add(groupFieldMap);
 
 		fieldsList.add("description");
 		System.out.println(htblFieldValue);

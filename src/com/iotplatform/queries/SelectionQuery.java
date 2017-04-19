@@ -36,7 +36,7 @@ public class SelectionQuery {
 	public static Object[] constructSelectQuery(
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
 			String mainClassPrefixedName, String mainInstanceUniqueIdentifier, String applicationModelName) {
-
+		System.out.println(htblClassNameProperty);
 		/*
 		 * main builder for dynamically building the query
 		 */
@@ -616,7 +616,9 @@ public class SelectionQuery {
 					if (htblClassNameProperty.get(currentClassURI).get(currentClassInstanceUniqueIdentifier)
 							.indexOf(queryField) < htblClassNameProperty.get(currentClassURI)
 									.get(currentClassInstanceUniqueIdentifier).size() - 1) {
+
 						queryBuilder.append(" ; \n" + queryField.getPrefixedPropertyName() + " ?" + subjectVariable);
+
 					} else {
 
 						/*
@@ -767,7 +769,23 @@ public class SelectionQuery {
 					 * previous one and it will not be linked again to the
 					 * subjectVariable
 					 * 
-					 * 
+					 * I have to end the previous query pattern part by adding a
+					 * dot ( . ) if it is the last one
+					 */
+
+					if (htblClassNameProperty.get(currentClassURI).get(currentClassInstanceUniqueIdentifier)
+							.indexOf(queryField) == htblClassNameProperty.get(currentClassURI)
+									.get(currentClassInstanceUniqueIdentifier).size() - 1) {
+
+						/*
+						 * it is the last property so we will end the previous
+						 * triple pattern with ; and this one with .
+						 */
+						queryBuilder.append(" . \n");
+
+					}
+
+					/*
 					 * adding optional query when the property queried has
 					 * multiple value types so the optional query act as an if
 					 * condition.

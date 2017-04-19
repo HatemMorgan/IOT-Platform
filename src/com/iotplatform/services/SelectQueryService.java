@@ -169,7 +169,7 @@ public class SelectQueryService {
 		LinkedHashMap<String, Object> batteryLifetimeFieldMap = new LinkedHashMap<>();
 		survivalPropertyFieldsList.add(batteryLifetimeFieldMap);
 
-		batteryLifetimeFieldMap.put("classType", "SystemLifetime");
+		batteryLifetimeFieldMap.put("classType", "BatteryLifetime");
 		ArrayList<Object> batteryLifetimeFieldsList = new ArrayList<>();
 		batteryLifetimeFieldMap.put("fields", batteryLifetimeFieldsList);
 
@@ -184,6 +184,14 @@ public class SelectQueryService {
 
 		amountFieldsList.add("hasDataValue");
 
+		LinkedHashMap<String, Object> systemLifetimeFieldMap = new LinkedHashMap<>();
+		survivalPropertyFieldsList.add(systemLifetimeFieldMap);
+
+		systemLifetimeFieldMap.put("classType", "SystemLifetime");
+		systemLifetimeFieldMap.put("fields", batteryLifetimeFieldsList);
+		
+		
+		
 		System.out.println(htblQueryFields);
 
 		System.out.println(OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers()
