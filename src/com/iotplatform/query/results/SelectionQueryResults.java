@@ -875,6 +875,15 @@ public class SelectionQueryResults {
 		Property property = propertyClass.getProperties().get(propertyName);
 
 		/*
+		 * type cast propValue to its dataType given by its property
+		 * 
+		 * The value is returned from database as a String
+		 */
+		if (property instanceof DataTypeProperty) {
+			propValue = typeCastValueToItsDataType((DataTypeProperty) property, propValue);
+		}
+
+		/*
 		 * get list of individuals of the parentSubjectVariable
 		 * 
 		 * if the parentSubjectVairable is subject0 it will be only one

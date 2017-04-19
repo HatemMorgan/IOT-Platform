@@ -232,6 +232,7 @@ public class SelectQueryRequestValidation {
 				}
 
 				Class objectValueClassType = null;
+
 				/*
 				 * generate uniqueIdntifier
 				 */
@@ -725,7 +726,7 @@ public class SelectQueryRequestValidation {
 
 		ArrayList<Object> membersValueObjects = new ArrayList<>();
 		membersFieldMap.put("values", membersValueObjects);
-//		membersFieldMap.put("fields", fields);
+		// membersFieldMap.put("fields", fields);
 
 		LinkedHashMap<String, Object> personFieldMap = new LinkedHashMap<>();
 		personFieldMap.put("classType", "Developer");
@@ -778,7 +779,7 @@ public class SelectQueryRequestValidation {
 		groupFields.add("name");
 
 		groupFieldMap.put("fields", groupFields);
-		 membersValueObjects.add(groupFieldMap);
+		membersValueObjects.add(groupFieldMap);
 
 		fieldsList.add("description");
 		System.out.println(htblFieldValue);

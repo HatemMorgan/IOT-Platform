@@ -164,7 +164,7 @@ public class SelectQueryService {
 
 		survivalPropertyFieldMap.put("fieldName", "hasSurvivalProperty");
 		ArrayList<Object> survivalPropertyFieldsList = new ArrayList<>();
-		survivalPropertyFieldMap.put("values", survivalPropertyFieldsList);
+		survivalPropertyFieldMap.put("values",  new ArrayList<>());
 
 		LinkedHashMap<String, Object> batteryLifetimeFieldMap = new LinkedHashMap<>();
 		survivalPropertyFieldsList.add(batteryLifetimeFieldMap);
