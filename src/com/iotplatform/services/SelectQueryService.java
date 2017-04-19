@@ -5,19 +5,24 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
+import com.iotplatform.daos.DynamicConceptsDao;
 import com.iotplatform.daos.SelectQueryDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidClassNameException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.QueryField;
 import com.iotplatform.validations.SelectQueryRequestValidation;
+
+import oracle.spatial.rdf.client.jena.Oracle;
 
 /*
  * SelectQueryService is used to serve SelectQueryAPIController to insert new data 
@@ -52,8 +57,8 @@ public class SelectQueryService {
 		/*
 		 * check if the className has a valid class Mapping
 		 */
-		if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(className)) {
-			Class subjectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(className);
+		if (OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().containsKey(className)) {
+			Class subjectClass = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get(className);
 
 			/*
 			 * check if the model exist or not .
@@ -95,5 +100,122 @@ public class SelectQueryService {
 			return invalidClassNameException.getExceptionHashTable(timeTaken);
 		}
 
+	}
+
+	public static void main(String[] args) {
+		Hashtable<String, Object> htblQueryFields = new Hashtable<>();
+		ArrayList<Object> fieldsList = new ArrayList<>();
+		htblQueryFields.put("fields", fieldsList);
+
+		fieldsList.add("id");
+		fieldsList.add("hasTransmissionPower");
+		fieldsList.add("hasType");
+
+		LinkedHashMap<String, Object> coverageFieldMap = new LinkedHashMap<>();
+		fieldsList.add(coverageFieldMap);
+
+		coverageFieldMap.put("fieldName", "hasCoverage");
+		ArrayList<Object> coverageFieldsList = new ArrayList<>();
+		coverageFieldMap.put("fields", coverageFieldsList);
+
+		coverageFieldsList.add("id");
+
+		LinkedHashMap<String, Object> locationFieldMap = new LinkedHashMap<>();
+		coverageFieldsList.add(locationFieldMap);
+
+		locationFieldMap.put("fieldName", "location");
+		ArrayList<Object> locationFieldsList = new ArrayList<>();
+		locationFieldMap.put("fields", locationFieldsList);
+
+		locationFieldsList.add("id");
+		locationFieldsList.add("long");
+		locationFieldsList.add("lat");
+
+		LinkedHashMap<String, Object> metaDataFieldMap = new LinkedHashMap<>();
+		fieldsList.add(metaDataFieldMap);
+
+		metaDataFieldMap.put("fieldName", "hasMetadata");
+		ArrayList<Object> metadataFieldsList = new ArrayList<>();
+		metaDataFieldMap.put("fields", metadataFieldsList);
+
+		metadataFieldsList.add("id");
+		metadataFieldsList.add("metadataType");
+		metadataFieldsList.add("metadataValue");
+
+		LinkedHashMap<String, Object> survivalRangeFieldMap = new LinkedHashMap<>();
+		fieldsList.add(survivalRangeFieldMap);
+
+		survivalRangeFieldMap.put("fieldName", "hasSurvivalRange");
+		ArrayList<Object> survivalRangeFieldsList = new ArrayList<>();
+		survivalRangeFieldMap.put("fields", survivalRangeFieldsList);
+
+		LinkedHashMap<String, Object> conditionFieldMap = new LinkedHashMap<>();
+		survivalRangeFieldsList.add(conditionFieldMap);
+
+		conditionFieldMap.put("fieldName", "inCondition");
+		ArrayList<Object> conditionFieldsList = new ArrayList<>();
+		conditionFieldMap.put("fields", conditionFieldsList);
+
+		conditionFieldsList.add("id");
+		conditionFieldsList.add("description");
+
+		LinkedHashMap<String, Object> survivalPropertyFieldMap = new LinkedHashMap<>();
+		survivalRangeFieldsList.add(survivalPropertyFieldMap);
+
+		survivalPropertyFieldMap.put("fieldName", "hasSurvivalProperty");
+		ArrayList<Object> survivalPropertyFieldsList = new ArrayList<>();
+		survivalPropertyFieldMap.put("values", survivalPropertyFieldsList);
+
+		LinkedHashMap<String, Object> batteryLifetimeFieldMap = new LinkedHashMap<>();
+		survivalPropertyFieldsList.add(batteryLifetimeFieldMap);
+
+		batteryLifetimeFieldMap.put("classType", "SystemLifetime");
+		ArrayList<Object> batteryLifetimeFieldsList = new ArrayList<>();
+		batteryLifetimeFieldMap.put("fields", batteryLifetimeFieldsList);
+
+		batteryLifetimeFieldsList.add("id");
+
+		LinkedHashMap<String, Object> amountFieldMap = new LinkedHashMap<>();
+		batteryLifetimeFieldsList.add(amountFieldMap);
+
+		amountFieldMap.put("fieldName", "hasValue");
+		ArrayList<Object> amountFieldsList = new ArrayList<>();
+		amountFieldMap.put("fields", amountFieldsList);
+
+		amountFieldsList.add("hasDataValue");
+
+		System.out.println(htblQueryFields);
+
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(szJdbcDriver);
+		dataSource.setUrl(szJdbcURL);
+		dataSource.setUsername(szUser);
+		dataSource.setPassword(szPasswd);
+
+		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+
+		SelectQueryRequestValidation selectQueryRequestValidation = new SelectQueryRequestValidation(
+				new DynamicConceptsUtility(new DynamicConceptsDao(dataSource)));
+		
+		ApplicationDao applicationDao = new ApplicationDao(oracle);
+		
+		SelectQueryDao selectQueryDao = new SelectQueryDao(oracle);
+		
+		SelectQueryService selectQueryService = new SelectQueryService(selectQueryRequestValidation, applicationDao, selectQueryDao);
+		
+		Hashtable<String, Object> res =  selectQueryService.QueryData("test application","communicating device",htblQueryFields);
+			
+		System.out.println(res);
+		
+//		Hashtable<String, Object>[] err = (Hashtable<String, Object>[])  res.get("errors");
+//		System.out.println(err[0]);
+		
+		
+		
 	}
 }

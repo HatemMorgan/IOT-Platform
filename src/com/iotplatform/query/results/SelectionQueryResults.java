@@ -772,7 +772,6 @@ public class SelectionQueryResults {
 			 */
 			subjectVariableIndividual = subjectVariableIndividualsList.get(subjectVariableIndividualsList.size() - 1);
 		}
-		System.out.println(propertyName+" "+property);
 		/*
 		 * check if the property has multipleValues in order to add property to
 		 * subjectVariableIndividual with a value list (to hold multiple values)
@@ -919,6 +918,17 @@ public class SelectionQueryResults {
 
 		Class objectClassType = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(objectClassTypeURI);
 		String uniqueIdentifierProperty = objectClassType.getUniqueIdentifierPropertyName();
+
+		/*
+		 * if the objectClassType does not have a uniqueIdentifierProperty
+		 * defined in the ontology of the requesting application.
+		 * 
+		 * The System will generate an id and make it the uniqueIdentifier for
+		 * that class
+		 */
+		if (uniqueIdentifierProperty == null) {
+			uniqueIdentifierProperty = "id";
+		}
 
 		/*
 		 * add uniqueIdentifier result and objectClassType to

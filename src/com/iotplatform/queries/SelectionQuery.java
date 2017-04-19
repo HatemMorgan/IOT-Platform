@@ -187,7 +187,6 @@ public class SelectionQuery {
 		 * check if htbloptionalTypeClassList has keyValues
 		 */
 		if (htbloptionalTypeClassList.size() > 0) {
-			System.out.println(htbloptionalTypeClassList);
 			/*
 			 * iterate over htbloptionalTypeClassList and for each key add a new
 			 * optionalQuery (each key represent and objectValueQueryVariable
@@ -235,17 +234,6 @@ public class SelectionQuery {
 						.getClassTypesList().size() + 1;
 
 				/*
-				 * typeCounter is used to count number of types used. I
-				 * increment this counter every time I add a condition to filter
-				 * part of this optional query
-				 * 
-				 * At the end if typeCounter == classTypesNum this means that
-				 * all the type classes were mentioned by user so no need to add
-				 * this optional query
-				 */
-				int typeCounter = 0;
-
-				/*
 				 * optionalQueryTempBuilder is used to build optional query for
 				 * this objectValueQueryVariable
 				 */
@@ -268,7 +256,6 @@ public class SelectionQuery {
 				 */
 				optionalQueryTempBuilder
 						.append(" ?class" + classVariableCounter + " != <" + propertyRangeClassUri + ">  ");
-				typeCounter++;
 
 				/*
 				 * iterating over optionalTypeClassList
@@ -347,24 +334,51 @@ public class SelectionQuery {
 								 */
 								htblfilterClassesURI.put(subClass.getUri(), subClass.getUri());
 
-								typeCounter++;
+							}
+						}
+
+					}
+
+					/*
+					 * check if it has subClasses in order to loop on them and
+					 * add them to unProjectOptionalPartBuilder
+					 */
+					if (objectValueClass.getSuperClassesList().size() != 0) {
+
+						for (Class superClass : objectValueClass.getSuperClassesList()) {
+
+							/*
+							 * check that classUri was not added before
+							 */
+							if (!htblfilterClassesURI.containsKey(superClass.getUri())) {
+
+								optionalQueryTempBuilder.append(
+										" && ?class" + classVariableCounter + " != <" + superClass.getUri() + ">  ");
+
+								/*
+								 * add classUri to htblfilterClassesURI to avoid
+								 * replicating it again in the filter condtion
+								 */
+								htblfilterClassesURI.put(superClass.getUri(), superClass.getUri());
+
 							}
 						}
 
 					}
 
 				}
-
 				/*
-				 * check if typeCounter == classTypesNum this means that all the
-				 * type classes were mentioned by user so no need to add this
-				 * optional query so I will not complete this iteration
+				 * check if htblfilterClassesURI.size() == classTypesNum this
+				 * means that all the type classes were mentioned by user so no
+				 * need to add this optional query so I will not complete this
+				 * iteration
 				 * 
 				 * if they are not equal so i will append
 				 * optionalQueryTempBuilder to unProjectOptionalPartBuilder
 				 * (this builder hold all the optional queries of this type)
 				 */
-				if (typeCounter == classTypesNum) {
+				if (htblfilterClassesURI.size() == classTypesNum) {
+					System.out.println("heree");
 					continue;
 				} else {
 					unProjectOptionalPartBuilder.append(optionalQueryTempBuilder.toString());
@@ -904,7 +918,8 @@ public class SelectionQuery {
 				/*
 				 * check if the queryField hold a property that has multiple
 				 * value type eg: foaf:member associated with foaf:Group class
-				 * and it bindPatternTemp must not be null if the
+				 * and it bindPatternTemp(which holds the binding part of
+				 * optional query) must not be null if the
 				 * queryField.isValueObjectType() is true it is secondary check
 				 * but it will always be true if the first condition is true
 				 */
@@ -939,15 +954,24 @@ public class SelectionQuery {
 				 * ?subject2 patterns is added to default patterns because it is
 				 * not an optional patterns
 				 */
-
+				StringBuilder nestedQueryPattern = new StringBuilder();
 				for (QueryField objectPropertyValue : queryFieldList) {
 
 					constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
-							tempBuilder, filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
+							tempBuilder, filterConditionsBuilder, nestedQueryPattern, sparqlProjectedFieldsBuilder,
 							sqlProjectedFieldsBuilder, filterBuilder, objectClassTypeName, objectVaueUniqueIdentifier,
 							objectPropertyValue, vairableNum, subjectNum, htblValueTypePropObjectVariable,
 							htblOptionalTypeClassList);
 				}
+
+				/*
+				 * check that nestedQueryPattern is not empty to append it to
+				 * tempBuilder as discussed above
+				 */
+				if (nestedQueryPattern.length() > 0) {
+					tempBuilder.append(nestedQueryPattern.toString());
+				}
+
 			}
 
 			/*
