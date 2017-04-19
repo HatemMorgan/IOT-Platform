@@ -186,6 +186,9 @@ public class SelectQueryService {
 
 		System.out.println(htblQueryFields);
 
+		System.out.println(OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers()
+				.get("http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty").getClassTypesList());
+		
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
 		String szUser = "rdfusr";
 		String szPasswd = "rdfusr";

@@ -1,6 +1,7 @@
 package com.iotplatform.daos;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -69,21 +70,21 @@ public class SelectQueryDao {
 
 			ResultSet results = oracle.executeQuery(queryString, 0, 1);
 
-			return SelectionQueryResults.constructQueryResult(applicationModelName, results, prefixedClassName,
-					htblSubjectVariables);
+//			return SelectionQueryResults.constructQueryResult(applicationModelName, results, prefixedClassName,
+//					htblSubjectVariables);
 
-			// ResultSetMetaData rsmd = results.getMetaData();
-			// int columnsNumber = rsmd.getColumnCount();
-			// while (results.next()) {
-			// for (int i = 1; i <= columnsNumber; i++) {
-			// if (i > 1)
-			// System.out.print(", ");
-			// String columnValue = results.getString(i);
-			// System.out.print(columnValue + " " + rsmd.getColumnName(i));
-			// }
-			// System.out.println("");
-			// }
-			// return null;
+			 ResultSetMetaData rsmd = results.getMetaData();
+			 int columnsNumber = rsmd.getColumnCount();
+			 while (results.next()) {
+			 for (int i = 1; i <= columnsNumber; i++) {
+			 if (i > 1)
+			 System.out.print(", ");
+			 String columnValue = results.getString(i);
+			 System.out.print(columnValue + " " + rsmd.getColumnName(i));
+			 }
+			 System.out.println("");
+			 }
+			 return null;
 
 		} catch (SQLException e) {
 			e.printStackTrace();

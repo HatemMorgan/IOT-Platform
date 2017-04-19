@@ -234,6 +234,17 @@ public class SelectionQuery {
 						.getClassTypesList().size() + 1;
 
 				/*
+				 * typeCounter is used to count number of types used. I
+				 * increment this counter every time I add a condition to filter
+				 * part of this optional query
+				 * 
+				 * At the end if typeCounter == classTypesNum this means that
+				 * all the type classes were mentioned by user so no need to add
+				 * this optional query
+				 */
+				int typeCounter = 0;
+
+				/*
 				 * optionalQueryTempBuilder is used to build optional query for
 				 * this objectValueQueryVariable
 				 */
@@ -256,6 +267,14 @@ public class SelectionQuery {
 				 */
 				optionalQueryTempBuilder
 						.append(" ?class" + classVariableCounter + " != <" + propertyRangeClassUri + ">  ");
+
+				/*
+				 * add classUri to htblfilterClassesURI to avoid replicating it
+				 * again in the filter condtion
+				 */
+				htblfilterClassesURI.put(propertyRangeClassUri, propertyRangeClassUri);
+
+				typeCounter++;
 
 				/*
 				 * iterating over optionalTypeClassList
@@ -334,6 +353,7 @@ public class SelectionQuery {
 								 */
 								htblfilterClassesURI.put(subClass.getUri(), subClass.getUri());
 
+								typeCounter++;
 							}
 						}
 
@@ -367,18 +387,17 @@ public class SelectionQuery {
 					}
 
 				}
+
 				/*
-				 * check if htblfilterClassesURI.size() == classTypesNum this
-				 * means that all the type classes were mentioned by user so no
-				 * need to add this optional query so I will not complete this
-				 * iteration
+				 * check if typeCounter == classTypesNum this means that all the
+				 * type classes were mentioned by user so no need to add this
+				 * optional query so I will not complete this iteration
 				 * 
 				 * if they are not equal so i will append
 				 * optionalQueryTempBuilder to unProjectOptionalPartBuilder
 				 * (this builder hold all the optional queries of this type)
 				 */
-				if (htblfilterClassesURI.size() == classTypesNum) {
-					System.out.println("heree");
+				if (typeCounter == classTypesNum) {
 					continue;
 				} else {
 					unProjectOptionalPartBuilder.append(optionalQueryTempBuilder.toString());
