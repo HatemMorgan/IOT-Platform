@@ -717,7 +717,9 @@ public class SelectQueryRequestValidation {
 		fieldsList.add("name");
 
 		LinkedHashMap<String, Object> membersFieldMap = new LinkedHashMap<>();
-		fieldsList.add(membersFieldMap);
+//		fieldsList.add(membersFieldMap);
+		fieldsList.add("member");
+
 
 		membersFieldMap.put("fieldName", "member");
 

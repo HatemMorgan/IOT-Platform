@@ -398,7 +398,6 @@ public class SelectionQueryResults {
 								 */
 								i++;
 								String objectClassTypeURI = results.getObject(i).toString();
-
 								/*
 								 * check if objectUniqueIdentifier was seen
 								 * before or it is the first time
@@ -881,6 +880,12 @@ public class SelectionQueryResults {
 		 */
 		if (property instanceof DataTypeProperty) {
 			propValue = typeCastValueToItsDataType((DataTypeProperty) property, propValue);
+		} else {
+			/*
+			 * Object Property remove prefix uri
+			 */
+			propValue = propValue.toString().substring(Prefix.IOT_PLATFORM.getUri().length(),
+					propValue.toString().length());
 		}
 
 		/*

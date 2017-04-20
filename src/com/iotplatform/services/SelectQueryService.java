@@ -110,6 +110,7 @@ public class SelectQueryService {
 		fieldsList.add("id");
 		fieldsList.add("hasTransmissionPower");
 		fieldsList.add("hasType");
+		fieldsList.add("exposedBy");
 
 		LinkedHashMap<String, Object> coverageFieldMap = new LinkedHashMap<>();
 		fieldsList.add(coverageFieldMap);
@@ -161,10 +162,11 @@ public class SelectQueryService {
 
 		LinkedHashMap<String, Object> survivalPropertyFieldMap = new LinkedHashMap<>();
 		survivalRangeFieldsList.add(survivalPropertyFieldMap);
-
+//		survivalRangeFieldsList.add("hasSurvivalProperty");
+		
 		survivalPropertyFieldMap.put("fieldName", "hasSurvivalProperty");
 		ArrayList<Object> survivalPropertyFieldsList = new ArrayList<>();
-		survivalPropertyFieldMap.put("values",  new ArrayList<>());
+		survivalPropertyFieldMap.put("values", survivalPropertyFieldsList);
 
 		LinkedHashMap<String, Object> batteryLifetimeFieldMap = new LinkedHashMap<>();
 		survivalPropertyFieldsList.add(batteryLifetimeFieldMap);
@@ -189,14 +191,12 @@ public class SelectQueryService {
 
 		systemLifetimeFieldMap.put("classType", "SystemLifetime");
 		systemLifetimeFieldMap.put("fields", batteryLifetimeFieldsList);
-		
-		
-		
+
 		System.out.println(htblQueryFields);
 
 		System.out.println(OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers()
 				.get("http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty").getClassTypesList());
-		
+
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
 		String szUser = "rdfusr";
 		String szPasswd = "rdfusr";
@@ -212,21 +212,22 @@ public class SelectQueryService {
 
 		SelectQueryRequestValidation selectQueryRequestValidation = new SelectQueryRequestValidation(
 				new DynamicConceptsUtility(new DynamicConceptsDao(dataSource)));
-		
+
 		ApplicationDao applicationDao = new ApplicationDao(oracle);
-		
+
 		SelectQueryDao selectQueryDao = new SelectQueryDao(oracle);
-		
-		SelectQueryService selectQueryService = new SelectQueryService(selectQueryRequestValidation, applicationDao, selectQueryDao);
-		
-		Hashtable<String, Object> res =  selectQueryService.QueryData("test application","communicating device",htblQueryFields);
-			
+
+		SelectQueryService selectQueryService = new SelectQueryService(selectQueryRequestValidation, applicationDao,
+				selectQueryDao);
+
+		Hashtable<String, Object> res = selectQueryService.QueryData("test application", "communicating device",
+				htblQueryFields);
+
 		System.out.println(res);
-		
-//		Hashtable<String, Object>[] err = (Hashtable<String, Object>[])  res.get("errors");
-//		System.out.println(err[0]);
-		
-		
-		
+
+		// Hashtable<String, Object>[] err = (Hashtable<String, Object>[])
+		// res.get("errors");
+		// System.out.println(err[0]);
+
 	}
 }

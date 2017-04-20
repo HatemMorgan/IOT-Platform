@@ -46,14 +46,14 @@ public class OntologyMapper {
 	private static Hashtable<String, Class> htblMainOntologyClassesUri;
 	private static Hashtable<String, OntProperty> htblMainOntologyProperties;
 
-	 private static OntologyMapper ontologyMapper;
-	
-	 public static OntologyMapper getOntologyMapper() {
-	 if (ontologyMapper == null)
-	 ontologyMapper = new OntologyMapper();
-	
-	 return ontologyMapper;
-	 }
+	private static OntologyMapper ontologyMapper;
+
+	public static OntologyMapper getOntologyMapper() {
+		if (ontologyMapper == null)
+			ontologyMapper = new OntologyMapper();
+
+		return ontologyMapper;
+	}
 
 	public OntologyMapper() {
 		model = ModelFactory.createOntologyModel();
@@ -370,14 +370,17 @@ public class OntologyMapper {
 		Class ontologyClassMapper = htblMainOntologyClasses.get(ontologyClass.getLocalName().toLowerCase());
 
 		/*
-		 * set hasTypeClasses boolean in the ontologyClassMapper
-		 */
-		ontologyClassMapper.setHasTypeClasses(true);
-
-		/*
 		 * populate subCLass list
 		 */
 		ExtendedIterator<OntClass> subClassesIter = ontologyClass.listSubClasses();
+
+		/*
+		 * set hasTypeClasses boolean in the ontologyClassMapper if the
+		 * subClassesIter hasNext() is not empty
+		 */
+		if (subClassesIter.hasNext())
+			ontologyClassMapper.setHasTypeClasses(true);
+
 		while (subClassesIter.hasNext()) {
 			OntClass subClass = subClassesIter.next();
 

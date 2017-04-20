@@ -6,8 +6,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
+import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.QueryField;
 import com.iotplatform.utilities.QueryVariable;
@@ -69,6 +71,27 @@ public class SelectionQuery {
 		 * filterBuilder is used to build filter part of the query
 		 */
 		StringBuilder filterBuilder = new StringBuilder();
+
+		/*
+		 * objectPropValueTypesOptionBuilder is used to build pattern for object
+		 * properties that can have more than one type because the property
+		 * range class can has more than one ClassType
+		 * 
+		 * so this option is used when the user does not know the types of
+		 * values of an objectProperty so the patterns added to
+		 * objectPropValueTypesOptionBuilder is used to get value and type of it
+		 * 
+		 * the user must not add values field in the query request in order to
+		 * let this option work plus this option must be enabled in the
+		 * queryOptions part
+		 * 
+		 * eg: The user specified a property like foaf:knows which has range
+		 * foaf:Person so this builder will have pattern ?subject a ?type
+		 * 
+		 * where ?subject variable is connected to foaf:knows in the
+		 * queryBuilder part
+		 */
+		StringBuilder objectPropValueTypesOptionBuilder = new StringBuilder();
 
 		/*
 		 * Getting propertyList of the main subject(this list constructs the
@@ -138,6 +161,7 @@ public class SelectionQuery {
 		 */
 		int[] vairableNum = { 0 };
 		int[] subjectNum = { 1 };
+		int[] objectNum = { 0 };
 
 		/*
 		 * iterating on the propertyList of the main subject to construct the
@@ -148,8 +172,9 @@ public class SelectionQuery {
 
 			constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
 					queryBuilder, filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
-					sqlProjectedFieldsBuilder, filterBuilder, mainClassPrefixedName, mainInstanceUniqueIdentifier,
-					queryField, vairableNum, subjectNum, htblValueTypePropObjectVariable, htbloptionalTypeClassList);
+					sqlProjectedFieldsBuilder, filterBuilder, objectPropValueTypesOptionBuilder, mainClassPrefixedName,
+					mainInstanceUniqueIdentifier, queryField, vairableNum, subjectNum, objectNum,
+					htblValueTypePropObjectVariable, htbloptionalTypeClassList);
 
 		}
 
@@ -195,7 +220,11 @@ public class SelectionQuery {
 			 */
 			Iterator<String> htbloptionalTypeClassListIter = htbloptionalTypeClassList.keySet().iterator();
 
-			int classVariableCounter = 0;
+			/*
+			 * set classVariableCounter to the last number added for object
+			 * variable
+			 */
+			int classVariableCounter = objectNum[0];
 			while (htbloptionalTypeClassListIter.hasNext()) {
 				String objectValueQueryVariable = htbloptionalTypeClassListIter.next();
 
@@ -491,9 +520,18 @@ public class SelectionQuery {
 		queryBuilder.append(endGraphPatternBuilder.toString());
 
 		/*
-		 * append unProjectOptionalPartBuilder to queryBuilder
+		 * append objectPropValueTypesOptionBuilder to queryBuilder if it not
+		 * empty
 		 */
-		queryBuilder.append(unProjectOptionalPartBuilder);
+		if (objectPropValueTypesOptionBuilder.length() > 0)
+			queryBuilder.append(objectPropValueTypesOptionBuilder.toString());
+
+		/*
+		 * append unProjectOptionalPartBuilder to queryBuilder if it is not
+		 * empty
+		 */
+		if (unProjectOptionalPartBuilder.length() > 0)
+			queryBuilder.append(unProjectOptionalPartBuilder.toString());
 
 		/*
 		 * Append filterBuilder to query builder. It must be appended after
@@ -542,9 +580,9 @@ public class SelectionQuery {
 			Hashtable<String, String> htblIndividualIDSubjVarName, StringBuilder queryBuilder,
 			StringBuilder filterConditionsBuilder, StringBuilder endGraphPatternBuilder,
 			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder,
-			StringBuilder filterBuilder, String currentClassURI, String currentClassInstanceUniqueIdentifier,
-			QueryField queryField, int[] vairableNum, int[] subjectNum,
-			Hashtable<String, String> htblValueTypePropObjectVariable,
+			StringBuilder filterBuilder, StringBuilder objectPropValueTypesOptionBuilder, String currentClassURI,
+			String currentClassInstanceUniqueIdentifier, QueryField queryField, int[] vairableNum, int[] subjectNum,
+			int[] objectNum, Hashtable<String, String> htblValueTypePropObjectVariable,
 			Hashtable<String, ArrayList<String>> htblOptionalTypeClassList) {
 
 		if (!htblIndividualIDSubjVarName.containsKey(currentClassInstanceUniqueIdentifier)) {
@@ -593,6 +631,8 @@ public class SelectionQuery {
 			 */
 			if (queryField.isValueObjectType()) {
 
+				System.out.println("here-->" + queryField.getIndividualUniqueIdentifier() + "  "
+						+ queryField.getPrefixedPropertyName());
 				/*
 				 * check if this property is repeated by checking that
 				 * propertyName is not added before in
@@ -915,7 +955,8 @@ public class SelectionQuery {
 			 * by adding values field)
 			 */
 			if (queryField.isValueObjectType()) {
-
+				System.out.println("---> here " + queryField.getIndividualUniqueIdentifier() + "  "
+						+ queryField.getPrefixedPropertyName());
 				/*
 				 * create a new string builder to hold all the patterns related
 				 * to the subjectVariable of the optional query to be added at
@@ -939,9 +980,9 @@ public class SelectionQuery {
 
 					constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
 							tempBuilder, filterConditionsBuilder, optionalqueryPattern, sparqlProjectedFieldsBuilder,
-							sqlProjectedFieldsBuilder, filterBuilder, objectClassTypeName, objectVaueUniqueIdentifier,
-							objectPropertyValue, vairableNum, subjectNum, htblValueTypePropObjectVariable,
-							htblOptionalTypeClassList);
+							sqlProjectedFieldsBuilder, filterBuilder, objectPropValueTypesOptionBuilder,
+							objectClassTypeName, objectVaueUniqueIdentifier, objectPropertyValue, vairableNum,
+							subjectNum, objectNum, htblValueTypePropObjectVariable, htblOptionalTypeClassList);
 				}
 
 				/*
@@ -996,9 +1037,9 @@ public class SelectionQuery {
 
 					constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
 							tempBuilder, filterConditionsBuilder, nestedQueryPattern, sparqlProjectedFieldsBuilder,
-							sqlProjectedFieldsBuilder, filterBuilder, objectClassTypeName, objectVaueUniqueIdentifier,
-							objectPropertyValue, vairableNum, subjectNum, htblValueTypePropObjectVariable,
-							htblOptionalTypeClassList);
+							sqlProjectedFieldsBuilder, filterBuilder, objectPropValueTypesOptionBuilder,
+							objectClassTypeName, objectVaueUniqueIdentifier, objectPropertyValue, vairableNum,
+							subjectNum, objectNum, htblValueTypePropObjectVariable, htblOptionalTypeClassList);
 				}
 
 				/*
@@ -1029,27 +1070,35 @@ public class SelectionQuery {
 		{
 
 			/*
-			 * The property is not an objectProperty it is property that has a
-			 * literal value (the value can be datatype value (eg.
-			 * string,int,float) or a reference to an existed object instance
+			 * get class object of the currentClassURI
 			 */
-			if (htblClassNameProperty.get(currentClassURI).get(currentClassInstanceUniqueIdentifier)
-					.indexOf(queryField) < htblClassNameProperty.get(currentClassURI)
-							.get(currentClassInstanceUniqueIdentifier).size() - 1) {
+			Class subjectClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(currentClassURI);
+
+			/*
+			 * get property object of the queryField's property
+			 */
+			Property prop = subjectClass.getProperties().get(getPropertyName(queryField.getPrefixedPropertyName()));
+
+			/*
+			 * check that the property is a DataTypeProperty or an
+			 * ObjectProperty but its range has no types
+			 */
+			if (prop instanceof DataTypeProperty || ((prop instanceof ObjectProperty)
+					&& (!((ObjectProperty) prop).getObject().isHasTypeClasses()))) {
 
 				/*
-				 * if we add a new graph pattern (by checking if the
-				 * prefixedPropertyName was not added before for this current
-				 * instance) then increment the variableNum[0]
-				 *
-				 * add prifixedPropertyName to htblPropValue to avoid
-				 * duplicating it again for this instance
-				 *
-				 * I do this after adding filter condition and graph pattern to
-				 * maintain the same variableNames between graph pattern added
-				 * and condtion
+				 * The property does not have objectValue (user does not provide
+				 * patterns for this field)
+				 * 
+				 * So it is property that has a literal value (the value can be
+				 * datatype value (eg. string,int,float) or a reference to an
+				 * existed object instance
 				 */
 
+				/*
+				 * add new var variable to sparqlProjectedFieldsBuilder and
+				 * sqlProjectedFieldsBuilder
+				 */
 				sparqlProjectedFieldsBuilder.append("  ?var" + vairableNum[0]);
 				sqlProjectedFieldsBuilder.append(" , var" + vairableNum[0]);
 
@@ -1062,49 +1111,115 @@ public class SelectionQuery {
 						new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
 								getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 
+				if (htblClassNameProperty.get(currentClassURI).get(currentClassInstanceUniqueIdentifier)
+						.indexOf(queryField) < htblClassNameProperty.get(currentClassURI)
+								.get(currentClassInstanceUniqueIdentifier).size() - 1) {
+
+					/*
+					 * it is not the last property so we will end the previous
+					 * triple pattern with ;
+					 */
+					queryBuilder.append(" ; \n" + queryField.getPrefixedPropertyName() + " " + "?var" + vairableNum[0]);
+
+				} else {
+
+					/*
+					 * it is the last property so we will end the previous
+					 * triple pattern with ; and this one with .
+					 */
+
+					queryBuilder.append(
+							" ; \n" + queryField.getPrefixedPropertyName() + " " + "?var" + vairableNum[0] + " . \n");
+
+				}
+
 				/*
-				 * it is not the last property so we will end the previous
-				 * triple pattern with ;
+				 * increment vairableNum[0] to have new var variable next time
 				 */
-				queryBuilder.append(" ; \n" + queryField.getPrefixedPropertyName() + " " + "?var" + vairableNum[0]);
 				vairableNum[0]++;
 
 			} else {
 
 				/*
-				 * if we add a new graph pattern (by checking if the
-				 * prefixedPropertyName was not added before for this current
-				 * instance) then increment the variableNum[0]
-				 *
-				 * add prifixedPropertyName to htblPropValue to avoid
-				 * duplicating it again for this instance
-				 *
-				 * I do this after adding filter condition and graph pattern to
-				 * maintain the same variableNames between graph pattern added
-				 * and condtion
+				 * Object Property so get value class type if the property range
+				 * has typeClasses
 				 */
-
-				sparqlProjectedFieldsBuilder.append("  ?var" + vairableNum[0]);
-				sqlProjectedFieldsBuilder.append(" , var" + vairableNum[0]);
 
 				/*
 				 * add var variable and it property to
 				 * htblSubjectVariablePropertyName to be used to properly
 				 * construct query results
 				 */
-				htblSubjectVariables.put("var" + vairableNum[0],
+				htblSubjectVariables.put("object" + objectNum[0],
 						new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
 								getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 
+				if (htblClassNameProperty.get(currentClassURI).get(currentClassInstanceUniqueIdentifier)
+						.indexOf(queryField) < htblClassNameProperty.get(currentClassURI)
+								.get(currentClassInstanceUniqueIdentifier).size() - 1) {
+
+					/*
+					 * it is not the last queryField for currentClassURI
+					 */
+
+					/*
+					 * it is not the last property so we will end the previous
+					 * triple pattern with ;
+					 */
+					queryBuilder
+							.append(" ; \n" + queryField.getPrefixedPropertyName() + " " + "?object" + objectNum[0]);
+
+				} else {
+
+					/*
+					 * it is the last property so we will end the previous
+					 * triple pattern with ; and this one with .
+					 */
+					queryBuilder.append(
+							" ; \n" + queryField.getPrefixedPropertyName() + " " + "?object" + objectNum[0] + " . \n");
+
+				}
+
+				objectPropValueTypesOptionBuilder
+						.append("?object" + objectNum[0] + " a " + "?objecttype" + objectNum[0] + " . \n");
+
 				/*
-				 * it is the last property so we will end the previous triple
-				 * pattern with ; and this one with .
+				 * add filter condition to only get typeClasses of the range
+				 * Property so I filter to remove all superClasses and property
+				 * range class
 				 */
+				objectPropValueTypesOptionBuilder.append("FILTER(");
 
-				queryBuilder.append(
-						" ; \n" + queryField.getPrefixedPropertyName() + " " + "?var" + vairableNum[0] + " . \n");
-				vairableNum[0]++;
+				objectPropValueTypesOptionBuilder.append(
+						" ?objecttype" + objectNum[0] + " != <" + ((ObjectProperty) prop).getObject().getUri() + ">");
 
+				for (Class superClass : subjectClass.getSuperClassesList()) {
+					objectPropValueTypesOptionBuilder
+							.append(" && ?objecttype" + objectNum[0] + " != <" + superClass.getUri() + ">");
+				}
+
+				objectPropValueTypesOptionBuilder.append(" ) \n");
+
+				htblSubjectVariables.put("objecttype" + objectNum[0],
+						new QueryVariable("object" + objectNum[0], "type", null));
+
+				/*
+				 * add bind aliases to sparqlProjectedFieldsBuilder
+				 * 
+				 */
+				sparqlProjectedFieldsBuilder.append(" ?object" + objectNum[0]);
+				sparqlProjectedFieldsBuilder.append(" ?objectType" + objectNum[0]);
+
+				/*
+				 * add bind aliases to sqlProjectedFieldsBuilder
+				 */
+				sqlProjectedFieldsBuilder.append(" , object" + objectNum[0]);
+				sqlProjectedFieldsBuilder.append(" , objectType" + objectNum[0]);
+
+				/*
+				 * increment objectNum[0] to have new object variable next time
+				 */
+				objectNum[0]++;
 			}
 
 		}
