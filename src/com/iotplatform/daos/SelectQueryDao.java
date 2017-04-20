@@ -45,7 +45,7 @@ public class SelectQueryDao {
 	 */
 	public List<Hashtable<String, Object>> queryData(
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			String applicationModelName) {
+			String applicationModelName,Hashtable<String, Boolean> htblOptions) {
 
 		Iterator<String> htblClassNamePropertyIterator = htblClassNameProperty.keySet().iterator();
 
@@ -59,7 +59,7 @@ public class SelectQueryDao {
 		String mainInstanceUniqueIdentifier = htblClassNameProperty.get(prefixedClassName).keySet().iterator().next();
 
 		Object[] returnObject = SelectionQuery.constructSelectQuery(htblClassNameProperty, prefixedClassName,
-				mainInstanceUniqueIdentifier, applicationModelName);
+				mainInstanceUniqueIdentifier, applicationModelName,htblOptions);
 
 		String queryString = returnObject[0].toString();
 		Hashtable<String, QueryVariable> htblSubjectVariables = (Hashtable<String, QueryVariable>) returnObject[1];

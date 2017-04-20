@@ -39,7 +39,8 @@ public class SelectionQuery {
 	 */
 	public static Object[] constructSelectQuery(
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			String mainClassPrefixedName, String mainInstanceUniqueIdentifier, String applicationModelName) {
+			String mainClassPrefixedName, String mainInstanceUniqueIdentifier, String applicationModelName,
+			Hashtable<String, Boolean> htblOptions) {
 		System.out.println(htblClassNameProperty);
 		/*
 		 * main builder for dynamically building the query
@@ -176,7 +177,7 @@ public class SelectionQuery {
 					queryBuilder, filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
 					sqlProjectedFieldsBuilder, filterBuilder, objectPropValueTypesOptionBuilder, mainClassPrefixedName,
 					mainInstanceUniqueIdentifier, queryField, vairableNum, subjectNum, objectNum,
-					htblValueTypePropObjectVariable, htbloptionalTypeClassList);
+					htblValueTypePropObjectVariable, htbloptionalTypeClassList, htblOptions);
 
 		}
 
@@ -211,9 +212,11 @@ public class SelectionQuery {
 		Hashtable<String, String> htblfilterClassesURI = new Hashtable<>();
 
 		/*
-		 * check if htbloptionalTypeClassList has keyValues
+		 * check if htbloptionalTypeClassList has keyValues and that the user
+		 * enable the autoGetObjValType option
 		 */
-		if (htbloptionalTypeClassList.size() > 0) {
+		if (htbloptionalTypeClassList.size() > 0 && htblOptions.containsKey("autoGetObjValType")
+				&& htblOptions.get("autoGetObjValType")) {
 			/*
 			 * iterate over htbloptionalTypeClassList and for each key add a new
 			 * optionalQuery (each key represent and objectValueQueryVariable
@@ -591,7 +594,7 @@ public class SelectionQuery {
 			StringBuilder filterBuilder, StringBuilder objectPropValueTypesOptionBuilder, String currentClassURI,
 			String currentClassInstanceUniqueIdentifier, QueryField queryField, int[] vairableNum, int[] subjectNum,
 			int[] objectNum, Hashtable<String, String> htblValueTypePropObjectVariable,
-			Hashtable<String, ArrayList<String>> htblOptionalTypeClassList) {
+			Hashtable<String, ArrayList<String>> htblOptionalTypeClassList, Hashtable<String, Boolean> htblOptions) {
 
 		if (!htblIndividualIDSubjVarName.containsKey(currentClassInstanceUniqueIdentifier)) {
 			/*
@@ -990,7 +993,8 @@ public class SelectionQuery {
 							tempBuilder, filterConditionsBuilder, optionalqueryPattern, sparqlProjectedFieldsBuilder,
 							sqlProjectedFieldsBuilder, filterBuilder, objectPropValueTypesOptionBuilder,
 							objectClassTypeName, objectVaueUniqueIdentifier, objectPropertyValue, vairableNum,
-							subjectNum, objectNum, htblValueTypePropObjectVariable, htblOptionalTypeClassList);
+							subjectNum, objectNum, htblValueTypePropObjectVariable, htblOptionalTypeClassList,
+							htblOptions);
 				}
 
 				/*
@@ -1047,7 +1051,8 @@ public class SelectionQuery {
 							tempBuilder, filterConditionsBuilder, nestedQueryPattern, sparqlProjectedFieldsBuilder,
 							sqlProjectedFieldsBuilder, filterBuilder, objectPropValueTypesOptionBuilder,
 							objectClassTypeName, objectVaueUniqueIdentifier, objectPropertyValue, vairableNum,
-							subjectNum, objectNum, htblValueTypePropObjectVariable, htblOptionalTypeClassList);
+							subjectNum, objectNum, htblValueTypePropObjectVariable, htblOptionalTypeClassList,
+							htblOptions);
 				}
 
 				/*
@@ -1089,10 +1094,14 @@ public class SelectionQuery {
 
 			/*
 			 * check that the property is a DataTypeProperty or an
-			 * ObjectProperty but its range has no types
+			 * ObjectProperty but its range has no types or autoGetObjValType
+			 * isn not provided or false
 			 */
-			if (prop instanceof DataTypeProperty || ((prop instanceof ObjectProperty)
-					&& (!((ObjectProperty) prop).getObject().isHasTypeClasses()))) {
+			if (prop instanceof DataTypeProperty || (((prop instanceof ObjectProperty)
+					&& (!((ObjectProperty) prop).getObject().isHasTypeClasses()))
+					|| ((prop instanceof ObjectProperty)
+							&& (htblOptions.containsKey("autoGetObjValType") && !htblOptions.get("autoGetObjValType"))
+							|| !htblOptions.containsKey("autoGetObjValType")))) {
 
 				/*
 				 * The property does not have objectValue (user does not provide
@@ -1149,85 +1158,91 @@ public class SelectionQuery {
 			} else {
 
 				/*
-				 * Object Property so get value class type if the property range
-				 * has typeClasses
+				 * check if the user enable the autoGetObjValType option
 				 */
-
-				/*
-				 * add var variable and it property to
-				 * htblSubjectVariablePropertyName to be used to properly
-				 * construct query results
-				 */
-				htblSubjectVariables.put("object" + objectNum[0],
-						new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
-								getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
-
-				if (htblClassNameProperty.get(currentClassURI).get(currentClassInstanceUniqueIdentifier)
-						.indexOf(queryField) < htblClassNameProperty.get(currentClassURI)
-								.get(currentClassInstanceUniqueIdentifier).size() - 1) {
-
+				if (htblOptions.containsKey("autoGetObjValType") && htblOptions.get("autoGetObjValType")) {
 					/*
-					 * it is not the last queryField for currentClassURI
+					 * Object Property so get value class type if the property
+					 * range has typeClasses
 					 */
 
 					/*
-					 * it is not the last property so we will end the previous
-					 * triple pattern with ;
+					 * add var variable and it property to
+					 * htblSubjectVariablePropertyName to be used to properly
+					 * construct query results
 					 */
-					queryBuilder
-							.append(" ; \n" + queryField.getPrefixedPropertyName() + " " + "?object" + objectNum[0]);
+					htblSubjectVariables.put("object" + objectNum[0],
+							new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
+									getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 
-				} else {
+					if (htblClassNameProperty.get(currentClassURI).get(currentClassInstanceUniqueIdentifier)
+							.indexOf(queryField) < htblClassNameProperty.get(currentClassURI)
+									.get(currentClassInstanceUniqueIdentifier).size() - 1) {
 
-					/*
-					 * it is the last property so we will end the previous
-					 * triple pattern with ; and this one with .
-					 */
-					queryBuilder.append(
-							" ; \n" + queryField.getPrefixedPropertyName() + " " + "?object" + objectNum[0] + " . \n");
+						/*
+						 * it is not the last queryField for currentClassURI
+						 */
 
-				}
+						/*
+						 * it is not the last property so we will end the
+						 * previous triple pattern with ;
+						 */
+						queryBuilder.append(
+								" ; \n" + queryField.getPrefixedPropertyName() + " " + "?object" + objectNum[0]);
 
-				objectPropValueTypesOptionBuilder
-						.append("?object" + objectNum[0] + " a " + "?objecttype" + objectNum[0] + " . \n");
+					} else {
 
-				/*
-				 * add filter condition to only get typeClasses of the range
-				 * Property so I filter to remove all superClasses and property
-				 * range class
-				 */
-				objectPropValueTypesOptionBuilder.append("FILTER(");
+						/*
+						 * it is the last property so we will end the previous
+						 * triple pattern with ; and this one with .
+						 */
+						queryBuilder.append(" ; \n" + queryField.getPrefixedPropertyName() + " " + "?object"
+								+ objectNum[0] + " . \n");
 
-				objectPropValueTypesOptionBuilder.append(
-						" ?objecttype" + objectNum[0] + " != <" + ((ObjectProperty) prop).getObject().getUri() + ">");
+					}
 
-				for (Class superClass : subjectClass.getSuperClassesList()) {
 					objectPropValueTypesOptionBuilder
-							.append(" && ?objecttype" + objectNum[0] + " != <" + superClass.getUri() + ">");
+							.append("?object" + objectNum[0] + " a " + "?objecttype" + objectNum[0] + " . \n");
+
+					/*
+					 * add filter condition to only get typeClasses of the range
+					 * Property so I filter to remove all superClasses and
+					 * property range class
+					 */
+					objectPropValueTypesOptionBuilder.append("FILTER(");
+
+					objectPropValueTypesOptionBuilder.append(" ?objecttype" + objectNum[0] + " != <"
+							+ ((ObjectProperty) prop).getObject().getUri() + ">");
+
+					for (Class superClass : subjectClass.getSuperClassesList()) {
+						objectPropValueTypesOptionBuilder
+								.append(" && ?objecttype" + objectNum[0] + " != <" + superClass.getUri() + ">");
+					}
+
+					objectPropValueTypesOptionBuilder.append(" ) \n");
+
+					htblSubjectVariables.put("objecttype" + objectNum[0],
+							new QueryVariable("object" + objectNum[0], "type", null));
+
+					/*
+					 * add bind aliases to sparqlProjectedFieldsBuilder
+					 * 
+					 */
+					sparqlProjectedFieldsBuilder.append(" ?object" + objectNum[0]);
+					sparqlProjectedFieldsBuilder.append(" ?objectType" + objectNum[0]);
+
+					/*
+					 * add bind aliases to sqlProjectedFieldsBuilder
+					 */
+					sqlProjectedFieldsBuilder.append(" , object" + objectNum[0]);
+					sqlProjectedFieldsBuilder.append(" , objectType" + objectNum[0]);
+
+					/*
+					 * increment objectNum[0] to have new object variable next
+					 * time
+					 */
+					objectNum[0]++;
 				}
-
-				objectPropValueTypesOptionBuilder.append(" ) \n");
-
-				htblSubjectVariables.put("objecttype" + objectNum[0],
-						new QueryVariable("object" + objectNum[0], "type", null));
-
-				/*
-				 * add bind aliases to sparqlProjectedFieldsBuilder
-				 * 
-				 */
-				sparqlProjectedFieldsBuilder.append(" ?object" + objectNum[0]);
-				sparqlProjectedFieldsBuilder.append(" ?objectType" + objectNum[0]);
-
-				/*
-				 * add bind aliases to sqlProjectedFieldsBuilder
-				 */
-				sqlProjectedFieldsBuilder.append(" , object" + objectNum[0]);
-				sqlProjectedFieldsBuilder.append(" , objectType" + objectNum[0]);
-
-				/*
-				 * increment objectNum[0] to have new object variable next time
-				 */
-				objectNum[0]++;
 			}
 
 		}

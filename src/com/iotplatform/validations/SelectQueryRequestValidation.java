@@ -24,6 +24,7 @@ import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.NotMappedDynamicQueryFields;
 import com.iotplatform.utilities.OptionsEnum;
 import com.iotplatform.utilities.QueryField;
+import com.iotplatform.utilities.ValidationResult;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -67,8 +68,8 @@ public class SelectQueryRequestValidation {
 	 * because a query may target two instances of the same class and need to
 	 * have different fields for each instance. So the id will separate them
 	 */
-	public LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> validateRequest(String applicationName,
-			Hashtable<String, Object> htblFieldValue, Class subjectClass) {
+	public ValidationResult validateRequest(String applicationName, Hashtable<String, Object> htblFieldValue,
+			Class subjectClass) {
 
 		/*
 		 * List of classes that need to get their dynamic properties to check if
@@ -96,51 +97,56 @@ public class SelectQueryRequestValidation {
 		/*
 		 * check if there is an option field passed by the user
 		 */
-		if (htblFieldValue.containsKey("options")
-				&& htblFieldValue.get("optoins") instanceof java.util.LinkedHashMap<?, ?>) {
+		if (htblFieldValue.containsKey("options")) {
 
-			LinkedHashMap<String, Object> htblrequestOptions = (LinkedHashMap<String, Object>) htblFieldValue
-					.get("optoins");
+			if (htblFieldValue.get("options") instanceof java.util.LinkedHashMap<?, ?>) {
 
-			if (htblrequestOptions.size() == 0) {
-				throw new InvalidQueryRequestBodyFormatException(
-						"Invalid option field. Option field must not be empty");
-			}
+				LinkedHashMap<String, Object> htblrequestOptions = (LinkedHashMap<String, Object>) htblFieldValue
+						.get("options");
 
-			/*
-			 * Iterate over options
-			 */
-			Iterator<String> htbloptionIterator = htblrequestOptions.keySet().iterator();
-			while (htbloptionIterator.hasNext()) {
-				String optionName = htbloptionIterator.next();
-
-				/*
-				 * check that the option is valid
-				 */
-				if (!options.containsKey(optionName)) {
+				if (htblrequestOptions.size() == 0) {
 					throw new InvalidQueryRequestBodyFormatException(
-							"Invalid Option. " + "Available options are: " + OptionsEnum.values().toString());
+							"Invalid option field. Option field must not be empty");
 				}
 
 				/*
-				 * check that the option flag is valid (it must be boolean)
+				 * Iterate over options
 				 */
-				Object optionNameVal = htblrequestOptions.get(optionName);
-				if (optionNameVal instanceof Boolean) {
-					boolean optionFlag = (boolean) optionNameVal;
-					htblOptions.put(optionName, optionFlag);
-				} else {
-					throw new InvalidQueryRequestBodyFormatException("Invalid option value with name: " + optionName
-							+ ". Value must be " + "a boolean value either " + "true or false");
+				Iterator<String> htbloptionIterator = htblrequestOptions.keySet().iterator();
+				while (htbloptionIterator.hasNext()) {
+					String optionName = htbloptionIterator.next();
+
+					/*
+					 * check that the option is valid
+					 */
+					if (!options.containsKey(optionName)) {
+						throw new InvalidQueryRequestBodyFormatException(
+								"Invalid Option. " + "Available options are: " + OptionsEnum.values().toString());
+					}
+
+					/*
+					 * check that the option flag is valid (it must be boolean)
+					 */
+					Object optionNameVal = htblrequestOptions.get(optionName);
+					if (optionNameVal instanceof Boolean) {
+						boolean optionFlag = (boolean) optionNameVal;
+
+						/*
+						 * add option to htblOptions
+						 */
+						htblOptions.put(optionName, optionFlag);
+					} else {
+						throw new InvalidQueryRequestBodyFormatException("Invalid option value with name: " + optionName
+								+ ". Value must be " + "a boolean value either " + "true or false");
+					}
 				}
+
+			} else {
+				throw new InvalidQueryRequestBodyFormatException(
+						"Invalid option field. An Option field must be" + "in this form: {\"autoGetObjValType\":true}");
+
 			}
-
-		} else {
-			throw new InvalidQueryRequestBodyFormatException(
-					"Invalid option field. An Option field must be" + "in this form: {\"autoGetObjValType\":true}");
-
 		}
-
 		/*
 		 * get projection fields from htblFieldValue
 		 */
@@ -180,7 +186,9 @@ public class SelectQueryRequestValidation {
 					+ " It must be a list of one or more fields ");
 
 		}
-		return htblClassNameProperty;
+
+		ValidationResult validationResult = new ValidationResult(htblClassNameProperty, htblOptions);
+		return validationResult;
 	}
 
 	/*
@@ -776,14 +784,19 @@ public class SelectQueryRequestValidation {
 		 * test by querying on group class instances
 		 */
 		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
+
+		LinkedHashMap<String, Object> htblOptions = new LinkedHashMap<>();
+		htblOptions.put("autoGetObjValType", false);
+		htblFieldValue.put("options", htblOptions);
+
 		ArrayList<Object> fieldsList = new ArrayList<>();
 		htblFieldValue.put("fields", fieldsList);
 
 		fieldsList.add("name");
 
 		LinkedHashMap<String, Object> membersFieldMap = new LinkedHashMap<>();
-		// fieldsList.add(membersFieldMap);
-		fieldsList.add("member");
+		 fieldsList.add(membersFieldMap);
+//		fieldsList.add("member");
 
 		membersFieldMap.put("fieldName", "member");
 
@@ -845,7 +858,7 @@ public class SelectQueryRequestValidation {
 		groupFields.add("name");
 
 		groupFieldMap.put("fields", groupFields);
-		membersValueObjects.add(groupFieldMap);
+//		membersValueObjects.add(groupFieldMap);
 
 		fieldsList.add("description");
 		System.out.println(htblFieldValue);
@@ -855,9 +868,12 @@ public class SelectQueryRequestValidation {
 
 		try {
 			long startTime = System.currentTimeMillis();
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = getQueryRequestValidations
-					.validateRequest("TESTAPPLICATION", htblFieldValue,
-							OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("group"));
+			ValidationResult validationResult = getQueryRequestValidations.validateRequest("TESTAPPLICATION",
+					htblFieldValue,
+					OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("group"));
+
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = validationResult
+					.getHtblClassNameProperty();
 			System.out.println(htblClassNameProperty.toString());
 			System.out.println("============================================");
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
@@ -867,7 +883,7 @@ public class SelectQueryRequestValidation {
 
 			SelectQueryDao selectQueryDao = new SelectQueryDao(oracle);
 
-			selectQueryDao.queryData(htblClassNameProperty, "TESTAPPLICATION_MODEL");
+			selectQueryDao.queryData(htblClassNameProperty, "TESTAPPLICATION_MODEL", validationResult.getHtblOptions());
 
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());

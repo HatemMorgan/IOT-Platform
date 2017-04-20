@@ -23,7 +23,7 @@ public class ValidationResult {
 	 * individualUniqueIdentifier=7ad7e3da-6f3d-499a-838c-357932c434b3,
 	 * subjectVariableName=null, isValueObjectType=false]]}
 	 */
-	private LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassURIIndividualQueryFields;
+	private LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty;
 
 	/*
 	 * htblOptions holds options that can be given by user for queryRequest and
@@ -34,12 +34,12 @@ public class ValidationResult {
 	public ValidationResult(
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassURIIndividualQueryFields,
 			Hashtable<String, Boolean> htblOptions) {
-		this.htblClassURIIndividualQueryFields = htblClassURIIndividualQueryFields;
+		this.htblClassNameProperty = htblClassURIIndividualQueryFields;
 		this.htblOptions = htblOptions;
 	}
 
-	public LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> getHtblClassURIIndividualQueryFields() {
-		return htblClassURIIndividualQueryFields;
+	public LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> getHtblClassNameProperty() {
+		return htblClassNameProperty;
 	}
 
 	public Hashtable<String, Boolean> getHtblOptions() {

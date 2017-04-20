@@ -20,6 +20,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.QueryField;
+import com.iotplatform.utilities.ValidationResult;
 import com.iotplatform.validations.SelectQueryRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -74,8 +75,10 @@ public class SelectQueryService {
 				/*
 				 * validate query request
 				 */
-				LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = selectQueryRequestValidation
-						.validateRequest(applicationNameCode, htblFieldValue, subjectClass);
+				ValidationResult validationResult = selectQueryRequestValidation.validateRequest(applicationNameCode,
+						htblFieldValue, subjectClass);
+				LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = validationResult
+						.getHtblClassNameProperty();
 
 				/*
 				 * get application modelName
@@ -83,7 +86,7 @@ public class SelectQueryService {
 				String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
 				List<Hashtable<String, Object>> resultsList = selectQueryDao.queryData(htblClassNameProperty,
-						applicationModelName);
+						applicationModelName, validationResult.getHtblOptions());
 
 				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 				return new SuccessfullSelectAllJsonModel(resultsList, timeTaken).getJson();
@@ -104,6 +107,11 @@ public class SelectQueryService {
 
 	public static void main(String[] args) {
 		Hashtable<String, Object> htblQueryFields = new Hashtable<>();
+
+		LinkedHashMap<String, Object> htblOptions = new LinkedHashMap<>();
+		htblOptions.put("autoGetObjValType", true);
+		htblQueryFields.put("options", htblOptions);
+
 		ArrayList<Object> fieldsList = new ArrayList<>();
 		htblQueryFields.put("fields", fieldsList);
 
@@ -162,8 +170,8 @@ public class SelectQueryService {
 
 		LinkedHashMap<String, Object> survivalPropertyFieldMap = new LinkedHashMap<>();
 		survivalRangeFieldsList.add(survivalPropertyFieldMap);
-//		survivalRangeFieldsList.add("hasSurvivalProperty");
-		
+		// survivalRangeFieldsList.add("hasSurvivalProperty");
+
 		survivalPropertyFieldMap.put("fieldName", "hasSurvivalProperty");
 		ArrayList<Object> survivalPropertyFieldsList = new ArrayList<>();
 		survivalPropertyFieldMap.put("values", survivalPropertyFieldsList);
@@ -187,7 +195,7 @@ public class SelectQueryService {
 		amountFieldsList.add("hasDataValue");
 
 		LinkedHashMap<String, Object> systemLifetimeFieldMap = new LinkedHashMap<>();
-		survivalPropertyFieldsList.add(systemLifetimeFieldMap);
+//		survivalPropertyFieldsList.add(systemLifetimeFieldMap);
 
 		systemLifetimeFieldMap.put("classType", "SystemLifetime");
 		systemLifetimeFieldMap.put("fields", batteryLifetimeFieldsList);
