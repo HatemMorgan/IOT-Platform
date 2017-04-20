@@ -2,6 +2,7 @@ package com.iotplatform.validations;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
@@ -21,6 +22,7 @@ import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.NotMappedDynamicQueryFields;
+import com.iotplatform.utilities.OptionsEnum;
 import com.iotplatform.utilities.QueryField;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -34,9 +36,16 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class SelectQueryRequestValidation {
 
 	private DynamicConceptsUtility dynamicPropertiesUtility;
+	private static Hashtable<String, String> options;
 
 	public SelectQueryRequestValidation(DynamicConceptsUtility dynamicPropertiesUtility) {
 		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
+
+		this.options = new Hashtable<>();
+		for (OptionsEnum option : OptionsEnum.values()) {
+			options.put(option.toString(), option.toString());
+		}
+
 	}
 
 	/*
@@ -79,9 +88,65 @@ public class SelectQueryRequestValidation {
 		LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = new LinkedHashMap<>();
 
 		/*
+		 * htblOptions holds the option and a boolean (to tell whether to enable
+		 * or disable the option)
+		 */
+		Hashtable<String, Boolean> htblOptions = new Hashtable<>();
+
+		/*
+		 * check if there is an option field passed by the user
+		 */
+		if (htblFieldValue.containsKey("options")
+				&& htblFieldValue.get("optoins") instanceof java.util.LinkedHashMap<?, ?>) {
+
+			LinkedHashMap<String, Object> htblrequestOptions = (LinkedHashMap<String, Object>) htblFieldValue
+					.get("optoins");
+
+			if (htblrequestOptions.size() == 0) {
+				throw new InvalidQueryRequestBodyFormatException(
+						"Invalid option field. Option field must not be empty");
+			}
+
+			/*
+			 * Iterate over options
+			 */
+			Iterator<String> htbloptionIterator = htblrequestOptions.keySet().iterator();
+			while (htbloptionIterator.hasNext()) {
+				String optionName = htbloptionIterator.next();
+
+				/*
+				 * check that the option is valid
+				 */
+				if (!options.containsKey(optionName)) {
+					throw new InvalidQueryRequestBodyFormatException(
+							"Invalid Option. " + "Available options are: " + OptionsEnum.values().toString());
+				}
+
+				/*
+				 * check that the option flag is valid (it must be boolean)
+				 */
+				Object optionNameVal = htblrequestOptions.get(optionName);
+				if (optionNameVal instanceof Boolean) {
+					boolean optionFlag = (boolean) optionNameVal;
+					htblOptions.put(optionName, optionFlag);
+				} else {
+					throw new InvalidQueryRequestBodyFormatException("Invalid option value with name: " + optionName
+							+ ". Value must be " + "a boolean value either " + "true or false");
+				}
+			}
+
+		} else {
+			throw new InvalidQueryRequestBodyFormatException(
+					"Invalid option field. An Option field must be" + "in this form: {\"autoGetObjValType\":true}");
+
+		}
+
+		/*
 		 * get projection fields from htblFieldValue
 		 */
-		if (htblFieldValue.containsKey("fields") && htblFieldValue.get("fields") instanceof java.util.ArrayList) {
+		if (htblFieldValue.containsKey("fields") && htblFieldValue.get("fields") instanceof java.util.ArrayList)
+
+		{
 
 			/*
 			 * generate uniqueIdntifier
@@ -717,9 +782,8 @@ public class SelectQueryRequestValidation {
 		fieldsList.add("name");
 
 		LinkedHashMap<String, Object> membersFieldMap = new LinkedHashMap<>();
-//		fieldsList.add(membersFieldMap);
+		// fieldsList.add(membersFieldMap);
 		fieldsList.add("member");
-
 
 		membersFieldMap.put("fieldName", "member");
 

@@ -26,6 +26,8 @@ import com.iotplatform.utilities.QueryVariable;
 
 public class SelectionQuery {
 
+	private static String prefixes = null;
+
 	/*
 	 * constructSelectQuery is used to construct a select query and it returns
 	 * an object array of size = 2
@@ -487,19 +489,26 @@ public class SelectionQuery {
 		}
 
 		/*
-		 * construct prefixes
+		 * check if prefixes String was initialized before or not (not null)
 		 */
-		StringBuilder prefixStringBuilder = new StringBuilder();
-		int counter = 0;
-		int stop = Prefix.values().length - 1;
-		for (Prefix prefix : Prefix.values()) {
-			if (counter == stop) {
-				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "')");
-			} else {
-				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "'),");
-			}
+		if (prefixes == null) {
+			/*
+			 * construct prefixes
+			 */
+			StringBuilder prefixStringBuilder = new StringBuilder();
+			int counter = 0;
+			int stop = Prefix.values().length - 1;
+			for (Prefix prefix : Prefix.values()) {
+				if (counter == stop) {
+					prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "')");
+				} else {
+					prefixStringBuilder
+							.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "'),");
+				}
 
-			counter++;
+				counter++;
+			}
+			prefixes = prefixStringBuilder.toString();
 		}
 
 		if (filterBuilder.length() > 0) {
@@ -546,8 +555,7 @@ public class SelectionQuery {
 
 		mainBuilder.append("SELECT " + sqlProjectedFieldsBuilder.toString() + "\n FROM TABLE( SEM_MATCH ( ' SELECT "
 				+ sparqlProjectedFieldsBuilder.toString() + " \n WHERE { \n " + queryBuilder.toString()
-				+ " }' , \n sem_models('" + applicationModelName + "'),null, \n SEM_ALIASES("
-				+ prefixStringBuilder.toString() + "),null))");
+				+ " }' , \n sem_models('" + applicationModelName + "'),null, \n SEM_ALIASES(" + prefixes + "),null))");
 
 		Object[] returnObject = { mainBuilder.toString(), htblSubjectVariables };
 		return returnObject;
