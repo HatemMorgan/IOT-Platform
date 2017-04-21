@@ -381,7 +381,7 @@ public class SelectionQueryResults {
 							 * will hold the subject (uniqueIdentfier) of the
 							 * individual
 							 */
-							if (columnName.contains("object")) {
+							if (columnName.contains("object") && !columnName.contains("objecttype")) {
 
 								/*
 								 * get value of subject variable column which is
@@ -472,6 +472,63 @@ public class SelectionQueryResults {
 									 */
 									htblIndividualQueryVariabesList.get(objectUniqueIdentifier).add(columnName);
 								}
+							} else {
+
+								if (columnName.contains("objecttype")) {
+									/*
+									 * get queryVariable of the subjectVariable
+									 * to know its propertyName
+									 */
+									QueryVariable queryVariable = htblSubjectVariables.get(columnName);
+									String propertyName = queryVariable.getPropertyName();
+
+									/*
+									 * get subjectVariable of the objectVariable
+									 * (columnName)
+									 */
+									String subjectVariable = queryVariable.getSubjectVariableName();
+
+									/*
+									 * get list of individuals of the
+									 * parentSubjectVariable
+									 * 
+									 * if the parentSubjectVairable is subject0
+									 * it will be only one individual so I will
+									 * cast it to Hashtable<String,Object>
+									 * 
+									 * else it will be a list of individuals so
+									 * I will cast it to
+									 * ArrayList<Hashtable<String,Object>>
+									 */
+									Hashtable<String, Object> subjectVariableIndividual;
+									if (subjectVariable.equals("subject0")) {
+
+										subjectVariableIndividual = (Hashtable<String, Object>) htblSubjectVariablehtblpropVal
+												.get(subjectVariable);
+									} else {
+										ArrayList<Hashtable<String, Object>> subjectVariableIndividualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
+												.get(subjectVariable);
+
+										/*
+										 * get subjectVariableIndividual
+										 * 
+										 * It will always be the last item in
+										 * the list because the results are
+										 * added in order
+										 */
+										subjectVariableIndividual = subjectVariableIndividualsList
+												.get(subjectVariableIndividualsList.size() - 1);
+									}
+
+									/*
+									 * add classType field and classType of
+									 * objectValue to subjectVariableIndividual
+									 * of the individual
+									 */
+									subjectVariableIndividual.put("classType", propValue);
+
+								}
+
 							}
 
 						}

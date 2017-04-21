@@ -786,7 +786,7 @@ public class SelectQueryRequestValidation {
 		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
 
 		LinkedHashMap<String, Object> htblOptions = new LinkedHashMap<>();
-		htblOptions.put("autoGetObjValType", false);
+		htblOptions.put("autoGetObjValType", true);
 		htblFieldValue.put("options", htblOptions);
 
 		ArrayList<Object> fieldsList = new ArrayList<>();

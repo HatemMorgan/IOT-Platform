@@ -576,6 +576,13 @@ public class SelectionQuery {
 		String bindPatternTemp = null;
 
 		/*
+		 * objectTypePatternBuilder is used to hold the pattern that is used to
+		 * get objectValue type if the propertyRange has types and the user
+		 * enable autoGetObjValType option
+		 */
+		StringBuilder objectTypePatternBuilder = new StringBuilder();
+
+		/*
 		 * check if the objectValue of the queryField isValueObjectType which
 		 * means the objectValue has to be added as an optional query and I have
 		 * to save its variable to be used again if the property is repeated
@@ -583,8 +590,6 @@ public class SelectionQuery {
 		 */
 		if (queryField.isValueObjectType()) {
 
-			System.out.println("here-->" + queryField.getIndividualUniqueIdentifier() + "  "
-					+ queryField.getPrefixedPropertyName());
 			/*
 			 * check if this property is repeated by checking that propertyName
 			 * is not added before in htblValueTypePropObjectVariable
@@ -869,17 +874,121 @@ public class SelectionQuery {
 			tempBuilder.append("?" + subjectVariable + " a " + "<" + objectClassTypeName + ">");
 			sparqlProjectedFieldsBuilder.append(" ?" + subjectVariable);
 			sqlProjectedFieldsBuilder.append(" , " + subjectVariable);
+
+			/*
+			 * increment subject counter to create a new subjectVariable next
+			 * time
+			 */
 			subjectNum[0]++;
+
 		}
 
-		// ===========================================================================================
+		// ======================================================================================================
+		/*
+		 * this part is used to get types of an objectValue if the user enable
+		 * autoGetObjValType option
+		 */
+		// =======================================================================================================
 
+		/*
+		 * get class object of the currentClassURI
+		 */
+		Class subjectClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(currentClassURI);
+
+		/*
+		 * get property object of the queryField's property
+		 */
+		Property prop = subjectClass.getProperties().get(getPropertyName(queryField.getPrefixedPropertyName()));
+
+		/*
+		 * check if the user enable the autoGetObjValType option and check if
+		 * the propertyRange has type classes and also check that the
+		 * propertyRangeClassTypeURI is the same as the specified objectType of
+		 * the user
+		 */
+		if (htblOptions.containsKey("autoGetObjValType") && htblOptions.get("autoGetObjValType")
+				&& ((ObjectProperty) prop).getObject().isHasTypeClasses()
+				&& ((ObjectProperty) prop).getObject().getUri().equals(queryField.getObjectValueTypeClassName())) {
+
+			/*
+			 * subjectNum[0]-- because I increment the subjectCounter to create
+			 * a new subjectVariable so I decrement it to get the last
+			 * subjectVariable
+			 */
+			objectTypePatternBuilder
+					.append("?subject" + (subjectNum[0] - 1) + " a " + "?objecttype" + objectNum[0] + " . \n");
+
+			/*
+			 * add filter condition to only get typeClasses of the range
+			 * Property so I filter to remove all superClasses and property
+			 * range class
+			 */
+			objectTypePatternBuilder.append("FILTER(");
+
+			/*
+			 * htblFilterClassURIs is used to ensure that there not duplicated
+			 * classURIs added to filter part
+			 */
+			Hashtable<String, String> htblFilterClassURIs = new Hashtable<>();
+
+			objectTypePatternBuilder.append(
+					" ?objecttype" + objectNum[0] + " != <" + ((ObjectProperty) prop).getObject().getUri() + ">");
+			htblFilterClassURIs.put(((ObjectProperty) prop).getObject().getUri(), "");
+
+			for (Class superClass : subjectClass.getSuperClassesList()) {
+
+				/*
+				 * check that the superClassURI was not added before to filter
+				 * part
+				 */
+				if (!htblFilterClassURIs.containsKey(superClass.getUri())) {
+					objectTypePatternBuilder
+							.append(" && ?objecttype" + objectNum[0] + " != <" + superClass.getUri() + ">");
+					htblFilterClassURIs.put(superClass.getUri(), "");
+				}
+			}
+
+			objectTypePatternBuilder.append(" ) \n");
+
+			/*
+			 * add var variable and it property to
+			 * htblSubjectVariablePropertyName to be used to properly construct
+			 * query results
+			 */
+			htblSubjectVariables.put("objecttype" + objectNum[0],
+					new QueryVariable("subject" + (subjectNum[0] - 1), "type", null));
+
+			/*
+			 * add bind aliases to sparqlProjectedFieldsBuilder
+			 * 
+			 */
+			sparqlProjectedFieldsBuilder.append(" ?objectType" + objectNum[0]);
+
+			/*
+			 * add bind aliases to sqlProjectedFieldsBuilder
+			 */
+			sqlProjectedFieldsBuilder.append(" , objectType" + objectNum[0]);
+
+			/*
+			 * increment objectNum[0] to have new object variable next time
+			 */
+			objectNum[0]++;
+
+		}
+
+		// ==================================================================================================================
+		/*
+		 * end of part that is used to get types of an objectValue if the user
+		 * enable autoGetObjValType option
+		 */
+		// ==================================================================================================================
+
+		// ===========================================================================================
 		/*
 		 * add objectValue of the above propertyName associated with
 		 * subjectVariable and its query patterns by iterating on its
 		 * queryFieldList
 		 */
-
 		// ===========================================================================================
 
 		/*
@@ -962,10 +1071,23 @@ public class SelectionQuery {
 				tempBuilder.append(bindPatternTemp);
 
 				/*
+				 * check that objectTypePatternBuilder is not empty then append
+				 * it to tempBuilder
+				 * 
+				 * objectTypePatternBuilder is used to build query patterns that
+				 * will get types of an objectValue if the user enable
+				 * autoGetObjValType option
+				 */
+				if (objectTypePatternBuilder.length() > 0) {
+					tempBuilder.append(objectTypePatternBuilder);
+				}
+
+				/*
 				 * end the optional query part
 				 */
 				tempBuilder.append(" } \n");
 			}
+
 		} else {
 
 			/*
@@ -999,6 +1121,18 @@ public class SelectionQuery {
 			 */
 			if (nestedQueryPattern.length() > 0) {
 				tempBuilder.append(nestedQueryPattern.toString());
+			}
+
+			/*
+			 * check that objectTypePatternBuilder is not empty then append it
+			 * to tempBuilder
+			 * 
+			 * objectTypePatternBuilder is used to build query patterns that
+			 * will get types of an objectValue if the user enable
+			 * autoGetObjValType option
+			 */
+			if (objectTypePatternBuilder.length() > 0) {
+				tempBuilder.append(objectTypePatternBuilder);
 			}
 
 		}
