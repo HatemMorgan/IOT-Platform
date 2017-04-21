@@ -826,11 +826,11 @@ public class SelectQueryRequestValidation {
 		ArrayList<Object> knowsPersonFieldList = new ArrayList<>();
 		knowsPersonFieldList.add("age");
 		knowsPersonFieldList.add("userName");
-		knowsPersonFieldList.add("job");
+//		knowsPersonFieldList.add("job");
 		// knowsPersonFieldList.add(knowsPersonFieldMap2);
 
 		knowsPersonFieldMap.put("fieldName", "knows");
-		knowsPersonFieldMap.put("classType", "Developer");
+//		knowsPersonFieldMap.put("classType", "Developer");
 		knowsPersonFieldMap.put("fields", knowsPersonFieldList);
 
 		ArrayList<Object> personFields = new ArrayList<>();

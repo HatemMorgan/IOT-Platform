@@ -475,58 +475,9 @@ public class SelectionQueryResults {
 							} else {
 
 								if (columnName.contains("objecttype")) {
-									/*
-									 * get queryVariable of the subjectVariable
-									 * to know its propertyName
-									 */
-									QueryVariable queryVariable = htblSubjectVariables.get(columnName);
-									String propertyName = queryVariable.getPropertyName();
 
-									/*
-									 * get subjectVariable of the objectVariable
-									 * (columnName)
-									 */
-									String subjectVariable = queryVariable.getSubjectVariableName();
-
-									/*
-									 * get list of individuals of the
-									 * parentSubjectVariable
-									 * 
-									 * if the parentSubjectVairable is subject0
-									 * it will be only one individual so I will
-									 * cast it to Hashtable<String,Object>
-									 * 
-									 * else it will be a list of individuals so
-									 * I will cast it to
-									 * ArrayList<Hashtable<String,Object>>
-									 */
-									Hashtable<String, Object> subjectVariableIndividual;
-									if (subjectVariable.equals("subject0")) {
-
-										subjectVariableIndividual = (Hashtable<String, Object>) htblSubjectVariablehtblpropVal
-												.get(subjectVariable);
-									} else {
-										ArrayList<Hashtable<String, Object>> subjectVariableIndividualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
-												.get(subjectVariable);
-
-										/*
-										 * get subjectVariableIndividual
-										 * 
-										 * It will always be the last item in
-										 * the list because the results are
-										 * added in order
-										 */
-										subjectVariableIndividual = subjectVariableIndividualsList
-												.get(subjectVariableIndividualsList.size() - 1);
-									}
-
-									/*
-									 * add classType field and classType of
-									 * objectValue to subjectVariableIndividual
-									 * of the individual
-									 */
-									subjectVariableIndividual.put("classType", propValue);
-
+									constructResultOfObjectTypeColumn(columnName, propValue, htblSubjectVariables,
+											htblSubjectVariablehtblpropVal);
 								}
 
 							}
@@ -1208,6 +1159,57 @@ public class SelectionQueryResults {
 			}
 
 		}
+	}
+
+	/*
+	 * constructResultOfObjectTypeColumn is used to construct result of
+	 * columnName = objecttype
+	 */
+	private static void constructResultOfObjectTypeColumn(String columnName, Object propValue,
+			Hashtable<String, QueryVariable> htblSubjectVariables,
+			Hashtable<String, Object> htblSubjectVariablehtblpropVal) {
+		/*
+		 * get queryVariable of the subjectVariable to know its propertyName
+		 */
+		QueryVariable queryVariable = htblSubjectVariables.get(columnName);
+
+		/*
+		 * get subjectVariable of the objectVariable (columnName)
+		 */
+		String subjectVariable = queryVariable.getSubjectVariableName();
+
+		/*
+		 * get list of individuals of the parentSubjectVariable
+		 * 
+		 * if the parentSubjectVairable is subject0 it will be only one
+		 * individual so I will cast it to Hashtable<String,Object>
+		 * 
+		 * else it will be a list of individuals so I will cast it to
+		 * ArrayList<Hashtable<String,Object>>
+		 */
+		Hashtable<String, Object> subjectVariableIndividual;
+		if (subjectVariable.equals("subject0")) {
+
+			subjectVariableIndividual = (Hashtable<String, Object>) htblSubjectVariablehtblpropVal.get(subjectVariable);
+		} else {
+			ArrayList<Hashtable<String, Object>> subjectVariableIndividualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
+					.get(subjectVariable);
+
+			/*
+			 * get subjectVariableIndividual
+			 * 
+			 * It will always be the last item in the list because the results
+			 * are added in order
+			 */
+			subjectVariableIndividual = subjectVariableIndividualsList.get(subjectVariableIndividualsList.size() - 1);
+		}
+
+		/*
+		 * add classType field and classType of objectValue to
+		 * subjectVariableIndividual of the individual
+		 */
+		subjectVariableIndividual.put("classType", getValueFromURI(propValue.toString()));
+
 	}
 
 	/*
