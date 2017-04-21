@@ -42,7 +42,7 @@ public class SelectQueryRequestValidation {
 	public SelectQueryRequestValidation(DynamicConceptsUtility dynamicPropertiesUtility) {
 		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
 
-		this.options = new Hashtable<>();
+		options = new Hashtable<>();
 		for (OptionsEnum option : OptionsEnum.values()) {
 			options.put(option.toString(), option.toString());
 		}
@@ -120,8 +120,9 @@ public class SelectQueryRequestValidation {
 					 * check that the option is valid
 					 */
 					if (!options.containsKey(optionName)) {
+
 						throw new InvalidQueryRequestBodyFormatException(
-								"Invalid Option. " + "Available options are: " + OptionsEnum.values().toString());
+								"Invalid Option. " + "Available options are: " + options.keySet().toString());
 					}
 
 					/*
@@ -795,8 +796,8 @@ public class SelectQueryRequestValidation {
 		fieldsList.add("name");
 
 		LinkedHashMap<String, Object> membersFieldMap = new LinkedHashMap<>();
-		 fieldsList.add(membersFieldMap);
-//		fieldsList.add("member");
+		fieldsList.add(membersFieldMap);
+		// fieldsList.add("member");
 
 		membersFieldMap.put("fieldName", "member");
 
@@ -826,11 +827,11 @@ public class SelectQueryRequestValidation {
 		ArrayList<Object> knowsPersonFieldList = new ArrayList<>();
 		knowsPersonFieldList.add("age");
 		knowsPersonFieldList.add("userName");
-//		knowsPersonFieldList.add("job");
+		knowsPersonFieldList.add("job");
 		// knowsPersonFieldList.add(knowsPersonFieldMap2);
 
 		knowsPersonFieldMap.put("fieldName", "knows");
-//		knowsPersonFieldMap.put("classType", "Developer");
+		knowsPersonFieldMap.put("classType", "Developer");
 		knowsPersonFieldMap.put("fields", knowsPersonFieldList);
 
 		ArrayList<Object> personFields = new ArrayList<>();
@@ -858,7 +859,7 @@ public class SelectQueryRequestValidation {
 		groupFields.add("name");
 
 		groupFieldMap.put("fields", groupFields);
-//		membersValueObjects.add(groupFieldMap);
+		// membersValueObjects.add(groupFieldMap);
 
 		fieldsList.add("description");
 		System.out.println(htblFieldValue);
