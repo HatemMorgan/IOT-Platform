@@ -189,15 +189,15 @@ public class DynamicOntologyRequestValidation {
 				if (newClassMap.get(key) instanceof java.util.ArrayList) {
 
 					/*
-					 * create a new keyField in the hashMap of
+					 * create a new keyField (superClassList) in the hashMap of
 					 * newClassPrefixedName in validationResult with value
 					 * StringList
 					 */
 					validationResult.get(newClassPrefixedName).put("superClassList", new ArrayList<String>());
 
 					/*
-					 * call validationResult to parse and validate superClass
-					 * field
+					 * call validateSuperClassListKeyField to parse and validate
+					 * superClass field
 					 */
 					validateSuperClassListKeyField(newClassPrefixedName, validationResult,
 							(ArrayList<Object>) newClassMap.get(key));
@@ -209,8 +209,50 @@ public class DynamicOntologyRequestValidation {
 				}
 			}
 
-			if (key.equals("subClassList") && newClassMap.get("subClassList") instanceof java.util.ArrayList) {
+			if (key.equals("subClassList")) {
 
+				/*
+				 * check if value of subClassList key field has a valid dataType
+				 * (list)
+				 */
+				if (newClassMap.get(key) instanceof java.util.ArrayList) {
+
+					/*
+					 * create a new keyField (subClassList) in the hashMap of
+					 * newClassPrefixedName in validationResult with value
+					 * StringList
+					 */
+					validationResult.get(newClassPrefixedName).put("subClassList", new ArrayList<String>());
+
+					/*
+					 * call validationResult to parse and validate superClass
+					 * field
+					 */
+					validateSubClassListKeyField(newClassPrefixedName, validationResult,
+							(ArrayList<Object>) newClassMap.get(key));
+
+					flag = true;
+
+				} else {
+
+					throw new InvalidDynamicOntologyException("Invalid Dynamic Ontology class insertion request. "
+							+ "Invalid subClassList key field. Its value must be a list");
+				}
+			}
+
+			if (key.equals("restrictionList")) {
+
+				/*
+				 * check if value of RestrictionList key field has a valid
+				 * dataType (list)
+				 */
+				if (newClassMap.get(key) instanceof java.util.ArrayList) {
+
+				} else {
+
+					throw new InvalidDynamicOntologyException("Invalid Dynamic Ontology class insertion request. "
+							+ "Invalid restrictionList key field. Its value must be a list");
+				}
 			}
 
 			if (!flag) {
@@ -219,6 +261,49 @@ public class DynamicOntologyRequestValidation {
 						+ "fields to insert a new ontology class");
 			}
 
+		}
+	}
+
+	/*
+	 * validateSubClassListKeyField is used to parse and validate
+	 * subClassKeyField value
+	 */
+	private static void validateSubClassListKeyField(String currentClassPrefixedName,
+			LinkedHashMap<String, LinkedHashMap<String, Object>> validationResult, ArrayList<Object> subClassesList) {
+
+		for (Object subClass : subClassesList) {
+			/*
+			 * check that the subClass is a String. Therefore it will be the
+			 * prefixedName of an existing class eg. foaf:Person
+			 */
+			if (subClass instanceof String) {
+
+				String subClassPrefixedName = subClass.toString();
+				/*
+				 * add superClassName to superClassList of currentClassURI in
+				 * validationResult
+				 */
+				((ArrayList<String>) validationResult.get(currentClassPrefixedName).get("subClassList"))
+						.add(subClassPrefixedName);
+
+			} else {
+
+				/*
+				 * check if the superClass is a new nestedClass
+				 */
+				if (subClass instanceof java.util.LinkedHashMap<?, ?>) {
+					validateNewClassMap(validationResult, (LinkedHashMap<String, Object>) subClass, false, null);
+				} else {
+
+					/*
+					 * invalid format
+					 */
+					throw new InvalidDynamicOntologyException("Invalid Dynamic Ontology class insertion request. "
+							+ "Invalid field: subClassList, the value of subClassList field must be a list of"
+							+ "either a 1- String (prefixedClassName of an existing class). "
+							+ "2- An object (A nested new subClass).");
+				}
+			}
 		}
 	}
 
@@ -274,6 +359,15 @@ public class DynamicOntologyRequestValidation {
 				}
 			}
 		}
+	}
+
+	/*
+	 * validateRestrictionKeyField is used to parse and validate
+	 * restricitonField value
+	 */
+	private static void validateRestrictionKeyField(String currentClassPrefixedName,
+			LinkedHashMap<String, LinkedHashMap<String, Object>> validationResult, ArrayList<Object> restrictionList) {
+
 	}
 
 	/*
