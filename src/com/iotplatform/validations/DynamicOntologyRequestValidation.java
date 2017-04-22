@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidDynamicOntologyException;
 import com.iotplatform.ontology.Prefix;
 
@@ -40,7 +41,7 @@ public class DynamicOntologyRequestValidation {
 	 * validateDynamicOntologyClassRequest validate requestBody of dynamic
 	 * ontology class insertion
 	 */
-	private static LinkedHashMap<String, LinkedHashMap<String, Object>> validateDynamicOntologyClassRequest(
+	public static LinkedHashMap<String, LinkedHashMap<String, Object>> validateDynamicOntologyClassRequest(
 			LinkedHashMap<String, Object> htblRequestBody) {
 
 		/*
@@ -63,11 +64,14 @@ public class DynamicOntologyRequestValidation {
 		 */
 		LinkedHashMap<String, LinkedHashMap<String, Object>> validationResult = new LinkedHashMap<>();
 
+		validateNewClassMap(validationResult, htblRequestBody, false, null, false, null);
+
 		return validationResult;
 	}
 
 	private static void validateNewClassMap(LinkedHashMap<String, LinkedHashMap<String, Object>> validationResult,
-			LinkedHashMap<String, Object> newClassMap, boolean isSuperClass, String subClassPrefixedName) {
+			LinkedHashMap<String, Object> newClassMap, boolean isSuperClass, String subClassPrefixedName,
+			boolean isSubClass, String superClassPrefixedName) {
 
 		/*
 		 * check that the required fields name and prefixAlias are exist
@@ -91,12 +95,18 @@ public class DynamicOntologyRequestValidation {
 		Prefix newClassPrefix = getPrefix(newClassMap.get("prefixAlias").toString());
 
 		/*
+		 * Capitalize the first character of the className in order to match
+		 * universal conventions
+		 */
+		newClassName = newClassName.substring(0, 1).toUpperCase() + newClassName.substring(1);
+
+		/*
 		 * check that the newClassPrefix is a valid prefix (not equal null)
 		 */
 		if (newClassPrefix == null) {
 			throw new InvalidDynamicOntologyException("Invalid Dynamic Ontology class insertion request. "
 					+ "InValid prefixAlias with value = " + newClassMap.get("prefixAlias").toString() + "."
-					+ " The prefixAlias must have a value from " + htblPrefixes.keys().toString());
+					+ " The prefixAlias must have a value from " + htblPrefixes.keySet().toString());
 		}
 
 		/*
@@ -121,8 +131,67 @@ public class DynamicOntologyRequestValidation {
 			 * add subClass with subClassPrefixedName in the subClassList
 			 */
 			((ArrayList<String>) validationResult.get(newClassPrefixedName).get("subClassList"))
-					.add(newClassPrefixedName);
+					.add(subClassPrefixedName);
 
+		}
+
+		/*
+		 * if isSubClass = true it means that the passed class is a subClass of
+		 * a class with superClassPrefixedName
+		 */
+		if (isSubClass) {
+			/*
+			 * check if superClassPrefixedName exist before in validationResult
+			 */
+			if (validationResult.containsKey(superClassPrefixedName)) {
+
+				/*
+				 * check if hashMap of superClassPrefixedName has subClassList
+				 * keyField
+				 */
+				if (validationResult.get(superClassPrefixedName).containsKey("subClassList")) {
+
+					/*
+					 * add newClassURI to the subClassList of the superClass
+					 */
+					((ArrayList<String>) validationResult.get(superClassPrefixedName).get("subClassList"))
+							.add(newClassPrefixedName);
+				} else {
+					/*
+					 * add subClassList to hashMap of superClassPrefixedName in
+					 * validationResult to hold subClasses prefixedNames of
+					 * superClassPrefixedName
+					 */
+					validationResult.get(superClassPrefixedName).put("subClassList", new ArrayList<String>());
+
+					/*
+					 * add newClassURI to the subClassList of the superClass
+					 */
+					((ArrayList<String>) validationResult.get(superClassPrefixedName).get("subClassList"))
+							.add(newClassPrefixedName);
+				}
+
+			} else {
+				/*
+				 * superClassPrefixedName does not exist in validationResult so
+				 * create a new fieldKey= validationResult
+				 */
+				validationResult.put(superClassPrefixedName, new LinkedHashMap<>());
+
+				/*
+				 * add subClassList to hashMap of superClassPrefixedName in
+				 * validationResult to hold subClasses prefixedNames of
+				 * superClassPrefixedName
+				 */
+				validationResult.get(superClassPrefixedName).put("subClassList", new ArrayList<String>());
+
+				/*
+				 * add newClassURI to the subClassList of the superClass
+				 */
+				((ArrayList<String>) validationResult.get(superClassPrefixedName).get("subClassList"))
+						.add(newClassPrefixedName);
+
+			}
 		}
 
 		/*
@@ -187,13 +256,6 @@ public class DynamicOntologyRequestValidation {
 				 * dataType (list)
 				 */
 				if (newClassMap.get(key) instanceof java.util.ArrayList) {
-
-					/*
-					 * create a new keyField (superClassList) in the hashMap of
-					 * newClassPrefixedName in validationResult with value
-					 * StringList
-					 */
-					validationResult.get(newClassPrefixedName).put("superClassList", new ArrayList<String>());
 
 					/*
 					 * call validateSuperClassListKeyField to parse and validate
@@ -292,7 +354,9 @@ public class DynamicOntologyRequestValidation {
 				 * check if the superClass is a new nestedClass
 				 */
 				if (subClass instanceof java.util.LinkedHashMap<?, ?>) {
-					validateNewClassMap(validationResult, (LinkedHashMap<String, Object>) subClass, false, null);
+
+					validateNewClassMap(validationResult, (LinkedHashMap<String, Object>) subClass, false, null, true,
+							currentClassPrefixedName);
 				} else {
 
 					/*
@@ -323,22 +387,72 @@ public class DynamicOntologyRequestValidation {
 			if (superClass instanceof String) {
 
 				String superClassPrefixedName = superClass.toString();
-				/*
-				 * add superClassName to superClassList of currentClassURI in
-				 * validationResult
-				 */
-				((ArrayList<String>) validationResult.get(currentClassPrefixedName).get("superClassList"))
-						.add(superClassPrefixedName);
 
 				/*
 				 * add superClass's prefixedName to validationResult and add a
 				 * subClassList and add the currentClassPrefixedName in
 				 * subClassList
+				 * 
+				 * 
+				 * check if superClassPrefixedName exist before in
+				 * validationResult
 				 */
-				validationResult.put(superClassPrefixedName, new LinkedHashMap<String, Object>());
-				validationResult.get(superClassPrefixedName).put("subClassList", new ArrayList<String>());
-				((ArrayList<String>) validationResult.get(superClassPrefixedName).get("subClassList"))
-						.add(currentClassPrefixedName);
+				if (validationResult.containsKey(superClassPrefixedName)) {
+
+					/*
+					 * check if hashMap of superClassPrefixedName has
+					 * subClassList keyField
+					 */
+					if (validationResult.get(superClassPrefixedName).containsKey("subClassList")) {
+
+						/*
+						 * add newClassURI to the subClassList of the superClass
+						 */
+						((ArrayList<String>) validationResult.get(superClassPrefixedName).get("subClassList"))
+								.add(currentClassPrefixedName);
+					} else {
+						/*
+						 * add subClassList to hashMap of superClassPrefixedName
+						 * in validationResult to hold subClasses prefixedNames
+						 * of superClassPrefixedName
+						 */
+						validationResult.get(superClassPrefixedName).put("subClassList", new ArrayList<String>());
+
+						/*
+						 * add newClassURI to the subClassList of the superClass
+						 */
+						((ArrayList<String>) validationResult.get(superClassPrefixedName).get("subClassList"))
+								.add(currentClassPrefixedName);
+					}
+
+				} else {
+					/*
+					 * superClassPrefixedName does not exist in validationResult
+					 * so create a new fieldKey= validationResult
+					 */
+					validationResult.put(superClassPrefixedName, new LinkedHashMap<>());
+
+					/*
+					 * add exist keyField which specifies that this
+					 * superClassPrefixedName is of an existing ontology class
+					 */
+					validationResult.get(superClassPrefixedName).put("exist", true);
+
+					/*
+					 * add subClassList to hashMap of superClassPrefixedName in
+					 * validationResult to hold subClasses prefixedNames of
+					 * superClassPrefixedName
+					 */
+					validationResult.get(superClassPrefixedName).put("subClassList", new ArrayList<String>());
+
+					/*
+					 * add newClassURI to the subClassList of the superClass
+					 */
+					((ArrayList<String>) validationResult.get(superClassPrefixedName).get("subClassList"))
+							.add(currentClassPrefixedName);
+
+				}
+
 			} else {
 
 				/*
@@ -346,7 +460,7 @@ public class DynamicOntologyRequestValidation {
 				 */
 				if (superClass instanceof java.util.LinkedHashMap<?, ?>) {
 					validateNewClassMap(validationResult, (LinkedHashMap<String, Object>) superClass, true,
-							currentClassPrefixedName);
+							currentClassPrefixedName, false, null);
 				} else {
 
 					/*
@@ -389,6 +503,49 @@ public class DynamicOntologyRequestValidation {
 		} else {
 			return null;
 		}
+	}
+
+	public static void main(String[] args) {
+		LinkedHashMap<String, Object> htblRequestBody = new LinkedHashMap<>();
+
+		htblRequestBody.put("name", "virtualSensor");
+		htblRequestBody.put("prefixAlias", "iot-platform");
+		htblRequestBody.put("uniqueIdentifierPropertyName", "id");
+
+		ArrayList<Object> subClassesList = new ArrayList<>();
+		htblRequestBody.put("subClassList", subClassesList);
+
+		subClassesList.add("ssn:Sensor");
+		LinkedHashMap<String, Object> subClass = new LinkedHashMap<>();
+		subClass.put("name", "human");
+		subClass.put("prefixAlias", "iot-platform");
+		subClassesList.add(subClass);
+
+		ArrayList<Object> superClassList = new ArrayList<>();
+		htblRequestBody.put("superClassList", superClassList);
+
+		superClassList.add("ssn:Device");
+
+		LinkedHashMap<String, Object> superClass = new LinkedHashMap<>();
+		superClass.put("name", "VirtualSensing");
+		superClass.put("prefixAlias", "iot-platform");
+
+		ArrayList<Object> superClassList2 = new ArrayList<>();
+		superClass.put("superClassList", superClassList2);
+		superClassList2.add("ssn:Device");
+
+		superClassList.add(superClass);
+
+		System.out.println(htblRequestBody);
+
+		try {
+			LinkedHashMap<String, LinkedHashMap<String, Object>> validationRes = DynamicOntologyRequestValidation
+					.validateDynamicOntologyClassRequest(htblRequestBody);
+			System.out.println(validationRes);
+		} catch (ErrorObjException e) {
+			System.out.println(e.getExceptionMessage());
+		}
+
 	}
 
 }
