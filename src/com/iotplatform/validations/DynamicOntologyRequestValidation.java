@@ -154,25 +154,63 @@ public class DynamicOntologyRequestValidation {
 			if (key.equals("uniqueIdentifierPropertyName")) {
 
 				/*
-				 * get uniqueIdentifierPropertyName
+				 * check if value of uniqueIdentifierPropertyName key field has
+				 * a valid dataType (String)
 				 */
-				String uniqueIdentifierPropertyName = newClassMap.get(key).toString();
+				if (newClassMap.get(key) instanceof String) {
 
-				/*
-				 * add uniqueIdentiferProperty prefixedName to
-				 * htblUniqueIdentifier
-				 */
-				validationResult.get(newClassPrefixedName).put("uniqueIdentiferProperty", uniqueIdentifierPropertyName);
+					/*
+					 * get uniqueIdentifierPropertyName
+					 */
+					String uniqueIdentifierPropertyName = newClassMap.get(key).toString();
 
-				flag = true;
+					/*
+					 * add uniqueIdentiferProperty prefixedName to
+					 * htblUniqueIdentifier
+					 */
+					validationResult.get(newClassPrefixedName).put("uniqueIdentiferProperty",
+							uniqueIdentifierPropertyName);
+
+					flag = true;
+				} else {
+
+					throw new InvalidDynamicOntologyException("Invalid Dynamic Ontology class insertion request. "
+							+ "Invalid uniqueIdentiferProperty key field. Its value must be a String "
+							+ "which identifies the prefixedPropertyName of the uniqueIdentifierproperty");
+				}
 			}
 
-			if (key.equals("superClassList") && newClassMap.get(key) instanceof java.util.ArrayList) {
+			if (key.equals("superClassList")) {
 
-				validationResult.get(newClassPrefixedName).put("superClassList", new ArrayList<String>());
-				validateSuperClassListKeyField(newClassPrefixedName, validationResult,
-						(ArrayList<Object>) newClassMap.get(key));
-				flag = true;
+				/*
+				 * check if value of superClassList key field has a valid
+				 * dataType (list)
+				 */
+				if (newClassMap.get(key) instanceof java.util.ArrayList) {
+
+					/*
+					 * create a new keyField in the hashMap of
+					 * newClassPrefixedName in validationResult with value
+					 * StringList
+					 */
+					validationResult.get(newClassPrefixedName).put("superClassList", new ArrayList<String>());
+
+					/*
+					 * call validationResult to parse and validate superClass
+					 * field
+					 */
+					validateSuperClassListKeyField(newClassPrefixedName, validationResult,
+							(ArrayList<Object>) newClassMap.get(key));
+					flag = true;
+
+				} else {
+					throw new InvalidDynamicOntologyException("Invalid Dynamic Ontology class insertion request. "
+							+ "Invalid superClassList key field. Its value must be a list");
+				}
+			}
+
+			if (key.equals("subClassList") && newClassMap.get("subClassList") instanceof java.util.ArrayList) {
+
 			}
 
 			if (!flag) {
