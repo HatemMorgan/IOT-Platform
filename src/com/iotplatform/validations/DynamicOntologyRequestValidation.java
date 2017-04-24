@@ -5,8 +5,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-import org.springframework.stereotype.Component;
-
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidDynamicOntologyException;
 import com.iotplatform.ontology.Prefix;
@@ -32,7 +30,6 @@ import com.iotplatform.ontology.Prefix;
  * 
  */
 
-@Component
 public class DynamicOntologyRequestValidation {
 
 	private static Hashtable<String, Prefix> htblPrefixes;
@@ -510,7 +507,7 @@ public class DynamicOntologyRequestValidation {
 
 		htblRequestBody.put("name", "virtualSensor");
 		htblRequestBody.put("prefixAlias", "iot-platform");
-		htblRequestBody.put("uniqueIdentifierPropertyName", "id");
+		htblRequestBody.put("uniqueIdentifierPropertyName", "iot-lite:id");
 
 		ArrayList<Object> subClassesList = new ArrayList<>();
 		htblRequestBody.put("subClassList", subClassesList);

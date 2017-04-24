@@ -86,7 +86,6 @@ public class SelectQueryDao {
 			// return null;
 
 		} catch (SQLException e) {
-			e.printStackTrace();
 			throw new DatabaseException(e.getMessage(), prefixedClassName);
 		}
 
