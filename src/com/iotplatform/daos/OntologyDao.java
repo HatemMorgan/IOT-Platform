@@ -1,136 +1,97 @@
 package com.iotplatform.daos;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.iotplatform.exceptions.DatabaseException;
-import com.iotplatform.ontology.Prefix;
+import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.ObjectProperty;
+import com.iotplatform.ontology.Property;
+import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-
-import oracle.spatial.rdf.client.jena.Oracle;
 
 @Repository("ontologyDao")
 public class OntologyDao {
 
-	private static String prefixesString = null;
-	private static String prefixes = null;
-	private Oracle oracle;
+	private DynamicOntologyDao DynamicOntologyDao;
 
 	@Autowired
-	public OntologyDao(Oracle oracle) {
-		this.oracle = oracle;
+	public OntologyDao(DynamicOntologyDao DynamicOntologyDao) {
+		this.DynamicOntologyDao = DynamicOntologyDao;
 	}
 
-	public void addNewClassToOntology(String newClassName) {
+	public LinkedHashMap<String, Object> loadApplicationOntology(String applicationModelName) {
 
-		StringBuilder insertQueryBuilder = new StringBuilder();
+		LinkedHashMap<String, Object> res = new LinkedHashMap<>();
 
-		if (prefixesString == null) {
-			StringBuilder prefixStringBuilder = new StringBuilder();
-			for (Prefix prefix : Prefix.values()) {
-				prefixStringBuilder.append("PREFIX	" + prefix.getPrefix() + "	<" + prefix.getUri() + ">\n");
+		ArrayList<Object> classList = new ArrayList<>();
+		res.put("classes", classList);
+
+		ArrayList<Object> propertiesList = new ArrayList<>();
+		res.put("properties", propertiesList);
+
+		getApplicationOntology(applicationModelName, classList, propertiesList);
+
+		return res;
+
+	}
+
+	private void getApplicationOntology(String applicationModelName, ArrayList<Object> classList,
+			ArrayList<Object> propertiesList) {
+
+		DynamicOntologyDao.loadAndCacheApplicationDynamicOntologyClasses(applicationModelName);
+
+		Iterator<String> htblMainOntologyClassesMappersIter = OntologyMapper.getOntologyMapper()
+				.getHtblMainOntologyClassesMappers().keySet().iterator();
+
+		while (htblMainOntologyClassesMappersIter.hasNext()) {
+			String className = htblMainOntologyClassesMappersIter.next();
+			Class ontologyClassMapper = OntologyMapper.getHtblMainOntologyClassesMappers().get(className);
+
+			LinkedHashMap<String, String> classMap = new LinkedHashMap<>();
+			classMap.put("name", className);
+			classMap.put("prefix", ontologyClassMapper.getPrefix().getPrefix());
+
+			classList.add(classMap);
+
+			Iterator<String> htblPropertiesIter = ontologyClassMapper.getProperties().keySet().iterator();
+			while (htblPropertiesIter.hasNext()) {
+				String propertyName = htblPropertiesIter.next();
+				Property property = ontologyClassMapper.getProperties().get(propertyName);
+
+				if (property instanceof ObjectProperty) {
+					LinkedHashMap<String, String> objectPropMap = new LinkedHashMap<>();
+
+					objectPropMap.put("name", propertyName);
+					objectPropMap.put("domain", property.getSubjectClass().getName());
+					objectPropMap.put("range", ((ObjectProperty) property).getObject().getName());
+
+					propertiesList.add(objectPropMap);
+				}
+
 			}
 
-			prefixesString = prefixStringBuilder.toString();
 		}
 
-		insertQueryBuilder.append(prefixesString);
-		insertQueryBuilder.append("INSERT DATA { \n");
-		insertQueryBuilder.append("{ GRAPH iot-platform:ontology { \n");
+		Iterator<String> htblappDynamicOntologyClassesIter = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+				.get(applicationModelName).keySet().iterator();
 
-		insertQueryBuilder.append(Prefix.IOT_PLATFORM.getPrefix() + newClassName + " a owl:Class. \n");
+		while (htblappDynamicOntologyClassesIter.hasNext()) {
+			String className = htblappDynamicOntologyClassesIter.next();
+			Class dynamicOntologyClassMapper = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+					.get(applicationModelName).get(className);
 
-		insertQueryBuilder.append("} \n");
-		insertQueryBuilder.append("} \n");
+			LinkedHashMap<String, String> classMap = new LinkedHashMap<>();
+			classMap.put("name", className);
+			classMap.put("prefix", dynamicOntologyClassMapper.getPrefix().getPrefix());
 
-	}
-
-	public void addNewObjectPropertyToOntology(String newPropertyName, String domainClassPrefixedName,
-			String rangeClassPrefixedName) {
-
-		StringBuilder insertQueryBuilder = new StringBuilder();
-
-		if (prefixesString == null) {
-			StringBuilder prefixStringBuilder = new StringBuilder();
-			for (Prefix prefix : Prefix.values()) {
-				prefixStringBuilder.append("PREFIX	" + prefix.getPrefix() + "	<" + prefix.getUri() + ">\n");
-			}
-
-			prefixesString = prefixStringBuilder.toString();
-		}
-
-		insertQueryBuilder.append(prefixesString);
-		insertQueryBuilder.append("INSERT DATA { \n");
-		insertQueryBuilder.append("{ GRAPH iot-platform:ontology { \n");
-
-		insertQueryBuilder.append(Prefix.IOT_PLATFORM.getPrefix() + newPropertyName + " a owl:ObjectProperty; \n");
-		insertQueryBuilder.append("rdfs:domain " + domainClassPrefixedName + "; \n");
-		insertQueryBuilder.append("rdfs:range " + rangeClassPrefixedName + ". \n");
-
-		insertQueryBuilder.append("} \n");
-		insertQueryBuilder.append("} \n");
-
-	}
-
-	public void loadAndCacheApplicationDynamicOntologyClasses(String applicationModelName) {
-
-		StringBuilder queryBuilder = new StringBuilder();
-
-		queryBuilder.append("SELECT class FROM TABLE(SEM_MATCH(' \n ");
-		queryBuilder.append("SELECT ?class WHERE { \n");
-		queryBuilder.append("GRAPH { ?class a owl:Class } \n");
-		queryBuilder.append("} ' \n");
-		queryBuilder.append("sem_models('" + applicationModelName + "'),null, \n SEM_ALIASES(" + prefixes + "),null))");
-
-		/*
-		 * check if prefixes String was initialized before or not (not null)
-		 */
-		if (prefixes == null) {
-			prefixes = getPrefixesQueryAliases();
-		}
-
-		try {
-			ResultSet results = oracle.executeQuery(queryBuilder.toString(), 0, 1);
-
-			ResultSetMetaData rsmd = results.getMetaData();
-			int columnsNumber = rsmd.getColumnCount();
-			while (results.next()) {
-				
-				String dynamicClassName = results.getString("class");
-				
-//				if(OntologyMapper.)
-				
-			}
-
-		} catch (SQLException e) {
-			throw new DatabaseException(e.getMessage(), "Ontology");
+			classList.add(classMap);
 
 		}
 
 	}
 
-	private String getPrefixesQueryAliases() {
-		/*
-		 * construct prefixes
-		 */
-		StringBuilder prefixStringBuilder = new StringBuilder();
-		int counter = 0;
-		int stop = Prefix.values().length - 1;
-		for (Prefix prefix : Prefix.values()) {
-			if (counter == stop) {
-				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "')");
-			} else {
-				prefixStringBuilder.append("SEM_ALIAS('" + prefix.getPrefixName() + "','" + prefix.getUri() + "'),");
-			}
-
-			counter++;
-		}
-
-		return prefixStringBuilder.toString();
-
-	}
 }
