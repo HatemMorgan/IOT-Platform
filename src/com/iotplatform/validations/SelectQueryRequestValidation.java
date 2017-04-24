@@ -68,7 +68,7 @@ public class SelectQueryRequestValidation {
 	 * because a query may target two instances of the same class and need to
 	 * have different fields for each instance. So the id will separate them
 	 */
-	public ValidationResult validateRequest(String applicationName, Hashtable<String, Object> htblFieldValue,
+	public ValidationResult validateRequest(String applicationName, LinkedHashMap<String, Object> htblFieldValue,
 			Class subjectClass) {
 
 		/*
@@ -784,7 +784,7 @@ public class SelectQueryRequestValidation {
 		/*
 		 * test by querying on group class instances
 		 */
-		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
+		LinkedHashMap<String, Object> htblFieldValue = new LinkedHashMap<>();
 
 		LinkedHashMap<String, Object> htblOptions = new LinkedHashMap<>();
 		htblOptions.put("autoGetObjValType", true);

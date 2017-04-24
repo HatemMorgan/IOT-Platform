@@ -1,6 +1,7 @@
 package com.iotplatform.controllers;
 
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,12 +19,12 @@ public class InsertionAPIController {
 	InsertionService insertionService;
 
 	@RequestMapping(value = "/insertionAPI/{applicationNameCode}/{instanceType}", method = RequestMethod.POST)
-	public Hashtable<String, Object> insertNewdata(
+	public LinkedHashMap<String, Object> insertNewdata(
 			@PathVariable(value = "applicationNameCode") String applicationNameCode,
 			@PathVariable(value = "instanceType") String instanceType,
-			@RequestBody Hashtable<String, Object> htblFieldValue) {
+			@RequestBody LinkedHashMap<String, Object> htblFieldValue) {
 
-		Hashtable<String, Object> responseJSON = insertionService.insertNewFieldValueList(htblFieldValue,
+		LinkedHashMap<String, Object> responseJSON = insertionService.insertNewFieldValueList(htblFieldValue,
 				applicationNameCode, instanceType);
 
 		return responseJSON;

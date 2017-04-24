@@ -2,6 +2,7 @@ package com.iotplatform.services;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,7 @@ public class InsertionService {
 	 * the request content then if it pass the validations call the admin data
 	 * access object to insert the new admin
 	 */
-	public Hashtable<String, Object> insertNewFieldValueList(Hashtable<String, Object> htblFieldValue,
+	public LinkedHashMap<String, Object> insertNewFieldValueList(LinkedHashMap<String, Object> htblFieldValue,
 			String applicationNameCode, String className) {
 
 		long startTime = System.currentTimeMillis();

@@ -1,6 +1,7 @@
 package com.iotplatform.ontology.dynamicConcepts;
 
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class DynamicConceptsService {
 	 * insertNewConcept service method is used to call dynamicConceptDao and it
 	 * return a json object
 	 */
-	public Hashtable<String, Object> insertNewConcept(String applicationNameCode, DynamicConceptModel newConcept) {
+	public LinkedHashMap<String, Object> insertNewConcept(String applicationNameCode, DynamicConceptModel newConcept) {
 		long startTime = System.currentTimeMillis();
 		try {
 
@@ -86,7 +87,7 @@ public class DynamicConceptsService {
 		return null;
 	}
 
-	public Hashtable<String, Object> getApplicationDynamicConcepts(String applicationNameCode) {
+	public LinkedHashMap<String, Object> getApplicationDynamicConcepts(String applicationNameCode) {
 		long startTime = System.currentTimeMillis();
 		try {
 
@@ -103,7 +104,7 @@ public class DynamicConceptsService {
 			}
 
 			List<DynamicConceptModel> concepts = dynamicConceptDao.getConceptsOfApplication(applicationNameCode);
-			Hashtable<String, Object> json = new Hashtable<>();
+			LinkedHashMap<String, Object> json = new LinkedHashMap<>();
 			json.put("dynamicAddedConcepts", concepts);
 			return json;
 		} catch (ErrorObjException e) {

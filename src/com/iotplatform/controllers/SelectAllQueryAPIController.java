@@ -1,6 +1,7 @@
 package com.iotplatform.controllers;
 
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,10 +18,11 @@ public class SelectAllQueryAPIController {
 	SelectAllQueryService selectAllQueryService;
 
 	@RequestMapping(value = "/selectAllQueryAPI/{applicationNameCode}/{instanceType}", method = RequestMethod.GET)
-	public Hashtable<String, Object> getData(@PathVariable(value = "applicationNameCode") String applicationNameCode,
+	public LinkedHashMap<String, Object> getData(
+			@PathVariable(value = "applicationNameCode") String applicationNameCode,
 			@PathVariable(value = "instanceType") String instanceType) {
 
-		Hashtable<String, Object> responseJSON = selectAllQueryService.selectAll(applicationNameCode, instanceType);
+		LinkedHashMap<String, Object> responseJSON = selectAllQueryService.selectAll(applicationNameCode, instanceType);
 
 		return responseJSON;
 	}

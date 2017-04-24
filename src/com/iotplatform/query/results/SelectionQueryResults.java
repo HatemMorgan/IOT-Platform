@@ -119,12 +119,12 @@ public class SelectionQueryResults {
 	 * not. If it has multiple value it should be returned as an arrayList
 	 */
 
-	public List<Hashtable<String, Object>> constractResponeJsonObjectForListSelection(String applicationName,
+	public List<LinkedHashMap<String, Object>> constractResponeJsonObjectForListSelection(String applicationName,
 			ResultSet results, Class subjectClass) throws SQLException {
 
-		List<Hashtable<String, Object>> responseJson = new ArrayList<>();
+		List<LinkedHashMap<String, Object>> responseJson = new ArrayList<>();
 
-		Hashtable<Object, Hashtable<String, Object>> temp = new Hashtable<>();
+		LinkedHashMap<Object, LinkedHashMap<String, Object>> temp = new LinkedHashMap<>();
 
 		Hashtable<String, Property> subjectClassProperties = subjectClass.getProperties();
 
@@ -137,7 +137,7 @@ public class SelectionQueryResults {
 			 */
 
 			if (temp.size() == 0) {
-				Hashtable<String, Object> htblSubjectPropVal = new Hashtable<>();
+				LinkedHashMap<String, Object> htblSubjectPropVal = new LinkedHashMap<>();
 				temp.put(subject, htblSubjectPropVal);
 				responseJson.add(htblSubjectPropVal);
 			}
@@ -188,7 +188,7 @@ public class SelectionQueryResults {
 						temp.get(subject).put(propertyName, valueList);
 					}
 				} else {
-					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
+					LinkedHashMap<String, Object> htblAdminPropVal = new LinkedHashMap<>();
 					temp.put(subject, htblAdminPropVal);
 
 					if (temp.get(subject).containsKey(propertyName)) {
@@ -222,7 +222,7 @@ public class SelectionQueryResults {
 					temp.get(subject).put(propertyName, value);
 				} else {
 
-					Hashtable<String, Object> htblAdminPropVal = new Hashtable<>();
+					LinkedHashMap<String, Object> htblAdminPropVal = new LinkedHashMap<>();
 					temp.put(subject, htblAdminPropVal);
 					temp.get(subject).put(propertyName, value);
 					responseJson.add(htblAdminPropVal);
@@ -233,7 +233,7 @@ public class SelectionQueryResults {
 		return responseJson;
 	}
 
-	public static List<Hashtable<String, Object>> constructQueryResult(String applicationName, ResultSet results,
+	public static List<LinkedHashMap<String, Object>> constructQueryResult(String applicationName, ResultSet results,
 			String requestClassName, Hashtable<String, QueryVariable> htblSubjectVariables) {
 
 		/*
@@ -241,7 +241,7 @@ public class SelectionQueryResults {
 		 * each element in the list represent a Hashtable<String, Object> which
 		 * contains the propValues of an individual
 		 */
-		List<Hashtable<String, Object>> consturctedQueryResult = new ArrayList<>();
+		List<LinkedHashMap<String, Object>> consturctedQueryResult = new ArrayList<>();
 
 		/*
 		 * htblIndividualQueryVariabesList is used to hold uniqueIdentifier of
@@ -302,7 +302,7 @@ public class SelectionQueryResults {
 					 */
 					htblSubjectVariablehtblpropVal = new Hashtable<>();
 
-					Hashtable<String, Object> htblIndividualPropertyValue = new Hashtable<>();
+					LinkedHashMap<String, Object> htblIndividualPropertyValue = new LinkedHashMap<>();
 
 					htblSubjectVariablehtblpropVal.put("subject0", htblIndividualPropertyValue);
 

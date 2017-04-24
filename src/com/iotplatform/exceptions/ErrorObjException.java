@@ -1,7 +1,6 @@
 package com.iotplatform.exceptions;
 
-import java.util.Hashtable;
-
+import java.util.LinkedHashMap;
 
 public class ErrorObjException extends RuntimeException {
 
@@ -26,25 +25,24 @@ public class ErrorObjException extends RuntimeException {
 		return code;
 	}
 
-	
 	public String getExceptionMessage() {
 		return exceptionMessage;
 	}
 
-	public Hashtable<String, Object> getExceptionHashTable(double timeTaken) {
-		Hashtable<String, Object> htblException = new Hashtable<>();
+	public LinkedHashMap<String, Object> getExceptionHashTable(double timeTaken) {
+		LinkedHashMap<String, Object> htblException = new LinkedHashMap<>();
 		htblException.put("code", code);
 		htblException.put("message", message);
 
-		Hashtable<String, Object>[] errorsArr = (Hashtable<String, Object>[]) new Hashtable<?, ?>[1];
-		Hashtable<String, Object> error = new Hashtable<>();
+		LinkedHashMap<String, Object>[] errorsArr = (LinkedHashMap<String, Object>[]) new LinkedHashMap<?, ?>[1];
+		LinkedHashMap<String, Object> error = new LinkedHashMap<>();
 		error.put("domain", domain);
 		error.put("message", exceptionMessage);
 
 		errorsArr[0] = error;
 
 		htblException.put("errors", errorsArr);
-		htblException.put("time",timeTaken+" sec");
+		htblException.put("time", timeTaken + " sec");
 		return htblException;
 	}
 

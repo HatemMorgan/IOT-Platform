@@ -1,6 +1,7 @@
 package com.iotplatform.controllers;
 
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +20,7 @@ public class DynamicConceptAPIController {
 	DynamicConceptsService dynamicConceptService;
 
 	@RequestMapping(value = "/ontology/{applicationCode}", method = RequestMethod.POST, produces = "application/json")
-	public Hashtable<String, Object> createDynamicOntologyConcept(@PathVariable("applicationCode") String applicationCode,
+	public LinkedHashMap<String, Object> createDynamicOntologyConcept(@PathVariable("applicationCode") String applicationCode,
 			@RequestBody DynamicConceptModel newConcept) {
 
 		return dynamicConceptService.insertNewConcept(applicationCode, newConcept);
@@ -27,7 +28,7 @@ public class DynamicConceptAPIController {
 	}
 
 	@RequestMapping(value = "/ontology/{applicationCode}", method = RequestMethod.GET, produces = "application/json")
-	public Hashtable<String, Object> getApplicationDynamicConcept(
+	public LinkedHashMap<String, Object> getApplicationDynamicConcept(
 			@PathVariable("applicationCode") String applicaitonCode) {
 		return dynamicConceptService.getApplicationDynamicConcepts(applicaitonCode);
 
