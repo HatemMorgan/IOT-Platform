@@ -47,7 +47,7 @@ public class OntologyDao {
 		DynamicOntologyDao.loadAndCacheApplicationDynamicOntologyClasses(applicationModelName);
 		DynamicOntologyDao.loadAndCacheApplicationDynamicOntologyObjectProperties(applicationModelName);
 
-		Iterator<String> htblMainOntologyClassesMappersIter = OntologyMapper.getOntologyMapper()
+		Iterator<String> htblMainOntologyClassesMappersIter = OntologyMapper
 				.getHtblMainOntologyClassesMappers().keySet().iterator();
 
 		while (htblMainOntologyClassesMappersIter.hasNext()) {

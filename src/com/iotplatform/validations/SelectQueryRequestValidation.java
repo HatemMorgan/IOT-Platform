@@ -871,7 +871,7 @@ public class SelectQueryRequestValidation {
 			long startTime = System.currentTimeMillis();
 			ValidationResult validationResult = getQueryRequestValidations.validateRequest("TESTAPPLICATION",
 					htblFieldValue,
-					OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("group"));
+					OntologyMapper.getHtblMainOntologyClassesMappers().get("group"));
 
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = validationResult
 					.getHtblClassNameProperty();

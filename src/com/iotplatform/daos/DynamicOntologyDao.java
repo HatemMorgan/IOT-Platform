@@ -210,7 +210,7 @@ public class DynamicOntologyDao {
 
 				Class domainClass = null;
 				Class rangeClass = null;
-				if (OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers()
+				if (OntologyMapper.getHtblMainOntologyClassesUriMappers()
 						.containsKey(objPropDomainClassURI)) {
 
 					domainClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(objPropDomainClassURI);

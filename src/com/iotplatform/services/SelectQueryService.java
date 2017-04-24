@@ -58,8 +58,8 @@ public class SelectQueryService {
 		/*
 		 * check if the className has a valid class Mapping
 		 */
-		if (OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().containsKey(className)) {
-			Class subjectClass = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get(className);
+		if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(className)) {
+			Class subjectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(className);
 
 			/*
 			 * check if the model exist or not .
@@ -202,7 +202,7 @@ public class SelectQueryService {
 
 		System.out.println(htblQueryFields);
 
-		System.out.println(OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers()
+		System.out.println(OntologyMapper.getHtblMainOntologyClassesUriMappers()
 				.get("http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty").getClassTypesList());
 
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";

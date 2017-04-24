@@ -22,7 +22,7 @@ public class OntologyService {
 		this.applicationDao = applicationDao;
 	}
 
-	public LinkedHashMap<String, Object> getApplicationModel(String applicationName) {
+	public LinkedHashMap<String, Object> getApplicationOntology(String applicationName) {
 
 		long startTime = System.currentTimeMillis();
 		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationName);

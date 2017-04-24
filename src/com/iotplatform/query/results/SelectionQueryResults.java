@@ -532,13 +532,13 @@ public class SelectionQueryResults {
 			 * create a new ArrayList<Hashtable<String, Object>> to hold the
 			 * individuals of this subjectVariable
 			 */
-			ArrayList<Hashtable<String, Object>> htblSubjectIndividualsList = new ArrayList<>();
+			ArrayList<LinkedHashMap<String, Object>> htblSubjectIndividualsList = new ArrayList<>();
 
 			/*
 			 * create a new Hashtable<String, Object> to hold individuals
 			 * propValues
 			 */
-			Hashtable<String, Object> subjectIndividual = new Hashtable<>();
+			LinkedHashMap<String, Object> subjectIndividual = new LinkedHashMap<>();
 
 			/*
 			 * add it to htblSubjectIndividualsList
@@ -572,13 +572,13 @@ public class SelectionQueryResults {
 			 * else it will be a list of individuals so I will cast it to
 			 * ArrayList<Hashtable<String,Object>>
 			 */
-			Hashtable<String, Object> parentSubjectVariableIndividual;
+			LinkedHashMap<String, Object> parentSubjectVariableIndividual;
 			if (parrentSubjectVariable.equals("subject0")) {
 
-				parentSubjectVariableIndividual = (Hashtable<String, Object>) htblSubjectVariablehtblpropVal
+				parentSubjectVariableIndividual = (LinkedHashMap<String, Object>) htblSubjectVariablehtblpropVal
 						.get(parrentSubjectVariable);
 			} else {
-				ArrayList<Hashtable<String, Object>> individualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
+				ArrayList<LinkedHashMap<String, Object>> individualsList = (ArrayList<LinkedHashMap<String, Object>>) htblSubjectVariablehtblpropVal
 						.get(parrentSubjectVariable);
 				parentSubjectVariableIndividual = individualsList.get(individualsList.size() - 1);
 			}
@@ -599,7 +599,7 @@ public class SelectionQueryResults {
 					 * create a new ArrayList<Hashtable<String, Object>> to hold
 					 * objectValues
 					 */
-					ArrayList<Hashtable<String, Object>> valueList = new ArrayList<>();
+					ArrayList<LinkedHashMap<String, Object>> valueList = new ArrayList<>();
 
 					/*
 					 * add subjectIndividual to propertyValueList (valueList)
@@ -622,7 +622,7 @@ public class SelectionQueryResults {
 					 * 
 					 * get the propertyValueList
 					 */
-					ArrayList<Hashtable<String, Object>> valueList = (ArrayList<Hashtable<String, Object>>) parentSubjectVariableIndividual
+					ArrayList<LinkedHashMap<String, Object>> valueList = (ArrayList<LinkedHashMap<String, Object>>) parentSubjectVariableIndividual
 							.get(propertyName);
 
 					/*
@@ -735,14 +735,14 @@ public class SelectionQueryResults {
 		/*
 		 * get subjectVariableIndividualsList
 		 */
-		ArrayList<Hashtable<String, Object>> individualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
+		ArrayList<LinkedHashMap<String, Object>> individualsList = (ArrayList<LinkedHashMap<String, Object>>) htblSubjectVariablehtblpropVal
 				.get(columnName);
 
 		/*
 		 * create new Hashtable<String, Object> to hold individual's
 		 * propertyValue
 		 */
-		Hashtable<String, Object> subjectIndividual = new Hashtable<>();
+		LinkedHashMap<String, Object> subjectIndividual = new LinkedHashMap<>();
 		individualsList.add(subjectIndividual);
 
 		/*
@@ -759,13 +759,13 @@ public class SelectionQueryResults {
 		 * else it will be a list of individuals so I will cast it to
 		 * ArrayList<Hashtable<String,Object>>
 		 */
-		Hashtable<String, Object> parentSubjectVariableIndividual;
+		LinkedHashMap<String, Object> parentSubjectVariableIndividual;
 		if (parrentSubjectVariable.equals("subject0")) {
 
-			parentSubjectVariableIndividual = (Hashtable<String, Object>) htblSubjectVariablehtblpropVal
+			parentSubjectVariableIndividual = (LinkedHashMap<String, Object>) htblSubjectVariablehtblpropVal
 					.get(parrentSubjectVariable);
 		} else {
-			ArrayList<Hashtable<String, Object>> parentSubjectVariableIndividualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
+			ArrayList<LinkedHashMap<String, Object>> parentSubjectVariableIndividualsList = (ArrayList<LinkedHashMap<String, Object>>) htblSubjectVariablehtblpropVal
 					.get(parrentSubjectVariable);
 
 			/*
@@ -794,7 +794,7 @@ public class SelectionQueryResults {
 				 * create a new ArrayList<Hashtable<String, Object>> to hold
 				 * objectValues
 				 */
-				ArrayList<Hashtable<String, Object>> valueList = new ArrayList<>();
+				ArrayList<LinkedHashMap<String, Object>> valueList = new ArrayList<>();
 
 				/*
 				 * add subjectIndividual to propertyValueList (valueList)
@@ -816,7 +816,7 @@ public class SelectionQueryResults {
 				 * 
 				 * get the propertyValueList
 				 */
-				ArrayList<Hashtable<String, Object>> valueList = (ArrayList<Hashtable<String, Object>>) parentSubjectVariableIndividual
+				ArrayList<LinkedHashMap<String, Object>> valueList = (ArrayList<LinkedHashMap<String, Object>>) parentSubjectVariableIndividual
 						.get(propertyName);
 
 				/*
@@ -905,12 +905,12 @@ public class SelectionQueryResults {
 		 * else it will be a list of individuals so I will cast it to
 		 * ArrayList<Hashtable<String,Object>>
 		 */
-		Hashtable<String, Object> subjectVariableIndividual;
+		LinkedHashMap<String, Object> subjectVariableIndividual;
 		if (subjectVariable.equals("subject0")) {
 
-			subjectVariableIndividual = (Hashtable<String, Object>) htblSubjectVariablehtblpropVal.get(subjectVariable);
+			subjectVariableIndividual = (LinkedHashMap<String, Object>) htblSubjectVariablehtblpropVal.get(subjectVariable);
 		} else {
-			ArrayList<Hashtable<String, Object>> subjectVariableIndividualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
+			ArrayList<LinkedHashMap<String, Object>> subjectVariableIndividualsList = (ArrayList<LinkedHashMap<String, Object>>) htblSubjectVariablehtblpropVal
 					.get(subjectVariable);
 
 			/*
@@ -1033,14 +1033,14 @@ public class SelectionQueryResults {
 		 * else it will be a list of individuals so I will cast it to
 		 * ArrayList<Hashtable<String,Object>>
 		 */
-		Hashtable<String, Object> parentSubjectVariableIndividual;
+		LinkedHashMap<String, Object> parentSubjectVariableIndividual;
 		int index = 0;
 		if (parrentSubjectVariable.equals("subject0")) {
 
-			parentSubjectVariableIndividual = (Hashtable<String, Object>) htblSubjectVariablehtblpropVal
+			parentSubjectVariableIndividual = (LinkedHashMap<String, Object>) htblSubjectVariablehtblpropVal
 					.get(parrentSubjectVariable);
 		} else {
-			ArrayList<Hashtable<String, Object>> parentSubjectVariableIndividualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
+			ArrayList<LinkedHashMap<String, Object>> parentSubjectVariableIndividualsList = (ArrayList<LinkedHashMap<String, Object>>) htblSubjectVariablehtblpropVal
 					.get(parrentSubjectVariable);
 			index = parentSubjectVariableIndividualsList.size() - 1;
 
@@ -1187,12 +1187,12 @@ public class SelectionQueryResults {
 		 * else it will be a list of individuals so I will cast it to
 		 * ArrayList<Hashtable<String,Object>>
 		 */
-		Hashtable<String, Object> subjectVariableIndividual;
+		LinkedHashMap<String, Object> subjectVariableIndividual;
 		if (subjectVariable.equals("subject0")) {
 
-			subjectVariableIndividual = (Hashtable<String, Object>) htblSubjectVariablehtblpropVal.get(subjectVariable);
+			subjectVariableIndividual = (LinkedHashMap<String, Object>) htblSubjectVariablehtblpropVal.get(subjectVariable);
 		} else {
-			ArrayList<Hashtable<String, Object>> subjectVariableIndividualsList = (ArrayList<Hashtable<String, Object>>) htblSubjectVariablehtblpropVal
+			ArrayList<LinkedHashMap<String, Object>> subjectVariableIndividualsList = (ArrayList<LinkedHashMap<String, Object>>) htblSubjectVariablehtblpropVal
 					.get(subjectVariable);
 
 			/*
