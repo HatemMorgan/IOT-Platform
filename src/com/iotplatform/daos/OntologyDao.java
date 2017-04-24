@@ -47,8 +47,8 @@ public class OntologyDao {
 		DynamicOntologyDao.loadAndCacheApplicationDynamicOntologyClasses(applicationModelName);
 		DynamicOntologyDao.loadAndCacheApplicationDynamicOntologyObjectProperties(applicationModelName);
 
-		Iterator<String> htblMainOntologyClassesMappersIter = OntologyMapper
-				.getHtblMainOntologyClassesMappers().keySet().iterator();
+		Iterator<String> htblMainOntologyClassesMappersIter = OntologyMapper.getHtblMainOntologyClassesMappers()
+				.keySet().iterator();
 
 		while (htblMainOntologyClassesMappersIter.hasNext()) {
 			String className = htblMainOntologyClassesMappersIter.next();
@@ -78,23 +78,23 @@ public class OntologyDao {
 			}
 
 		}
+		if (DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)) {
+			Iterator<String> htblappDynamicOntologyClassesIter = DynamicOntologyMapper
+					.getHtblappDynamicOntologyClasses().get(applicationModelName).keySet().iterator();
 
-		Iterator<String> htblappDynamicOntologyClassesIter = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
-				.get(applicationModelName).keySet().iterator();
+			while (htblappDynamicOntologyClassesIter.hasNext()) {
+				String className = htblappDynamicOntologyClassesIter.next();
+				Class dynamicOntologyClassMapper = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+						.get(applicationModelName).get(className);
 
-		while (htblappDynamicOntologyClassesIter.hasNext()) {
-			String className = htblappDynamicOntologyClassesIter.next();
-			Class dynamicOntologyClassMapper = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
-					.get(applicationModelName).get(className);
+				LinkedHashMap<String, String> classMap = new LinkedHashMap<>();
+				classMap.put("name", className);
+				classMap.put("prefix", dynamicOntologyClassMapper.getPrefix().getPrefix());
 
-			LinkedHashMap<String, String> classMap = new LinkedHashMap<>();
-			classMap.put("name", className);
-			classMap.put("prefix", dynamicOntologyClassMapper.getPrefix().getPrefix());
+				classList.add(classMap);
 
-			classList.add(classMap);
-
+			}
 		}
-
 	}
 
 	public static void main(String[] args) {
