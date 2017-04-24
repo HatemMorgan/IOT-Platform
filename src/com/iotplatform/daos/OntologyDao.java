@@ -13,6 +13,8 @@ import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 
+import oracle.spatial.rdf.client.jena.Oracle;
+
 @Repository("ontologyDao")
 public class OntologyDao {
 
@@ -43,6 +45,7 @@ public class OntologyDao {
 			ArrayList<Object> propertiesList) {
 
 		DynamicOntologyDao.loadAndCacheApplicationDynamicOntologyClasses(applicationModelName);
+		DynamicOntologyDao.loadAndCacheApplicationDynamicOntologyObjectProperties(applicationModelName);
 
 		Iterator<String> htblMainOntologyClassesMappersIter = OntologyMapper.getOntologyMapper()
 				.getHtblMainOntologyClassesMappers().keySet().iterator();
@@ -91,6 +94,21 @@ public class OntologyDao {
 			classList.add(classMap);
 
 		}
+
+	}
+
+	public static void main(String[] args) {
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+
+		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+
+		DynamicOntologyDao dynamicOntologyDao = new DynamicOntologyDao(oracle);
+
+		OntologyDao ontologyDao = new OntologyDao(dynamicOntologyDao);
+
+		System.out.println(ontologyDao.loadApplicationOntology("TESTAPPLICATION_MODEL"));
 
 	}
 
