@@ -48,8 +48,8 @@ public class SelectQueryService {
 		this.selectQueryDao = selectQueryDao;
 	}
 
-	public Hashtable<String, Object> QueryData(String applicationNameCode, String className,
-			Hashtable<String, Object> htblFieldValue) {
+	public LinkedHashMap<String, Object> QueryData(String applicationNameCode, String className,
+			LinkedHashMap<String, Object> htblFieldValue) {
 
 		long startTime = System.currentTimeMillis();
 		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
@@ -58,8 +58,8 @@ public class SelectQueryService {
 		/*
 		 * check if the className has a valid class Mapping
 		 */
-		if (OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().containsKey(className)) {
-			Class subjectClass = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get(className);
+		if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(className)) {
+			Class subjectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(className);
 
 			/*
 			 * check if the model exist or not .
@@ -85,7 +85,7 @@ public class SelectQueryService {
 				 */
 				String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-				List<Hashtable<String, Object>> resultsList = selectQueryDao.queryData(htblClassNameProperty,
+				List<LinkedHashMap<String, Object>> resultsList = selectQueryDao.queryData(htblClassNameProperty,
 						applicationModelName, validationResult.getHtblOptions());
 
 				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
@@ -106,7 +106,7 @@ public class SelectQueryService {
 	}
 
 	public static void main(String[] args) {
-		Hashtable<String, Object> htblQueryFields = new Hashtable<>();
+		LinkedHashMap<String, Object> htblQueryFields = new LinkedHashMap<>();
 
 		LinkedHashMap<String, Object> htblOptions = new LinkedHashMap<>();
 		htblOptions.put("autoGetObjValType", true);
@@ -195,14 +195,14 @@ public class SelectQueryService {
 		amountFieldsList.add("hasDataValue");
 
 		LinkedHashMap<String, Object> systemLifetimeFieldMap = new LinkedHashMap<>();
-//		survivalPropertyFieldsList.add(systemLifetimeFieldMap);
+		// survivalPropertyFieldsList.add(systemLifetimeFieldMap);
 
 		systemLifetimeFieldMap.put("classType", "SystemLifetime");
 		systemLifetimeFieldMap.put("fields", batteryLifetimeFieldsList);
 
 		System.out.println(htblQueryFields);
 
-		System.out.println(OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers()
+		System.out.println(OntologyMapper.getHtblMainOntologyClassesUriMappers()
 				.get("http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty").getClassTypesList());
 
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
@@ -228,7 +228,7 @@ public class SelectQueryService {
 		SelectQueryService selectQueryService = new SelectQueryService(selectQueryRequestValidation, applicationDao,
 				selectQueryDao);
 
-		Hashtable<String, Object> res = selectQueryService.QueryData("test application", "communicating device",
+		LinkedHashMap<String, Object> res = selectQueryService.QueryData("test application", "communicating device",
 				htblQueryFields);
 
 		System.out.println(res);

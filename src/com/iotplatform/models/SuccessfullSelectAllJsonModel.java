@@ -1,27 +1,27 @@
 package com.iotplatform.models;
 
-import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 
 public class SuccessfullSelectAllJsonModel {
 
-	Hashtable<String, Object> json;
+	LinkedHashMap<String, Object> json;
 
-	public SuccessfullSelectAllJsonModel(Hashtable<String, Object> errJson) {
+	public SuccessfullSelectAllJsonModel(LinkedHashMap<String, Object> errJson) {
 		this.json = errJson;
 	}
 
-	public SuccessfullSelectAllJsonModel(List<Hashtable<String, Object>> resultsJson, double timeTaken) {
-		json = new Hashtable<>();
+	public SuccessfullSelectAllJsonModel(List<LinkedHashMap<String, Object>> resultsJson, double timeTaken) {
+		json = new LinkedHashMap<>();
 		json.put("code", HttpStatus.OK);
 		json.put("message", "Successfull Request");
 		json.put("results", resultsJson);
 		json.put("time", timeTaken + " sec");
 	}
 
-	public Hashtable<String, Object> getJson() {
+	public LinkedHashMap<String, Object> getJson() {
 		return json;
 	}
 

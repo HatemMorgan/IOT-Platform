@@ -1,6 +1,6 @@
 package com.iotplatform.controllers;
 
-import java.util.Hashtable;
+import java.util.LinkedHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,8 +16,8 @@ public class ApplicationAPIController {
 	ApplicationService applicationService;
 
 	@RequestMapping(value = "/application", method = RequestMethod.POST)
-	public Hashtable<String, Object> insertNewApplication(@RequestBody Hashtable<String, Object> htblPropValue) {
-		Hashtable<String, Object> responseJSON = applicationService.insertApplication(htblPropValue);
+	public LinkedHashMap<String, Object> insertNewApplication(@RequestBody LinkedHashMap<String, Object> htblPropValue) {
+		LinkedHashMap<String, Object> responseJSON = applicationService.insertApplication(htblPropValue);
 		return responseJSON;
 	}
 

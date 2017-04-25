@@ -43,7 +43,7 @@ public class SelectQueryDao {
 	 * results in the form of List<Hashtable<String, Object>> to be returned to
 	 * the user
 	 */
-	public List<Hashtable<String, Object>> queryData(
+	public List<LinkedHashMap<String, Object>> queryData(
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
 			String applicationModelName,Hashtable<String, Boolean> htblOptions) {
 
@@ -86,7 +86,6 @@ public class SelectQueryDao {
 			// return null;
 
 		} catch (SQLException e) {
-			e.printStackTrace();
 			throw new DatabaseException(e.getMessage(), prefixedClassName);
 		}
 

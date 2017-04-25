@@ -1,6 +1,7 @@
 package com.iotplatform.services;
 
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class SelectAllQueryService {
 	 * of the passed className in the applicationModel of the passed
 	 * applicationNameCode
 	 */
-	public Hashtable<String, Object> selectAll(String applicationNameCode, String className) {
+	public LinkedHashMap<String, Object> selectAll(String applicationNameCode, String className) {
 
 		long startTime = System.currentTimeMillis();
 		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
@@ -74,7 +75,7 @@ public class SelectAllQueryService {
 				 */
 				String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
 
-				List<Hashtable<String, Object>> htblPropValue = selectAllQueryDao.selectAll(applicationModelName,
+				List<LinkedHashMap<String, Object>> htblPropValue = selectAllQueryDao.selectAll(applicationModelName,
 						subjectClass);
 
 				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);

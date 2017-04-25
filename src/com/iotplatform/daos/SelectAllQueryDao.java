@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class SelectAllQueryDao {
 		this.selectionUtility = selectionUtility;
 	}
 
-	public List<Hashtable<String, Object>> selectAll(String applicationModelName, Class subjectClass) {
+	public List<LinkedHashMap<String, Object>> selectAll(String applicationModelName, Class subjectClass) {
 
 		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
 				applicationModelName.length() - 6);
@@ -42,7 +43,7 @@ public class SelectAllQueryDao {
 		 * call selectionQuery to construct the query
 		 */
 		String queryString = SelectionQuery.constructSelectAllQueryNoFilters(subjectClass, applicationModelName);
-		List<Hashtable<String, Object>> subjectClassIndividualsList = new ArrayList<>();
+		List<LinkedHashMap<String, Object>> subjectClassIndividualsList = new ArrayList<>();
 
 		try {
 			ResultSet results = oracle.executeQuery(queryString, 0, 1);

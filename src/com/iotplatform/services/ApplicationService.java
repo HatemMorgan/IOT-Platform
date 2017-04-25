@@ -2,6 +2,7 @@ package com.iotplatform.services;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class ApplicationService {
 	 * class to make sure that the request is valid then call the applicationDAO
 	 * to make the insertion
 	 */
-	public Hashtable<String, Object> insertApplication(Hashtable<String, Object> htblPropValue) {
+	public LinkedHashMap<String, Object> insertApplication(LinkedHashMap<String, Object> htblPropValue) {
 		long startTime = System.currentTimeMillis();
 		String applicationName = "";
 
@@ -126,13 +127,13 @@ public class ApplicationService {
 		ApplicationService applicationService = new ApplicationService(applicationDao, requestFieldsValidation,
 				insertionDao);
 
-		Hashtable<String, Object> htblPropValue = new Hashtable<>();
+		LinkedHashMap<String, Object> htblPropValue = new LinkedHashMap<>();
 		htblPropValue.put("name", "Test Applications");
 		htblPropValue.put("description", "Test App Description");
 
 		// applicationDao.dropApplicationModel("Test Application");
 
-		Hashtable<String, Object> res = applicationService.insertApplication(htblPropValue);
+		LinkedHashMap<String, Object> res = applicationService.insertApplication(htblPropValue);
 		// Hashtable<String, Object>[] json = (Hashtable<String, Object>[])
 		// res.get("errors");
 		// System.out.println(json[0].toString());

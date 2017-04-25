@@ -85,7 +85,7 @@ public class InsertRequestValidation {
 	 * 
 	 */
 	public Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> validateRequestFields(String applicationName,
-			Hashtable<String, Object> htblFieldValue, Class subjectClass) {
+			LinkedHashMap<String, Object> htblFieldValue, Class subjectClass) {
 
 		/*
 		 * set subClass to its static instace
@@ -1047,7 +1047,7 @@ public class InsertRequestValidation {
 		// }
 		// }
 
-		Hashtable<String, Object> htblFieldValue = new Hashtable<>();
+		LinkedHashMap<String, Object> htblFieldValue = new LinkedHashMap<>();
 
 		LinkedHashMap<String, Object> condition = new LinkedHashMap<>();
 		condition.put("description", "High Tempreture Condition");
