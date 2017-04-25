@@ -117,8 +117,8 @@ public class UpdateRequestValidation {
 	}
 
 	/**
-	 * isFieldMapsToStaticProperty checks if a field maps to a static property (
-	 * has map in the list of properties of passed subject class) in the
+	 * isFieldMapsToProperty checks if a field maps to a static property ( has
+	 * map in the list of properties of passed subject class) in the
 	 * mainOntology or the dynamicOntology of the requested application
 	 * 
 	 * it
@@ -165,7 +165,7 @@ public class UpdateRequestValidation {
 	 *         add the field and value to htblNotFoundFieldValue hashtable to be
 	 *         checked again after loading dynamic properties
 	 */
-	private boolean isFieldMapsToStaticProperty(Class subjectClass, String fieldName, Object value,
+	private boolean isFieldMapsToProperty(Class subjectClass, String fieldName, Object value,
 			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList) {
 
 		/*

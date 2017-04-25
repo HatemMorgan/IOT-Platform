@@ -210,25 +210,19 @@ public class DynamicOntologyDao {
 
 				Class domainClass = null;
 				Class rangeClass = null;
-				if (OntologyMapper.getHtblMainOntologyClassesUriMappers()
+
+				if (DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName)
 						.containsKey(objPropDomainClassURI)) {
 
-					domainClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(objPropDomainClassURI);
+					domainClass = DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName)
+							.get(objPropDomainClassURI);
 				} else {
+					loadAndCacheApplicationDynamicOntologyClasses(applicationModelName);
 
 					if (DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName)
-							.containsKey(objPropDomainClassURI)) {
-
-						domainClass = DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri()
-								.get(applicationModelName).get(objPropDomainClassURI);
-					} else {
-						loadAndCacheApplicationDynamicOntologyClasses(applicationModelName);
-
-						if (DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName)
-								.containsKey(objPropRangeClassURI)) {
-							rangeClass = DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri()
-									.get(applicationModelName).get(objPropRangeClassURI);
-						}
+							.containsKey(objPropRangeClassURI)) {
+						rangeClass = DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri()
+								.get(applicationModelName).get(objPropRangeClassURI);
 					}
 
 				}
@@ -254,9 +248,7 @@ public class DynamicOntologyDao {
 
 					}
 				}
-				System.out.println(
-						"---> " + DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName)
-								+ "  " + objPropRangeClassURI + "  " + rangeClass);
+
 				ObjectProperty newObjectProperty = new ObjectProperty(domainClass, propertyName, prefix, rangeClass,
 						false, false);
 
@@ -268,6 +260,24 @@ public class DynamicOntologyDao {
 			throw new DatabaseException(e.getMessage(), "Ontology");
 
 		}
+
+	}
+
+	/**
+	 * loadAndCacheDynamicPropertiesOfClass is used to load dynamic properties
+	 * added by user to the application with @param applicationModelName
+	 * domainOntology for @param subjectClass
+	 * 
+	 * @param subjectClass
+	 *            class that will be used to load its properties and to cache
+	 *            the loaded properties
+	 * 
+	 * @param applicationModelName
+	 *            applicationModelName if the modelName of the application that
+	 *            stores the data in the default graph and dynamicOntology in
+	 *            the ontologyGraph
+	 */
+	public void loadAndCacheDynamicPropertiesOfClass(Class subjectClass, String applicationModelName) {
 
 	}
 
