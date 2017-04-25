@@ -29,7 +29,7 @@ import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
 import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.InsertionPropertyValue;
 import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
 import com.iotplatform.utilities.ValueOfTypeClass;
 
@@ -37,24 +37,30 @@ import oracle.spatial.rdf.client.jena.Oracle;
 
 /**
  * 
+ * InsertRequestValidation class is used to validate insert post request body
+ * and parse it.
+ * 
+ * 1- It checks for Obligatory fields exist in the request body (fields that
+ * must be exist for that class because not all fields are required to be exist)
+ * 
+ * 2- It checks that fields passed by the request are valid fields by checking
+ * that they maps to existing properties in the passed subject class (which maps
+ * the ontology classes). It also load dynamic properties or classes that was
+ * created for the requested application domain, to check if the fields that
+ * does not mapped to a property in the mainOntology that it maps to a dynamic
+ * one
+ * 
+ * 3- it checks that there is no unique constraint or data integrity constrains
+ * Violations
+ * 
+ * 4- It parse request body (JSON) into classes and properties in order to
+ * perform a mapping from JSON to semantic web structure to be used by
+ * InsertionQuery class to construct the insert query to insert data
+ *
+ * 
  * @author HatemMorgan
  *
- *         InsertRequestValidation class is used to validate insert post request
- *         body and parse it.
  * 
- *         It checks for Obligatory fields exist in the request body (fields
- *         that must be exist for that class because not all fields are required
- *         to be exist)
- * 
- *         It checks that fields passed by the request are valid fields by
- *         checking that they maps to existing properties in the passed subject
- *         class (which maps the ontology classes)
- * 
- *         It parse request body (JSON) into classes and properties in order to
- *         perform a mapping from JSON to semantic web structure so it can then
- *         be validated for constraint violation and then be inserted in the
- *         appropriate format in the graph database
- *
  */
 
 @Component
@@ -92,7 +98,7 @@ public class InsertRequestValidation {
 	 * method
 	 * 
 	 */
-	public Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> validateRequestFields(String applicationName,
+	public Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> validateRequestFields(String applicationName,
 			LinkedHashMap<String, Object> htblFieldValue, Class subjectClass) {
 
 		/*
@@ -127,7 +133,7 @@ public class InsertRequestValidation {
 		/*
 		 * htblClassPropertyValue holds the constructed propertyValue
 		 */
-		Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = new Hashtable<>();
+		Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue = new Hashtable<>();
 
 		/*
 		 * classValueList is list of ValueOfTypeClass instances (holds
@@ -195,15 +201,15 @@ public class InsertRequestValidation {
 			 */
 
 			Property idProperty = subjectClass.getProperties().get("id");
-			PropertyValue idPropertyValue = new PropertyValue(idProperty.getPrefix().getPrefix() + idProperty.getName(),
+			InsertionPropertyValue idPropertyValue = new InsertionPropertyValue(idProperty.getPrefix().getPrefix() + idProperty.getName(),
 					id, false);
 
 			/*
 			 * add idPropertyValue object to htblClassPropertyValue
 			 */
 
-			ArrayList<ArrayList<PropertyValue>> instancesList = new ArrayList<>();
-			ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
+			ArrayList<ArrayList<InsertionPropertyValue>> instancesList = new ArrayList<>();
+			ArrayList<InsertionPropertyValue> propertyValueList = new ArrayList<>();
 			instancesList.add(propertyValueList);
 			htblClassPropertyValue.put(subjectClass, instancesList);
 			htblClassPropertyValue.get(subjectClass).get(0).add(idPropertyValue);
@@ -215,8 +221,8 @@ public class InsertRequestValidation {
 			 * from the user eg. userName for DeveloperClass so add subjectClass
 			 * and a new empty arraylist to hold its instances
 			 */
-			ArrayList<ArrayList<PropertyValue>> instancesList = new ArrayList<>();
-			ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
+			ArrayList<ArrayList<InsertionPropertyValue>> instancesList = new ArrayList<>();
+			ArrayList<InsertionPropertyValue> propertyValueList = new ArrayList<>();
 			instancesList.add(propertyValueList);
 			htblClassPropertyValue.put(subjectClass, instancesList);
 
@@ -376,7 +382,7 @@ public class InsertRequestValidation {
 	 * if the value is unique or not
 	 */
 	private void parseAndConstructFieldValue(Class subjectClass, Property property, Object value,
-			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue,
+			Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue,
 			Hashtable<String, Class> htblNotMappedFieldsClasses,
 			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList, int indexCount,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
@@ -477,16 +483,16 @@ public class InsertRequestValidation {
 			 * subjectClass in order to not pefixing value to be used by the
 			 * MainDao to generate proper triples
 			 */
-			PropertyValue propertyValue;
+			InsertionPropertyValue propertyValue;
 			if (subjectClass.isHasUniqueIdentifierProperty()
 					&& subjectClass.getUniqueIdentifierPropertyName().equals(property.getName())) {
-				propertyValue = new PropertyValue(property.getPrefix().getPrefix() + property.getName(), value, false);
+				propertyValue = new InsertionPropertyValue(property.getPrefix().getPrefix() + property.getName(), value, false);
 			} else {
 				/*
 				 * construct a new PropertyValue instance to hold the prefiexed
 				 * propertyName and prefixed value
 				 */
-				propertyValue = new PropertyValue(property.getPrefix().getPrefix() + property.getName(),
+				propertyValue = new InsertionPropertyValue(property.getPrefix().getPrefix() + property.getName(),
 						getValue(property, value), false);
 			}
 
@@ -593,7 +599,7 @@ public class InsertRequestValidation {
 				 * objectValue
 				 * 
 				 */
-				PropertyValue propertyValue = new PropertyValue(property.getPrefix().getPrefix() + property.getName(),
+				InsertionPropertyValue propertyValue = new InsertionPropertyValue(property.getPrefix().getPrefix() + property.getName(),
 						getValue(property, objectUniqueIdentifier), true);
 
 				/*
@@ -613,11 +619,11 @@ public class InsertRequestValidation {
 				 */
 
 				if (htblClassPropertyValue.containsKey(classType)) {
-					ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
+					ArrayList<InsertionPropertyValue> propertyValueList = new ArrayList<>();
 					htblClassPropertyValue.get(classType).add(propertyValueList);
 				} else {
-					ArrayList<ArrayList<PropertyValue>> instancesList = new ArrayList<>();
-					ArrayList<PropertyValue> propertyValueList = new ArrayList<>();
+					ArrayList<ArrayList<InsertionPropertyValue>> instancesList = new ArrayList<>();
+					ArrayList<InsertionPropertyValue> propertyValueList = new ArrayList<>();
 					instancesList.add(propertyValueList);
 					htblClassPropertyValue.put(classType, instancesList);
 				}
@@ -636,7 +642,7 @@ public class InsertRequestValidation {
 
 				if (!classType.isHasUniqueIdentifierProperty() && !valueObject.containsKey("id")) {
 					Property idProperty = classType.getProperties().get("id");
-					PropertyValue idPropertyValue = new PropertyValue(
+					InsertionPropertyValue idPropertyValue = new InsertionPropertyValue(
 							idProperty.getPrefix().getPrefix() + idProperty.getName(), objectUniqueIdentifier, false);
 
 					/*
@@ -790,7 +796,7 @@ public class InsertRequestValidation {
 	 * dynamic properties
 	 */
 	private void parseAndConstructNotMappedFieldsValues(String applicationName, Class subjectClass,
-			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue,
+			Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue,
 			Hashtable<String, Class> htblNotMappedFieldsClasses,
 			Hashtable<String, Class> htblPrevNotMappedFieldsClasses,
 			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList,
@@ -1273,7 +1279,7 @@ public class InsertRequestValidation {
 
 		try {
 			long startTime = System.currentTimeMillis();
-			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
+			Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue = requestFieldsValidation
 					.validateRequestFields("TESTAPPLICATION", htblFieldValue,
 							OntologyMapper.getHtblMainOntologyClassesMappers().get("actuatingdevice"));
 			// Hashtable<Class, ArrayList<ArrayList<PropertyValue>>>
@@ -1287,8 +1293,8 @@ public class InsertRequestValidation {
 			while (iterator.hasNext()) {
 				Class clss = iterator.next();
 				System.out.println(clss.getName() + "[ ");
-				ArrayList<ArrayList<PropertyValue>> list = htblClassPropertyValue.get(clss);
-				for (ArrayList<PropertyValue> arrayList : list) {
+				ArrayList<ArrayList<InsertionPropertyValue>> list = htblClassPropertyValue.get(clss);
+				for (ArrayList<InsertionPropertyValue> arrayList : list) {
 					System.out.print(arrayList);
 					System.out.println();
 				}

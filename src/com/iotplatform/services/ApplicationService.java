@@ -20,7 +20,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.query.results.SelectionQueryResults;
-import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.InsertionPropertyValue;
 import com.iotplatform.validations.InsertRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -81,7 +81,7 @@ public class ApplicationService {
 			 * Check if the request is valid or not
 			 */
 
-			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = requestFieldsValidation
+			Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue = requestFieldsValidation
 					.validateRequestFields(applicationName, htblPropValue,
 							OntologyMapper.getHtblMainOntologyClassesMappers().get("application"));
 

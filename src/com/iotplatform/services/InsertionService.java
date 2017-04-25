@@ -14,7 +14,7 @@ import com.iotplatform.exceptions.InvalidClassNameException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.InsertionPropertyValue;
 import com.iotplatform.validations.InsertRequestValidation;
 import com.iotplatform.validations.SelectQueryRequestValidation;
 
@@ -66,7 +66,7 @@ public class InsertionService {
 				/*
 				 * Check if the request is valid or not
 				 */
-				Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue = insertRequestValidations
+				Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue = insertRequestValidations
 						.validateRequestFields(applicationNameCode, htblFieldValue, subjectClass);
 
 				/*

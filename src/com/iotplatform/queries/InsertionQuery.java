@@ -9,14 +9,14 @@ import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
-import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.InsertionPropertyValue;
 
 public class InsertionQuery {
 
 	private static String prefixesString = null;
 
 	public static String constructInsertQuery(String applicationModelName, String requestSubjectClassName,
-			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue) {
+			Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue) {
 
 		StringBuilder insertQueryBuilder = new StringBuilder();
 
@@ -61,7 +61,7 @@ public class InsertionQuery {
 	 * RequestValidation class)
 	 */
 	private static String constructInsertQueryHelper(
-			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue) {
+			Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue) {
 
 		StringBuilder insertQueryBuilder = new StringBuilder();
 
@@ -89,7 +89,7 @@ public class InsertionQuery {
 			 * Iterate on instances of type subjectClass
 			 */
 			for (int i = 0; i < htblClassPropertyValue.get(subjectClass).size(); i++) {
-				ArrayList<PropertyValue> instancePropertyValueList = htblClassPropertyValue.get(subjectClass).get(i);
+				ArrayList<InsertionPropertyValue> instancePropertyValueList = htblClassPropertyValue.get(subjectClass).get(i);
 				String instanceTriples = constructClassInstanceTriples(subjectClass, uniqueIdentifierProperty,
 						instancePropertyValueList);
 				insertQueryBuilder.append(instanceTriples);
@@ -105,7 +105,7 @@ public class InsertionQuery {
 	 * type subjectClass
 	 */
 	private static String constructClassInstanceTriples(Class subjectClass, Property uniqueIdentifierProperty,
-			ArrayList<PropertyValue> instancePropertyValueList) {
+			ArrayList<InsertionPropertyValue> instancePropertyValueList) {
 
 		/*
 		 * triplesBuilder is used to build instance triples
@@ -137,7 +137,7 @@ public class InsertionQuery {
 		String uniqueIdentifierPrefixedPropertyName = uniqueIdentifierProperty.getPrefix().getPrefix()
 				+ uniqueIdentifierProperty.getName();
 
-		for (PropertyValue propertyValue : instancePropertyValueList) {
+		for (InsertionPropertyValue propertyValue : instancePropertyValueList) {
 
 			/*
 			 * finding subjectUniqueIdentifier

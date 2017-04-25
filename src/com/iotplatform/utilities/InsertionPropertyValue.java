@@ -11,7 +11,7 @@ package com.iotplatform.utilities;
  * This Class is also used to construct the proper propertyValue pair that will be used in the insert query
  */
 
-public class PropertyValue {
+public class InsertionPropertyValue {
 
 	/*
 	 * the prefixedName of objectValue class type
@@ -21,23 +21,23 @@ public class PropertyValue {
 	private Object value;
 	private boolean isObject;
 
-	public PropertyValue(String propertyName, Object value) {
+	public InsertionPropertyValue(String propertyName, Object value) {
 		this.propertyName = propertyName;
 		this.value = value;
 	}
 
-	public PropertyValue(String propertyName, Object value, boolean isObject) {
+	public InsertionPropertyValue(String propertyName, Object value, boolean isObject) {
 		this.propertyName = propertyName;
 		this.value = value;
 		this.isObject = isObject;
 	}
 
-	public PropertyValue(Object value, boolean isObject) {
+	public InsertionPropertyValue(Object value, boolean isObject) {
 		this.value = value;
 		this.isObject = isObject;
 	}
 
-	public PropertyValue(String prefixedObjectValueClassName, String propertyName, Object value, boolean isObject) {
+	public InsertionPropertyValue(String prefixedObjectValueClassName, String propertyName, Object value, boolean isObject) {
 		this.prefixedObjectValueClassName = prefixedObjectValueClassName;
 		this.propertyName = propertyName;
 		this.value = value;
