@@ -44,8 +44,8 @@ public class OntologyDao {
 	private void getApplicationOntology(String applicationModelName, ArrayList<Object> classList,
 			ArrayList<Object> propertiesList) {
 
-		DynamicOntologyDao.loadAndCacheApplicationDynamicOntologyClasses(applicationModelName);
-		DynamicOntologyDao.loadAndCacheApplicationDynamicOntologyObjectProperties(applicationModelName);
+		DynamicOntologyDao.loadAndCacheAllApplicationDynamicOntologyClasses(applicationModelName);
+		DynamicOntologyDao.loadAndCacheAllApplicationDynamicOntologyObjectProperties(applicationModelName);
 
 		Iterator<String> htblMainOntologyClassesMappersIter = OntologyMapper.getHtblMainOntologyClassesMappers()
 				.keySet().iterator();
@@ -70,7 +70,7 @@ public class OntologyDao {
 
 					objectPropMap.put("name", propertyName);
 					objectPropMap.put("domain", property.getSubjectClass().getName());
-					objectPropMap.put("range", ((ObjectProperty) property).getObject().getName());
+					objectPropMap.put("range", ((ObjectProperty) property).getObjectClassName());
 
 					propertiesList.add(objectPropMap);
 				}

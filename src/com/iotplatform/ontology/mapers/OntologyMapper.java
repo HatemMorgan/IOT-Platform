@@ -46,14 +46,14 @@ public class OntologyMapper {
 	private static Hashtable<String, Class> htblMainOntologyClassesUri;
 	private static Hashtable<String, OntProperty> htblMainOntologyProperties;
 
-//	private static OntologyMapper ontologyMapper;
-//
-//	public static OntologyMapper getOntologyMapper() {
-//		if (ontologyMapper == null)
-//			ontologyMapper = new OntologyMapper();
-//
-//		return ontologyMapper;
-//	}
+	// private static OntologyMapper ontologyMapper;
+	//
+	// public static OntologyMapper getOntologyMapper() {
+	// if (ontologyMapper == null)
+	// ontologyMapper = new OntologyMapper();
+	//
+	// return ontologyMapper;
+	// }
 
 	public OntologyMapper() {
 		model = ModelFactory.createOntologyModel();
@@ -470,7 +470,6 @@ public class OntologyMapper {
 				boolean isPropertyUnique = isPropertyUnique(prop.getURI(), PropertyType.ObjectProperty.toString());
 				String propName = prop.getLocalName();
 				Prefix prefix = getPrefix(prop.getNameSpace());
-				Class ObjectClass = htblMainOntologyClasses.get(objectClassName.toLowerCase());
 
 				/*
 				 * create new ObjectProperty. I will make the default for
@@ -478,7 +477,7 @@ public class OntologyMapper {
 				 * restriction with value 1
 				 */
 				ObjectProperty objectProperty = new ObjectProperty(subjectClass, prop.getLocalName(), prefix,
-						ObjectClass, true, isPropertyUnique);
+						objectClassName, true, isPropertyUnique);
 				subjectClass.getProperties().put(propName, objectProperty);
 				subjectClass.getHtblPropUriName().put(prop.getURI(), propName);
 			}
@@ -609,11 +608,6 @@ public class OntologyMapper {
 			if (property.isObjectProperty()) {
 
 				/*
-				 * get objectClass
-				 */
-				Class objectClassMapper = htblMainOntologyClasses.get(property.getRange().getLocalName().toLowerCase());
-
-				/*
 				 * check if the property isUnique
 				 */
 				boolean isPropertyUnique = isPropertyUnique(property.getURI(), PropertyType.ObjectProperty.toString());
@@ -623,7 +617,7 @@ public class OntologyMapper {
 				 * subjectClassMapper
 				 */
 				ObjectProperty objectProperty = new ObjectProperty(subjectClassMapper, propertyName, prefix,
-						objectClassMapper, true, isPropertyUnique);
+						property.getRange().getLocalName(), true, isPropertyUnique);
 				subjectClassMapper.getProperties().put(propertyName, objectProperty);
 				subjectClassMapper.getHtblPropUriName().put(property.getURI(), propertyName);
 			}

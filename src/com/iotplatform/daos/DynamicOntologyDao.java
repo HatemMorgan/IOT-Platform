@@ -2,6 +2,7 @@ package com.iotplatform.daos;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 import org.apache.jena.update.UpdateAction;
@@ -9,11 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.iotplatform.exceptions.DatabaseException;
+import com.iotplatform.exceptions.InvalidDynamicOntologyException;
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
+import com.iotplatform.ontology.Property;
+import com.iotplatform.ontology.PropertyType;
+import com.iotplatform.ontology.XSDDatatype;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
-import com.iotplatform.ontology.mapers.OntologyMapper;
 
 import oracle.spatial.rdf.client.jena.DatasetGraphOracleSem;
 import oracle.spatial.rdf.client.jena.GraphOracleSem;
@@ -25,11 +30,17 @@ public class DynamicOntologyDao {
 	private static String prefixesString = null;
 	private static String prefixes = null;
 	private static Hashtable<String, Prefix> htblPrefixes;
+	private static Hashtable<String, XSDDatatype> htblXSDDatatypes;
 	private Oracle oracle;
 
 	@Autowired
 	public DynamicOntologyDao(Oracle oracle) {
 		this.oracle = oracle;
+
+		htblXSDDatatypes = new Hashtable<>();
+		for (XSDDatatype xsdDatatype : XSDDatatype.values()) {
+			htblXSDDatatypes.put(xsdDatatype.getDataType(), xsdDatatype);
+		}
 	}
 
 	public void addNewClassToOntology(String newClassName, String applicationModelName) {
@@ -37,11 +48,13 @@ public class DynamicOntologyDao {
 		StringBuilder insertQueryBuilder = new StringBuilder();
 
 		insertQueryBuilder.append("PREFIX	owl:	<http://www.w3.org/2002/07/owl#> \n");
+		insertQueryBuilder.append("PREFIX	rdfs:	<http://www.w3.org/2000/01/rdf-schema#> \n");
 		insertQueryBuilder.append("PREFIX iot-platform: <http://iot-platform#> \n");
 		insertQueryBuilder.append("INSERT DATA { \n");
 		insertQueryBuilder.append("GRAPH <http://iot-platform#ontologyGraph> { \n");
 
-		insertQueryBuilder.append(Prefix.IOT_PLATFORM.getPrefix() + newClassName + " a owl:Class. \n");
+		insertQueryBuilder.append(Prefix.IOT_PLATFORM.getPrefix() + newClassName + " a owl:Class; \n");
+		insertQueryBuilder.append(" rdfs:label \"" + newClassName.toLowerCase() + "\" \n");
 
 		insertQueryBuilder.append("} \n");
 		insertQueryBuilder.append("} \n");
@@ -111,7 +124,59 @@ public class DynamicOntologyDao {
 
 	}
 
-	public void loadAndCacheApplicationDynamicOntologyClasses(String applicationModelName) {
+	public void addNewDatatypePropertyToOntology(String newPropertyName, String domainClassPrefixedName,
+			String rangeDatatypeName, String applicationModelName) {
+
+		XSDDatatype xsdDatatype = getXSDDataTypeEnumOfDataTypeName(rangeDatatypeName.toLowerCase());
+		if (xsdDatatype == null) {
+			throw new InvalidDynamicOntologyException("Invalid Dynamic Ontology request body. "
+					+ "Invalid datatype. The datatype must be one of " + htblXSDDatatypes.keySet().toString());
+		}
+
+		StringBuilder insertQueryBuilder = new StringBuilder();
+
+		if (prefixesString == null) {
+			StringBuilder prefixStringBuilder = new StringBuilder();
+			for (Prefix prefix : Prefix.values()) {
+				prefixStringBuilder.append("PREFIX " + prefix.getPrefix() + " <" + prefix.getUri() + ">\n");
+			}
+
+			prefixesString = prefixStringBuilder.toString();
+		}
+
+		insertQueryBuilder.append(prefixesString);
+		insertQueryBuilder.append("CREATE GRAPH iot-platform:ontologyGraph ; \n");
+		insertQueryBuilder.append("INSERT DATA { \n");
+		insertQueryBuilder.append("GRAPH iot-platform:ontologyGraph { \n");
+
+		insertQueryBuilder.append(Prefix.IOT_PLATFORM.getPrefix() + newPropertyName + " a owl:DatatypeProperty; \n");
+		insertQueryBuilder.append("rdfs:domain " + domainClassPrefixedName + "; \n");
+		insertQueryBuilder.append("rdfs:range <" + xsdDatatype.getXsdTypeURI() + ">. \n");
+
+		insertQueryBuilder.append("} \n");
+		insertQueryBuilder.append("} \n");
+
+		System.out.println(insertQueryBuilder.toString());
+
+		try {
+			GraphOracleSem graphOracleSem = new GraphOracleSem(oracle, applicationModelName);
+			DatasetGraphOracleSem dsgos = DatasetGraphOracleSem.createFrom(graphOracleSem);
+
+			// ModelOracleSem model =
+			// ModelOracleSem.createOracleSemModel(oracle,
+			// applicationModelName);
+			UpdateAction.parseExecute(insertQueryBuilder.toString(), dsgos);
+			// model.close();
+			dsgos.close();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new DatabaseException(e.getMessage(), "Ontology");
+		}
+
+	}
+
+	public void loadAndCacheAllApplicationDynamicOntologyClasses(String applicationModelName) {
 
 		StringBuilder queryBuilder = new StringBuilder();
 
@@ -138,32 +203,7 @@ public class DynamicOntologyDao {
 
 				String dynamicClassURI = results.getString("class");
 
-				String[] res = getValueFromURI(dynamicClassURI);
-				String dynamicClassName = res[0];
-				String dynamicClassPrefixURI = res[1];
-
-				Prefix prefix = getPrefix(dynamicClassPrefixURI);
-
-				Class newClass = new Class(dynamicClassName, dynamicClassURI, prefix);
-
-				if (DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().contains(applicationModelName)) {
-
-					DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName)
-							.put(dynamicClassURI, newClass);
-					DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
-							.put(dynamicClassName, newClass);
-				} else {
-					DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().put(applicationModelName,
-							new Hashtable<>());
-					DynamicOntologyMapper.getHtblappDynamicOntologyClasses().put(applicationModelName,
-							new Hashtable<>());
-
-					DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName)
-							.put(dynamicClassURI, newClass);
-					DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
-							.put(dynamicClassName, newClass);
-				}
-
+				cacheDynamicClass(dynamicClassURI, applicationModelName);
 			}
 
 		} catch (SQLException e) {
@@ -174,7 +214,7 @@ public class DynamicOntologyDao {
 
 	}
 
-	public void loadAndCacheApplicationDynamicOntologyObjectProperties(String applicationModelName) {
+	public void loadAndCacheAllApplicationDynamicOntologyObjectProperties(String applicationModelName) {
 
 		StringBuilder queryBuilder = new StringBuilder();
 
@@ -203,56 +243,49 @@ public class DynamicOntologyDao {
 				String objPropDomainClassURI = results.getString("domain");
 				String objPropRangeClassURI = results.getString("range");
 
-				String[] propertyRes = getValueFromURI(dynamicObjPropertyURI);
-				String propertyName = propertyRes[0];
-				String propertyURI = propertyRes[1];
-				Prefix prefix = getPrefix(propertyURI);
+				cacheDynamicProperties(objPropDomainClassURI, PropertyType.ObjectProperty, dynamicObjPropertyURI,
+						objPropRangeClassURI, applicationModelName);
 
-				Class domainClass = null;
-				Class rangeClass = null;
+			}
 
-				if (DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName)
-						.containsKey(objPropDomainClassURI)) {
+		} catch (SQLException e) {
+			throw new DatabaseException(e.getMessage(), "Ontology");
 
-					domainClass = DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName)
-							.get(objPropDomainClassURI);
-				} else {
-					loadAndCacheApplicationDynamicOntologyClasses(applicationModelName);
+		}
 
-					if (DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName)
-							.containsKey(objPropRangeClassURI)) {
-						rangeClass = DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri()
-								.get(applicationModelName).get(objPropRangeClassURI);
-					}
+	}
 
-				}
+	public void loadAndCacheAllApplicationDynamicOntologyDataTypeProperties(String applicationModelName) {
 
-				if (OntologyMapper.getHtblMainOntologyClassesUriMappers().containsKey(objPropRangeClassURI)) {
+		StringBuilder queryBuilder = new StringBuilder();
 
-					rangeClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(objPropRangeClassURI);
-				} else {
+		/*
+		 * check if prefixes String was initialized before or not (not null)
+		 */
+		if (prefixes == null) {
+			prefixes = getPrefixesQueryAliases();
+		}
 
-					if (DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName)
-							.containsKey(objPropRangeClassURI)) {
+		queryBuilder.append("SELECT property,domain,range FROM TABLE(SEM_MATCH(' \n ");
+		queryBuilder.append("SELECT ?property ?domain ?range WHERE { \n");
+		queryBuilder.append("GRAPH iot-platform:ontologyGraph { ?property a owl:DatatypeProperty; rdfs:domain ?domain; "
+				+ "rdfs:range ?range } \n");
+		queryBuilder.append("} ' , \n");
+		queryBuilder.append("sem_models('" + applicationModelName + "'),null, \n SEM_ALIASES(" + prefixes + "),null))");
 
-						rangeClass = DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri()
-								.get(applicationModelName).get(objPropRangeClassURI);
-					} else {
-						loadAndCacheApplicationDynamicOntologyClasses(applicationModelName);
+		System.out.println(queryBuilder.toString());
 
-						if (DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName)
-								.containsKey(objPropRangeClassURI)) {
-							rangeClass = DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri()
-									.get(applicationModelName).get(objPropRangeClassURI);
-						}
+		try {
+			ResultSet results = oracle.executeQuery(queryBuilder.toString(), 0, 1);
 
-					}
-				}
+			while (results.next()) {
 
-				ObjectProperty newObjectProperty = new ObjectProperty(domainClass, propertyName, prefix, rangeClass,
-						false, false);
+				String dynamicObjPropertyURI = results.getString("property");
+				String objPropDomainClassURI = results.getString("domain");
+				String objPropRangeDataTypeURI = results.getString("range");
 
-				domainClass.getProperties().put(propertyName, newObjectProperty);
+				cacheDynamicProperties(objPropDomainClassURI, PropertyType.DatatypeProperty, dynamicObjPropertyURI,
+						objPropRangeDataTypeURI, applicationModelName);
 
 			}
 
@@ -279,6 +312,390 @@ public class DynamicOntologyDao {
 	 */
 	public void loadAndCacheDynamicPropertiesOfClass(Class subjectClass, String applicationModelName) {
 
+	}
+
+	/**
+	 * loadAndCacheDynamicClassesofApplicationDomain is used to load and cache
+	 * dynamic added classes specified in @param(dyanmicClassesNameList) from
+	 * applicationDomainDyanmicAddedOntology(which is stored in ontologyGraph in
+	 * the applicationModel with @param(applicationModelName)
+	 * 
+	 * @param applicationModelName
+	 *            hold the applicationModelName of the applicationModel where
+	 *            the data and dynamic ontology stored there.
+	 * 
+	 * @param dyanmicClassesNameList
+	 *            Holds classesNames that need to be loaded if they exist
+	 */
+	public void loadAndCacheDynamicClassesofApplicationDomain(String applicationModelName,
+			ArrayList<String> dyanmicClassesNameList) {
+
+		StringBuilder queryBuilder = new StringBuilder();
+
+		/*
+		 * check if prefixes String was initialized before or not (not null)
+		 */
+		if (prefixes == null) {
+			prefixes = getPrefixesQueryAliases();
+		}
+
+		queryBuilder.append("SELECT classURI,objectProperty,objectClassURI,datatypeProperty,dataTypeURI  \n ");
+		queryBuilder.append("FROM TABLE(SEM_MATCH(' \n ");
+		queryBuilder
+				.append("SELECT ?classURI ?objectProperty ?objectClassURI ?datatypeProperty ?dataTypeURI WHERE { \n");
+		queryBuilder.append("GRAPH iot-platform:ontologyGraph { ?classURI a owl:Class ; \n ");
+		queryBuilder.append("rdfs:label ?className. \n");
+		queryBuilder.append("FILTER ( \n");
+
+		boolean start = true;
+		for (String className : dyanmicClassesNameList) {
+			if (start) {
+				queryBuilder.append(" ?className = \"" + className.toLowerCase() + "\"");
+				start = false;
+			} else {
+				queryBuilder.append(" || ?className = \"" + className.toLowerCase() + "\"");
+			}
+		}
+		queryBuilder.append("\n ) \n");
+		queryBuilder.append("OPTIONAL { \n");
+		queryBuilder.append("?objectProperty a owl:ObjectProperty; \n");
+		queryBuilder.append("rdfs:domain ?classURI; \n");
+		queryBuilder.append("rdfs:range ?objectClassURI. \n");
+		queryBuilder.append("} \n");
+		queryBuilder.append("OPTIONAL { \n");
+		queryBuilder.append("?datatypeProperty a owl:DatatypeProperty; \n");
+		queryBuilder.append("rdfs:domain ?classURI; \n");
+		queryBuilder.append("rdfs:range ?dataTypeURI. \n");
+		queryBuilder.append("} \n");
+
+		queryBuilder.append("} \n");
+		queryBuilder.append("} ', \n");
+		queryBuilder.append(
+				"sem_models('" + applicationModelName + "'),null, \n " + "SEM_ALIASES(" + prefixes + "),null))");
+
+		System.out.println(queryBuilder.toString());
+		try {
+			ResultSet results = oracle.executeQuery(queryBuilder.toString(), 0, 1);
+
+			// ResultSetMetaData rsmd = results.getMetaData();
+			// int columnsNumber = rsmd.getColumnCount();
+			// while (results.next()) {
+			// for (int i = 1; i <= columnsNumber; i++) {
+			// if (i > 1)
+			// System.out.print(", ");
+			// String columnValue = results.getString(i);
+			// System.out.print(columnValue + " " + rsmd.getColumnName(i));
+			// }
+			// System.out.println("");
+			// }
+
+			/*
+			 * htblClassURI is used to hold classesURIs to avoid repeating
+			 * caching of classes as the classURI can be repeated because it
+			 * might has more than one property
+			 */
+			Hashtable<String, String> htblClassURI = new Hashtable<>();
+			while (results.next()) {
+
+				String dynamicClassURI = results.getString("CLASSURI");
+				String dynamicClassObjectProperty = results.getString("OBJECTPROPERTY");
+				String objectPropertyRangeObjectURI = results.getString("OBJECTCLASSURI");
+				String dynamicClassDatatypeProperty = results.getString("DATATYPEPROPERTY");
+				String datatypePropertyRangeDatatypeURI = results.getString("DATATYPEURI");
+
+				if (htblClassURI.containsKey(dynamicClassURI)) {
+
+					/*
+					 * check that value of objectProperty column is not empty
+					 * (not null) to cache it
+					 */
+					if (dynamicClassObjectProperty != null) {
+						cacheDynamicProperties(dynamicClassURI, PropertyType.ObjectProperty, dynamicClassObjectProperty,
+								objectPropertyRangeObjectURI, applicationModelName);
+					}
+
+					/*
+					 * check that value of dataTypeProperty column is not empty
+					 * (not null) to cache it
+					 */
+					if (dynamicClassDatatypeProperty != null) {
+						cacheDynamicProperties(dynamicClassURI, PropertyType.DatatypeProperty,
+								dynamicClassDatatypeProperty, datatypePropertyRangeDatatypeURI, applicationModelName);
+					}
+				} else {
+					/*
+					 * cache new Class first then cache properties if exist
+					 */
+					cacheDynamicClass(dynamicClassURI, applicationModelName);
+					htblClassURI.put(dynamicClassURI, dynamicClassURI);
+
+					/*
+					 * check that value of objectProperty column is not empty
+					 * (not null) to cache it
+					 */
+					if (dynamicClassObjectProperty != null) {
+						cacheDynamicProperties(dynamicClassURI, PropertyType.ObjectProperty, dynamicClassObjectProperty,
+								objectPropertyRangeObjectURI, applicationModelName);
+					}
+
+					/*
+					 * check that value of dataTypeProperty column is not empty
+					 * (not null) to cache it
+					 */
+					if (dynamicClassDatatypeProperty != null) {
+						cacheDynamicProperties(dynamicClassURI, PropertyType.DatatypeProperty,
+								dynamicClassDatatypeProperty, datatypePropertyRangeDatatypeURI, applicationModelName);
+					}
+				}
+
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new DatabaseException(e.getMessage(), "Ontology");
+
+		}
+
+	}
+
+	/**
+	 * cacheDynamicClass is used to cache loaded dynamic classes in
+	 * DynamicOntologyMapper caches
+	 * 
+	 * @param dynamicClassURI
+	 *            holds the URI of the new class
+	 * 
+	 * @param applicationModelName
+	 *            holds the name of the application model that stores the
+	 *            application data in the default graph and the dynamic class or
+	 *            properties added to the mainOntology in the ontologyGraph
+	 */
+	private void cacheDynamicClass(String dynamicClassURI, String applicationModelName) {
+		String[] res = getValueFromURI(dynamicClassURI);
+		String dynamicClassName = res[0].toLowerCase();
+		String dynamicClassPrefixURI = res[1];
+
+		Prefix prefix = getPrefix(dynamicClassPrefixURI);
+
+		Class newClass = new Class(dynamicClassName, dynamicClassURI, prefix);
+
+		if (DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().contains(applicationModelName)) {
+
+			DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName).put(dynamicClassURI,
+					newClass);
+			DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName).put(dynamicClassName,
+					newClass);
+		} else {
+			DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().put(applicationModelName, new Hashtable<>());
+			DynamicOntologyMapper.getHtblappDynamicOntologyClasses().put(applicationModelName, new Hashtable<>());
+
+			DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName).put(dynamicClassURI,
+					newClass);
+			DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName).put(dynamicClassName,
+					newClass);
+		}
+
+	}
+
+	/**
+	 * cacheDynamicProperties is used to cache Dynamic properties in
+	 * DynamicOntologyMapper caches
+	 * 
+	 * @param subjectClassURI
+	 *            holds the URI of the domain class type
+	 * 
+	 * @param propertyURI
+	 *            holds the URI of the property
+	 * 
+	 * @param propertyRangeURI
+	 *            holds the URI of the domain class type if it is an
+	 *            objectProperty or holds the dataTypeURI if it is a
+	 *            dataTypeProperty
+	 * @param applicationModelName
+	 *            holds the name of the application model that stores the
+	 *            application data in the default graph and the dynamic class or
+	 *            properties added to the mainOntology in the ontologyGraph
+	 */
+	private void cacheDynamicProperties(String subjectClassURI, PropertyType propertyType, String propertyURI,
+			String propertyRangeURI, String applicationModelName) {
+
+		/*
+		 * get propertyName and prefix by from propertyURI by calling
+		 * getValueFromURI method
+		 */
+		String[] propertyRes = getValueFromURI(propertyURI);
+		String propertyName = propertyRes[0];
+		String propertyPreifxURI = propertyRes[1];
+		Prefix propertyPrefix = getPrefix(propertyPreifxURI);
+
+		/*
+		 * get subjectClassName and prefix by from subjectClassURI by calling
+		 * getValueFromURI method
+		 */
+		String[] subjectClassRes = getValueFromURI(subjectClassURI);
+		String subjectClassName = subjectClassRes[0];
+		String subjectClassPrefixURI = subjectClassRes[1];
+		Prefix subjectClassPrefix = getPrefix(subjectClassPrefixURI);
+
+		String objectClassName = null;
+		XSDDatatype xsdDatatype = null;
+
+		if (propertyType.equals(PropertyType.ObjectProperty)) {
+			/*
+			 * get objectClassName and prefix by from objectClassURI by calling
+			 * getValueFromURI method
+			 */
+			String[] objectClassRes = getValueFromURI(propertyRangeURI);
+			objectClassName = objectClassRes[0];
+
+		} else {
+
+			/*
+			 * DatatypeProperty so get xsdDataType from objectClassPrefixURI
+			 */
+			xsdDatatype = getXSDDataTypeEnumOfXSDURI(propertyRangeURI);
+		}
+
+		/*
+		 * check if application is in the cache be checking if
+		 * DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri() has the
+		 * applicationModelName
+		 */
+		if (DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().containsKey(applicationModelName)) {
+
+			Hashtable<String, Class> htblDynamicOntologyClassesURI = DynamicOntologyMapper
+					.getHtblappDynamicOntologyClassesUri().get(applicationModelName);
+			Hashtable<String, Class> htblDynamicOntologyClasses = DynamicOntologyMapper
+					.getHtblappDynamicOntologyClasses().get(applicationModelName);
+			/*
+			 * check if the subjectClassURI exist or not in
+			 * htblDynamicOntologyClassesURI
+			 */
+			if (htblDynamicOntologyClassesURI.containsKey(subjectClassURI)) {
+				Class subjectClass = htblDynamicOntologyClassesURI.get(subjectClassURI);
+
+				/*
+				 * create new property
+				 */
+				Property newProperty = createProperty(subjectClass, propertyName, propertyPrefix, propertyType,
+						xsdDatatype, objectClassName, false, false);
+				/*
+				 * add new property to subjectClass's proprtiesList
+				 */
+				subjectClass.getProperties().put(propertyName, newProperty);
+			} else {
+
+				/*
+				 * the class does not exist so I will add it to
+				 * htblDynamicOntologyClassesURI
+				 */
+				Class subjectClass = new Class(subjectClassName, subjectClassURI, subjectClassPrefix);
+				htblDynamicOntologyClassesURI.put(subjectClassURI, subjectClass);
+
+				/*
+				 * also add it to htblDynamicOntologyClasses
+				 */
+				htblDynamicOntologyClasses.put(subjectClassName.toLowerCase(), subjectClass);
+
+				/*
+				 * create newProperty
+				 */
+				Property newProperty = createProperty(subjectClass, propertyName, propertyPrefix, propertyType,
+						xsdDatatype, objectClassName, false, false);
+				/*
+				 * add new property to subjectClass's proprtiesList
+				 */
+				subjectClass.getProperties().put(propertyName, newProperty);
+			}
+
+		} else {
+			/*
+			 * first time to to cache dynamic classes or properties of this
+			 * application.
+			 * 
+			 * create caches for this applicationModel with applicationModelName
+			 */
+			Hashtable<String, Class> htblDynamicOntologyClassesURI = new Hashtable<>();
+			DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().put(applicationModelName,
+					htblDynamicOntologyClassesURI);
+
+			Hashtable<String, Class> htblDynamicOntologyClasses = new Hashtable<>();
+			DynamicOntologyMapper.getHtblappDynamicOntologyClasses().put(applicationModelName,
+					htblDynamicOntologyClasses);
+
+			/*
+			 * the class does not exist so I will add it to
+			 * htblDynamicOntologyClassesURI
+			 */
+			Class subjectClass = new Class(subjectClassName, subjectClassURI, subjectClassPrefix);
+			htblDynamicOntologyClassesURI.put(subjectClassURI, subjectClass);
+
+			/*
+			 * also add it to htblDynamicOntologyClasses
+			 */
+			htblDynamicOntologyClasses.put(subjectClassName.toLowerCase(), subjectClass);
+
+			Property newProperty = createProperty(subjectClass, propertyName, propertyPrefix, propertyType, xsdDatatype,
+					objectClassName, false, false);
+			/*
+			 * add new property to subjectClass's proprtiesList
+			 */
+			subjectClass.getProperties().put(propertyName, newProperty);
+		}
+	}
+
+	/**
+	 * createProperty is used to create a new property based
+	 * on @param(propertyType)
+	 * 
+	 * @param subjectClass
+	 *            is the subjectClass of the property
+	 * 
+	 * @param propertyName
+	 *            property name of the new property
+	 * 
+	 * @param propertyPrefix
+	 *            property prefix of the new property
+	 * 
+	 * @param propertyType
+	 *            property type of the new property (ObjectProperty or
+	 *            DatatypeProperty)
+	 * 
+	 * @param xsdDatatype
+	 *            XSDdataType of property if it is DatatypeProperty else it will
+	 *            be null
+	 * 
+	 * @param objectClassName
+	 *            objectClassName of property if it is ObjectProperty else it
+	 *            will be null
+	 * 
+	 * @param mulitpleValues
+	 *            mulitpleValues is a boolean the tells if the new property has
+	 *            multipleValues or not
+	 * 
+	 * @param unique
+	 *            unique is a boolean the tells if the new property has unique
+	 *            or not
+	 * 
+	 * @return the new created property
+	 */
+	private Property createProperty(Class subjectClass, String propertyName, Prefix propertyPrefix,
+			PropertyType propertyType, XSDDatatype xsdDatatype, String objectClassName, boolean mulitpleValues,
+			boolean unique) {
+		Property newProperty;
+
+		if (propertyType.equals(PropertyType.DatatypeProperty)) {
+			newProperty = new DataTypeProperty(subjectClass, propertyName, propertyPrefix, xsdDatatype, mulitpleValues,
+					unique);
+		} else {
+			/*
+			 * objectProperty
+			 */
+			newProperty = new ObjectProperty(subjectClass, propertyName, propertyPrefix, objectClassName,
+					mulitpleValues, unique);
+		}
+
+		return newProperty;
 	}
 
 	/*
@@ -345,6 +762,88 @@ public class DynamicOntologyDao {
 		return res;
 	}
 
+	/**
+	 * getXSDDataTypeEnumOfDataTypeName return XsdDataType enum instance
+	 * of @param(dataTypeName)
+	 * 
+	 * @param dataTypeName
+	 *            holds datatypeName eg. string,integer
+	 * @return
+	 */
+	private XSDDatatype getXSDDataTypeEnumOfDataTypeName(String dataTypeName) {
+
+		if (XSDDatatype.boolean_type.getDataType().equals(dataTypeName)) {
+			return XSDDatatype.boolean_type;
+		}
+
+		if (XSDDatatype.decimal_typed.getDataType().equals(dataTypeName)) {
+			return XSDDatatype.decimal_typed;
+		}
+
+		if (XSDDatatype.float_typed.getDataType().equals(dataTypeName)) {
+			return XSDDatatype.float_typed;
+		}
+
+		if (XSDDatatype.integer_typed.getDataType().equals(dataTypeName)) {
+			return XSDDatatype.integer_typed;
+		}
+
+		if (XSDDatatype.string_typed.getDataType().equals(dataTypeName)) {
+			return XSDDatatype.string_typed;
+		}
+
+		if (XSDDatatype.dateTime_typed.getDataType().equals(dataTypeName)) {
+			return XSDDatatype.dateTime_typed;
+		}
+
+		if (XSDDatatype.double_typed.getDataType().equals(dataTypeName)) {
+			return XSDDatatype.double_typed;
+		}
+
+		return null;
+	}
+
+	/**
+	 * getXSDDataTypeEnumOfXSDURI return XsdDataType enum instance
+	 * of @param(xsdURI)
+	 * 
+	 * @param xsdURI
+	 *            holds xsdURI eg. http://www.w3.org/2001/XMLSchema#string
+	 * @return
+	 */
+	private XSDDatatype getXSDDataTypeEnumOfXSDURI(String xsdURI) {
+
+		if (XSDDatatype.boolean_type.getXsdTypeURI().equals(xsdURI)) {
+			return XSDDatatype.boolean_type;
+		}
+
+		if (XSDDatatype.decimal_typed.getXsdTypeURI().equals(xsdURI)) {
+			return XSDDatatype.decimal_typed;
+		}
+
+		if (XSDDatatype.float_typed.getXsdTypeURI().equals(xsdURI)) {
+			return XSDDatatype.float_typed;
+		}
+
+		if (XSDDatatype.integer_typed.getXsdTypeURI().equals(xsdURI)) {
+			return XSDDatatype.integer_typed;
+		}
+
+		if (XSDDatatype.string_typed.getXsdTypeURI().equals(xsdURI)) {
+			return XSDDatatype.string_typed;
+		}
+
+		if (XSDDatatype.dateTime_typed.getXsdTypeURI().equals(xsdURI)) {
+			return XSDDatatype.dateTime_typed;
+		}
+
+		if (XSDDatatype.double_typed.getXsdTypeURI().equals(xsdURI)) {
+			return XSDDatatype.double_typed;
+		}
+
+		return null;
+	}
+
 	public static void main(String[] args) {
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
 		String szUser = "rdfusr";
@@ -360,12 +859,27 @@ public class DynamicOntologyDao {
 		// "ssn:Device",
 		// "iot-platform:VirtualSensor",
 		// "TESTAPPLICATION_MODEL");
+		// dynamicOntologyDao.addNewDatatypePropertyToOntology("macAddress",
+		// "iot-platform:VirtualSensor", "string",
+		// "TESTAPPLICATION_MODEL");
 
-		dynamicOntologyDao.loadAndCacheApplicationDynamicOntologyClasses("TESTAPPLICATION_MODEL");
-		dynamicOntologyDao.loadAndCacheApplicationDynamicOntologyObjectProperties("TESTAPPLICATION_MODEL");
+		// ArrayList<String> dyanmicClassesNameList = new ArrayList<>();
+		// dyanmicClassesNameList.add("VirtualSensor");
+		// dyanmicClassesNameList.add("VirtualSensors");
+		// dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain("TESTAPPLICATION_MODEL",
+		// dyanmicClassesNameList);
 
-		System.out.println(OntologyMapper.getHtblMainOntologyClassesMappers().get("device").getProperties());
+		dynamicOntologyDao.loadAndCacheAllApplicationDynamicOntologyClasses("TESTAPPLICATION_MODEL");
+		dynamicOntologyDao.loadAndCacheAllApplicationDynamicOntologyObjectProperties("TESTAPPLICATION_MODEL");
+		dynamicOntologyDao.loadAndCacheAllApplicationDynamicOntologyDataTypeProperties("TESTAPPLICATION_MODEL");
+
 		System.out.println(DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get("TESTAPPLICATION_MODEL"));
+		System.out.println(DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get("TESTAPPLICATION_MODEL")
+				.get("http://iot-platform#VirtualSensor").getProperties());
+
+		System.out.println(DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get("TESTAPPLICATION_MODEL"));
+		System.out.println(DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get("TESTAPPLICATION_MODEL")
+				.get("device").getProperties());
 
 	}
 

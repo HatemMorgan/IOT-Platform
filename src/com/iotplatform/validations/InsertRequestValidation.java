@@ -28,6 +28,7 @@ import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
 import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
+import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.InsertionPropertyValue;
 import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
@@ -201,8 +202,8 @@ public class InsertRequestValidation {
 			 */
 
 			Property idProperty = subjectClass.getProperties().get("id");
-			InsertionPropertyValue idPropertyValue = new InsertionPropertyValue(idProperty.getPrefix().getPrefix() + idProperty.getName(),
-					id, false);
+			InsertionPropertyValue idPropertyValue = new InsertionPropertyValue(
+					idProperty.getPrefix().getPrefix() + idProperty.getName(), id, false);
 
 			/*
 			 * add idPropertyValue object to htblClassPropertyValue
@@ -388,8 +389,36 @@ public class InsertRequestValidation {
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			ArrayList<ValueOfTypeClass> classValueList, String requestClassName) {
 
-		// System.out.println(subjectClass.getName() + " " + property.getName()
-		// + " " + value.toString());
+		/*
+		 * get property range objectClass if it is an objectProperty
+		 */
+		Class objectClass = null;
+		if (property instanceof ObjectProperty) {
+			String objectClassName = ((ObjectProperty) property).getObjectClassName();
+
+			/*
+			 * get objectClass from mainOntology if it exist
+			 */
+			if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(objectClassName)) {
+
+				/*
+				 * get the objectClass from MainOntologyClassesMapper
+				 */
+				objectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(objectClassName.toLowerCase());
+			} else {
+
+				/*
+				 * The object class does not exist in the main ontology so it
+				 * will be sure existing in dynamicOntology of the requested
+				 * application. I do not need to check if its exist in
+				 * dynamicOntology because I had already loaded all the dynamic
+				 * properties and class needed by the queryRequest when
+				 * validating
+				 */
+				objectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+						.get(objectClassName.toLowerCase());
+			}
+		}
 
 		/*
 		 * check if the value is of type primitive datatype
@@ -486,7 +515,8 @@ public class InsertRequestValidation {
 			InsertionPropertyValue propertyValue;
 			if (subjectClass.isHasUniqueIdentifierProperty()
 					&& subjectClass.getUniqueIdentifierPropertyName().equals(property.getName())) {
-				propertyValue = new InsertionPropertyValue(property.getPrefix().getPrefix() + property.getName(), value, false);
+				propertyValue = new InsertionPropertyValue(property.getPrefix().getPrefix() + property.getName(), value,
+						false);
 			} else {
 				/*
 				 * construct a new PropertyValue instance to hold the prefiexed
@@ -599,7 +629,8 @@ public class InsertRequestValidation {
 				 * objectValue
 				 * 
 				 */
-				InsertionPropertyValue propertyValue = new InsertionPropertyValue(property.getPrefix().getPrefix() + property.getName(),
+				InsertionPropertyValue propertyValue = new InsertionPropertyValue(
+						property.getPrefix().getPrefix() + property.getName(),
 						getValue(property, objectUniqueIdentifier), true);
 
 				/*

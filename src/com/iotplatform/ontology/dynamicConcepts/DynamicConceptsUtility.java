@@ -197,17 +197,17 @@ public class DynamicConceptsUtility {
 								dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
 			} else {
 				if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
-					OntologyMapper.getHtblMainOntologyClassesUriMappers().get(subjectClass.getUri()).getProperties()
-							.put(dynamicProperty.getProperty_name(),
-									new ObjectProperty(
-											OntologyMapper.getHtblMainOntologyClassesUriMappers().get(
-													dynamicProperty.getClass_uri()),
-											dynamicProperty.getProperty_name(),
-											getPrefix(dynamicProperty.getProperty_prefix_alias()),
-											OntologyMapper.getHtblMainOntologyClassesUriMappers().get(
-													dynamicProperty.getProperty_object_type_uri()),
-											applicationName, dynamicProperty.getHasMultipleValues(),
-											dynamicProperty.getIsUnique()));
+//					OntologyMapper.getHtblMainOntologyClassesUriMappers().get(subjectClass.getUri()).getProperties()
+//							.put(dynamicProperty.getProperty_name(),
+//									new ObjectProperty(
+//											OntologyMapper.getHtblMainOntologyClassesUriMappers().get(
+//													dynamicProperty.getClass_uri()),
+//											dynamicProperty.getProperty_name(),
+//											getPrefix(dynamicProperty.getProperty_prefix_alias()),
+//											OntologyMapper.getHtblMainOntologyClassesUriMappers().get(
+//													dynamicProperty.getProperty_object_type_uri()),
+//											applicationName, dynamicProperty.getHasMultipleValues(),
+//											dynamicProperty.getIsUnique()));
 				}
 			}
 		}
@@ -245,16 +245,16 @@ public class DynamicConceptsUtility {
 									dynamicProperty.getHasMultipleValues(), dynamicProperty.getIsUnique()));
 				} else {
 					if (dynamicProperty.getProperty_type().equals(PropertyType.ObjectProperty.toString())) {
-						OntologyMapper.getHtblMainOntologyClassesUriMappers().get(subClass.getUri()).getProperties()
-								.put(dynamicProperty.getProperty_name(), new ObjectProperty(
-										OntologyMapper.getHtblMainOntologyClassesUriMappers().get(
-												dynamicProperty.getClass_uri()),
-										dynamicProperty.getProperty_name(),
-										getPrefix(dynamicProperty.getProperty_prefix_alias()),
-										OntologyMapper.getHtblMainOntologyClassesUriMappers()
-												.get(dynamicProperty.getProperty_object_type_uri()),
-										applicationName, dynamicProperty.getHasMultipleValues(),
-										dynamicProperty.getIsUnique()));
+//						OntologyMapper.getHtblMainOntologyClassesUriMappers().get(subClass.getUri()).getProperties()
+//								.put(dynamicProperty.getProperty_name(), new ObjectProperty(
+//										OntologyMapper.getHtblMainOntologyClassesUriMappers().get(
+//												dynamicProperty.getClass_uri()),
+//										dynamicProperty.getProperty_name(),
+//										getPrefix(dynamicProperty.getProperty_prefix_alias()),
+//										OntologyMapper.getHtblMainOntologyClassesUriMappers()
+//												.get(dynamicProperty.getProperty_object_type_uri()),
+//										applicationName, dynamicProperty.getHasMultipleValues(),
+//										dynamicProperty.getIsUnique()));
 					}
 				}
 			}
