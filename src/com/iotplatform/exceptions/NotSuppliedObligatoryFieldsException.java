@@ -25,7 +25,7 @@ public class NotSuppliedObligatoryFieldsException extends ErrorObjException {
 	public NotSuppliedObligatoryFieldsException(String obligatoryFields, String invalidClassName, String domain) {
 		super(HttpStatus.BAD_REQUEST.name(),
 				HttpStatus.BAD_REQUEST.value(), "Invalid insert request body. Missing Obligatory fields: "
-						+ obligatoryFields + " for " + invalidClassName + " class  which must be" + "added to body ",
+						+ obligatoryFields + " for " + invalidClassName + " class  which must be " + "added to body ",
 				domain);
 	}
 

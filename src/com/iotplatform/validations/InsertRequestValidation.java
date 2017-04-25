@@ -521,15 +521,6 @@ public class InsertRequestValidation {
 				Class classType = ((ObjectProperty) property).getObject();
 
 				/*
-				 * check if the obligatory fields exist. if does not exist throw
-				 * an exception
-				 */
-				if (!areObligatoryFieldsExist(classType, valueObject)) {
-					throw new NotSuppliedObligatoryFieldsException(classType.getUniqueIdentifierPropertyName(),
-							classType.getName(), requestClassName);
-				}
-
-				/*
 				 * check if there is a fieldName= type which means that value of
 				 * this field describes a type class then change the subClass
 				 * type to be the subjectClass
@@ -551,6 +542,15 @@ public class InsertRequestValidation {
 						throw new InvalidTypeValidationException(requestClassName,
 								classType.getClassTypesList().keySet(), classType.getName());
 
+				}
+
+				/*
+				 * check if the obligatory fields exist. if does not exist throw
+				 * an exception
+				 */
+				if (!areObligatoryFieldsExist(classType, valueObject)) {
+					throw new NotSuppliedObligatoryFieldsException(classType.getUniqueIdentifierPropertyName(),
+							classType.getName(), requestClassName);
 				}
 
 				/*
