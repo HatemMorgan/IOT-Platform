@@ -19,6 +19,7 @@ import com.iotplatform.exceptions.InvalidPropertyValuesException;
 import com.iotplatform.exceptions.InvalidRequestBodyException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.exceptions.InvalidTypeValidationException;
+import com.iotplatform.exceptions.NotSuppliedObligatoryFieldsException;
 import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
@@ -34,19 +35,26 @@ import com.iotplatform.utilities.ValueOfTypeClass;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
-/*
- * RequestFieldsValidation class is used to validate post request body and parse it.
+/**
  * 
- *  It checks for Obligatory fields exist in the request body (fields that must be exist for that class 
- *  because not all fields are required to be exist)
- *  
- *  It checks that fields passed by the request are valid fields by checking that they maps to existing properties 
- *  in the passed subject class (which maps the ontology classes)
- *  
- *  It parse request body (JSON) into classes and properties in order to perform a mapping from JSON to semantic web
- *  structure so it can then be validated for constraint violation and then be inserted in the appropriate format in 
- *  the graph database
+ * @author HatemMorgan
+ *
+ *         InsertRequestValidation class is used to validate insert post request
+ *         body and parse it.
  * 
+ *         It checks for Obligatory fields exist in the request body (fields
+ *         that must be exist for that class because not all fields are required
+ *         to be exist)
+ * 
+ *         It checks that fields passed by the request are valid fields by
+ *         checking that they maps to existing properties in the passed subject
+ *         class (which maps the ontology classes)
+ * 
+ *         It parse request body (JSON) into classes and properties in order to
+ *         perform a mapping from JSON to semantic web structure so it can then
+ *         be validated for constraint violation and then be inserted in the
+ *         appropriate format in the graph database
+ *
  */
 
 @Component
@@ -88,9 +96,17 @@ public class InsertRequestValidation {
 			LinkedHashMap<String, Object> htblFieldValue, Class subjectClass) {
 
 		/*
+		 * check if the obligatory fields exist. if does not exist throw an
+		 * exception
+		 */
+		if (!areObligatoryFieldsExist(subjectClass, htblFieldValue)) {
+			throw new NotSuppliedObligatoryFieldsException(subjectClass.getUniqueIdentifierPropertyName(),
+					subjectClass.getName(), subjectClass.getName());
+		}
+
+		/*
 		 * set subClass to its static instace
 		 */
-
 		subjectClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(subjectClass.getUri());
 
 		Iterator<String> htblFieldValueIterator = htblFieldValue.keySet().iterator();
@@ -499,7 +515,19 @@ public class InsertRequestValidation {
 			 */
 			if (value instanceof java.util.LinkedHashMap<?, ?> && property instanceof ObjectProperty) {
 				LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) value;
+				/*
+				 * get Object property range classType
+				 */
 				Class classType = ((ObjectProperty) property).getObject();
+
+				/*
+				 * check if the obligatory fields exist. if does not exist throw
+				 * an exception
+				 */
+				if (!areObligatoryFieldsExist(classType, valueObject)) {
+					throw new NotSuppliedObligatoryFieldsException(classType.getUniqueIdentifierPropertyName(),
+							classType.getName(), requestClassName);
+				}
 
 				/*
 				 * check if there is a fieldName= type which means that value of
@@ -768,14 +796,12 @@ public class InsertRequestValidation {
 			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			ArrayList<ValueOfTypeClass> classValueList) {
-		// System.out.println("in parseAndConstructNotMappedFieldsValues
-		// method");
+
 		/*
 		 * get Dynamic Properties of the classes in the classList which contains
 		 * the domain class of the fields in the request that are not mapped to
 		 * static properties
 		 */
-
 		if (htblNotMappedFieldsClasses.size() > 0) {
 			Hashtable<String, DynamicConceptModel> loadedDynamicProperties = dynamicPropertiesUtility
 					.getDynamicProperties(applicationName, htblNotMappedFieldsClasses, htblPrevNotMappedFieldsClasses);
@@ -801,10 +827,6 @@ public class InsertRequestValidation {
 				ValueOfFieldNotMappedToStaticProperty notFoundFieldValue = notFoundFieldValueList.get(i);
 
 				String field = notFoundFieldValue.getFieldName();
-
-				// System.out.println("=====>>> " +
-				// notFoundFieldValue.getFieldName() + " "
-				// + notFoundFieldValue.getPropertyValue().toString());
 
 				/*
 				 * After loading dynamic Properties, I am caching all the loaded
@@ -854,6 +876,7 @@ public class InsertRequestValidation {
 									notFoundFieldValue.getClassInstanceIndex(), htblUniquePropValueList, classValueList,
 									subjectClass.getName());
 						} else {
+
 							/*
 							 * if property is an object property so I have to
 							 * pass to parseAndConstructFieldValue an new
@@ -861,9 +884,9 @@ public class InsertRequestValidation {
 							 * notFoundFieldValueList instance in order to add
 							 * any unMapped fields for the nestedObjectValues
 							 * (if the value is object or list)
-							 */
-
-							/*
+							 * 
+							 * 
+							 * 
 							 * reIntializing htblNotMappedFieldsClasses to hold
 							 * any new classes that may have not mapped fields
 							 * to load them also and add all clases in
@@ -995,6 +1018,64 @@ public class InsertRequestValidation {
 			}
 		default:
 			return false;
+		}
+
+	}
+
+	/**
+	 * areObligatoryFieldsExist is used to check if the obligatory fields (that
+	 * must be supplied by the user) defined by subjectClass exist in
+	 * htblFieldValue.
+	 * 
+	 * The default obligatory field is the uniqueIdentifierField(mapped to
+	 * uniqueIdentifierProperty in subjectClass). For now this is the only
+	 * obligatory field so the check will be only on this field. if subjectClass
+	 * has a uniqueIdentifierProperty
+	 * 
+	 * 
+	 * @param subjectClass
+	 *            The class type of the inserted individual
+	 * 
+	 * @param htblFieldValue
+	 *            The fieldValueMap of the instance which contains the
+	 *            fields(mapped to a property) and the value of this field
+	 * @return It will return a boolean true if the obligatoryFields of
+	 *         subjectClass are supplied in htblFieldValue of the inserted
+	 *         individual
+	 * 
+	 */
+	private boolean areObligatoryFieldsExist(Class subjectClass, LinkedHashMap<String, Object> htblFieldValue) {
+
+		/*
+		 * check if the subjectClass has uniqueIdentifierProperty
+		 */
+		if (subjectClass.isHasUniqueIdentifierProperty()) {
+
+			/*
+			 * get uniqueIdentifier property name eg. userName for Person class
+			 */
+			String uniqueIdentiferPropertyName = subjectClass.getUniqueIdentifierPropertyName();
+
+			/*
+			 * check if htblFieldValue has field with name equal
+			 * uniqueIdentiferPropertyName
+			 * 
+			 * return true if it exist and false if it does not
+			 */
+			if (htblFieldValue.containsKey(uniqueIdentiferPropertyName)) {
+				return true;
+			} else {
+				return false;
+			}
+
+		} else {
+
+			/*
+			 * return true because there are not obligatory fields to check for
+			 * because as I stated the only obligatory field is the
+			 * uniqueIdentifierField which maps to uniqueIdentifierProperty
+			 */
+			return true;
 		}
 
 	}
