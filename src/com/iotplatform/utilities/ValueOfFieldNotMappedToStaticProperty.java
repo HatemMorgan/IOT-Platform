@@ -26,14 +26,6 @@ public class ValueOfFieldNotMappedToStaticProperty {
 	 */
 	private int classInstanceIndex;
 
-	// /*
-	// * randomID is a random generated ID to represent the subjectInstance of
-	// * this property this randomID is used in uniqueConstraint Validation to
-	// * reference the uniquePropertyValues of the instance that has this
-	// property
-	// */
-	// private String randomID;
-
 	/*
 	 * fieldName holds field name that has no static mapping to a property
 	 */
@@ -44,7 +36,12 @@ public class ValueOfFieldNotMappedToStaticProperty {
 		this.propertyClass = propertyClass;
 		this.propertyValue = propertyValue;
 		this.classInstanceIndex = classInstanceIndex;
-		// this.randomID = randomID;
+		this.fieldName = fieldName;
+	}
+
+	public ValueOfFieldNotMappedToStaticProperty(Class propertyClass, Object propertyValue, String fieldName) {
+		this.propertyClass = propertyClass;
+		this.propertyValue = propertyValue;
 		this.fieldName = fieldName;
 	}
 
