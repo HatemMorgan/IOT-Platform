@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.DynamicConceptsDao;
+import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.InsertionDao;
 import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
@@ -77,13 +78,16 @@ public class ApplicationService {
 				}
 			}
 
+			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationName);
+
 			/*
 			 * Check if the request is valid or not
 			 */
 
-			Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue = requestFieldsValidation
+			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue = requestFieldsValidation
 					.validateRequestFields(applicationName, htblPropValue,
-							OntologyMapper.getHtblMainOntologyClassesMappers().get("application"));
+							OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("application"),
+							applicationModelName);
 
 			insertionDao.insertData(applicationDao.getHtblApplicationNameModelName().get(applicationName),
 					OntologyMapper.getHtblMainOntologyClassesMappers().get("application").getName(),
@@ -119,8 +123,10 @@ public class ApplicationService {
 
 		ValidationDao validationDao = new ValidationDao(oracle);
 
+		DynamicOntologyDao dynamicOntologyDao = new DynamicOntologyDao(oracle);
+
 		InsertRequestValidation requestFieldsValidation = new InsertRequestValidation(validationDao,
-				new DynamicConceptsUtility(dynamicConceptDao));
+				dynamicOntologyDao);
 		InsertionDao insertionDao = new InsertionDao(oracle);
 
 		ApplicationDao applicationDao = new ApplicationDao(oracle);
@@ -128,15 +134,15 @@ public class ApplicationService {
 				insertionDao);
 
 		LinkedHashMap<String, Object> htblPropValue = new LinkedHashMap<>();
-		htblPropValue.put("name", "Test Applications");
+		htblPropValue.put("name", "Test Application");
 		htblPropValue.put("description", "Test App Description");
 
 		// applicationDao.dropApplicationModel("Test Application");
 
 		LinkedHashMap<String, Object> res = applicationService.insertApplication(htblPropValue);
-		// Hashtable<String, Object>[] json = (Hashtable<String, Object>[])
-		// res.get("errors");
-		// System.out.println(json[0].toString());
+//		LinkedHashMap<String, Object>[] json = (LinkedHashMap<String, Object>[])
+//		 res.get("errors");
+//		 System.out.println(json[0].toString());
 		System.out.println(res.toString());
 
 	}

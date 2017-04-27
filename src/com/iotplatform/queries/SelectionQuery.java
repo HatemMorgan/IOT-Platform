@@ -382,15 +382,11 @@ public class SelectionQuery {
 			String objectClassName = ((ObjectProperty) prop).getObjectClassName();
 
 			/*
-			 * get objectClass from mainOntology if it exist
+			 * get objectClass from dynamicOntology cache if it exist
 			 */
-			if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(objectClassName)) {
-
-				/*
-				 * get the objectClass from MainOntologyClassesMapper
-				 */
-				objectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(objectClassName.toLowerCase());
-			} else {
+			if (DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
+					&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+							.containsKey(objectClassName.toLowerCase())) {
 
 				/*
 				 * The object class does not exist in the main ontology so it
@@ -402,6 +398,13 @@ public class SelectionQuery {
 				 */
 				objectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
 						.get(objectClassName.toLowerCase());
+
+			} else {
+
+				/*
+				 * get the objectClass from MainOntologyClassesMapper
+				 */
+				objectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(objectClassName.toLowerCase());
 			}
 		}
 
@@ -783,16 +786,11 @@ public class SelectionQuery {
 					String objectClassName = ((ObjectProperty) prop).getObjectClassName();
 
 					/*
-					 * get objectClass from mainOntology if it exist
+					 * get objectClass from dynamicOntology cache if it exist
 					 */
-					if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(objectClassName)) {
-
-						/*
-						 * get the objectClass from MainOntologyClassesMapper
-						 */
-						objectClass = OntologyMapper.getHtblMainOntologyClassesMappers()
-								.get(objectClassName.toLowerCase());
-					} else {
+					if (DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
+							&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+									.containsKey(objectClassName.toLowerCase())) {
 
 						/*
 						 * The object class does not exist in the main ontology
@@ -803,6 +801,14 @@ public class SelectionQuery {
 						 * queryRequest when validating
 						 */
 						objectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+								.get(objectClassName.toLowerCase());
+
+					} else {
+
+						/*
+						 * get the objectClass from MainOntologyClassesMapper
+						 */
+						objectClass = OntologyMapper.getHtblMainOntologyClassesMappers()
 								.get(objectClassName.toLowerCase());
 					}
 				}
@@ -969,16 +975,9 @@ public class SelectionQuery {
 		if (prop instanceof ObjectProperty) {
 			String objectClassName = ((ObjectProperty) prop).getObjectClassName();
 
-			/*
-			 * get objectClass from mainOntology if it exist
-			 */
-			if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(objectClassName)) {
-
-				/*
-				 * get the objectClass from MainOntologyClassesMapper
-				 */
-				objectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(objectClassName.toLowerCase());
-			} else {
+			if (DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
+					&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+							.containsKey(objectClassName.toLowerCase())) {
 
 				/*
 				 * The object class does not exist in the main ontology so it
@@ -990,6 +989,13 @@ public class SelectionQuery {
 				 */
 				objectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
 						.get(objectClassName.toLowerCase());
+
+			} else {
+
+				/*
+				 * get the objectClass from MainOntologyClassesMapper
+				 */
+				objectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(objectClassName.toLowerCase());
 			}
 		}
 

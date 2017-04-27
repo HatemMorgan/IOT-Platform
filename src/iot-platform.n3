@@ -26,6 +26,10 @@
 # #################################################################
 # 
 # 
+# http://iot-platform#hasMultipleValues
+
+:hasMultipleValues a owl:AnnotationProperty .
+# 
 # http://iot-platform#hasUniqueIdentifier
 
 :hasUniqueIdentifier a owl:AnnotationProperty .
@@ -639,6 +643,7 @@ foaf:gender a owl:DatatypeProperty , owl:FunctionalProperty ;
 foaf:mbox a owl:DatatypeProperty ;
 	rdfs:domain foaf:Agent ;
 	rdfs:range xsd:string ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	:isUnique "true"^^xsd:boolean .
 # 
 # http://xmlns.com/foaf/0.1/middleName

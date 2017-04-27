@@ -12,6 +12,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
@@ -20,6 +21,7 @@ import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
 import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
+import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.QueryVariable;
 
@@ -35,11 +37,12 @@ import com.iotplatform.utilities.QueryVariable;
 @Component
 public class SelectionQueryResults {
 
-	private DynamicConceptsUtility dynamicPropertiesUtility;
+	// private DynamicConceptsUtility dynamicPropertiesUtility;
+	private DynamicOntologyDao dynamicOntologyDao;
 
 	@Autowired
-	public SelectionQueryResults(DynamicConceptsUtility dynamicPropertiesUtility) {
-		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
+	public SelectionQueryResults(DynamicOntologyDao dynamicOntologyDao) {
+		this.dynamicOntologyDao = dynamicOntologyDao;
 	}
 
 	/*
@@ -47,23 +50,28 @@ public class SelectionQueryResults {
 	 * ontology URIs
 	 */
 
-	private Object[] constructSinglePropertyValuePair(String applicationName, String propertyURI, Object value,
-			Class subjectClass) {
+	private Object[] constructSinglePropertyValuePair(String propertyURI, Object value, Class subjectClass,
+			String applicationModelName) {
 		Object[] res = new Object[2];
 
 		String propertyName = subjectClass.getHtblPropUriName().get(propertyURI);
 
 		if (propertyName == null) {
 
-			/*
-			 * update subject class properties list by loading the dynamic
-			 * properties from database
-			 */
+			ArrayList<String> classList = new ArrayList<>();
+			classList.add(subjectClass.getName());
 
-			dynamicPropertiesUtility.getDynamicProperties(applicationName, subjectClass);
+			for (Class superClass : subjectClass.getSuperClassesList()) {
+				classList.add(superClass.getName());
+			}
+
+			dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName, classList);
+
+			subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+					.get(subjectClass.getName().toLowerCase());
 			propertyName = subjectClass.getHtblPropUriName().get(propertyURI);
-
 		}
+
 		Property property = subjectClass.getProperties().get(propertyName);
 
 		if (property instanceof ObjectProperty) {
@@ -119,8 +127,8 @@ public class SelectionQueryResults {
 	 * not. If it has multiple value it should be returned as an arrayList
 	 */
 
-	public List<LinkedHashMap<String, Object>> constractResponeJsonObjectForListSelection(String applicationName,
-			ResultSet results, Class subjectClass) throws SQLException {
+	public List<LinkedHashMap<String, Object>> constractResponeJsonObjectForListSelection(ResultSet results,
+			Class subjectClass, String applicationModelName) throws SQLException {
 
 		List<LinkedHashMap<String, Object>> responseJson = new ArrayList<>();
 
@@ -148,8 +156,8 @@ public class SelectionQueryResults {
 				continue;
 			}
 
-			Object[] preparedPropVal = constructSinglePropertyValuePair(applicationName, results.getString(2),
-					results.getString(3), subjectClass);
+			Object[] preparedPropVal = constructSinglePropertyValuePair(results.getString(2), results.getString(3),
+					subjectClass, applicationModelName);
 
 			String propertyName = preparedPropVal[0].toString();
 			Object value = preparedPropVal[1];
@@ -908,7 +916,8 @@ public class SelectionQueryResults {
 		LinkedHashMap<String, Object> subjectVariableIndividual;
 		if (subjectVariable.equals("subject0")) {
 
-			subjectVariableIndividual = (LinkedHashMap<String, Object>) htblSubjectVariablehtblpropVal.get(subjectVariable);
+			subjectVariableIndividual = (LinkedHashMap<String, Object>) htblSubjectVariablehtblpropVal
+					.get(subjectVariable);
 		} else {
 			ArrayList<LinkedHashMap<String, Object>> subjectVariableIndividualsList = (ArrayList<LinkedHashMap<String, Object>>) htblSubjectVariablehtblpropVal
 					.get(subjectVariable);
@@ -1190,7 +1199,8 @@ public class SelectionQueryResults {
 		LinkedHashMap<String, Object> subjectVariableIndividual;
 		if (subjectVariable.equals("subject0")) {
 
-			subjectVariableIndividual = (LinkedHashMap<String, Object>) htblSubjectVariablehtblpropVal.get(subjectVariable);
+			subjectVariableIndividual = (LinkedHashMap<String, Object>) htblSubjectVariablehtblpropVal
+					.get(subjectVariable);
 		} else {
 			ArrayList<LinkedHashMap<String, Object>> subjectVariableIndividualsList = (ArrayList<LinkedHashMap<String, Object>>) htblSubjectVariablehtblpropVal
 					.get(subjectVariable);

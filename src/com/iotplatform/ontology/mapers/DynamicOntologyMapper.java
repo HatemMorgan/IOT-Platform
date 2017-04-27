@@ -9,6 +9,8 @@ public class DynamicOntologyMapper {
 	private static Hashtable<String, Hashtable<String, Class>> htblappDynamicOntologyClasses;
 	private static Hashtable<String, Hashtable<String, Class>> htblappDynamicOntologyClassesUri;
 
+	private static Hashtable<String, DynamicOntologyStateEnum> htblApplicationOntologyState;
+
 	public static Hashtable<String, Hashtable<String, Class>> getHtblappDynamicOntologyClasses() {
 
 		if (htblappDynamicOntologyClasses == null)
@@ -23,6 +25,14 @@ public class DynamicOntologyMapper {
 			htblappDynamicOntologyClassesUri = new Hashtable<>();
 
 		return htblappDynamicOntologyClassesUri;
+	}
+
+	public static Hashtable<String, DynamicOntologyStateEnum> getHtblApplicationOntologyState() {
+
+		if (htblApplicationOntologyState == null)
+			htblApplicationOntologyState = new Hashtable<>();
+
+		return htblApplicationOntologyState;
 	}
 
 }

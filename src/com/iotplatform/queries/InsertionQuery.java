@@ -9,14 +9,17 @@ import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
+import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.InsertionPropertyValue;
+import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
 
 public class InsertionQuery {
 
 	private static String prefixesString = null;
 
 	public static String constructInsertQuery(String applicationModelName, String requestSubjectClassName,
-			Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue) {
+			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue) {
 
 		StringBuilder insertQueryBuilder = new StringBuilder();
 
@@ -35,7 +38,7 @@ public class InsertionQuery {
 		/*
 		 * call constructInsertQuery method that return the constructed Triples
 		 */
-		String constructedTriples = constructInsertQueryHelper(htblClassPropertyValue);
+		String constructedTriples = constructInsertQueryHelper(htblClassPropertyValue, applicationModelName);
 
 		/*
 		 * append constructedTriples to queryBuilder
@@ -61,16 +64,40 @@ public class InsertionQuery {
 	 * RequestValidation class)
 	 */
 	private static String constructInsertQueryHelper(
-			Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue) {
+			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue,
+			String applicationModelName) {
 
 		StringBuilder insertQueryBuilder = new StringBuilder();
 
 		/*
 		 * iterate on htblClassPropertyValue
 		 */
-		Iterator<Class> htblClassPropertyValueIterator = htblClassPropertyValue.keySet().iterator();
+		Iterator<String> htblClassPropertyValueIterator = htblClassPropertyValue.keySet().iterator();
 		while (htblClassPropertyValueIterator.hasNext()) {
-			Class subjectClass = htblClassPropertyValueIterator.next();
+			String subjectClassName = htblClassPropertyValueIterator.next().toLowerCase();
+
+			Class subjectClass = null;
+
+			/*
+			 * get subjectClass from dynamicOntology cache if it exist
+			 */
+			if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().contains(applicationModelName)
+					&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+							.containsKey(subjectClassName))) {
+				subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+						.get(subjectClassName.toLowerCase());
+
+			} else {
+
+				if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(subjectClassName)) {
+
+					/*
+					 * get the objectClass from MainOntologyClassesMapper
+					 */
+					subjectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(subjectClassName);
+
+				}
+			}
 
 			/*
 			 * get uniqueIdentifierPrefixedPropertyName to get the
@@ -88,8 +115,9 @@ public class InsertionQuery {
 			/*
 			 * Iterate on instances of type subjectClass
 			 */
-			for (int i = 0; i < htblClassPropertyValue.get(subjectClass).size(); i++) {
-				ArrayList<InsertionPropertyValue> instancePropertyValueList = htblClassPropertyValue.get(subjectClass).get(i);
+			for (int i = 0; i < htblClassPropertyValue.get(subjectClass.getName()).size(); i++) {
+				ArrayList<InsertionPropertyValue> instancePropertyValueList = htblClassPropertyValue.get(subjectClass.getName())
+						.get(i);
 				String instanceTriples = constructClassInstanceTriples(subjectClass, uniqueIdentifierProperty,
 						instancePropertyValueList);
 				insertQueryBuilder.append(instanceTriples);

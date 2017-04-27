@@ -45,7 +45,7 @@ public class InsertionDao {
 	 * InsertionService
 	 */
 	public void insertData(String applicationModelName, String requestSubjectClassName,
-			Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue) {
+			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue) {
 		try {
 
 			String insertQuery = InsertionQuery.constructInsertQuery(applicationModelName, requestSubjectClassName,

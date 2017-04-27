@@ -6,7 +6,7 @@ import java.util.Hashtable;
 /*
  * It defines Classes in ontologies which is one of the main requirements for a semantic ontology
  */
-public class Class {
+public class Class implements Cloneable {
 	private String name;
 	private String uri;
 	private Prefix prefix;
@@ -77,6 +77,10 @@ public class Class {
 		this.classTypesList = new Hashtable<>();
 		this.properties = new Hashtable<>();
 		this.superClassesList = new ArrayList<>();
+	}
+
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
 	}
 
 	public String getUniqueIdentifierPropertyName() {

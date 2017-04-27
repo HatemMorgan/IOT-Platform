@@ -10,6 +10,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.daos.DynamicConceptsDao;
+import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.SelectQueryDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidQueryRequestBodyFormatException;
@@ -20,11 +21,13 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
+import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.NotMappedDynamicQueryFields;
 import com.iotplatform.utilities.OptionsEnum;
 import com.iotplatform.utilities.QueryField;
 import com.iotplatform.utilities.ValidationResult;
+import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -36,12 +39,13 @@ import oracle.spatial.rdf.client.jena.Oracle;
 @Component
 public class SelectQueryRequestValidation {
 
-	private DynamicConceptsUtility dynamicPropertiesUtility;
+	// private DynamicConceptsUtility dynamicPropertiesUtility;
+	private DynamicOntologyDao dynamicOntologyDao;
 	private static Hashtable<String, String> options;
 
-	public SelectQueryRequestValidation(DynamicConceptsUtility dynamicPropertiesUtility) {
-		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
-
+	public SelectQueryRequestValidation(DynamicOntologyDao dynamicOntologyDao) {
+		// this.dynamicPropertiesUtility = dynamicPropertiesUtility;
+		this.dynamicOntologyDao = dynamicOntologyDao;
 		options = new Hashtable<>();
 		for (OptionsEnum option : OptionsEnum.values()) {
 			options.put(option.toString(), option.toString());
@@ -69,13 +73,13 @@ public class SelectQueryRequestValidation {
 	 * have different fields for each instance. So the id will separate them
 	 */
 	public ValidationResult validateRequest(String applicationName, LinkedHashMap<String, Object> htblFieldValue,
-			Class subjectClass) {
+			Class subjectClass, String applicationModelName) {
 
 		/*
 		 * List of classes that need to get their dynamic properties to check if
 		 * the fields maps to one of them or these fields are invalid fields
 		 */
-		Hashtable<String, Class> htblNotMappedFieldsClasses = new Hashtable<>();
+		ArrayList<String> notMappedFieldsClassesList = new ArrayList<>();
 
 		/*
 		 * list of NotMappedDynamicQueryFields which holds the unmapped fields
@@ -169,12 +173,13 @@ public class SelectQueryRequestValidation {
 			htblUniqueIdentierQueryFieldsList.put(randomUUID, queryFieldsList);
 			htblClassNameProperty.put(subjectClass.getUri(), htblUniqueIdentierQueryFieldsList);
 
-			validateProjectionFields(subjectClass, htblNotMappedFieldsClasses, notMappedFieldList,
-					htblFieldValue.get("fields"), htblClassNameProperty, randomUUID, subjectClass.getName(), null);
+			validateProjectionFields(subjectClass, notMappedFieldsClassesList, notMappedFieldList,
+					htblFieldValue.get("fields"), htblClassNameProperty, randomUUID, subjectClass.getName(), null,
+					applicationModelName);
 
-			if (htblNotMappedFieldsClasses.size() > 0) {
-				validateNotMappedFieldsValues(applicationName, subjectClass, htblNotMappedFieldsClasses,
-						notMappedFieldList, htblClassNameProperty, subjectClass.getName());
+			if (notMappedFieldsClassesList.size() > 0) {
+				validateNotMappedFieldsValues(applicationName, notMappedFieldsClassesList, notMappedFieldList,
+						htblClassNameProperty, subjectClass.getName(), applicationModelName);
 			}
 
 		} else {
@@ -223,10 +228,10 @@ public class SelectQueryRequestValidation {
 	 * valuesFieldName. It will be null otherwise (if it is not values key)
 	 * 
 	 */
-	private void validateProjectionFields(Class subjectClass, Hashtable<String, Class> htblNotMappedFieldsClasses,
+	private void validateProjectionFields(Class subjectClass, ArrayList<String> notMappedFieldsClassesList,
 			ArrayList<NotMappedDynamicQueryFields> notMappedFieldList, Object field,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			String uniqueIdentifier, String requestClassName, String valuesFieldName) {
+			String uniqueIdentifier, String requestClassName, String valuesFieldName, String applicationModelName) {
 
 		/*
 		 * String field which represents that the fieldValue will be the direct
@@ -237,7 +242,7 @@ public class SelectQueryRequestValidation {
 			 * check if the field has a property mapping
 			 */
 			if (isFieldMapsToStaticProperty(subjectClass, field.toString(), null, uniqueIdentifier,
-					htblNotMappedFieldsClasses, notMappedFieldList)) {
+					notMappedFieldsClassesList, notMappedFieldList)) {
 
 				/*
 				 * get prefixedPropertyName
@@ -335,7 +340,7 @@ public class SelectQueryRequestValidation {
 					 * subjectClass
 					 */
 					if (isFieldMapsToStaticProperty(subjectClass, fieldName, field, uniqueIdentifier,
-							htblNotMappedFieldsClasses, notMappedFieldList)) {
+							notMappedFieldsClassesList, notMappedFieldList)) {
 
 						Property property = subjectClass.getProperties().get(fieldName);
 
@@ -350,8 +355,9 @@ public class SelectQueryRequestValidation {
 							 */
 							if (htblfieldObject.containsKey("values")) {
 								Object values = htblfieldObject.get("values");
-								validateProjectionFields(subjectClass, htblNotMappedFieldsClasses, notMappedFieldList,
-										values, htblClassNameProperty, uniqueIdentifier, requestClassName, fieldName);
+								validateProjectionFields(subjectClass, notMappedFieldsClassesList, notMappedFieldList,
+										values, htblClassNameProperty, uniqueIdentifier, requestClassName, fieldName,
+										applicationModelName);
 							} else {
 
 								// first condition as discussed above
@@ -369,7 +375,9 @@ public class SelectQueryRequestValidation {
 								 * foaf:developer
 								 */
 								if (htblfieldObject.containsKey("classType")) {
-									objectValueClassType = ((ObjectProperty) property).getObject();
+									objectValueClassType = getPropertyObject(property, subjectClass,
+											notMappedFieldsClassesList, notMappedFieldList, field, applicationModelName,
+											uniqueIdentifier);
 
 									/*
 									 * check if the passed type is a valid
@@ -396,7 +404,9 @@ public class SelectQueryRequestValidation {
 									 * get objectValue class and its prefixed
 									 * class name
 									 */
-									objectValueClassType = ((ObjectProperty) property).getObject();
+									objectValueClassType = getPropertyObject(property, subjectClass,
+											notMappedFieldsClassesList, notMappedFieldList, field, applicationModelName,
+											uniqueIdentifier);
 
 								}
 								/*
@@ -471,9 +481,9 @@ public class SelectQueryRequestValidation {
 									ArrayList<Object> objectFieldList = (ArrayList<Object>) htblfieldObject
 											.get("fields");
 
-									validateProjectionFields(objectValueClassType, htblNotMappedFieldsClasses,
+									validateProjectionFields(objectValueClassType, notMappedFieldsClassesList,
 											notMappedFieldList, objectFieldList, htblClassNameProperty, randomUUID,
-											requestClassName, null);
+											requestClassName, null, applicationModelName);
 								} else {
 
 									/*
@@ -523,8 +533,9 @@ public class SelectQueryRequestValidation {
 					 */
 					for (Object fieldkey : fieldList) {
 
-						validateProjectionFields(subjectClass, htblNotMappedFieldsClasses, notMappedFieldList, fieldkey,
-								htblClassNameProperty, uniqueIdentifier, requestClassName, valuesFieldName);
+						validateProjectionFields(subjectClass, notMappedFieldsClassesList, notMappedFieldList, fieldkey,
+								htblClassNameProperty, uniqueIdentifier, requestClassName, valuesFieldName,
+								applicationModelName);
 					}
 
 				} else {
@@ -557,13 +568,13 @@ public class SelectQueryRequestValidation {
 	 * instance
 	 */
 	private boolean isFieldMapsToStaticProperty(Class subjectClass, String fieldName, Object fieldObject,
-			String uniqueIdentifier, Hashtable<String, Class> htblNotMappedFieldsClasses,
+			String uniqueIdentifier, ArrayList<String> notMappedFieldsClassesList,
 			ArrayList<NotMappedDynamicQueryFields> notMappedFieldList) {
 		if (subjectClass.getProperties().containsKey(fieldName)) {
 			return true;
 		} else {
 
-			htblNotMappedFieldsClasses.put(subjectClass.getUri(), subjectClass);
+			notMappedFieldsClassesList.add(subjectClass.getName());
 			NotMappedDynamicQueryFields notMappedDynamicQueryField;
 
 			if (fieldObject == null) {
@@ -578,40 +589,24 @@ public class SelectQueryRequestValidation {
 		}
 	}
 
-	/*
-	 * parseAndConstructNotMappedFieldsValues method is used to parse values of
-	 * fields that has no static mapping and may have mapping after loading
-	 * dynamic properties
-	 */
-	private void validateNotMappedFieldsValues(String applicationName, Class subjectClass,
-			Hashtable<String, Class> htblNotMappedFieldsClasses,
+	private void validateNotMappedFieldsValues(String applicationName, ArrayList<String> notMappedFieldsClassesList,
 			ArrayList<NotMappedDynamicQueryFields> notMappedFieldList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			String requestClassName) {
+			String requestClassName, String applicationModelName) {
 
-		/*
-		 * get Dynamic Properties of the classes in the classList which contains
-		 * the domain class of the fields in the request that are not mapped to
-		 * static properties
-		 */
+		if (notMappedFieldList.size() > 0 && notMappedFieldsClassesList.size() > 0) {
 
-		if (htblNotMappedFieldsClasses.size() > 0) {
-			Hashtable<String, DynamicConceptModel> loadedDynamicProperties = dynamicPropertiesUtility
-					.getDynamicProperties(applicationName, htblNotMappedFieldsClasses, new Hashtable<>());
-			/*
-			 * Check that the fields that had no mappings are valid or not
-			 * 
-			 * This nested Object may have some fields that has no static
-			 * mapping and need to checked after loading the dynamicProperties
-			 * related to objectClassType and applicationDomain so I have to add
-			 * this fields to notMappedFieldList and recursively call again this
-			 * method
-			 */
-			int size = notMappedFieldList.size();
-			for (int i = 0; i < size; i++) {
-				NotMappedDynamicQueryFields notFoundField = notMappedFieldList.get(i);
+			dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName,
+					notMappedFieldsClassesList);
 
-				String field = notFoundField.getFieldName();
+			ArrayList<String> newNotMappedFieldsClasses = new ArrayList<>();
+			ArrayList<NotMappedDynamicQueryFields> newNotMappedFieldList = new ArrayList<>();
+
+			for (NotMappedDynamicQueryFields notMappedDynamicQueryField : notMappedFieldList) {
+
+				String field = notMappedDynamicQueryField.getFieldName();
+				String subjectClassName = notMappedDynamicQueryField.getSubjectClass().getName().toLowerCase();
+
 				/*
 				 * After loading dynamic Properties, I am caching all the loaded
 				 * properties so If field does not mapped to one of the
@@ -619,95 +614,249 @@ public class SelectQueryRequestValidation {
 				 * the subjectClass , I will throw InvalidRequestFieldsException
 				 * to indicate the field is invalid
 				 */
-				if (!notFoundField.getSubjectClass().getProperties().containsKey(field)) {
-					throw new InvalidRequestFieldsException(subjectClass.getName(), field);
+				if (!(DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
+						&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+								.containsKey(subjectClassName)
+						&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+								.get(subjectClassName).getProperties().containsKey(field))) {
+
+					throw new InvalidRequestFieldsException(requestClassName, field);
+
 				} else {
 
-					/*
-					 * passed field is a static property so add it to
-					 * htblStaticProperty so check that the property is valid
-					 * for this application domain
-					 *
-					 * if the applicationName is null so this field maps a
-					 * property in the main ontology .
-					 *
-					 * if the applicationName is equal to passed applicationName
-					 * so it is a dynamic added property to this application
-					 * domain
-					 *
-					 * else it will be a dynamic property in another application
-					 * domain which will happen rarely
-					 */
-					Class dynamicPropertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers()
-							.get(loadedDynamicProperties.get(field).getClass_uri());
-					Property property = dynamicPropertyClass.getProperties().get(field);
+					Property property = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+							.get(applicationModelName).get(subjectClassName).getProperties().get(field);
+					Class subjectClass = notMappedDynamicQueryField.getSubjectClass();
 
-					if (property.getApplicationName() == null
-							|| property.getApplicationName().equals(applicationName.replace(" ", "").toUpperCase())) {
+					if (notMappedDynamicQueryField.getFieldObject() == null) {
 
-						if (notFoundField.getFieldObject() == null) {
-							/*
-							 * Field is valid dynamic property and has a mapping
-							 * for a dynamic property. So I will parse the value
-							 * and add prefixes
-							 */
-							validateProjectionFields(notFoundField.getSubjectClass(), new Hashtable<>(),
-									new ArrayList<>(), field, htblClassNameProperty,
-									notFoundField.getIndividualUniqueIdintifier(), requestClassName, null);
-
-						} else {
-							/*
-							 * if property is an object property so I have to
-							 * pass to validateProjectionField an new
-							 * notMappedFieldList instance and a new
-							 * htblNotMappedFieldsClasses instance in order to
-							 * add any unMapped fields for the
-							 * nestedObjectValues (if the value is object or
-							 * list)
-							 */
-							ArrayList<NotMappedDynamicQueryFields> notMappedFieldListTemp = new ArrayList<>();
-							Hashtable<String, Class> htblNotMappedFieldsClassesTemp = new Hashtable<>();
-
-							/*
-							 * pass fieldObject of nonFoundField. This object is
-							 * either a list or an object(contains two keys
-							 * fieldName and fields)
-							 */
-							validateProjectionFields(notFoundField.getSubjectClass(), htblNotMappedFieldsClassesTemp,
-									notMappedFieldListTemp, notFoundField.getFieldObject(), htblClassNameProperty,
-									notFoundField.getIndividualUniqueIdintifier(), requestClassName, null);
-
-							/*
-							 * check if there was unmapped fields in the
-							 * nestedObjectValue to load the dynamicProperties
-							 * and check those fields by recursively calling
-							 * this method again
-							 */
-							if (htblNotMappedFieldsClassesTemp.size() > 0) {
-								validateNotMappedFieldsValues(applicationName, subjectClass,
-										htblNotMappedFieldsClassesTemp, notMappedFieldListTemp, htblClassNameProperty,
-										requestClassName);
-
-							}
-
-						}
+						/*
+						 * Field is valid dynamic property and has a mapping for
+						 * a dynamic property. So I will parse the value and add
+						 * prefixes
+						 */
+						validateProjectionFields(notMappedDynamicQueryField.getSubjectClass(),
+								newNotMappedFieldsClasses, newNotMappedFieldList, field, htblClassNameProperty,
+								notMappedDynamicQueryField.getIndividualUniqueIdintifier(), requestClassName, null,
+								applicationModelName);
 
 					} else {
 
-						/*
-						 * this means that this class has a property with the
-						 * same name but it is not for the specified application
-						 * domain
-						 */
-
-						throw new InvalidRequestFieldsException(subjectClass.getName(), field);
+						validateProjectionFields(notMappedDynamicQueryField.getSubjectClass(),
+								newNotMappedFieldsClasses, newNotMappedFieldList,
+								notMappedDynamicQueryField.getFieldObject(), htblClassNameProperty,
+								notMappedDynamicQueryField.getIndividualUniqueIdintifier(), requestClassName, null,
+								applicationModelName);
 
 					}
+
 				}
 
 			}
+
+			if (newNotMappedFieldsClasses.size() > 0 && newNotMappedFieldList.size() > 0) {
+				validateNotMappedFieldsValues(applicationName, newNotMappedFieldsClasses, newNotMappedFieldList,
+						htblClassNameProperty, requestClassName, applicationModelName);
+
+			}
+
 		}
 
+	}
+
+	/*
+	 * parseAndConstructNotMappedFieldsValues method is used to parse values of
+	 * fields that has no static mapping and may have mapping after loading
+	 * dynamic properties
+	 */
+	// private void validateNotMappedFieldsValues(String applicationName, Class
+	// subjectClass,
+	// ArrayList<String> notMappedFieldsClassesList,
+	// ArrayList<NotMappedDynamicQueryFields> notMappedFieldList,
+	// LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>>
+	// htblClassNameProperty,
+	// String requestClassName, String applicationModelName) {
+	//
+	// /*
+	// * get Dynamic Properties of the classes in the classList which contains
+	// * the domain class of the fields in the request that are not mapped to
+	// * static properties
+	// */
+	//
+	// if (notMappedFieldsClassesList.size() > 0) {
+	// // Hashtable<String, DynamicConceptModel> loadedDynamicProperties =
+	// // dynamicPropertiesUtility
+	// // .getDynamicProperties(applicationName,
+	// // htblNotMappedFieldsClasses, new Hashtable<>());
+	//
+	// dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName,
+	// notMappedFieldsClassesList);
+	//
+	// /*
+	// * Check that the fields that had no mappings are valid or not
+	// *
+	// * This nested Object may have some fields that has no static
+	// * mapping and need to checked after loading the dynamicProperties
+	// * related to objectClassType and applicationDomain so I have to add
+	// * this fields to notMappedFieldList and recursively call again this
+	// * method
+	// */
+	// int size = notMappedFieldList.size();
+	// for (int i = 0; i < size; i++) {
+	// NotMappedDynamicQueryFields notFoundField = notMappedFieldList.get(i);
+	//
+	// String field = notFoundField.getFieldName();
+	// /*
+	// * After loading dynamic Properties, I am caching all the loaded
+	// * properties so If field does not mapped to one of the
+	// * properties(contains static ones and cached dynamic ones) of
+	// * the subjectClass , I will throw InvalidRequestFieldsException
+	// * to indicate the field is invalid
+	// */
+	// if (!notFoundField.getSubjectClass().getProperties().containsKey(field))
+	// {
+	// throw new InvalidRequestFieldsException(subjectClass.getName(), field);
+	// } else {
+	//
+	// /*
+	// * passed field is a static property so add it to
+	// * htblStaticProperty so check that the property is valid
+	// * for this application domain
+	// *
+	// * if the applicationName is null so this field maps a
+	// * property in the main ontology .
+	// *
+	// * if the applicationName is equal to passed applicationName
+	// * so it is a dynamic added property to this application
+	// * domain
+	// *
+	// * else it will be a dynamic property in another application
+	// * domain which will happen rarely
+	// */
+	// Class dynamicPropertyClass =
+	// OntologyMapper.getHtblMainOntologyClassesUriMappers()
+	// .get(loadedDynamicProperties.get(field).getClass_uri());
+	// Property property = dynamicPropertyClass.getProperties().get(field);
+	//
+	// if (property.getApplicationName() == null
+	// || property.getApplicationName().equals(applicationName.replace(" ",
+	// "").toUpperCase())) {
+	//
+	// if (notFoundField.getFieldObject() == null) {
+	// /*
+	// * Field is valid dynamic property and has a mapping
+	// * for a dynamic property. So I will parse the value
+	// * and add prefixes
+	// */
+	// validateProjectionFields(notFoundField.getSubjectClass(), new
+	// Hashtable<>(),
+	// new ArrayList<>(), field, htblClassNameProperty,
+	// notFoundField.getIndividualUniqueIdintifier(), requestClassName, null);
+	//
+	// } else {
+	// /*
+	// * if property is an object property so I have to
+	// * pass to validateProjectionField an new
+	// * notMappedFieldList instance and a new
+	// * htblNotMappedFieldsClasses instance in order to
+	// * add any unMapped fields for the
+	// * nestedObjectValues (if the value is object or
+	// * list)
+	// */
+	// ArrayList<NotMappedDynamicQueryFields> notMappedFieldListTemp = new
+	// ArrayList<>();
+	// Hashtable<String, Class> htblNotMappedFieldsClassesTemp = new
+	// Hashtable<>();
+	//
+	// /*
+	// * pass fieldObject of nonFoundField. This object is
+	// * either a list or an object(contains two keys
+	// * fieldName and fields)
+	// */
+	// validateProjectionFields(notFoundField.getSubjectClass(),
+	// htblNotMappedFieldsClassesTemp,
+	// notMappedFieldListTemp, notFoundField.getFieldObject(),
+	// htblClassNameProperty,
+	// notFoundField.getIndividualUniqueIdintifier(), requestClassName, null);
+	//
+	// /*
+	// * check if there was unmapped fields in the
+	// * nestedObjectValue to load the dynamicProperties
+	// * and check those fields by recursively calling
+	// * this method again
+	// */
+	// if (htblNotMappedFieldsClassesTemp.size() > 0) {
+	// validateNotMappedFieldsValues(applicationName, subjectClass,
+	// htblNotMappedFieldsClassesTemp, notMappedFieldListTemp,
+	// htblClassNameProperty,
+	// requestClassName);
+	//
+	// }
+	//
+	// }
+	//
+	// } else {
+	//
+	// /*
+	// * this means that this class has a property with the
+	// * same name but it is not for the specified application
+	// * domain
+	// */
+	//
+	// throw new InvalidRequestFieldsException(subjectClass.getName(), field);
+	//
+	// }
+	// }
+	//
+	// }
+	// }
+	//
+	// }
+
+	private Class getPropertyObject(Property property, Class subjectClass, ArrayList<String> notMappedFieldsClassesList,
+			ArrayList<NotMappedDynamicQueryFields> notMappedFieldList, Object fieldObject, String applicationModelName,
+			String uniqueIdentifier) {
+		/*
+		 * get property range objectClass if it is an objectProperty
+		 */
+		Class objectClass = null;
+
+		String objectClassName = ((ObjectProperty) property).getObjectClassName();
+
+		/*
+		 * get objectClass from mainOntology if it exist
+		 */
+		if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(objectClassName.toLowerCase())) {
+
+			/*
+			 * get the objectClass from MainOntologyClassesMapper
+			 */
+			objectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(objectClassName.toLowerCase());
+		} else {
+
+			if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().contains(applicationModelName)
+					&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+							.containsKey(objectClassName.toLowerCase()))) {
+				objectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+						.get(objectClassName.toLowerCase());
+			} else {
+				notMappedFieldsClassesList.add(objectClassName);
+
+				NotMappedDynamicQueryFields notMappedDynamicQueryField;
+				if (fieldObject == null) {
+					notMappedDynamicQueryField = new NotMappedDynamicQueryFields(subjectClass, property.getName(),
+							uniqueIdentifier);
+				} else {
+					notMappedDynamicQueryField = new NotMappedDynamicQueryFields(subjectClass, property.getName(),
+							fieldObject, uniqueIdentifier);
+				}
+				notMappedFieldList.add(notMappedDynamicQueryField);
+
+			}
+
+		}
+
+		return objectClass;
 	}
 
 	public static void main(String[] args) {
@@ -715,15 +864,18 @@ public class SelectQueryRequestValidation {
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
 		String szUser = "rdfusr";
 		String szPasswd = "rdfusr";
-		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
+		// String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
 
-		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName(szJdbcDriver);
-		dataSource.setUrl(szJdbcURL);
-		dataSource.setUsername(szUser);
-		dataSource.setPassword(szPasswd);
+		// BasicDataSource dataSource = new BasicDataSource();
+		// dataSource.setDriverClassName(szJdbcDriver);
+		// dataSource.setUrl(szJdbcURL);
+		// dataSource.setUsername(szUser);
+		// dataSource.setPassword(szPasswd);
 
-		DynamicConceptsDao dynamicConceptDao = new DynamicConceptsDao(dataSource);
+		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+
+		// DynamicConceptsDao dynamicConceptDao = new
+		// DynamicConceptsDao(dataSource);
 
 		// Hashtable<String, Object> htblFieldValue = new Hashtable<>();
 		//
@@ -809,7 +961,7 @@ public class SelectQueryRequestValidation {
 		// membersFieldMap.put("fields", fields);
 
 		LinkedHashMap<String, Object> personFieldMap = new LinkedHashMap<>();
-		personFieldMap.put("classType", "Developer");
+		personFieldMap.put("classType", "Person");
 
 		// LinkedHashMap<String, Object> knowsPersonFieldMap2 = new
 		// LinkedHashMap<>();
@@ -859,19 +1011,19 @@ public class SelectQueryRequestValidation {
 		groupFields.add("name");
 
 		groupFieldMap.put("fields", groupFields);
-		// membersValueObjects.add(groupFieldMap);
+		 membersValueObjects.add(groupFieldMap);
 
 		fieldsList.add("description");
 		System.out.println(htblFieldValue);
 
 		SelectQueryRequestValidation getQueryRequestValidations = new SelectQueryRequestValidation(
-				new DynamicConceptsUtility(dynamicConceptDao));
+				new DynamicOntologyDao(oracle));
 
 		try {
 			long startTime = System.currentTimeMillis();
 			ValidationResult validationResult = getQueryRequestValidations.validateRequest("TESTAPPLICATION",
-					htblFieldValue,
-					OntologyMapper.getHtblMainOntologyClassesMappers().get("group"));
+					htblFieldValue, OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("group"),
+					"TESTAPPLICATION_MODEL");
 
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = validationResult
 					.getHtblClassNameProperty();
@@ -879,8 +1031,6 @@ public class SelectQueryRequestValidation {
 			System.out.println("============================================");
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			System.out.println("Time taken = " + timeTaken);
-
-			Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
 			SelectQueryDao selectQueryDao = new SelectQueryDao(oracle);
 

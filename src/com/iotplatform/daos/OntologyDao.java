@@ -11,6 +11,7 @@ import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
+import com.iotplatform.ontology.mapers.DynamicOntologyStateEnum;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -18,11 +19,11 @@ import oracle.spatial.rdf.client.jena.Oracle;
 @Repository("ontologyDao")
 public class OntologyDao {
 
-	private DynamicOntologyDao DynamicOntologyDao;
+	private DynamicOntologyDao dynamicOntologyDao;
 
 	@Autowired
-	public OntologyDao(DynamicOntologyDao DynamicOntologyDao) {
-		this.DynamicOntologyDao = DynamicOntologyDao;
+	public OntologyDao(DynamicOntologyDao dynamicOntologyDao) {
+		this.dynamicOntologyDao = dynamicOntologyDao;
 	}
 
 	public LinkedHashMap<String, Object> loadApplicationOntology(String applicationModelName) {
@@ -44,8 +45,13 @@ public class OntologyDao {
 	private void getApplicationOntology(String applicationModelName, ArrayList<Object> classList,
 			ArrayList<Object> propertiesList) {
 
-		DynamicOntologyDao.loadAndCacheAllApplicationDynamicOntologyClasses(applicationModelName);
-		DynamicOntologyDao.loadAndCacheAllApplicationDynamicOntologyObjectProperties(applicationModelName);
+		if (!(DynamicOntologyMapper.getHtblApplicationOntologyState().containsKey(applicationModelName)
+				&& DynamicOntologyMapper.getHtblApplicationOntologyState().get(applicationModelName)
+						.equals(DynamicOntologyStateEnum.NotModified))) {
+			DynamicOntologyMapper.getHtblappDynamicOntologyClasses().remove(applicationModelName);
+			DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().remove(applicationModelName);
+			dynamicOntologyDao.loadAndCacheApplicationDynamicOntology(applicationModelName);
+		}
 
 		Iterator<String> htblMainOntologyClassesMappersIter = OntologyMapper.getHtblMainOntologyClassesMappers()
 				.keySet().iterator();

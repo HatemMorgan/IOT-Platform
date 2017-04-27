@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.daos.DynamicConceptsDao;
+import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidPropertyValuesException;
@@ -34,6 +35,7 @@ import com.iotplatform.utilities.InsertionPropertyValue;
 import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
 import com.iotplatform.utilities.ValueOfTypeClass;
 
+import oracle.net.aso.s;
 import oracle.spatial.rdf.client.jena.Oracle;
 
 /**
@@ -68,12 +70,13 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class InsertRequestValidation {
 
 	private ValidationDao validationDao;
-	private DynamicConceptsUtility dynamicPropertiesUtility;
+	// private DynamicConceptsUtility dynamicPropertiesUtility;
+	private DynamicOntologyDao dynamicOntologyDao;
 
 	@Autowired
-	public InsertRequestValidation(ValidationDao validationDao, DynamicConceptsUtility dynamicPropertiesUtility) {
+	public InsertRequestValidation(ValidationDao validationDao, DynamicOntologyDao dynamicOntologyDao) {
 		this.validationDao = validationDao;
-		this.dynamicPropertiesUtility = dynamicPropertiesUtility;
+		this.dynamicOntologyDao = dynamicOntologyDao;
 	}
 
 	/*
@@ -99,9 +102,8 @@ public class InsertRequestValidation {
 	 * method
 	 * 
 	 */
-	public Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> validateRequestFields(String applicationName,
-			LinkedHashMap<String, Object> htblFieldValue, Class subjectClass) {
-
+	public Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> validateRequestFields(String applicationName,
+			LinkedHashMap<String, Object> htblFieldValue, Class subjectClass, String applicationModelName) {
 		/*
 		 * check if the obligatory fields exist. if does not exist throw an
 		 * exception
@@ -111,18 +113,13 @@ public class InsertRequestValidation {
 					subjectClass.getName(), subjectClass.getName());
 		}
 
-		/*
-		 * set subClass to its static instace
-		 */
-		subjectClass = OntologyMapper.getHtblMainOntologyClassesUriMappers().get(subjectClass.getUri());
-
 		Iterator<String> htblFieldValueIterator = htblFieldValue.keySet().iterator();
 
 		/*
 		 * List of classes that need to get their dynamic properties to check if
 		 * the fields maps to one of them or these fields are invalid fields
 		 */
-		Hashtable<String, Class> htblNotMappedFieldsClasses = new Hashtable<>();
+		ArrayList<String> notMappedFieldsClassesList = new ArrayList<>();
 
 		/*
 		 * notFoundFieldValueList holds fieldsValue pairs that do not have a
@@ -134,7 +131,7 @@ public class InsertRequestValidation {
 		/*
 		 * htblClassPropertyValue holds the constructed propertyValue
 		 */
-		Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue = new Hashtable<>();
+		Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue = new Hashtable<>();
 
 		/*
 		 * classValueList is list of ValueOfTypeClass instances (holds
@@ -212,8 +209,8 @@ public class InsertRequestValidation {
 			ArrayList<ArrayList<InsertionPropertyValue>> instancesList = new ArrayList<>();
 			ArrayList<InsertionPropertyValue> propertyValueList = new ArrayList<>();
 			instancesList.add(propertyValueList);
-			htblClassPropertyValue.put(subjectClass, instancesList);
-			htblClassPropertyValue.get(subjectClass).get(0).add(idPropertyValue);
+			htblClassPropertyValue.put(subjectClass.getName(), instancesList);
+			htblClassPropertyValue.get(subjectClass.getName()).get(0).add(idPropertyValue);
 
 		} else {
 
@@ -225,7 +222,7 @@ public class InsertRequestValidation {
 			ArrayList<ArrayList<InsertionPropertyValue>> instancesList = new ArrayList<>();
 			ArrayList<InsertionPropertyValue> propertyValueList = new ArrayList<>();
 			instancesList.add(propertyValueList);
-			htblClassPropertyValue.put(subjectClass, instancesList);
+			htblClassPropertyValue.put(subjectClass.getName(), instancesList);
 
 		}
 
@@ -257,23 +254,20 @@ public class InsertRequestValidation {
 			 * htblNotFoundFieldValue
 			 */
 
-			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, htblNotMappedFieldsClasses,
+			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, notMappedFieldsClassesList,
 					notFoundFieldValueList, 0)) {
 				Property property = subjectClass.getProperties().get(fieldName);
 
 				parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue,
-						htblNotMappedFieldsClasses, notFoundFieldValueList, 0, htblUniquePropValueList, classValueList,
-						subjectClass.getName());
+						notMappedFieldsClassesList, notFoundFieldValueList, 0, htblUniquePropValueList, classValueList,
+						subjectClass.getName(), applicationModelName);
 			}
 
 		}
 
-		/*
-		 * start htblPrevNotMappedFieldsClasses with an empty hashtable
-		 */
-		parseAndConstructNotMappedFieldsValues(applicationName, subjectClass, htblClassPropertyValue,
-				htblNotMappedFieldsClasses, new Hashtable<>(), notFoundFieldValueList, htblUniquePropValueList,
-				classValueList);
+		parseAndConstructNotMappedFieldsValues(applicationName, subjectClass.getName(), htblClassPropertyValue,
+				notMappedFieldsClassesList, notFoundFieldValueList, htblUniquePropValueList, classValueList,
+				applicationModelName);
 
 		/*
 		 * Call ValidationDao to check for data constraint voilations
@@ -292,6 +286,7 @@ public class InsertRequestValidation {
 			 */
 			if (validationDao.hasNoConstraintViolations(applicationName, classValueList, htblUniquePropValueList,
 					subjectClass)) {
+				System.out.println("asas");
 				return htblClassPropertyValue;
 			}
 
@@ -330,16 +325,25 @@ public class InsertRequestValidation {
 	 * instance
 	 */
 	private boolean isFieldMapsToStaticProperty(Class subjectClass, String fieldName, Object value,
-			Hashtable<String, Class> htblNotMappedFieldsClasses,
+			ArrayList<String> notMappedFieldsClassesList,
 			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList, int index) {
 
 		if (subjectClass.getProperties().containsKey(fieldName)) {
 			return true;
 		} else {
-			htblNotMappedFieldsClasses.put(subjectClass.getUri(), subjectClass);
+
+			// System.out.println(subjectClass.getName() + " " + fieldName);
+
+			notMappedFieldsClassesList.add(subjectClass.getName());
 			ValueOfFieldNotMappedToStaticProperty notMappedFieldValue = new ValueOfFieldNotMappedToStaticProperty(
 					subjectClass, value, index, fieldName);
 			notFoundFieldValueList.add(notMappedFieldValue);
+
+			for (Class superClass : subjectClass.getSuperClassesList()) {
+				notMappedFieldsClassesList.add(superClass.getName());
+
+			}
+
 			return false;
 		}
 	}
@@ -383,43 +387,11 @@ public class InsertRequestValidation {
 	 * if the value is unique or not
 	 */
 	private void parseAndConstructFieldValue(Class subjectClass, Property property, Object value,
-			Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue,
-			Hashtable<String, Class> htblNotMappedFieldsClasses,
+			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue,
+			ArrayList<String> notMappedFieldsClassesList,
 			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList, int indexCount,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
-			ArrayList<ValueOfTypeClass> classValueList, String requestClassName) {
-
-		/*
-		 * get property range objectClass if it is an objectProperty
-		 */
-		Class objectClass = null;
-		if (property instanceof ObjectProperty) {
-			String objectClassName = ((ObjectProperty) property).getObjectClassName();
-
-			/*
-			 * get objectClass from mainOntology if it exist
-			 */
-			if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(objectClassName)) {
-
-				/*
-				 * get the objectClass from MainOntologyClassesMapper
-				 */
-				objectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(objectClassName.toLowerCase());
-			} else {
-
-				/*
-				 * The object class does not exist in the main ontology so it
-				 * will be sure existing in dynamicOntology of the requested
-				 * application. I do not need to check if its exist in
-				 * dynamicOntology because I had already loaded all the dynamic
-				 * properties and class needed by the queryRequest when
-				 * validating
-				 */
-				objectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
-						.get(objectClassName.toLowerCase());
-			}
-		}
-
+			ArrayList<ValueOfTypeClass> classValueList, String requestClassName, String applicationModelName) {
 		/*
 		 * check if the value is of type primitive datatype
 		 */
@@ -431,7 +403,47 @@ public class InsertRequestValidation {
 			 * requestValidationDao
 			 */
 			if (property instanceof ObjectProperty) {
-				classValueList.add(new ValueOfTypeClass(((ObjectProperty) property).getObject(), value));
+
+				/*
+				 * get property range objectClass if it is an objectProperty
+				 */
+				Class objectClass = null;
+
+				String objectClassName = ((ObjectProperty) property).getObjectClassName();
+
+				/*
+				 * get objectClass from mainOntology if it exist
+				 */
+				if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(objectClassName.toLowerCase())) {
+
+					/*
+					 * get the objectClass from MainOntologyClassesMapper
+					 */
+					objectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(objectClassName.toLowerCase());
+				} else {
+
+					if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().contains(applicationModelName)
+							&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+									.containsKey(objectClassName.toLowerCase()))) {
+						objectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+								.get(objectClassName.toLowerCase());
+					} else {
+						notMappedFieldsClassesList.add(objectClassName);
+
+						ValueOfFieldNotMappedToStaticProperty notMappedFieldValue = new ValueOfFieldNotMappedToStaticProperty(
+								subjectClass, value, indexCount, property.getName());
+						notFoundFieldValueList.add(notMappedFieldValue);
+
+					}
+
+				}
+
+				if (objectClass != null) {
+					classValueList.add(new ValueOfTypeClass(objectClass, value));
+				} else {
+					return;
+				}
+
 			} else {
 
 				/*
@@ -531,7 +543,9 @@ public class InsertRequestValidation {
 			 */
 			// int classInstanceIndex =
 			// htblClassPropertyValue.get(subjectClass).size() - 1;
-			htblClassPropertyValue.get(subjectClass).get(indexCount).add(propertyValue);
+			// System.out.println(htblClassPropertyValue);
+			// System.out.println(subjectClass.getName() + " " + indexCount);
+			htblClassPropertyValue.get(subjectClass.getName()).get(indexCount).add(propertyValue);
 
 		} else {
 
@@ -551,213 +565,279 @@ public class InsertRequestValidation {
 			 */
 			if (value instanceof java.util.LinkedHashMap<?, ?> && property instanceof ObjectProperty) {
 				LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) value;
+
+				/*
+				 * true if the type Class of objectProperty is from MainOntology
+				 */
+				boolean mainOntologyClassType = false;
+
 				/*
 				 * get Object property range classType
 				 */
-				Class classType = ((ObjectProperty) property).getObject();
+				Class classType = null;
+
+				String objectClassName = ((ObjectProperty) property).getObjectClassName();
 
 				/*
-				 * check if there is a fieldName= type which means that value of
-				 * this field describes a type class then change the subClass
-				 * type to be the subjectClass
+				 * get objectClass from dynamicOntology cache if it exist
 				 */
-
-				if (valueObject.containsKey("type") && isobjectValueValidType(classType, valueObject.get("type"))) {
-					Class subClassSubject = classType.getClassTypesList().get(valueObject.get("type").toString());
-					classType = subClassSubject;
+				if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
+						&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+								.containsKey(objectClassName.toLowerCase()))) {
+					classType = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+							.get(objectClassName.toLowerCase());
 
 				} else {
-
-					/*
-					 * throw an error if the type field value is not a valid
-					 * type
-					 */
-					if (valueObject.containsKey("type")
-							&& !isobjectValueValidType(subjectClass, valueObject.get("type")))
-
-						throw new InvalidTypeValidationException(requestClassName,
-								classType.getClassTypesList().keySet(), classType.getName());
-
-				}
-
-				/*
-				 * check if the obligatory fields exist. if does not exist throw
-				 * an exception
-				 */
-				if (!areObligatoryFieldsExist(classType, valueObject)) {
-					throw new NotSuppliedObligatoryFieldsException(classType.getUniqueIdentifierPropertyName(),
-							classType.getName(), requestClassName);
-				}
-
-				/*
-				 * linking subject class with object class by adding a the
-				 * unique identifier as the object value of the property
-				 * 
-				 * if it has unique Identifier this means that a unique property
-				 * value added by the user must be the unique identifier that
-				 * will be the subject of object value and references the object
-				 * value instance to the subject
-				 */
-				String objectUniqueIdentifier;
-
-				if (classType.isHasUniqueIdentifierProperty()) {
-					objectUniqueIdentifier = valueObject.get(classType.getUniqueIdentifierPropertyName()).toString();
-
-				} else {
-					/*
-					 * There is no uniqueIdentfier for this object class so the
-					 * platform has to generate a UUID to be the unique
-					 * Identifier that will be the subject of object value and
-					 * references the object value instance to the subject
-					 */
-
-					objectUniqueIdentifier = UUID.randomUUID().toString();
-
-				}
-
-				/*
-				 * construct a new PropertyValue instance to hold the prefiexed
-				 * propertyName and prefixed value
-				 * 
-				 * Here I am linking the subjectClass with a reference
-				 * (uniqueIdentifier) of the new class instance to construct a
-				 * proper graph nodes with relationships
-				 * 
-				 * so I create a new PropertyValue instance to hold the
-				 * property(objectProperty that has this objectValue) and the
-				 * uniqueIdentifier value that represents a unique reference to
-				 * objectValue
-				 * 
-				 */
-				InsertionPropertyValue propertyValue = new InsertionPropertyValue(
-						property.getPrefix().getPrefix() + property.getName(),
-						getValue(property, objectUniqueIdentifier), true);
-
-				/*
-				 * add PropertyValue object to htblClassPropertyValue
-				 * 
-				 * indexCount represents the index of the subjectClassInstance
-				 */
-
-				htblClassPropertyValue.get(subjectClass).get(indexCount).add(propertyValue);
-
-				/*
-				 * Check if the classType exist in htblClassPropertyValue.
-				 * 
-				 * If it exist, this means that a new class instance of this
-				 * class has to be created and I have to increment the
-				 * indexCount
-				 */
-
-				if (htblClassPropertyValue.containsKey(classType)) {
-					ArrayList<InsertionPropertyValue> propertyValueList = new ArrayList<>();
-					htblClassPropertyValue.get(classType).add(propertyValueList);
-				} else {
-					ArrayList<ArrayList<InsertionPropertyValue>> instancesList = new ArrayList<>();
-					ArrayList<InsertionPropertyValue> propertyValueList = new ArrayList<>();
-					instancesList.add(propertyValueList);
-					htblClassPropertyValue.put(classType, instancesList);
-				}
-
-				/*
-				 * add property id for classTypeObject and add generated UUID as
-				 * the object of it. I have to check if the classType has no
-				 * uniqueIdentifier which means that the system has to add an id
-				 * property that hold the generated UUID
-				 * 
-				 * I created this here after typeValidation to add the
-				 * idPropertyValue to the instance of the classType eg.(Circle)
-				 */
-
-				int classInstanceIndex = htblClassPropertyValue.get(classType).size() - 1;
-
-				if (!classType.isHasUniqueIdentifierProperty() && !valueObject.containsKey("id")) {
-					Property idProperty = classType.getProperties().get("id");
-					InsertionPropertyValue idPropertyValue = new InsertionPropertyValue(
-							idProperty.getPrefix().getPrefix() + idProperty.getName(), objectUniqueIdentifier, false);
-
-					/*
-					 * add idPropertyValue object to htblClassPropertyValue
-					 * 
-					 * I will always add a new property to the last
-					 * instanceClass represented by an arraylist<PropertyValue>
-					 * because I finish a single object then return back
-					 * recursively to complete parsing other fields
-					 * 
-					 * any new propertyValue added will be for the same instance
-					 * so it will be always exist in the end of the arraylist
-					 * that represent instances of classType. Because I iterate
-					 * on the fields of the new object instance so I will finish
-					 * the current new instance of classType then complete the
-					 * rest fields
-					 * 
-					 */
-
-					htblClassPropertyValue.get(classType).get(classInstanceIndex).add(idPropertyValue);
-				}
-
-				for (String fieldName : valueObject.keySet()) {
-
-					/*
-					 * skip if the fieldName is type because type is not a
-					 * property it only express a type(subClassName) of
-					 * superClass
-					 */
-					if (fieldName.equals("type")) {
-						continue;
-					}
-
-					/*
-					 * if it returns true then the field is a valid field (it
-					 * maps to a property in the properties list of passed
-					 * classs)
-					 * 
-					 * if it return false means that no static mapping so it
-					 * will add the subject class to classList and
-					 * fieldNameValue pair to htblNotFoundFieldValue
-					 */
-
-					Object fieldValue = valueObject.get(fieldName);
-					if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, htblNotMappedFieldsClasses,
-							notFoundFieldValueList, classInstanceIndex)) {
-
-						Property classTypeProperty = classType.getProperties().get(fieldName);
+					if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(objectClassName.toLowerCase())) {
 
 						/*
-						 * if subjectClass(outer class instance that contains
-						 * property with value instance that represents this
-						 * classType instance) has an ObjectProperty then I have
-						 * to pass subjectClass prefixedName and property to the
-						 * recursive call inOrder to link any
-						 * uniquePropertyValue in the nested ClassType instance
-						 * with the property of its subjectClass to be used
-						 * after that in unqiueConstraint validation
-						 * 
-						 * uniqueIdentifier is the subjectClass uniqueIdentifer
-						 * which represents the subjectClassInstance(subject of
-						 * this nested objectValue) random generated id to be
-						 * used in uniqueConstraintValidation
-						 * 
+						 * get the objectClass from MainOntologyClassesMapper
 						 */
-						if (property instanceof ObjectProperty) {
-							parseAndConstructFieldValue(classType, classTypeProperty, fieldValue,
-									htblClassPropertyValue, htblNotMappedFieldsClasses, notFoundFieldValueList,
-									classInstanceIndex, htblUniquePropValueList, classValueList, requestClassName);
-						} else {
-							/*
-							 * if property is DataTypeProperty then pass both
-							 * with null because we do not need to keep track of
-							 * previous linkage
-							 * 
-							 * it will rarely get here because already the value
-							 * is an object value
-							 */
-							parseAndConstructFieldValue(classType, classTypeProperty, fieldValue,
-									htblClassPropertyValue, htblNotMappedFieldsClasses, notFoundFieldValueList,
-									classInstanceIndex, htblUniquePropValueList, classValueList, requestClassName);
-						}
+						classType = OntologyMapper.getHtblMainOntologyClassesMappers()
+								.get(objectClassName.toLowerCase());
+
+						mainOntologyClassType = true;
+					} else {
+						notMappedFieldsClassesList.add(objectClassName);
+
+						ValueOfFieldNotMappedToStaticProperty notMappedFieldValue = new ValueOfFieldNotMappedToStaticProperty(
+								subjectClass, value, indexCount, property.getName());
+						notFoundFieldValueList.add(notMappedFieldValue);
+
 					}
 
+				}
+
+				if (classType != null) {
+
+					/*
+					 * check if there is a fieldName= type which means that
+					 * value of this field describes a type class then change
+					 * the subClass type to be the subjectClass
+					 */
+
+					if (valueObject.containsKey("type") && isobjectValueValidType(classType, valueObject.get("type"))) {
+						Class subClassSubject = classType.getClassTypesList().get(valueObject.get("type").toString());
+						classType = subClassSubject;
+
+					} else {
+
+						/*
+						 * throw an error if the type field value is not a valid
+						 * type
+						 */
+						if (valueObject.containsKey("type")
+								&& !isobjectValueValidType(subjectClass, valueObject.get("type")))
+
+							throw new InvalidTypeValidationException(requestClassName,
+									classType.getClassTypesList().keySet(), classType.getName());
+
+					}
+
+					/*
+					 * check if the obligatory fields exist. if does not exist
+					 * throw an exception
+					 */
+					if (!areObligatoryFieldsExist(classType, valueObject)) {
+						throw new NotSuppliedObligatoryFieldsException(classType.getUniqueIdentifierPropertyName(),
+								classType.getName(), requestClassName);
+					}
+
+					/*
+					 * linking subject class with object class by adding a the
+					 * unique identifier as the object value of the property
+					 * 
+					 * if it has unique Identifier this means that a unique
+					 * property value added by the user must be the unique
+					 * identifier that will be the subject of object value and
+					 * references the object value instance to the subject
+					 */
+					String objectUniqueIdentifier;
+
+					if (classType.isHasUniqueIdentifierProperty()) {
+						objectUniqueIdentifier = valueObject.get(classType.getUniqueIdentifierPropertyName())
+								.toString();
+
+					} else {
+						/*
+						 * There is no uniqueIdentfier for this object class so
+						 * the platform has to generate a UUID to be the unique
+						 * Identifier that will be the subject of object value
+						 * and references the object value instance to the
+						 * subject
+						 */
+
+						objectUniqueIdentifier = UUID.randomUUID().toString();
+
+					}
+
+					/*
+					 * construct a new PropertyValue instance to hold the
+					 * prefiexed propertyName and prefixed value
+					 * 
+					 * Here I am linking the subjectClass with a reference
+					 * (uniqueIdentifier) of the new class instance to construct
+					 * a proper graph nodes with relationships
+					 * 
+					 * so I create a new PropertyValue instance to hold the
+					 * property(objectProperty that has this objectValue) and
+					 * the uniqueIdentifier value that represents a unique
+					 * reference to objectValue
+					 * 
+					 */
+					InsertionPropertyValue propertyValue = new InsertionPropertyValue(
+							property.getPrefix().getPrefix() + property.getName(),
+							getValue(property, objectUniqueIdentifier), true);
+
+					/*
+					 * add PropertyValue object to htblClassPropertyValue
+					 * 
+					 * indexCount represents the index of the
+					 * subjectClassInstance
+					 */
+
+					htblClassPropertyValue.get(subjectClass.getName()).get(indexCount).add(propertyValue);
+
+					/*
+					 * Check if the classType exist in htblClassPropertyValue.
+					 * 
+					 * If it exist, this means that a new class instance of this
+					 * class has to be created and I have to increment the
+					 * indexCount
+					 */
+
+					if (htblClassPropertyValue.containsKey(classType.getName())) {
+						ArrayList<InsertionPropertyValue> propertyValueList = new ArrayList<>();
+						htblClassPropertyValue.get(classType.getName()).add(propertyValueList);
+					} else {
+						ArrayList<ArrayList<InsertionPropertyValue>> instancesList = new ArrayList<>();
+						ArrayList<InsertionPropertyValue> propertyValueList = new ArrayList<>();
+						instancesList.add(propertyValueList);
+						htblClassPropertyValue.put(classType.getName(), instancesList);
+					}
+
+					/*
+					 * add property id for classTypeObject and add generated
+					 * UUID as the object of it. I have to check if the
+					 * classType has no uniqueIdentifier which means that the
+					 * system has to add an id property that hold the generated
+					 * UUID
+					 * 
+					 * I created this here after typeValidation to add the
+					 * idPropertyValue to the instance of the classType
+					 * eg.(Circle)
+					 */
+
+					int classInstanceIndex = htblClassPropertyValue.get(classType.getName()).size() - 1;
+
+					if (!classType.isHasUniqueIdentifierProperty() && !valueObject.containsKey("id")) {
+						Property idProperty = classType.getProperties().get("id");
+						InsertionPropertyValue idPropertyValue = new InsertionPropertyValue(
+								idProperty.getPrefix().getPrefix() + idProperty.getName(), objectUniqueIdentifier,
+								false);
+
+						/*
+						 * add idPropertyValue object to htblClassPropertyValue
+						 * 
+						 * I will always add a new property to the last
+						 * instanceClass represented by an
+						 * arraylist<PropertyValue> because I finish a single
+						 * object then return back recursively to complete
+						 * parsing other fields
+						 * 
+						 * any new propertyValue added will be for the same
+						 * instance so it will be always exist in the end of the
+						 * arraylist that represent instances of classType.
+						 * Because I iterate on the fields of the new object
+						 * instance so I will finish the current new instance of
+						 * classType then complete the rest fields
+						 * 
+						 */
+
+						htblClassPropertyValue.get(classType.getName()).get(classInstanceIndex).add(idPropertyValue);
+					}
+
+					for (String fieldName : valueObject.keySet()) {
+
+						/*
+						 * skip if the fieldName is type because type is not a
+						 * property it only express a type(subClassName) of
+						 * superClass and I checked and used it before if it
+						 * exist
+						 */
+						if (fieldName.equals("type")) {
+							continue;
+						}
+
+						if (mainOntologyClassType) {
+							if (!classType.getProperties().containsKey(fieldName)
+									&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+											.containsKey(applicationModelName)
+									&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+											.get(applicationModelName).containsKey(classType.getName().toLowerCase())) {
+
+								classType = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+										.get(applicationModelName).get(classType.getName().toLowerCase());
+							}
+						}
+
+						/*
+						 * if it returns true then the field is a valid field
+						 * (it maps to a property in the properties list of
+						 * passed classs)
+						 * 
+						 * if it return false means that no static mapping so it
+						 * will add the subject class to classList and
+						 * fieldNameValue pair to htblNotFoundFieldValue
+						 */
+						Object fieldValue = valueObject.get(fieldName);
+						if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, notMappedFieldsClassesList,
+								notFoundFieldValueList, classInstanceIndex)) {
+
+							Property classTypeProperty = classType.getProperties().get(fieldName);
+
+							/*
+							 * if subjectClass(outer class instance that
+							 * contains property with value instance that
+							 * represents this classType instance) has an
+							 * ObjectProperty then I have to pass subjectClass
+							 * prefixedName and property to the recursive call
+							 * inOrder to link any uniquePropertyValue in the
+							 * nested ClassType instance with the property of
+							 * its subjectClass to be used after that in
+							 * unqiueConstraint validation
+							 * 
+							 * uniqueIdentifier is the subjectClass
+							 * uniqueIdentifer which represents the
+							 * subjectClassInstance(subject of this nested
+							 * objectValue) random generated id to be used in
+							 * uniqueConstraintValidation
+							 * 
+							 */
+							if (property instanceof ObjectProperty) {
+								parseAndConstructFieldValue(classType, classTypeProperty, fieldValue,
+										htblClassPropertyValue, notMappedFieldsClassesList, notFoundFieldValueList,
+										classInstanceIndex, htblUniquePropValueList, classValueList, requestClassName,
+										applicationModelName);
+							} else {
+								/*
+								 * if property is DataTypeProperty then pass
+								 * both with null because we do not need to keep
+								 * track of previous linkage
+								 * 
+								 * it will rarely get here because already the
+								 * value is an object value
+								 */
+								parseAndConstructFieldValue(classType, classTypeProperty, fieldValue,
+										htblClassPropertyValue, notMappedFieldsClassesList, notFoundFieldValueList,
+										classInstanceIndex, htblUniquePropValueList, classValueList, requestClassName,
+										applicationModelName);
+							}
+						}
+
+					}
+				} else {
+					return;
 				}
 			} else {
 
@@ -791,8 +871,8 @@ public class InsertRequestValidation {
 						for (Object singleValue : valueList) {
 
 							parseAndConstructFieldValue(subjectClass, property, singleValue, htblClassPropertyValue,
-									htblNotMappedFieldsClasses, notFoundFieldValueList, indexCount,
-									htblUniquePropValueList, classValueList, requestClassName);
+									notMappedFieldsClassesList, notFoundFieldValueList, indexCount,
+									htblUniquePropValueList, classValueList, requestClassName, applicationModelName);
 						}
 					} else {
 
@@ -806,7 +886,6 @@ public class InsertRequestValidation {
 								requestClassName);
 					}
 				} else {
-
 					/*
 					 * if the value is not a datatype or an object or a list
 					 * then raise InvalidRequestBodyException that tells the
@@ -819,51 +898,27 @@ public class InsertRequestValidation {
 				}
 			}
 		}
+
 	}
 
-	/*
-	 * parseAndConstructNotMappedFieldsValues method is used to parse values of
-	 * fields that has no static mapping and may have mapping after loading
-	 * dynamic properties
-	 */
-	private void parseAndConstructNotMappedFieldsValues(String applicationName, Class subjectClass,
-			Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue,
-			Hashtable<String, Class> htblNotMappedFieldsClasses,
-			Hashtable<String, Class> htblPrevNotMappedFieldsClasses,
+	private void parseAndConstructNotMappedFieldsValues(String applicationName, String requestClassName,
+			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue,
+			ArrayList<String> notMappedFieldsClassesList,
 			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
-			ArrayList<ValueOfTypeClass> classValueList) {
+			ArrayList<ValueOfTypeClass> classValueList, String applicationModelName) {
 
-		/*
-		 * get Dynamic Properties of the classes in the classList which contains
-		 * the domain class of the fields in the request that are not mapped to
-		 * static properties
-		 */
-		if (htblNotMappedFieldsClasses.size() > 0) {
-			Hashtable<String, DynamicConceptModel> loadedDynamicProperties = dynamicPropertiesUtility
-					.getDynamicProperties(applicationName, htblNotMappedFieldsClasses, htblPrevNotMappedFieldsClasses);
+		if (notFoundFieldValueList.size() > 0 && notMappedFieldsClassesList.size() > 0) {
+			dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName,
+					notMappedFieldsClassesList);
 
-			/*
-			 * Check that the fields that had no mappings are valid or not
-			 * 
-			 * this loop will loop for the size of notFoundFieldValueList that
-			 * is coming, note that size of notFoundFieldValueList can be
-			 * changed if there are fields that has mapping to dynamicProperties
-			 * are objectProperties and the request coming has a nested object
-			 * for this field so recursively I had to parse and construct it by
-			 * calling parseAndConstructFieldValue method
-			 * 
-			 * This nested Object may have some fields that has no static
-			 * mapping and need to checked after loading the dynamicProperties
-			 * related to objectClassType and applicationDomain so I have to add
-			 * this fields to notFoundFieldValueList and recursively call again
-			 * this method
-			 */
-			int size = notFoundFieldValueList.size();
-			for (int i = 0; i < size; i++) {
-				ValueOfFieldNotMappedToStaticProperty notFoundFieldValue = notFoundFieldValueList.get(i);
+			ArrayList<String> newNotMappedFieldsClassesList = new ArrayList<>();
+			ArrayList<ValueOfFieldNotMappedToStaticProperty> newNotFoundFieldValueList = new ArrayList<>();
+
+			for (ValueOfFieldNotMappedToStaticProperty notFoundFieldValue : notFoundFieldValueList) {
 
 				String field = notFoundFieldValue.getFieldName();
+				String subjectClassName = notFoundFieldValue.getPropertyClass().getName().toLowerCase();
 
 				/*
 				 * After loading dynamic Properties, I am caching all the loaded
@@ -872,110 +927,213 @@ public class InsertRequestValidation {
 				 * the subjectClass , I will throw InvalidRequestFieldsException
 				 * to indicate the field is invalid
 				 */
-				if (!notFoundFieldValue.getPropertyClass().getProperties().containsKey(field)) {
-					throw new InvalidRequestFieldsException(subjectClass.getName(), field);
+				if (!(DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
+						&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+								.containsKey(subjectClassName)
+						&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+								.get(subjectClassName).getProperties().containsKey(field))) {
+
+					throw new InvalidRequestFieldsException(requestClassName, field);
 				} else {
 
-					/*
-					 * passed field is a static property so add it to
-					 * htblStaticProperty so check that the property is valid
-					 * for this application domain
-					 *
-					 * if the applicationName is null so this field maps a
-					 * property in the main ontology .
-					 *
-					 * if the applicationName is equal to passed applicationName
-					 * so it is a dynamic added property to this application
-					 * domain
-					 *
-					 * else it will be a dynamic property in another application
-					 * domain which will happen rarely
-					 */
-					Class dynamicPropertyClass = OntologyMapper.getHtblMainOntologyClassesUriMappers()
-							.get(loadedDynamicProperties.get(field).getClass_uri());
-					Property property = dynamicPropertyClass.getProperties().get(field);
+					Property property = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+							.get(applicationModelName).get(subjectClassName).getProperties().get(field);
+					Class subjectClass = notFoundFieldValue.getPropertyClass();
+					int index = notFoundFieldValue.getClassInstanceIndex();
+					Object propertyValue = notFoundFieldValue.getPropertyValue();
 
-					if (property.getApplicationName() == null
-							|| property.getApplicationName().equals(applicationName.replace(" ", "").toUpperCase())) {
-
-						if (property instanceof DataTypeProperty || (property instanceof ObjectProperty
-								&& !(notFoundFieldValue.getPropertyValue() instanceof java.util.LinkedHashMap<?, ?>
-										|| notFoundFieldValue.getPropertyValue() instanceof java.util.ArrayList))) {
-
-							/*
-							 * Field is valid dynamic property and has a mapping
-							 * for a dynamic property. So I will parse the value
-							 * and add prefixes
-							 */
-							parseAndConstructFieldValue(notFoundFieldValue.getPropertyClass(), property,
-									notFoundFieldValue.getPropertyValue(), htblClassPropertyValue,
-									htblNotMappedFieldsClasses, notFoundFieldValueList,
-									notFoundFieldValue.getClassInstanceIndex(), htblUniquePropValueList, classValueList,
-									subjectClass.getName());
-						} else {
-
-							/*
-							 * if property is an object property so I have to
-							 * pass to parseAndConstructFieldValue an new
-							 * classList instance and a new
-							 * notFoundFieldValueList instance in order to add
-							 * any unMapped fields for the nestedObjectValues
-							 * (if the value is object or list)
-							 * 
-							 * 
-							 * 
-							 * reIntializing htblNotMappedFieldsClasses to hold
-							 * any new classes that may have not mapped fields
-							 * to load them also and add all clases in
-							 * htblNotMappedFieldsClasses to
-							 * htblPrevNotMappedFieldsClasses
-							 */
-							htblPrevNotMappedFieldsClasses.putAll(htblNotMappedFieldsClasses);
-							htblNotMappedFieldsClasses = new Hashtable<>();
-
-							/*
-							 * reIntialize notFoundFieldValueList to hold
-							 * unmapped field and value
-							 */
-							ArrayList<ValueOfFieldNotMappedToStaticProperty> tempNotFoundFieldValueList = new ArrayList<>();
-
-							parseAndConstructFieldValue(notFoundFieldValue.getPropertyClass(), property,
-									notFoundFieldValue.getPropertyValue(), htblClassPropertyValue,
-									htblNotMappedFieldsClasses, tempNotFoundFieldValueList,
-									notFoundFieldValue.getClassInstanceIndex(), htblUniquePropValueList, classValueList,
-									subjectClass.getName());
-
-							/*
-							 * check if there was unmapped fields in the
-							 * nestedObjectValue to load the dynamicProperties
-							 * and check those fields by recursively calling
-							 * this method again
-							 */
-							if (htblNotMappedFieldsClasses.size() > 0) {
-								parseAndConstructNotMappedFieldsValues(applicationName, dynamicPropertyClass,
-										htblClassPropertyValue, htblNotMappedFieldsClasses,
-										htblPrevNotMappedFieldsClasses, tempNotFoundFieldValueList,
-										htblUniquePropValueList, classValueList);
-							}
-
-						}
-					} else {
-
-						/*
-						 * this means that this class has a property with the
-						 * same name but it is not for the specified application
-						 * domain
-						 */
-
-						throw new InvalidRequestFieldsException(subjectClass.getName(), field);
-
-					}
+					parseAndConstructFieldValue(subjectClass, property, propertyValue, htblClassPropertyValue,
+							newNotMappedFieldsClassesList, newNotFoundFieldValueList, index, htblUniquePropValueList,
+							classValueList, requestClassName, applicationModelName);
 				}
 
 			}
+
+			if (newNotFoundFieldValueList.size() > 0 && newNotMappedFieldsClassesList.size() > 0) {
+				parseAndConstructNotMappedFieldsValues(applicationName, requestClassName, htblClassPropertyValue,
+						newNotMappedFieldsClassesList, newNotFoundFieldValueList, htblUniquePropValueList,
+						classValueList, applicationModelName);
+			}
+
 		}
 
 	}
+
+	/*
+	 * parseAndConstructNotMappedFieldsValues method is used to parse values of
+	 * fields that has no static mapping and may have mapping after loading
+	 * dynamic properties
+	 */
+	// private void parseAndConstructNotMappedFieldsValues(String
+	// applicationName, Class subjectClass,
+	// Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>>
+	// htblClassPropertyValue,
+	// ArrayList<String> notMappedFieldsClassesList, Hashtable<String, Class>
+	// htblPrevNotMappedFieldsClasses,
+	// ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList,
+	// LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>>
+	// htblUniquePropValueList,
+	// ArrayList<ValueOfTypeClass> classValueList, String applicationModelName)
+	// {
+	//
+	// /*
+	// * get Dynamic Properties of the classes in the classList which contains
+	// * the domain class of the fields in the request that are not mapped to
+	// * static properties
+	// */
+	// if (notFoundFieldValueList.size() > 0) {
+	// // Hashtable<String, DynamicConceptModel> loadedDynamicProperties =
+	// // dynamicPropertiesUtility
+	// // .getDynamicProperties(applicationName,
+	// // htblNotMappedFieldsClasses, htblPrevNotMappedFieldsClasses);
+	//
+	// /*
+	// * Check that the fields that had no mappings are valid or not
+	// *
+	// * this loop will loop for the size of notFoundFieldValueList that
+	// * is coming, note that size of notFoundFieldValueList can be
+	// * changed if there are fields that has mapping to dynamicProperties
+	// * are objectProperties and the request coming has a nested object
+	// * for this field so recursively I had to parse and construct it by
+	// * calling parseAndConstructFieldValue method
+	// *
+	// * This nested Object may have some fields that has no static
+	// * mapping and need to checked after loading the dynamicProperties
+	// * related to objectClassType and applicationDomain so I have to add
+	// * this fields to notFoundFieldValueList and recursively call again
+	// * this method
+	// */
+	// int size = notFoundFieldValueList.size();
+	// for (int i = 0; i < size; i++) {
+	// ValueOfFieldNotMappedToStaticProperty notFoundFieldValue =
+	// notFoundFieldValueList.get(i);
+	//
+	// String field = notFoundFieldValue.getFieldName();
+	//
+	// /*
+	// * After loading dynamic Properties, I am caching all the loaded
+	// * properties so If field does not mapped to one of the
+	// * properties(contains static ones and cached dynamic ones) of
+	// * the subjectClass , I will throw InvalidRequestFieldsException
+	// * to indicate the field is invalid
+	// */
+	// if
+	// (!notFoundFieldValue.getPropertyClass().getProperties().containsKey(field))
+	// {
+	// throw new InvalidRequestFieldsException(subjectClass.getName(), field);
+	// } else {
+	//
+	// /*
+	// * passed field is a static property so add it to
+	// * htblStaticProperty so check that the property is valid
+	// * for this application domain
+	// *
+	// * if the applicationName is null so this field maps a
+	// * property in the main ontology .
+	// *
+	// * if the applicationName is equal to passed applicationName
+	// * so it is a dynamic added property to this application
+	// * domain
+	// *
+	// * else it will be a dynamic property in another application
+	// * domain which will happen rarely
+	// */
+	// Class dynamicPropertyClass =
+	// OntologyMapper.getHtblMainOntologyClassesUriMappers()
+	// .get(loadedDynamicProperties.get(field).getClass_uri());
+	// Property property = dynamicPropertyClass.getProperties().get(field);
+	//
+	// if (property.getApplicationName() == null
+	// || property.getApplicationName().equals(applicationName.replace(" ",
+	// "").toUpperCase())) {
+	//
+	// if (property instanceof DataTypeProperty || (property instanceof
+	// ObjectProperty
+	// && !(notFoundFieldValue.getPropertyValue() instanceof
+	// java.util.LinkedHashMap<?, ?>
+	// || notFoundFieldValue.getPropertyValue() instanceof
+	// java.util.ArrayList))) {
+	//
+	// /*
+	// * Field is valid dynamic property and has a mapping
+	// * for a dynamic property. So I will parse the value
+	// * and add prefixes
+	// */
+	// parseAndConstructFieldValue(notFoundFieldValue.getPropertyClass(),
+	// property,
+	// notFoundFieldValue.getPropertyValue(), htblClassPropertyValue,
+	// notMappedFieldsClassesList, notFoundFieldValueList,
+	// notFoundFieldValue.getClassInstanceIndex(), htblUniquePropValueList,
+	// classValueList,
+	// subjectClass.getName(), applicationModelName);
+	// } else {
+	//
+	// /*
+	// * if property is an object property so I have to
+	// * pass to parseAndConstructFieldValue an new
+	// * classList instance and a new
+	// * notFoundFieldValueList instance in order to add
+	// * any unMapped fields for the nestedObjectValues
+	// * (if the value is object or list)
+	// *
+	// *
+	// *
+	// * reIntializing htblNotMappedFieldsClasses to hold
+	// * any new classes that may have not mapped fields
+	// * to load them also and add all clases in
+	// * htblNotMappedFieldsClasses to
+	// * htblPrevNotMappedFieldsClasses
+	// */
+	// htblPrevNotMappedFieldsClasses.putAll(htblNotMappedFieldsClasses);
+	// htblNotMappedFieldsClasses = new Hashtable<>();
+	//
+	// /*
+	// * reIntialize notFoundFieldValueList to hold
+	// * unmapped field and value
+	// */
+	// ArrayList<ValueOfFieldNotMappedToStaticProperty>
+	// tempNotFoundFieldValueList = new ArrayList<>();
+	//
+	// parseAndConstructFieldValue(notFoundFieldValue.getPropertyClass(),
+	// property,
+	// notFoundFieldValue.getPropertyValue(), htblClassPropertyValue,
+	// notMappedFieldsClassesList, tempNotFoundFieldValueList,
+	// notFoundFieldValue.getClassInstanceIndex(), htblUniquePropValueList,
+	// classValueList,
+	// subjectClass.getName(), applicationModelName);
+	//
+	// /*
+	// * check if there was unmapped fields in the
+	// * nestedObjectValue to load the dynamicProperties
+	// * and check those fields by recursively calling
+	// * this method again
+	// */
+	// if (notMappedFieldsClassesList.size() > 0) {
+	// parseAndConstructNotMappedFieldsValues(applicationName,
+	// dynamicPropertyClass,
+	// htblClassPropertyValue, notMappedFieldsClassesList,
+	// htblPrevNotMappedFieldsClasses, tempNotFoundFieldValueList,
+	// htblUniquePropValueList, classValueList, applicationModelName);
+	// }
+	//
+	// }
+	// } else {
+	//
+	// /*
+	// * this means that this class has a property with the
+	// * same name but it is not for the specified application
+	// * domain
+	// */
+	//
+	// throw new InvalidRequestFieldsException(subjectClass.getName(), field);
+	//
+	// }
+	// }
+	//
+	// }
+	// }
+	//
+	// }
 
 	/*
 	 * objectTypeCheck method checks if the type value is valid or not
@@ -1123,19 +1281,24 @@ public class InsertRequestValidation {
 		String szPasswd = "rdfusr";
 		String szJdbcDriver = "oracle.jdbc.driver.OracleDriver";
 
-		BasicDataSource dataSource = new BasicDataSource();
-		dataSource.setDriverClassName(szJdbcDriver);
-		dataSource.setUrl(szJdbcURL);
-		dataSource.setUsername(szUser);
-		dataSource.setPassword(szPasswd);
+		// BasicDataSource dataSource = new BasicDataSource();
+		// dataSource.setDriverClassName(szJdbcDriver);
+		// dataSource.setUrl(szJdbcURL);
+		// dataSource.setUsername(szUser);
+		// dataSource.setPassword(szPasswd);
 
-		DynamicConceptsDao dynamicConceptDao = new DynamicConceptsDao(dataSource);
-		ValidationDao validationDao = new ValidationDao(new Oracle(szJdbcURL, szUser, szPasswd));
+		// DynamicConceptsDao dynamicConceptDao = new
+		// DynamicConceptsDao(dataSource);
+
+		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+		ValidationDao validationDao = new ValidationDao(oracle);
+
+		DynamicOntologyDao dynamicOntologyDao = new DynamicOntologyDao(oracle);
 
 		System.out.println("Connected to Database");
 
 		InsertRequestValidation requestFieldsValidation = new InsertRequestValidation(validationDao,
-				new DynamicConceptsUtility(dynamicConceptDao));
+				dynamicOntologyDao);
 
 		// { "hasCoverage":[
 		// {"type":"Circle","location": [
@@ -1167,152 +1330,160 @@ public class InsertRequestValidation {
 
 		LinkedHashMap<String, Object> htblFieldValue = new LinkedHashMap<>();
 
-		LinkedHashMap<String, Object> condition = new LinkedHashMap<>();
-		condition.put("description", "High Tempreture Condition");
-
-		LinkedHashMap<String, Object> batteryLifetimeAmount = new LinkedHashMap<>();
-		batteryLifetimeAmount.put("hasDataValue", 20.21);
-
-		LinkedHashMap<String, Object> systemLifetimeAmount = new LinkedHashMap<>();
-		systemLifetimeAmount.put("hasDataValue", 200.21);
-
-		LinkedHashMap<String, Object> batteryLifetime = new LinkedHashMap<>();
-		batteryLifetime.put("type", "BatteryLifetime");
-		batteryLifetime.put("hasValue", batteryLifetimeAmount);
-
-		LinkedHashMap<String, Object> systemLifetime = new LinkedHashMap<>();
-		systemLifetime.put("type", "SystemLifetime");
-		systemLifetime.put("hasValue", systemLifetimeAmount);
-
-		ArrayList<LinkedHashMap<String, Object>> survivalProperties = new ArrayList<>();
-		survivalProperties.add(systemLifetime);
-		survivalProperties.add(batteryLifetime);
-
-		LinkedHashMap<String, Object> survivalRange = new LinkedHashMap<>();
-		survivalRange.put("inCondition", condition);
-		survivalRange.put("hasSurvivalProperty", survivalProperties);
-
-		LinkedHashMap<String, Object> point1 = new LinkedHashMap<>();
-		point1.put("lat", 22.2132);
-		point1.put("long", -4.31211);
-
-		LinkedHashMap<String, Object> point2 = new LinkedHashMap<>();
-		point2.put("lat", 29.12);
-		point2.put("long", -2.31);
-
-		LinkedHashMap<String, Object> point3 = new LinkedHashMap<>();
-		point3.put("lat", 134.12);
-		point3.put("long", 20.31);
-
-		ArrayList<LinkedHashMap<String, Object>> coveragePoints = new ArrayList<>();
-		coveragePoints.add(point1);
-		coveragePoints.add(point2);
-		coveragePoints.add(point3);
-
-		LinkedHashMap<String, Object> coverage = new LinkedHashMap<>();
-		coverage.put("type", "Circle");
-		coverage.put("location", point1);
-
-		ArrayList<LinkedHashMap<String, Object>> coveragePoints2 = new ArrayList<>();
-		LinkedHashMap<String, Object> point21 = new LinkedHashMap<>();
-		point21.put("lat", 9.2112);
-		point21.put("long", 320.31);
-
-		LinkedHashMap<String, Object> point22 = new LinkedHashMap<>();
-		point2.put("lat", 62.12);
-		point2.put("long", -22.31);
-
-		LinkedHashMap<String, Object> point23 = new LinkedHashMap<>();
-		point3.put("lat", 200.12);
-		point3.put("long", 23.31);
-
-		coveragePoints2.add(point21);
-		coveragePoints2.add(point22);
-		coveragePoints2.add(point23);
-
-		LinkedHashMap<String, Object> coverage2 = new LinkedHashMap<>();
-		coverage2.put("type", "Circle");
-		coverage2.put("location", coveragePoints2);
-
-		ArrayList<LinkedHashMap<String, Object>> coverageList = new ArrayList<>();
-		coverageList.add(coverage);
-		coverageList.add(coverage2);
-
-		// htblFieldValue.put("id", "21203-321202");
-		htblFieldValue.put("hasCoverage", coverage);
-		htblFieldValue.put("hasSurvivalRange", survivalRange);
-		// htblFieldValue.put("test", "2134-2313-242-33332");
-
-		// LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
+		// LinkedHashMap<String, Object> condition = new LinkedHashMap<>();
+		// condition.put("description", "High Tempreture Condition");
 		//
-		// hatemmorgan.put("type", "NormalUser");
-		// hatemmorgan.put("age", 20);
-		// hatemmorgan.put("firstName", "Hatem");
-		// hatemmorgan.put("middleName", "ELsayed");
-		// hatemmorgan.put("familyName", "Morgan");
-		// hatemmorgan.put("birthday", "27/7/1995");
-		// hatemmorgan.put("gender", "Male");
-		// hatemmorgan.put("title", "Engineer");
-		// hatemmorgan.put("userName", "HatemMorganss");
+		// LinkedHashMap<String, Object> batteryLifetimeAmount = new
+		// LinkedHashMap<>();
+		// batteryLifetimeAmount.put("hasDataValue", 20.21);
 		//
-		// ArrayList<Object> hatemmorganEmailList = new ArrayList<>();
-		// hatemmorganEmailList.add("hatemmorgan17ss@gmail.com");
-		// hatemmorganEmailList.add("hatem.el-sayedss@student.guc.edu.eg");
+		// LinkedHashMap<String, Object> systemLifetimeAmount = new
+		// LinkedHashMap<>();
+		// systemLifetimeAmount.put("hasDataValue", 200.21);
 		//
-		// hatemmorgan.put("mbox", hatemmorganEmailList);
+		// LinkedHashMap<String, Object> batteryLifetime = new
+		// LinkedHashMap<>();
+		// batteryLifetime.put("type", "BatteryLifetime");
+		// batteryLifetime.put("hasValue", batteryLifetimeAmount);
+		//
+		// LinkedHashMap<String, Object> systemLifetime = new LinkedHashMap<>();
+		// systemLifetime.put("type", "SystemLifetime");
+		// systemLifetime.put("hasValue", systemLifetimeAmount);
+		//
+		// ArrayList<LinkedHashMap<String, Object>> survivalProperties = new
+		// ArrayList<>();
+		// survivalProperties.add(systemLifetime);
+		// survivalProperties.add(batteryLifetime);
+		//
+		// LinkedHashMap<String, Object> survivalRange = new LinkedHashMap<>();
+		// survivalRange.put("inCondition", condition);
+		// survivalRange.put("hasSurvivalProperty", survivalProperties);
+		//
+		// LinkedHashMap<String, Object> point1 = new LinkedHashMap<>();
+		// point1.put("lat", 22.2132);
+		// point1.put("long", -4.31211);
+		//
+		// LinkedHashMap<String, Object> point2 = new LinkedHashMap<>();
+		// point2.put("lat", 29.12);
+		// point2.put("long", -2.31);
+		//
+		// LinkedHashMap<String, Object> point3 = new LinkedHashMap<>();
+		// point3.put("lat", 134.12);
+		// point3.put("long", 20.31);
+		//
+		// ArrayList<LinkedHashMap<String, Object>> coveragePoints = new
+		// ArrayList<>();
+		// coveragePoints.add(point1);
+		// coveragePoints.add(point2);
+		// coveragePoints.add(point3);
+		//
+		// LinkedHashMap<String, Object> coverage = new LinkedHashMap<>();
+		// coverage.put("type", "Circle");
+		// coverage.put("location", point1);
+		//
+		// ArrayList<LinkedHashMap<String, Object>> coveragePoints2 = new
+		// ArrayList<>();
+		// LinkedHashMap<String, Object> point21 = new LinkedHashMap<>();
+		// point21.put("lat", 9.2112);
+		// point21.put("long", 320.31);
+		//
+		// LinkedHashMap<String, Object> point22 = new LinkedHashMap<>();
+		// point2.put("lat", 62.12);
+		// point2.put("long", -22.31);
+		//
+		// LinkedHashMap<String, Object> point23 = new LinkedHashMap<>();
+		// point3.put("lat", 200.12);
+		// point3.put("long", 23.31);
+		//
+		// coveragePoints2.add(point21);
+		// coveragePoints2.add(point22);
+		// coveragePoints2.add(point23);
+		//
+		// LinkedHashMap<String, Object> coverage2 = new LinkedHashMap<>();
+		// coverage2.put("type", "Circle");
+		// coverage2.put("location", coveragePoints2);
+		//
+		// ArrayList<LinkedHashMap<String, Object>> coverageList = new
+		// ArrayList<>();
+		// coverageList.add(coverage);
+		// coverageList.add(coverage2);
+		//
+		// // htblFieldValue.put("id", "21203-321202");
+		// htblFieldValue.put("hasCoverage", coverage);
+		// htblFieldValue.put("hasSurvivalRange", survivalRange);
+		// // htblFieldValue.put("test", "2134-2313-242-33332");
+
+		LinkedHashMap<String, Object> hatemmorgan = new LinkedHashMap<>();
+
+		hatemmorgan.put("type", "NormalUser");
+		hatemmorgan.put("age", 20);
+		hatemmorgan.put("firstName", "Hatem");
+		hatemmorgan.put("middleName", "ELsayed");
+		hatemmorgan.put("familyName", "Morgan");
+		hatemmorgan.put("birthday", "27/7/1995");
+		hatemmorgan.put("gender", "Male");
+		hatemmorgan.put("title", "Engineer");
+		hatemmorgan.put("userName", "HatemMorganss");
+
+		ArrayList<Object> hatemmorganEmailList = new ArrayList<>();
+		hatemmorganEmailList.add("hatemmorgan17ss@gmail.com");
+		hatemmorganEmailList.add("hatem.el-sayedss@student.guc.edu.eg");
+
+		hatemmorgan.put("mbox", hatemmorganEmailList);
 		// hatemmorgan.put("knows", "karammorgan");
-		// // hatemmorgan.put("job", "Computer Engineeer");
-		//
-		// LinkedHashMap<String, Object> ahmedmorgnan = new LinkedHashMap<>();
-		//
-		// ahmedmorgnan.put("type", "Developer");
-		// ahmedmorgnan.put("age", 16);
-		// ahmedmorgnan.put("firstName", "Ahmed");
-		// ahmedmorgnan.put("middleName", "ELsayed");
-		// ahmedmorgnan.put("familyName", "Morgan");
-		// ahmedmorgnan.put("birthday", "25/9/2000");
-		// ahmedmorgnan.put("gender", "Male");
-		// ahmedmorgnan.put("title", "Student");
-		// ahmedmorgnan.put("userName", "AhmedMorganls");
-		//
-		// ArrayList<Object> ahmedorganEmailList = new ArrayList<>();
-		// ahmedorganEmailList.add("ahmedmorganlss@gmail.com");
-		//
-		// ahmedmorgnan.put("mbox", ahmedorganEmailList);
-		// ahmedmorgnan.put("job", "High School Student");
-		// ahmedmorgnan.put("love", hatemmorgan);
-		//
-		// // Haytham Ismail
-		// htblFieldValue.put("age", 50);
-		// htblFieldValue.put("firstName", "Haytham");
-		// htblFieldValue.put("middleName", "Ismail");
-		// htblFieldValue.put("familyName", "Khalf");
-		// htblFieldValue.put("birthday", "27/7/1975");
-		// htblFieldValue.put("gender", "Male");
-		// htblFieldValue.put("title", "Professor");
-		// htblFieldValue.put("userName", "HaythamIsmailss");
-		//
-		// ArrayList<Object> emailList = new ArrayList<>();
-		// emailList.add("haytham.ismailss@gmail.com");
-		// emailList.add("haytham.ismailss@student.guc.edu.eg");
-		//
-		// htblFieldValue.put("mbox", emailList);
-		//
-		// htblFieldValue.put("developedApplication", "TESTAPPLICATION");
-		// // htblFieldValue.put("knows", ahmedmorgnan);
-		// htblFieldValue.put("hates", ahmedmorgnan);
-		// // ArrayList<LinkedHashMap<String, Object>> loveList = new
-		// // ArrayList<>();
-		// // loveList.add(hatemmorgan2);
-		// // loveList.add(hatemmorgan);
-		// // htblFieldValue.put("love", loveList);
+		// hatemmorgan.put("job", "Computer Engineeer");
+
+		LinkedHashMap<String, Object> ahmedmorgnan = new LinkedHashMap<>();
+
+		ahmedmorgnan.put("type", "Developer");
+		ahmedmorgnan.put("age", 16);
+		ahmedmorgnan.put("firstName", "Ahmed");
+		ahmedmorgnan.put("middleName", "ELsayed");
+		ahmedmorgnan.put("familyName", "Morgan");
+		ahmedmorgnan.put("birthday", "25/9/2000");
+		ahmedmorgnan.put("gender", "Male");
+		ahmedmorgnan.put("title", "Student");
+		ahmedmorgnan.put("userName", "AhmedMorganls");
+
+		ArrayList<Object> ahmedorganEmailList = new ArrayList<>();
+		ahmedorganEmailList.add("ahmedmorganlss@gmail.com");
+
+		ahmedmorgnan.put("mbox", ahmedorganEmailList);
+		ahmedmorgnan.put("job", "High School Student");
+		ahmedmorgnan.put("loves", hatemmorgan);
+
+		// Haytham Ismail
+		htblFieldValue.put("age", 50);
+		htblFieldValue.put("firstName", "Haytham");
+		htblFieldValue.put("middleName", "Ismail");
+		htblFieldValue.put("familyName", "Khalf");
+		htblFieldValue.put("birthday", "27/7/1975");
+		htblFieldValue.put("gender", "Male");
+		htblFieldValue.put("title", "Professor");
+		htblFieldValue.put("userName", "HaythamIsmailss");
+
+		ArrayList<Object> emailList = new ArrayList<>();
+		emailList.add("haytham.ismailss@gmail.com");
+		emailList.add("haytham.ismailss@student.guc.edu.eg");
+
+		htblFieldValue.put("mbox", emailList);
+
+		htblFieldValue.put("adminOf", "TESTAPPLICATION");
+		// htblFieldValue.put("knows", ahmedmorgnan);
+		htblFieldValue.put("hates", ahmedmorgnan);
+		// ArrayList<LinkedHashMap<String, Object>> loveList = new
+		// ArrayList<>();
+		// loveList.add(hatemmorgan2);
+		// loveList.add(hatemmorgan);
+		// htblFieldValue.put("love", loveList);
 		// htblFieldValue.put("job", "Engineeer");
 
 		try {
 			long startTime = System.currentTimeMillis();
-			Hashtable<Class, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue = requestFieldsValidation
+			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue = requestFieldsValidation
 					.validateRequestFields("TESTAPPLICATION", htblFieldValue,
-							OntologyMapper.getHtblMainOntologyClassesMappers().get("actuatingdevice"));
+							OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("admin"),
+							"TESTAPPLICATION_MODEL");
 			// Hashtable<Class, ArrayList<ArrayList<PropertyValue>>>
 			// htblClassPropertyValue = requestFieldsValidation
 			// .validateRequestFields("TESTAPPLICATION", htblFieldValue, new
@@ -1320,11 +1491,11 @@ public class InsertRequestValidation {
 
 			System.out.println("Time Taken: " + ((System.currentTimeMillis() - startTime) / 1000.0));
 
-			Iterator<Class> iterator = htblClassPropertyValue.keySet().iterator();
+			Iterator<String> iterator = htblClassPropertyValue.keySet().iterator();
 			while (iterator.hasNext()) {
-				Class clss = iterator.next();
-				System.out.println(clss.getName() + "[ ");
-				ArrayList<ArrayList<InsertionPropertyValue>> list = htblClassPropertyValue.get(clss);
+				String clssName = iterator.next();
+				System.out.println(clssName + "[ ");
+				ArrayList<ArrayList<InsertionPropertyValue>> list = htblClassPropertyValue.get(clssName);
 				for (ArrayList<InsertionPropertyValue> arrayList : list) {
 					System.out.print(arrayList);
 					System.out.println();

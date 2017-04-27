@@ -3,7 +3,6 @@ package com.iotplatform.daos;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -36,9 +35,6 @@ public class SelectAllQueryDao {
 
 	public List<LinkedHashMap<String, Object>> selectAll(String applicationModelName, Class subjectClass) {
 
-		String applicationName = applicationModelName.replaceAll(" ", "").toUpperCase().substring(0,
-				applicationModelName.length() - 6);
-
 		/*
 		 * call selectionQuery to construct the query
 		 */
@@ -52,8 +48,8 @@ public class SelectAllQueryDao {
 			 * call constractResponeJsonObjectForListSelection method in
 			 * selectionUtility class to construct the response json
 			 */
-			subjectClassIndividualsList = selectionUtility.constractResponeJsonObjectForListSelection(applicationName,
-					results, subjectClass);
+			subjectClassIndividualsList = selectionUtility.constractResponeJsonObjectForListSelection(results,
+					subjectClass, applicationModelName);
 
 		} catch (SQLException e) {
 			throw new DatabaseException(e.getMessage(), subjectClass.getName());
