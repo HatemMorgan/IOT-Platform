@@ -56,73 +56,75 @@ public class SelectQueryService {
 			LinkedHashMap<String, Object> htblFieldValue) {
 
 		long startTime = System.currentTimeMillis();
-		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
 
-		className = className.toLowerCase().replaceAll(" ", "");
+		try {
 
-		/*
-		 * check if the model exist or not .
-		 */
+			boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
 
-		if (!exist) {
-			NoApplicationModelException exception = new NoApplicationModelException(applicationNameCode, className);
-			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-			return new SuccessfullSelectAllJsonModel(exception.getExceptionHashTable(timeTaken)).getJson();
-		}
-
-		/*
-		 * get application modelName
-		 */
-		String applicationModelName = applicationDao.getHtblApplicationNameModelName()
-				.get(applicationNameCode.toLowerCase().replaceAll(" ", ""));
-
-		/*
-		 * check if the className has a valid class Mapping
-		 */
-		Class subjectClass = null;
-		if (OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().containsKey(className)) {
-			subjectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(className);
-		} else {
+			className = className.toLowerCase().replaceAll(" ", "");
 
 			/*
-			 * The class is not from MainOntology so check it in DynamicOntology
-			 * cache of this application
+			 * check if the model exist or not .
 			 */
-			if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
-					&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
-							.containsKey(className))) {
-				subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
-						.get(className);
+
+			if (!exist) {
+				NoApplicationModelException exception = new NoApplicationModelException(applicationNameCode, className);
+				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+				return new SuccessfullSelectAllJsonModel(exception.getExceptionHashTable(timeTaken)).getJson();
+			}
+
+			/*
+			 * get application modelName
+			 */
+			String applicationModelName = applicationDao.getHtblApplicationNameModelName()
+					.get(applicationNameCode.toLowerCase().replaceAll(" ", ""));
+
+			/*
+			 * check if the className has a valid class Mapping
+			 */
+			Class subjectClass = null;
+			if (OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().containsKey(className)) {
+				subjectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(className);
 			} else {
 
 				/*
-				 * It doesnot exist so It might not cached before so I will load
-				 * and cache it if its a valid class
+				 * The class is not from MainOntology so check it in
+				 * DynamicOntology cache of this application
 				 */
-				ArrayList<String> classNameListToBeloaded = new ArrayList<>();
-
-				dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName,
-						classNameListToBeloaded);
-
-				if (DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
-						.containsKey(className)) {
+				if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
+						&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+								.containsKey(className))) {
 					subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
 							.get(className);
 				} else {
 
 					/*
-					 * Not a valid class so return an error to the user
+					 * It doesnot exist so It might not cached before so I will
+					 * load and cache it if its a valid class
 					 */
-					double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-					InvalidClassNameException invalidClassNameException = new InvalidClassNameException(className);
-					return invalidClassNameException.getExceptionHashTable(timeTaken);
+					ArrayList<String> classNameListToBeloaded = new ArrayList<>();
+
+					dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName,
+							classNameListToBeloaded);
+
+					if (DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+							.containsKey(className)) {
+						subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+								.get(applicationModelName).get(className);
+					} else {
+
+						/*
+						 * Not a valid class so return an error to the user
+						 */
+						double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+						InvalidClassNameException invalidClassNameException = new InvalidClassNameException(className);
+						return invalidClassNameException.getExceptionHashTable(timeTaken);
+					}
+
 				}
 
 			}
 
-		}
-
-		try {
 			/*
 			 * validate query request
 			 */

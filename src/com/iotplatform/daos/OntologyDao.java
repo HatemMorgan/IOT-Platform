@@ -48,6 +48,8 @@ public class OntologyDao {
 		if (!(DynamicOntologyMapper.getHtblApplicationOntologyState().containsKey(applicationModelName)
 				&& DynamicOntologyMapper.getHtblApplicationOntologyState().get(applicationModelName)
 						.equals(DynamicOntologyStateEnum.NotModified))) {
+			System.out.println("Load  dynamicOntology from cache");
+
 			DynamicOntologyMapper.getHtblappDynamicOntologyClasses().remove(applicationModelName);
 			DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().remove(applicationModelName);
 			dynamicOntologyDao.loadAndCacheApplicationDynamicOntology(applicationModelName);
@@ -61,7 +63,7 @@ public class OntologyDao {
 			Class ontologyClassMapper = OntologyMapper.getHtblMainOntologyClassesMappers().get(className);
 
 			LinkedHashMap<String, String> classMap = new LinkedHashMap<>();
-			classMap.put("name", className);
+			classMap.put("name", ontologyClassMapper.getName());
 			classMap.put("prefix", ontologyClassMapper.getPrefix().getPrefix());
 
 			classList.add(classMap);
