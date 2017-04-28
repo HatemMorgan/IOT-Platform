@@ -111,8 +111,9 @@ public class InsertRequestValidation {
 		Iterator<String> htblFieldValueIterator = htblFieldValue.keySet().iterator();
 
 		/*
-		 * List of classes that need to get their dynamic properties to check if
-		 * the fields maps to one of them or these fields are invalid fields
+		 * List of classes' name that need to get their dynamic properties to
+		 * check if the fields maps to one of them or these fields are invalid
+		 * fields
 		 */
 		ArrayList<String> notMappedFieldsClassesList = new ArrayList<>();
 
@@ -386,11 +387,17 @@ public class InsertRequestValidation {
 			ArrayList<NotMappedInsertRequestFieldUtility> notFoundFieldValueList, int indexCount,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			ArrayList<ValueOfTypeClassUtility> classValueList, String requestClassName, String applicationModelName) {
+
 		/*
 		 * check if the value is of type primitive datatype
 		 */
 		if ((value instanceof String) || (value instanceof Integer) || (value instanceof Float)
 				|| (value instanceof Double) || (value instanceof Boolean)) {
+
+			if (value.toString().isEmpty() || value.toString().replaceAll(" ", "").isEmpty()) {
+				throw new InvalidRequestBodyException(property.getName(), "its value must not be empty",
+						requestClassName);
+			}
 
 			/*
 			 * Object property so add it to htblClassValue to send it to
@@ -535,10 +542,7 @@ public class InsertRequestValidation {
 			/*
 			 * add PropertyValue object to htblClassPropertyValue
 			 */
-			// int classInstanceIndex =
-			// htblClassPropertyValue.get(subjectClass).size() - 1;
-			// System.out.println(htblClassPropertyValue);
-			// System.out.println(subjectClass.getName() + " " + indexCount);
+
 			htblClassPropertyValue.get(subjectClass.getName()).get(indexCount).add(propertyValue);
 
 		} else {
@@ -559,6 +563,12 @@ public class InsertRequestValidation {
 			 */
 			if (value instanceof java.util.LinkedHashMap<?, ?> && property instanceof ObjectProperty) {
 				LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) value;
+
+				if (valueObject.isEmpty()) {
+					throw new InvalidRequestBodyException(property.getName(), "its value must not be an empty object",
+							requestClassName);
+
+				}
 
 				/*
 				 * true if the type Class of objectProperty is from MainOntology
@@ -857,6 +867,12 @@ public class InsertRequestValidation {
 					 */
 					if (property.isMulitpleValues()) {
 						ArrayList<Object> valueList = (ArrayList<Object>) value;
+
+						if (valueList.isEmpty()) {
+							throw new InvalidRequestBodyException(property.getName(),
+									"its value must not be an empty array", requestClassName);
+
+						}
 
 						/*
 						 * iterate on the list and do a recursive call to parse

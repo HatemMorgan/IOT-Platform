@@ -1,7 +1,6 @@
 package com.iotplatform.validations;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -9,14 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.daos.DynamicOntologyDao;
-import com.iotplatform.daos.ValidationDao;
+import com.iotplatform.exceptions.InvalidUpdateRequestBodyException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
+import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.UpdatePropertyValueUtility;
 import com.iotplatform.utilities.UpdateRequestValidationResultUtility;
 import com.iotplatform.utilities.ValueOfTypeClassUtility;
-import com.iotplatform.utilities.NotMappedInsertRequestFieldUtility;
 
 /**
  * 
@@ -96,7 +96,7 @@ public class UpdateRequestValidation {
 	 *         generate update query
 	 */
 
-	public UpdateRequestValidationResultUtility validateUpdateRequest(String applicationName,
+	public UpdateRequestValidationResultUtility validateUpdateRequest(String applicationModelName,
 			LinkedHashMap<String, Object> htblRequestBody, Class subjectClass) {
 
 		/*
@@ -148,6 +148,13 @@ public class UpdateRequestValidation {
 		ArrayList<ValueOfTypeClassUtility> classValueList = new ArrayList<>();
 
 		/*
+		 * List of classes' name that need to get their dynamic properties to
+		 * check if the fields maps to one of them or these fields are invalid
+		 * fields
+		 */
+		ArrayList<String> notMappedFieldsClassesList = new ArrayList<>();
+
+		/*
 		 * Iterate over htblRequestBody to validate that the fields(key) maps to
 		 * an actual property in the applicationDomain ontology and also check
 		 * that no value of any of the fields (value) violates any constraints
@@ -168,15 +175,11 @@ public class UpdateRequestValidation {
 				 * get property with name = field
 				 */
 				Property property = subjectClass.getProperties().get(field);
-				
-				if(property instanceof ObjectProperty){
-					
-					
-					
-				}
+
+				validateUpdateRequestFieldValue(subjectClass, property, fieldValue, validationResult, classValueList,
+						htblUniquePropValueList, notMappedFieldsClassesList, notMappedFieldsList, applicationModelName);
 
 			}
-
 		}
 
 		UpdateRequestValidationResultUtility updateRequestValidationResult = new UpdateRequestValidationResultUtility(
@@ -184,6 +187,626 @@ public class UpdateRequestValidation {
 
 		return updateRequestValidationResult;
 
+	}
+
+	/**
+	 * validateUpdateRequestFieldValue method is used to validate the value of a
+	 * UpdateRequestBodyField
+	 * 
+	 * @param subjectClass
+	 *            subjectClass is the type of the individual that is updated. It
+	 *            is used to make sure that the individual maps correctly to the
+	 *            semantic model defined by ontology of this application domain
+	 *            with applicationName passed.
+	 * 
+	 * @param property
+	 *            mapped property of the udpateRequestBody field
+	 * 
+	 * @param fieldValue
+	 *            value of the udpateRequestBody field
+	 * 
+	 * @param validationResult
+	 *            validationResult is a list of UpdatePropertyValue that is the
+	 *            result of parsing requestBody and it will be used by
+	 *            UpdateQuery class to generate update query
+	 * 
+	 * @param classValueList
+	 *            classValueList is list of ValueOfTypeClass instances (holds
+	 *            objectValue and its classType). it will be used to check
+	 *            dataIntegrity constraints
+	 * 
+	 * @param htblUniquePropValueList
+	 *            uniquePropValueList is a LikedHashMap of key prefixedClassName
+	 *            and value LinkedHashMap<String,ArrayList<PropertyValue>> with
+	 *            key prefixedPropertyName and value list of propertyValue
+	 *            object that holds the unique propertyName and value I used
+	 *            LinkedHashMap to ensure that the property will not be
+	 *            duplicated for the prefixedClassName (this will improve
+	 *            efficiency by reducing graph patterns as there will never be
+	 *            duplicated properties)
+	 * 
+	 *            This DataStructure instance is used in
+	 *            uniqueConstraintValidation
+	 * 
+	 *            ex: {
+	 * 
+	 *            foaf:Person={foaf:userName=[HaythamIsmailss, AhmedMorganls,
+	 *            HatemMorganss]},
+	 * 
+	 *            foaf:Agent={foaf:mbox=[haytham.ismailss@gmail.com,
+	 *            haytham.ismailss@student.guc.edu.eg, ahmedmorganlss@gmail.com,
+	 *            hatemmorgan17ss@gmail.com,
+	 *            hatem.el-sayedss@student.guc.edu.eg]}
+	 * 
+	 *            }
+	 * 
+	 * @param notMappedFieldsClassesList
+	 *            List of classes' name that need to get their dynamic
+	 *            properties to check if the fields maps to one of them or these
+	 *            fields are invalid fields
+	 * 
+	 * @param notMappedFieldsList
+	 *            notMappedFieldsList is a list of all requestBody fields that
+	 *            has not mapping to a property in the application(with
+	 *            applicationName) domain ontology.
+	 * 
+	 *            These fields will be validated again after loading
+	 *            dynamicProperties of the requested class (subjectClass)
+	 * 
+	 * @param applicationModelName
+	 *            applicationName of the requested applicationDomain. Every
+	 *            application has a unique name and it is needed to load its
+	 *            dynamic added classes and properties to the mainOntology and
+	 *            also to validate that no constraints violations on the
+	 *            applicationModel that stores its data
+	 * 
+	 */
+	private void validateUpdateRequestFieldValue(Class subjectClass, Property property, Object fieldValue,
+			ArrayList<UpdatePropertyValueUtility> validationResult, ArrayList<ValueOfTypeClassUtility> classValueList,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
+			ArrayList<String> notMappedFieldsClassesList, ArrayList<String> notMappedFieldsList,
+			String applicationModelName) {
+
+		if (property instanceof ObjectProperty) {
+
+			/*
+			 * if property has multiple values then the user must enter the
+			 * oldValue (that will be updated) and the new value
+			 * 
+			 * value = {oldValue:"" , newValue:""}
+			 */
+
+			if (property.isMulitpleValues() && fieldValue instanceof java.util.LinkedHashMap<?, ?>) {
+				LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) fieldValue;
+
+				/*
+				 * call validateMultiValuedPropertyField method to validate the
+				 * valueObject
+				 */
+				validateMultiValuedObjectPropertyField(valueObject, subjectClass, property, fieldValue,
+						validationResult, classValueList, htblUniquePropValueList, notMappedFieldsClassesList,
+						notMappedFieldsList, applicationModelName);
+
+			} else {
+
+				/*
+				 * property is not multiValued so the expected fieldValue is to
+				 * be string which represents the new value for this property
+				 */
+				validateSingleValuedObjectPropertyField(fieldValue, subjectClass, property, fieldValue,
+						validationResult, classValueList, htblUniquePropValueList, notMappedFieldsClassesList,
+						notMappedFieldsList, applicationModelName);
+
+			}
+
+		} else {
+
+			/*
+			 * DataTypeProperty
+			 */
+
+			/*
+			 * if property has multiple values then the user must enter the
+			 * oldValue (that will be updated) and the new value
+			 * 
+			 * value = {oldValue:"" , newValue:""}
+			 */
+
+			if (property.isMulitpleValues() && fieldValue instanceof java.util.LinkedHashMap<?, ?>) {
+				LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) fieldValue;
+
+				/*
+				 * call validateMultiValuedPropertyField method to validate the
+				 * valueObject
+				 */
+				validateMultiValuedDataTypePropertyField(valueObject, subjectClass, property, fieldValue,
+						validationResult, classValueList, htblUniquePropValueList, notMappedFieldsClassesList,
+						notMappedFieldsList, applicationModelName);
+
+			} else {
+
+				/*
+				 * property is not multiValued so the expected fieldValue is to
+				 * be string which represents the new value for this property
+				 */
+				validateSingleValuedDataTypePropertyField(fieldValue, subjectClass, property, fieldValue,
+						validationResult, classValueList, htblUniquePropValueList, notMappedFieldsClassesList,
+						notMappedFieldsList, applicationModelName);
+
+			}
+
+		}
+	}
+
+	/**
+	 * validateSingleValuedObjectPropertyField validate the value of
+	 * requestBodyField that maps to an ObjectProperty that has single value
+	 * 
+	 * @param value
+	 *            the value of the field that maps to an objectProperty with
+	 *            singleValue
+	 * 
+	 * @param subjectClass
+	 * @param property
+	 * @param fieldValue
+	 * @param validationResult
+	 * @param classValueList
+	 * @param htblUniquePropValueList
+	 * @param notMappedFieldsClassesList
+	 * @param notMappedFieldsList
+	 * @param applicationModelName
+	 */
+	private void validateSingleValuedObjectPropertyField(Object value, Class subjectClass, Property property,
+			Object fieldValue, ArrayList<UpdatePropertyValueUtility> validationResult,
+			ArrayList<ValueOfTypeClassUtility> classValueList,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
+			ArrayList<String> notMappedFieldsClassesList, ArrayList<String> notMappedFieldsList,
+			String applicationModelName) {
+
+		if (!(value instanceof String))
+			throw new InvalidUpdateRequestBodyException("Field with name: " + property.getName()
+					+ " has invalid value format because its value must be String holding "
+					+ "the new value that reference an existing object ");
+
+		/*
+		 * check that the valueObject is not empty
+		 */
+		if (value.toString().isEmpty() || value.toString().replaceAll(" ", "").isEmpty()) {
+
+			throw new InvalidUpdateRequestBodyException(" Field with name: " + property.getName()
+					+ " has invalid value format because its value must not be empty .");
+
+		}
+
+		/*
+		 * I must add the new value to classValueList to be checked that it does
+		 * not violate any dataIntegrity constraints (the new value ( which is
+		 * an object value reference) is a valid exist object in the model of
+		 * the requested application )
+		 */
+		Class objectPropertyRangeClass = getPropertyObject(property, subjectClass, notMappedFieldsClassesList,
+				notMappedFieldsList, fieldValue, applicationModelName);
+
+		/*
+		 * check that notMappedFieldsList is not null (it will be null if the
+		 * object property range class is a dynamic added class to the request
+		 * application ontology)
+		 * 
+		 * if it is not null then I have to add it and the newValue to
+		 * classValueList to be checked for any data integrity constraints
+		 */
+		if (objectPropertyRangeClass != null)
+			classValueList.add(new ValueOfTypeClassUtility(objectPropertyRangeClass, value));
+
+		/*
+		 * check if the property is unique so the value must be added to
+		 * htblUniquePropValueList to be checked for any unique constraint
+		 * violation (which checks that the new value is unique)
+		 */
+		checkIfPropertyIsUnique(property, htblUniquePropValueList, value);
+
+		/*
+		 * create a new UpdatePropertyValueUtility to hold parsed value
+		 */
+		UpdatePropertyValueUtility updatePropertyValueUtility = new UpdatePropertyValueUtility(
+				property.getPrefix().getPrefix() + property.getName(), true, null, value);
+
+		/*
+		 * add the new UpdatePropertyValueUtility instance to validationResult
+		 */
+		validationResult.add(updatePropertyValueUtility);
+
+	}
+
+	/**
+	 * 
+	 * validateMultiValuedObjectPropertyField validate the value of
+	 * requestBodyField that maps to an ObjectProperty that has multiple values
+	 * 
+	 * @param valueObject
+	 *            is LinkedHashMap<String, Object> which is the value of the
+	 *            field that maps to an objectProperty with multipleValues
+	 * 
+	 * @param subjectClass
+	 * @param property
+	 * @param fieldValue
+	 * @param validationResult
+	 * @param classValueList
+	 * @param htblUniquePropValueList
+	 * @param notMappedFieldsClassesList
+	 * @param notMappedFieldsList
+	 * @param applicationModelName
+	 */
+	private void validateMultiValuedObjectPropertyField(LinkedHashMap<String, Object> valueObject, Class subjectClass,
+			Property property, Object fieldValue, ArrayList<UpdatePropertyValueUtility> validationResult,
+			ArrayList<ValueOfTypeClassUtility> classValueList,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
+			ArrayList<String> notMappedFieldsClassesList, ArrayList<String> notMappedFieldsList,
+			String applicationModelName) {
+		/*
+		 * check that the valueObject is not empty
+		 */
+		if (valueObject.isEmpty()) {
+
+			throw new InvalidUpdateRequestBodyException(" Field with name: " + property.getName()
+					+ " has invalid value format because its value must not be an empty object .");
+
+		}
+
+		/*
+		 * check that the valueObject contains the appropriate fields (oldValue
+		 * and newValue)
+		 */
+		if (!(valueObject.size() == 2 && valueObject.containsKey("oldValue")
+				&& valueObject.get("oldValue") instanceof String && valueObject.containsKey("newValue")
+				&& valueObject.get("newValue") instanceof String)) {
+
+			throw new InvalidUpdateRequestBodyException(
+					" Field with name: " + property.getName() + " has invalid value format because this field maps "
+							+ "to a multiValued Property. So to update its value, "
+							+ "you must supply the oldValue that will be updated " + "and the new value.");
+
+		}
+
+		/*
+		 * valueObject is valid so get oldValue and newValue fieldsValues
+		 */
+		Object oldValue = valueObject.get("oldValue");
+		Object newValue = valueObject.get("newValue");
+
+		/*
+		 * I must add the new value to classValueList to be checked that it does
+		 * not violate any dataIntegrity constraints (the new value ( which is
+		 * an object value reference) is a valid exist object in the model of
+		 * the requested application )
+		 */
+		Class objectPropertyRangeClass = getPropertyObject(property, subjectClass, notMappedFieldsClassesList,
+				notMappedFieldsList, fieldValue, applicationModelName);
+
+		/*
+		 * check that notMappedFieldsList is not null (it will be null if the
+		 * object property range class is a dynamic added class to the request
+		 * application ontology)
+		 * 
+		 * if it is not null then I have to add it and the newValue to
+		 * classValueList to be checked for any data integrity constraints
+		 */
+		if (objectPropertyRangeClass != null)
+			classValueList.add(new ValueOfTypeClassUtility(objectPropertyRangeClass, newValue));
+
+		/*
+		 * check if the property is unique so the value must be added to
+		 * htblUniquePropValueList to be checked for any unique constraint
+		 * violation (which checks that the new value is unique)
+		 */
+		checkIfPropertyIsUnique(property, htblUniquePropValueList, newValue);
+
+		/*
+		 * create a new UpdatePropertyValueUtility to hold parsed value
+		 */
+		UpdatePropertyValueUtility updatePropertyValueUtility = new UpdatePropertyValueUtility(
+				property.getPrefix().getPrefix() + property.getName(), true, oldValue, newValue);
+
+		/*
+		 * add the new UpdatePropertyValueUtility instance to validationResult
+		 */
+		validationResult.add(updatePropertyValueUtility);
+	}
+
+	/**
+	 * validateSingleValuedDataTypePropertyField validate the value of
+	 * requestBodyField that maps to an DatatypeProperty that has single value
+	 * 
+	 * @param value
+	 *            the value of the field that maps to an DatatypeProperty with
+	 *            singleValue
+	 * 
+	 * @param subjectClass
+	 * @param property
+	 * @param fieldValue
+	 * @param validationResult
+	 * @param classValueList
+	 * @param htblUniquePropValueList
+	 * @param notMappedFieldsClassesList
+	 * @param notMappedFieldsList
+	 * @param applicationModelName
+	 */
+	private void validateSingleValuedDataTypePropertyField(Object value, Class subjectClass, Property property,
+			Object fieldValue, ArrayList<UpdatePropertyValueUtility> validationResult,
+			ArrayList<ValueOfTypeClassUtility> classValueList,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
+			ArrayList<String> notMappedFieldsClassesList, ArrayList<String> notMappedFieldsList,
+			String applicationModelName) {
+
+		if (!(value instanceof String))
+			throw new InvalidUpdateRequestBodyException("Field with name: " + property.getName()
+					+ " has invalid value format because its value must be String holding "
+					+ "the new value that reference an existing object ");
+
+		/*
+		 * check that the valueObject is not empty
+		 */
+		if (value.toString().isEmpty() || value.toString().replaceAll(" ", "").isEmpty()) {
+
+			throw new InvalidUpdateRequestBodyException(" Field with name: " + property.getName()
+					+ " has invalid value format because its value must not be empty .");
+
+		}
+
+		/*
+		 * check if the property is unique so the value must be added to
+		 * htblUniquePropValueList to be checked for any unique constraint
+		 * violation (which checks that the new value is unique)
+		 */
+		checkIfPropertyIsUnique(property, htblUniquePropValueList, value);
+
+		/*
+		 * create a new UpdatePropertyValueUtility to hold parsed value
+		 */
+		UpdatePropertyValueUtility updatePropertyValueUtility = new UpdatePropertyValueUtility(
+				property.getPrefix().getPrefix() + property.getName(), true, null, value);
+
+		/*
+		 * add the new UpdatePropertyValueUtility instance to validationResult
+		 */
+		validationResult.add(updatePropertyValueUtility);
+
+	}
+
+	/**
+	 * 
+	 * validateMultiValuedDataTypePropertyField validate the value of
+	 * requestBodyField that maps to a DataTypeProperty that has multiple values
+	 * 
+	 * @param valueObject
+	 *            is LinkedHashMap<String, Object> which is the value of the
+	 *            field that maps to an DataTypeProperty with multipleValues
+	 * 
+	 * @param subjectClass
+	 * @param property
+	 * @param fieldValue
+	 * @param validationResult
+	 * @param classValueList
+	 * @param htblUniquePropValueList
+	 * @param notMappedFieldsClassesList
+	 * @param notMappedFieldsList
+	 * @param applicationModelName
+	 */
+	private void validateMultiValuedDataTypePropertyField(LinkedHashMap<String, Object> valueObject, Class subjectClass,
+			Property property, Object fieldValue, ArrayList<UpdatePropertyValueUtility> validationResult,
+			ArrayList<ValueOfTypeClassUtility> classValueList,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
+			ArrayList<String> notMappedFieldsClassesList, ArrayList<String> notMappedFieldsList,
+			String applicationModelName) {
+		/*
+		 * check that the valueObject is not empty
+		 */
+		if (valueObject.isEmpty()) {
+
+			throw new InvalidUpdateRequestBodyException(" Field with name: " + property.getName()
+					+ " has invalid value format because its value must not be an empty object .");
+
+		}
+
+		/*
+		 * check that the valueObject contains the appropriate fields (oldValue
+		 * and newValue)
+		 */
+		if (!(valueObject.size() == 2 && valueObject.containsKey("oldValue")
+				&& valueObject.get("oldValue") instanceof String && valueObject.containsKey("newValue")
+				&& valueObject.get("newValue") instanceof String)) {
+
+			throw new InvalidUpdateRequestBodyException(
+					" Field with name: " + property.getName() + " has invalid value format because this field maps "
+							+ "to a multiValued Property. So to update its value, "
+							+ "you must supply the oldValue that will be updated " + "and the new value.");
+
+		}
+
+		/*
+		 * valueObject is valid so get oldValue and newValue fieldsValues
+		 */
+		Object oldValue = valueObject.get("oldValue");
+		Object newValue = valueObject.get("newValue");
+
+		/*
+		 * check if the property is unique so the value must be added to
+		 * htblUniquePropValueList to be checked for any unique constraint
+		 * violation (which checks that the new value is unique)
+		 */
+		checkIfPropertyIsUnique(property, htblUniquePropValueList, newValue);
+
+		/*
+		 * create a new UpdatePropertyValueUtility to hold parsed value
+		 */
+		UpdatePropertyValueUtility updatePropertyValueUtility = new UpdatePropertyValueUtility(
+				property.getPrefix().getPrefix() + property.getName(), true, oldValue, newValue);
+
+		/*
+		 * add the new UpdatePropertyValueUtility instance to validationResult
+		 */
+		validationResult.add(updatePropertyValueUtility);
+	}
+
+	/**
+	 * getPropertyObject is used to get the objectPropetyRange class type and if
+	 * the class does not exist in the mainOntology or in the dynamicOntology
+	 * cache of the requested application so it will added to
+	 * notMappedFieldsClassesList to load it if it exist in the dynamicOntology
+	 * graph of the requested application
+	 * 
+	 * @param property
+	 * @param subjectClass
+	 * @param notMappedFieldsClassesList
+	 * @param notMappedFieldList
+	 * @param fieldValue
+	 * @param applicationModelName
+	 * @return
+	 */
+	private Class getPropertyObject(Property property, Class subjectClass, ArrayList<String> notMappedFieldsClassesList,
+			ArrayList<String> notMappedFieldList, Object fieldValue, String applicationModelName) {
+		/*
+		 * get property range objectClass if it is an objectProperty
+		 */
+		Class objectClass = null;
+
+		String objectClassName = ((ObjectProperty) property).getObjectClassName();
+
+		/*
+		 * get objectClass from dynamicOntology cache of the requested
+		 * application if it (objectClass) exist
+		 */
+		if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().contains(applicationModelName)
+				&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+						.containsKey(objectClassName.toLowerCase()))) {
+			objectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+					.get(objectClassName.toLowerCase());
+		} else {
+
+			/*
+			 * get objectClass from mainOntology if it exist
+			 */
+			if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(objectClassName.toLowerCase())) {
+
+				/*
+				 * get the objectClass from MainOntologyClassesMapper
+				 */
+				objectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(objectClassName.toLowerCase());
+			} else {
+
+				notMappedFieldsClassesList.add(objectClassName);
+
+				notMappedFieldList.add(property.getName());
+
+			}
+
+		}
+
+		return objectClass;
+	}
+
+	/**
+	 * checkIfPropertyIsUnique checks if the property is Unique and if it is
+	 * unique add it to htblUniquePropValueList to be checked for any unique
+	 * constraints violation
+	 * 
+	 * @param property
+	 *            mapped property of the udpateRequestBody field
+	 * 
+	 * @param htblUniquePropValueList
+	 *            uniquePropValueList is a LikedHashMap of key prefixedClassName
+	 *            and value LinkedHashMap<String,ArrayList<PropertyValue>> with
+	 *            key prefixedPropertyName and value list of propertyValue
+	 *            object that holds the unique propertyName and value I used
+	 *            LinkedHashMap to ensure that the property will not be
+	 *            duplicated for the prefixedClassName (this will improve
+	 *            efficiency by reducing graph patterns as there will never be
+	 *            duplicated properties)
+	 * 
+	 *            This DataStructure instance is used in
+	 *            uniqueConstraintValidation
+	 * 
+	 *            ex: {
+	 * 
+	 *            foaf:Person={foaf:userName=[HaythamIsmailss, AhmedMorganls,
+	 *            HatemMorganss]},
+	 * 
+	 *            foaf:Agent={foaf:mbox=[haytham.ismailss@gmail.com,
+	 *            haytham.ismailss@student.guc.edu.eg, ahmedmorganlss@gmail.com,
+	 *            hatemmorgan17ss@gmail.com,
+	 *            hatem.el-sayedss@student.guc.edu.eg]}
+	 * 
+	 *            }
+	 * 
+	 * @param value
+	 *            value of the udpateRequestBody field
+	 */
+	private void checkIfPropertyIsUnique(Property property,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList, Object value) {
+		/*
+		 * check if the property has unique constraint to add the value and the
+		 * property to htblUniquePropValueList to be passed to validationDao to
+		 * check the no unique constraint violation occured
+		 */
+		if (property.isUnique()) {
+
+			String prefixedPropertySubjectClassName = property.getSubjectClass().getPrefix().getPrefix()
+					+ property.getSubjectClass().getName();
+
+			if (htblUniquePropValueList.containsKey(prefixedPropertySubjectClassName)) {
+
+				/*
+				 * check if property of the prefixedPropertySubjectClassName was
+				 * added before
+				 */
+				if (htblUniquePropValueList.get(prefixedPropertySubjectClassName)
+						.containsKey(property.getPrefix().getPrefix() + property.getName())) {
+					/*
+					 * add propertyValue instance to uniquePropertyValueList of
+					 * subjectClassInstance
+					 */
+					htblUniquePropValueList.get(prefixedPropertySubjectClassName)
+							.get(property.getPrefix().getPrefix() + property.getName()).add(value);
+				} else {
+					/*
+					 * add prefixedPropertyName and a list to hold propertyValue
+					 * objects
+					 */
+
+					ArrayList<Object> propertyValueList = new ArrayList<>();
+					htblUniquePropValueList.get(prefixedPropertySubjectClassName)
+							.put(property.getPrefix().getPrefix() + property.getName(), propertyValueList);
+
+					/*
+					 * add propertyValue instance to uniquePropertyValueList of
+					 * subjectClassInstance
+					 */
+					htblUniquePropValueList.get(prefixedPropertySubjectClassName)
+							.get(property.getPrefix().getPrefix() + property.getName()).add(value);
+				}
+
+			} else {
+
+				/*
+				 * Add subjectClass key and new
+				 * htblClassInstanceUnqiuePropValueList to
+				 * htblClassInstanceUnqiuePropValueList
+				 */
+				ArrayList<Object> propertyValueList = new ArrayList<>();
+				LinkedHashMap<String, ArrayList<Object>> htblClassInstanceUnqiuePropValueList = new LinkedHashMap<>();
+				htblClassInstanceUnqiuePropValueList.put(property.getPrefix().getPrefix() + property.getName(),
+						propertyValueList);
+				htblUniquePropValueList.put(prefixedPropertySubjectClassName, htblClassInstanceUnqiuePropValueList);
+
+				/*
+				 * add propertyValue instance to uniquePropertyValueList of
+				 * subjectClassInstance
+				 */
+				htblUniquePropValueList.get(prefixedPropertySubjectClassName)
+						.get(property.getPrefix().getPrefix() + property.getName()).add(value);
+			}
+
+		}
 	}
 
 	/**
