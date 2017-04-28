@@ -11,7 +11,10 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.Property;
 import com.iotplatform.utilities.UpdatePropertyValueUtility;
+import com.iotplatform.utilities.UpdateRequestValidationResultUtility;
+import com.iotplatform.utilities.ValueOfTypeClass;
 import com.iotplatform.utilities.NotMappedInsertRequestFieldUtility;
 
 /**
@@ -91,8 +94,8 @@ public class UpdateRequestValidation {
 	 *         parsing requestBody and it will be used by UpdateQuery class to
 	 *         generate update query
 	 */
-	
-	public ArrayList<UpdatePropertyValueUtility> validateUpdateRequest(String applicationName,
+
+	public UpdateRequestValidationResultUtility validateUpdateRequest(String applicationName,
 			LinkedHashMap<String, Object> htblRequestBody, Class subjectClass) {
 
 		/*
@@ -101,9 +104,47 @@ public class UpdateRequestValidation {
 		 * generate update query
 		 */
 		ArrayList<UpdatePropertyValueUtility> validationResult = new ArrayList<>();
-		
-//		ArrayList<Not>
-		
+
+		/*
+		 * notMappedFieldsList is a list of all requestBody fields that has not
+		 * mapping to a property in the application(with applicationName) domain
+		 * ontology.
+		 * 
+		 * These fields will be validated again after loading dynamicProperties
+		 * of the requested class (subjectClass)
+		 */
+		ArrayList<String> notMappedFieldsList = new ArrayList<>();
+
+		/*
+		 * uniquePropValueList is a LikedHashMap of key prefixedClassName and
+		 * value LinkedHashMap<String,ArrayList<PropertyValue>> with key
+		 * prefixedPropertyName and value list of propertyValue object that
+		 * holds the unique propertyName and value I used LinkedHashMap to
+		 * ensure that the property will not be duplicated for the
+		 * prefixedClassName (this will improve efficiency by reducing graph
+		 * patterns as there will never be duplicated properties)
+		 * 
+		 * This DataStructure instance is used in uniqueConstraintValidation
+		 * 
+		 * ex: {
+		 * 
+		 * foaf:Person={foaf:userName=[HaythamIsmailss, AhmedMorganls,
+		 * HatemMorganss]},
+		 * 
+		 * foaf:Agent={foaf:mbox=[haytham.ismailss@gmail.com,
+		 * haytham.ismailss@student.guc.edu.eg, ahmedmorganlss@gmail.com,
+		 * hatemmorgan17ss@gmail.com, hatem.el-sayedss@student.guc.edu.eg]}
+		 * 
+		 * }
+		 */
+		LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList = new LinkedHashMap<>();
+
+		/*
+		 * classValueList is list of ValueOfTypeClass instances (holds
+		 * objectValue and its classType). it will be used to check
+		 * dataIntegrity constraints
+		 */
+		ArrayList<ValueOfTypeClass> classValueList = new ArrayList<>();
 
 		/*
 		 * Iterate over htblRequestBody to validate that the fields(key) maps to
@@ -115,9 +156,26 @@ public class UpdateRequestValidation {
 		while (htblRequestBodyIter.hasNext()) {
 			String field = htblRequestBodyIter.next();
 
+			if (isFieldMapsToProperty(subjectClass, field, notMappedFieldsList)) {
+
+				/*
+				 * get fieldValue
+				 */
+				Object fieldValue = htblRequestBody.get(field);
+
+				/*
+				 * get property with name = field
+				 */
+				Property property = subjectClass.getProperties().get(field);
+
+			}
+
 		}
 
-		return validationResult;
+		UpdateRequestValidationResultUtility updateRequestValidationResult = new UpdateRequestValidationResultUtility(
+				validationResult, classValueList, htblUniquePropValueList);
+
+		return updateRequestValidationResult;
 
 	}
 
@@ -170,29 +228,22 @@ public class UpdateRequestValidation {
 	 *         add the field and value to htblNotFoundFieldValue hashtable to be
 	 *         checked again after loading dynamic properties
 	 */
-	private boolean isFieldMapsToProperty(Class subjectClass, String fieldName, Object value,
-			ArrayList<NotMappedInsertRequestFieldUtility> notFoundFieldValueList) {
+	private boolean isFieldMapsToProperty(Class subjectClass, String field, ArrayList<String> notMappedFieldsList) {
 
 		/*
-		 * check that fieldName maps to a property in subjectClass and return
-		 * true if it maps
+		 * check that field maps to a property in subjectClass and return true
+		 * if it maps
 		 */
-		if (subjectClass.getProperties().containsKey(fieldName)) {
+		if (subjectClass.getProperties().containsKey(field)) {
 			return true;
 		} else {
 
 			/*
-			 * create a new ValueOfFieldNotMappedToStaticProperty instance to
-			 * hold fieldName, fieldValue and subjectClass
-			 * 
-			 * add new ValueOfFieldNotMappedToStaticProperty instance to
-			 * notFoundFieldValueList to be checked later after loading dynamic
-			 * properties of subjectClass
-			 * 
+			 * field does not map to a valid property so I will add it to
+			 * notMappedFieldsList to be checked again after loading dynamic
+			 * properteis of subjectClass
 			 */
-			NotMappedInsertRequestFieldUtility notMappedFieldValue = new NotMappedInsertRequestFieldUtility(
-					subjectClass, value, fieldName);
-			notFoundFieldValueList.add(notMappedFieldValue);
+			notMappedFieldsList.add(field);
 
 			/*
 			 * return false becuase no mapping found

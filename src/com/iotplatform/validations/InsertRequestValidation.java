@@ -281,7 +281,6 @@ public class InsertRequestValidation {
 			 */
 			if (validationDao.hasNoConstraintViolations(applicationName, classValueList, htblUniquePropValueList,
 					subjectClass)) {
-				System.out.println("asas");
 				return htblClassPropertyValue;
 			}
 
