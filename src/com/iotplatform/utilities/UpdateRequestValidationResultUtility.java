@@ -23,7 +23,7 @@ public class UpdateRequestValidationResultUtility {
 	 * classValueList is list of ValueOfTypeClass instances (holds objectValue
 	 * and its classType). it will be used to check dataIntegrity constraints
 	 */
-	private ArrayList<ValueOfTypeClass> classValueList = new ArrayList<>();
+	private ArrayList<ValueOfTypeClassUtility> classValueList = new ArrayList<>();
 
 	/*
 	 * uniquePropValueList is a LikedHashMap of key prefixedClassName and value
@@ -50,7 +50,7 @@ public class UpdateRequestValidationResultUtility {
 	private LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList = new LinkedHashMap<>();
 
 	public UpdateRequestValidationResultUtility(ArrayList<UpdatePropertyValueUtility> validationResult,
-			ArrayList<ValueOfTypeClass> classValueList,
+			ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList) {
 		this.validationResult = validationResult;
 		this.classValueList = classValueList;
@@ -61,7 +61,7 @@ public class UpdateRequestValidationResultUtility {
 		return validationResult;
 	}
 
-	public ArrayList<ValueOfTypeClass> getClassValueList() {
+	public ArrayList<ValueOfTypeClassUtility> getClassValueList() {
 		return classValueList;
 	}
 

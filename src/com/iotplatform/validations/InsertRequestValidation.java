@@ -29,7 +29,7 @@ import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.InsertionPropertyValue;
 import com.iotplatform.utilities.NotMappedInsertRequestFieldUtility;
-import com.iotplatform.utilities.ValueOfTypeClass;
+import com.iotplatform.utilities.ValueOfTypeClassUtility;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -133,7 +133,7 @@ public class InsertRequestValidation {
 		 * objectValue and its classType). it will be used to check
 		 * dataIntegrity constraints
 		 */
-		ArrayList<ValueOfTypeClass> classValueList = new ArrayList<>();
+		ArrayList<ValueOfTypeClassUtility> classValueList = new ArrayList<>();
 
 		/*
 		 * uniquePropValueList is a LikedHashMap of key prefixedClassName and
@@ -385,7 +385,7 @@ public class InsertRequestValidation {
 			ArrayList<String> notMappedFieldsClassesList,
 			ArrayList<NotMappedInsertRequestFieldUtility> notFoundFieldValueList, int indexCount,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
-			ArrayList<ValueOfTypeClass> classValueList, String requestClassName, String applicationModelName) {
+			ArrayList<ValueOfTypeClassUtility> classValueList, String requestClassName, String applicationModelName) {
 		/*
 		 * check if the value is of type primitive datatype
 		 */
@@ -433,7 +433,7 @@ public class InsertRequestValidation {
 				}
 
 				if (objectClass != null) {
-					classValueList.add(new ValueOfTypeClass(objectClass, value));
+					classValueList.add(new ValueOfTypeClassUtility(objectClass, value));
 				} else {
 					return;
 				}
@@ -900,7 +900,7 @@ public class InsertRequestValidation {
 			ArrayList<String> notMappedFieldsClassesList,
 			ArrayList<NotMappedInsertRequestFieldUtility> notFoundFieldValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
-			ArrayList<ValueOfTypeClass> classValueList, String applicationModelName) {
+			ArrayList<ValueOfTypeClassUtility> classValueList, String applicationModelName) {
 
 		if (notFoundFieldValueList.size() > 0 && notMappedFieldsClassesList.size() > 0) {
 			dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName,

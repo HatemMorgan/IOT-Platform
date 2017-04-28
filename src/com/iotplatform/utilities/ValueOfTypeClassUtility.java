@@ -15,12 +15,12 @@ import com.iotplatform.ontology.Class;
  * 
  */
 
-public class ValueOfTypeClass {
+public class ValueOfTypeClassUtility {
 
 	private Class typeClass;
 	private Object value;
 
-	public ValueOfTypeClass(Class typeClass, Object value) {
+	public ValueOfTypeClassUtility(Class typeClass, Object value) {
 		this.typeClass = typeClass;
 		this.value = value;
 	}

@@ -11,10 +11,11 @@ import org.springframework.stereotype.Component;
 import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.utilities.UpdatePropertyValueUtility;
 import com.iotplatform.utilities.UpdateRequestValidationResultUtility;
-import com.iotplatform.utilities.ValueOfTypeClass;
+import com.iotplatform.utilities.ValueOfTypeClassUtility;
 import com.iotplatform.utilities.NotMappedInsertRequestFieldUtility;
 
 /**
@@ -144,7 +145,7 @@ public class UpdateRequestValidation {
 		 * objectValue and its classType). it will be used to check
 		 * dataIntegrity constraints
 		 */
-		ArrayList<ValueOfTypeClass> classValueList = new ArrayList<>();
+		ArrayList<ValueOfTypeClassUtility> classValueList = new ArrayList<>();
 
 		/*
 		 * Iterate over htblRequestBody to validate that the fields(key) maps to
@@ -167,6 +168,12 @@ public class UpdateRequestValidation {
 				 * get property with name = field
 				 */
 				Property property = subjectClass.getProperties().get(field);
+				
+				if(property instanceof ObjectProperty){
+					
+					
+					
+				}
 
 			}
 

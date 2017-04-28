@@ -14,7 +14,7 @@ import com.iotplatform.exceptions.InvalidPropertyValuesException;
 import com.iotplatform.exceptions.UniqueConstraintViolationException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.utilities.ValueOfTypeClass;
+import com.iotplatform.utilities.ValueOfTypeClassUtility;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -48,7 +48,7 @@ public class ValidationDao {
 	 * constraint
 	 */
 
-	public boolean hasNoConstraintViolations(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
+	public boolean hasNoConstraintViolations(String applicationName, ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			Class subjectClass) {
 
@@ -127,7 +127,7 @@ public class ValidationDao {
 	 * cnr.it/ontologies/DUL.owl#')),null))
 	 *
 	 */
-	private String constructViolationsCheckQueryStr(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
+	private String constructViolationsCheckQueryStr(String applicationName, ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList) {
 
 		StringBuilder stringBuilder = new StringBuilder();
@@ -180,7 +180,7 @@ public class ValidationDao {
 	 * iot-platform:karammorgan a foaf:Person . }}
 	 */
 
-	private String constructIntegrityConstraintCheckSubQuery(ArrayList<ValueOfTypeClass> classValueList) {
+	private String constructIntegrityConstraintCheckSubQuery(ArrayList<ValueOfTypeClassUtility> classValueList) {
 
 		StringBuilder stringBuilder = new StringBuilder();
 
@@ -190,7 +190,7 @@ public class ValidationDao {
 
 		stringBuilder.append("{ SELECT (COUNT(*) as ?isFound ) WHERE { ");
 
-		for (ValueOfTypeClass valueOfTypeClass : classValueList) {
+		for (ValueOfTypeClassUtility valueOfTypeClass : classValueList) {
 			Class valueClassType = valueOfTypeClass.getTypeClass();
 			Object value = valueOfTypeClass.getValue();
 
