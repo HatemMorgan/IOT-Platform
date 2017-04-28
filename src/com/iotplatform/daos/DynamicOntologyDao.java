@@ -1,7 +1,6 @@
 package com.iotplatform.daos;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -72,8 +71,12 @@ public class DynamicOntologyDao {
 			UpdateAction.parseExecute(insertQueryBuilder.toString(), dsgos);
 			dsgos.close();
 
-			DynamicOntologyMapper.getHtblApplicationOntologyState().put(applicationModelName,
-					DynamicOntologyStateEnum.Modified);
+			if (DynamicOntologyMapper.getHtblApplicationOntologyState().containsKey(applicationModelName)) {
+
+				DynamicOntologyMapper.getHtblApplicationOntologyState().remove(applicationModelName);
+				DynamicOntologyMapper.getHtblApplicationOntologyState().put(applicationModelName,
+						DynamicOntologyStateEnum.Modified);
+			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -122,8 +125,11 @@ public class DynamicOntologyDao {
 			UpdateAction.parseExecute(insertQueryBuilder.toString(), dsgos);
 			dsgos.close();
 
-			DynamicOntologyMapper.getHtblApplicationOntologyState().put(applicationModelName,
-					DynamicOntologyStateEnum.Modified);
+			if (DynamicOntologyMapper.getHtblApplicationOntologyState().containsKey(applicationModelName)) {
+				DynamicOntologyMapper.getHtblApplicationOntologyState().remove(applicationModelName);
+				DynamicOntologyMapper.getHtblApplicationOntologyState().put(applicationModelName,
+						DynamicOntologyStateEnum.Modified);
+			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -180,8 +186,12 @@ public class DynamicOntologyDao {
 			UpdateAction.parseExecute(insertQueryBuilder.toString(), dsgos);
 			dsgos.close();
 
-			DynamicOntologyMapper.getHtblApplicationOntologyState().put(applicationModelName,
-					DynamicOntologyStateEnum.Modified);
+			if (DynamicOntologyMapper.getHtblApplicationOntologyState().containsKey(applicationModelName)) {
+
+				DynamicOntologyMapper.getHtblApplicationOntologyState().remove(applicationModelName);
+				DynamicOntologyMapper.getHtblApplicationOntologyState().put(applicationModelName,
+						DynamicOntologyStateEnum.Modified);
+			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -218,7 +228,7 @@ public class DynamicOntologyDao {
 		queryBuilder.append(
 				"sem_models('" + applicationModelName + "'),null, \n " + "SEM_ALIASES(" + prefixes + "),null))");
 
-		System.out.println(queryBuilder.toString());
+//		System.out.println(queryBuilder.toString());
 
 		try {
 			ResultSet results = oracle.executeQuery(queryBuilder.toString(), 0, 1);
@@ -258,7 +268,7 @@ public class DynamicOntologyDao {
 		queryBuilder.append("} ' , \n");
 		queryBuilder.append("sem_models('" + applicationModelName + "'),null, \n SEM_ALIASES(" + prefixes + "),null))");
 
-		System.out.println(queryBuilder.toString());
+//		System.out.println(queryBuilder.toString());
 
 		try {
 			ResultSet results = oracle.executeQuery(queryBuilder.toString(), 0, 1);
@@ -304,7 +314,7 @@ public class DynamicOntologyDao {
 		queryBuilder.append("} ' , \n");
 		queryBuilder.append("sem_models('" + applicationModelName + "'),null, \n SEM_ALIASES(" + prefixes + "),null))");
 
-		System.out.println(queryBuilder.toString());
+//		System.out.println(queryBuilder.toString());
 
 		try {
 			ResultSet results = oracle.executeQuery(queryBuilder.toString(), 0, 1);

@@ -15,6 +15,8 @@ import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.validations.DynamicOntologyRequestValidation;
 
+import oracle.spatial.rdf.client.jena.Oracle;
+
 @Service("ontologyService")
 public class OntologyService {
 
@@ -48,7 +50,9 @@ public class OntologyService {
 		/*
 		 * get application modelName
 		 */
-		String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationName);
+		String applicationModelName = applicationDao.getHtblApplicationNameModelName()
+				.get(applicationName.toLowerCase().replaceAll(" ", ""));
+
 		return ontologyDao.loadApplicationOntology(applicationModelName);
 
 	}
@@ -74,7 +78,8 @@ public class OntologyService {
 			/*
 			 * get application modelName
 			 */
-			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationName);
+			String applicationModelName = applicationDao.getHtblApplicationNameModelName()
+					.get(applicationName.toLowerCase().replaceAll(" ", ""));
 
 			/*
 			 * check that request is valid
@@ -117,7 +122,8 @@ public class OntologyService {
 			/*
 			 * get application modelName
 			 */
-			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationName);
+			String applicationModelName = applicationDao.getHtblApplicationNameModelName()
+					.get(applicationName.toLowerCase().replaceAll(" ", ""));
 
 			/*
 			 * check that request is valid
@@ -156,7 +162,6 @@ public class OntologyService {
 			/*
 			 * check if the model exist or not .
 			 */
-
 			if (!exist) {
 				NoApplicationModelException exception = new NoApplicationModelException(applicationName, "Ontology");
 				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
@@ -166,8 +171,8 @@ public class OntologyService {
 			/*
 			 * get application modelName
 			 */
-			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationName);
-
+			String applicationModelName = applicationDao.getHtblApplicationNameModelName()
+					.get(applicationName.toLowerCase().replaceAll(" ", ""));
 			/*
 			 * check that request is valid
 			 */
@@ -190,6 +195,25 @@ public class OntologyService {
 			return ex.getExceptionHashTable(timeTaken);
 		}
 
+	}
+
+	public static void main(String[] args) {
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+
+		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+
+		OntologyDao ontologyDao = new OntologyDao(new DynamicOntologyDao(oracle));
+		ApplicationDao applicationDao = new ApplicationDao(oracle);
+		DynamicOntologyDao dynamicOntologyDao = new DynamicOntologyDao(oracle);
+
+		OntologyService ontologyService = new OntologyService(ontologyDao, applicationDao, dynamicOntologyDao);
+
+		LinkedHashMap<String, Object> htblResults = ontologyService.getApplicationOntology("test application");
+		System.out.println(htblResults);
+		ontologyService.getApplicationOntology("test application");
+		System.out.println(htblResults);
 	}
 
 }
