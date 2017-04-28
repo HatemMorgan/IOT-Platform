@@ -6,28 +6,23 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.daos.DynamicConceptsDao;
 import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.SelectQueryDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidQueryRequestBodyFormatException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.exceptions.InvalidTypeValidationException;
-import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
-import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.utilities.NotMappedDynamicQueryFields;
+import com.iotplatform.utilities.NotMappedQueryRequestFieldUtility;
 import com.iotplatform.utilities.OptionsEnum;
-import com.iotplatform.utilities.QueryField;
-import com.iotplatform.utilities.ValidationResult;
-import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
+import com.iotplatform.utilities.QueryFieldUtility;
+import com.iotplatform.utilities.QueryRequestValidationResultUtility;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -72,8 +67,8 @@ public class SelectQueryRequestValidation {
 	 * because a query may target two instances of the same class and need to
 	 * have different fields for each instance. So the id will separate them
 	 */
-	public ValidationResult validateRequest(String applicationName, LinkedHashMap<String, Object> htblFieldValue,
-			Class subjectClass, String applicationModelName) {
+	public QueryRequestValidationResultUtility validateRequest(String applicationName,
+			LinkedHashMap<String, Object> htblFieldValue, Class subjectClass, String applicationModelName) {
 
 		/*
 		 * List of classes that need to get their dynamic properties to check if
@@ -85,12 +80,12 @@ public class SelectQueryRequestValidation {
 		 * list of NotMappedDynamicQueryFields which holds the unmapped fields
 		 * to be checked again after loading dynamicProperties
 		 */
-		ArrayList<NotMappedDynamicQueryFields> notMappedFieldList = new ArrayList<>();
+		ArrayList<NotMappedQueryRequestFieldUtility> notMappedFieldList = new ArrayList<>();
 
 		/*
 		 * htblClassNameProperty holds the constructed QueryField
 		 */
-		LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = new LinkedHashMap<>();
+		LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty = new LinkedHashMap<>();
 
 		/*
 		 * htblOptions holds the option and a boolean (to tell whether to enable
@@ -167,9 +162,9 @@ public class SelectQueryRequestValidation {
 			// String prefixedClassName = subjectClass.getPrefix().getPrefix() +
 			// subjectClass.getName();
 
-			ArrayList<QueryField> queryFieldsList = new ArrayList<>();
+			ArrayList<QueryFieldUtility> queryFieldsList = new ArrayList<>();
 
-			LinkedHashMap<String, ArrayList<QueryField>> htblUniqueIdentierQueryFieldsList = new LinkedHashMap<>();
+			LinkedHashMap<String, ArrayList<QueryFieldUtility>> htblUniqueIdentierQueryFieldsList = new LinkedHashMap<>();
 			htblUniqueIdentierQueryFieldsList.put(randomUUID, queryFieldsList);
 			htblClassNameProperty.put(subjectClass.getUri(), htblUniqueIdentierQueryFieldsList);
 
@@ -193,7 +188,8 @@ public class SelectQueryRequestValidation {
 
 		}
 
-		ValidationResult validationResult = new ValidationResult(htblClassNameProperty, htblOptions);
+		QueryRequestValidationResultUtility validationResult = new QueryRequestValidationResultUtility(
+				htblClassNameProperty, htblOptions);
 		return validationResult;
 	}
 
@@ -229,8 +225,8 @@ public class SelectQueryRequestValidation {
 	 * 
 	 */
 	private void validateProjectionFields(Class subjectClass, ArrayList<String> notMappedFieldsClassesList,
-			ArrayList<NotMappedDynamicQueryFields> notMappedFieldList, Object field,
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
+			ArrayList<NotMappedQueryRequestFieldUtility> notMappedFieldList, Object field,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty,
 			String uniqueIdentifier, String requestClassName, String valuesFieldName, String applicationModelName) {
 
 		/*
@@ -256,7 +252,7 @@ public class SelectQueryRequestValidation {
 				 * null for objectValueTypeClassName because the field has
 				 * literal value (not an object)
 				 */
-				QueryField queryField = new QueryField(prefixedPropertyName, null, null);
+				QueryFieldUtility queryField = new QueryFieldUtility(prefixedPropertyName, null, null);
 
 				/*
 				 * add constructed query field to htblClassNameProperty
@@ -416,7 +412,7 @@ public class SelectQueryRequestValidation {
 								 * objectValueTypeClassName because the field
 								 * has object value (not an literal)
 								 */
-								QueryField queryField = new QueryField(
+								QueryFieldUtility queryField = new QueryFieldUtility(
 										property.getPrefix().getPrefix() + property.getName(),
 										objectValueClassType.getUri(), randomUUID);
 
@@ -446,7 +442,7 @@ public class SelectQueryRequestValidation {
 								 */
 								if (htblClassNameProperty.containsKey(objectValueClassType.getUri())) {
 
-									ArrayList<QueryField> queryFieldsList = new ArrayList<>();
+									ArrayList<QueryFieldUtility> queryFieldsList = new ArrayList<>();
 									htblClassNameProperty.get(objectValueClassType.getUri()).put(randomUUID,
 											queryFieldsList);
 
@@ -457,9 +453,9 @@ public class SelectQueryRequestValidation {
 									 * htblClassNameProperty
 									 */
 
-									ArrayList<QueryField> queryFieldsList = new ArrayList<>();
+									ArrayList<QueryFieldUtility> queryFieldsList = new ArrayList<>();
 
-									LinkedHashMap<String, ArrayList<QueryField>> htblUniqueIdentierQueryFieldsList = new LinkedHashMap<>();
+									LinkedHashMap<String, ArrayList<QueryFieldUtility>> htblUniqueIdentierQueryFieldsList = new LinkedHashMap<>();
 									htblUniqueIdentierQueryFieldsList.put(randomUUID, queryFieldsList);
 									htblClassNameProperty.put(objectValueClassType.getUri(),
 											htblUniqueIdentierQueryFieldsList);
@@ -569,18 +565,19 @@ public class SelectQueryRequestValidation {
 	 */
 	private boolean isFieldMapsToStaticProperty(Class subjectClass, String fieldName, Object fieldObject,
 			String uniqueIdentifier, ArrayList<String> notMappedFieldsClassesList,
-			ArrayList<NotMappedDynamicQueryFields> notMappedFieldList) {
+			ArrayList<NotMappedQueryRequestFieldUtility> notMappedFieldList) {
 		if (subjectClass.getProperties().containsKey(fieldName)) {
 			return true;
 		} else {
 
 			notMappedFieldsClassesList.add(subjectClass.getName());
-			NotMappedDynamicQueryFields notMappedDynamicQueryField;
+			NotMappedQueryRequestFieldUtility notMappedDynamicQueryField;
 
 			if (fieldObject == null) {
-				notMappedDynamicQueryField = new NotMappedDynamicQueryFields(subjectClass, fieldName, uniqueIdentifier);
+				notMappedDynamicQueryField = new NotMappedQueryRequestFieldUtility(subjectClass, fieldName,
+						uniqueIdentifier);
 			} else {
-				notMappedDynamicQueryField = new NotMappedDynamicQueryFields(subjectClass, fieldName, fieldObject,
+				notMappedDynamicQueryField = new NotMappedQueryRequestFieldUtility(subjectClass, fieldName, fieldObject,
 						uniqueIdentifier);
 			}
 
@@ -590,8 +587,8 @@ public class SelectQueryRequestValidation {
 	}
 
 	private void validateNotMappedFieldsValues(String applicationName, ArrayList<String> notMappedFieldsClassesList,
-			ArrayList<NotMappedDynamicQueryFields> notMappedFieldList,
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
+			ArrayList<NotMappedQueryRequestFieldUtility> notMappedFieldList,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty,
 			String requestClassName, String applicationModelName) {
 
 		if (notMappedFieldList.size() > 0 && notMappedFieldsClassesList.size() > 0) {
@@ -600,9 +597,9 @@ public class SelectQueryRequestValidation {
 					notMappedFieldsClassesList);
 
 			ArrayList<String> newNotMappedFieldsClasses = new ArrayList<>();
-			ArrayList<NotMappedDynamicQueryFields> newNotMappedFieldList = new ArrayList<>();
+			ArrayList<NotMappedQueryRequestFieldUtility> newNotMappedFieldList = new ArrayList<>();
 
-			for (NotMappedDynamicQueryFields notMappedDynamicQueryField : notMappedFieldList) {
+			for (NotMappedQueryRequestFieldUtility notMappedDynamicQueryField : notMappedFieldList) {
 
 				String field = notMappedDynamicQueryField.getFieldName();
 				String subjectClassName = notMappedDynamicQueryField.getSubjectClass().getName().toLowerCase();
@@ -814,8 +811,8 @@ public class SelectQueryRequestValidation {
 	// }
 
 	private Class getPropertyObject(Property property, Class subjectClass, ArrayList<String> notMappedFieldsClassesList,
-			ArrayList<NotMappedDynamicQueryFields> notMappedFieldList, Object fieldObject, String applicationModelName,
-			String uniqueIdentifier) {
+			ArrayList<NotMappedQueryRequestFieldUtility> notMappedFieldList, Object fieldObject,
+			String applicationModelName, String uniqueIdentifier) {
 		/*
 		 * get property range objectClass if it is an objectProperty
 		 */
@@ -842,12 +839,12 @@ public class SelectQueryRequestValidation {
 			} else {
 				notMappedFieldsClassesList.add(objectClassName);
 
-				NotMappedDynamicQueryFields notMappedDynamicQueryField;
+				NotMappedQueryRequestFieldUtility notMappedDynamicQueryField;
 				if (fieldObject == null) {
-					notMappedDynamicQueryField = new NotMappedDynamicQueryFields(subjectClass, property.getName(),
+					notMappedDynamicQueryField = new NotMappedQueryRequestFieldUtility(subjectClass, property.getName(),
 							uniqueIdentifier);
 				} else {
-					notMappedDynamicQueryField = new NotMappedDynamicQueryFields(subjectClass, property.getName(),
+					notMappedDynamicQueryField = new NotMappedQueryRequestFieldUtility(subjectClass, property.getName(),
 							fieldObject, uniqueIdentifier);
 				}
 				notMappedFieldList.add(notMappedDynamicQueryField);
@@ -1011,7 +1008,7 @@ public class SelectQueryRequestValidation {
 		groupFields.add("name");
 
 		groupFieldMap.put("fields", groupFields);
-		 membersValueObjects.add(groupFieldMap);
+		membersValueObjects.add(groupFieldMap);
 
 		fieldsList.add("description");
 		System.out.println(htblFieldValue);
@@ -1021,11 +1018,12 @@ public class SelectQueryRequestValidation {
 
 		try {
 			long startTime = System.currentTimeMillis();
-			ValidationResult validationResult = getQueryRequestValidations.validateRequest("TESTAPPLICATION",
-					htblFieldValue, OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("group"),
+			QueryRequestValidationResultUtility validationResult = getQueryRequestValidations.validateRequest(
+					"TESTAPPLICATION", htblFieldValue,
+					OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("group"),
 					"TESTAPPLICATION_MODEL");
 
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = validationResult
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty = validationResult
 					.getHtblClassNameProperty();
 			System.out.println(htblClassNameProperty.toString());
 			System.out.println("============================================");

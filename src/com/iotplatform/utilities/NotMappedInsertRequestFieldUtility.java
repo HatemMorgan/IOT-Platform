@@ -7,7 +7,7 @@ import com.iotplatform.ontology.Class;
  * field to a static property and waiting to be checked after loading dynamic properties 
  * 
  */
-public class ValueOfFieldNotMappedToStaticProperty {
+public class NotMappedInsertRequestFieldUtility {
 
 	/*
 	 * represent the invalid field class ( that was not mapped to any static
@@ -31,7 +31,7 @@ public class ValueOfFieldNotMappedToStaticProperty {
 	 */
 	private String fieldName;
 
-	public ValueOfFieldNotMappedToStaticProperty(Class propertyClass, Object propertyValue, int classInstanceIndex,
+	public NotMappedInsertRequestFieldUtility(Class propertyClass, Object propertyValue, int classInstanceIndex,
 			String fieldName) {
 		this.propertyClass = propertyClass;
 		this.propertyValue = propertyValue;
@@ -39,7 +39,7 @@ public class ValueOfFieldNotMappedToStaticProperty {
 		this.fieldName = fieldName;
 	}
 
-	public ValueOfFieldNotMappedToStaticProperty(Class propertyClass, Object propertyValue, String fieldName) {
+	public NotMappedInsertRequestFieldUtility(Class propertyClass, Object propertyValue, String fieldName) {
 		this.propertyClass = propertyClass;
 		this.propertyValue = propertyValue;
 		this.fieldName = fieldName;

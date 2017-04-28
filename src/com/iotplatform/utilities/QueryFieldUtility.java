@@ -4,7 +4,7 @@ package com.iotplatform.utilities;
  * QueryField is used to create instances that will holds the propertyName , type
  *  (represents if it will have single value or an object value) and type of objectValue
  */
-public class QueryField {
+public class QueryFieldUtility {
 
 	/*
 	 * prefixedPropertyName holds the prefixedName of the property
@@ -52,7 +52,7 @@ public class QueryField {
 	 */
 	private boolean isValueObjectType;
 
-	public QueryField(String prefixedPropertyName, String objectValueTypeClassName, String individualUniqueIdentifier) {
+	public QueryFieldUtility(String prefixedPropertyName, String objectValueTypeClassName, String individualUniqueIdentifier) {
 		this.prefixedPropertyName = prefixedPropertyName;
 		this.objectValueTypeClassName = objectValueTypeClassName;
 		this.individualUniqueIdentifier = individualUniqueIdentifier;

@@ -20,10 +20,9 @@ import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
-import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.utilities.QueryVariable;
+import com.iotplatform.utilities.QueryVariableUtility;
 
 /*
  * SelectionQueryResults is used to construct the appropriate query result the will be returned to the users
@@ -242,7 +241,7 @@ public class SelectionQueryResults {
 	}
 
 	public static List<LinkedHashMap<String, Object>> constructQueryResult(String applicationName, ResultSet results,
-			String requestClassName, Hashtable<String, QueryVariable> htblSubjectVariables) {
+			String requestClassName, Hashtable<String, QueryVariableUtility> htblSubjectVariables) {
 
 		/*
 		 * consturctedQueryResult is the list of constructed query result where
@@ -511,11 +510,11 @@ public class SelectionQueryResults {
 	private static void constructResultOfSubjectColumn(String columnName,
 			LinkedHashMap<String, ArrayList<String>> htblIndividualQueryVariabesList,
 			Hashtable<String, Object> htblSubjectVariablehtblpropVal,
-			Hashtable<String, QueryVariable> htblSubjectVariables, String individualUniqueIdentifier) {
+			Hashtable<String, QueryVariableUtility> htblSubjectVariables, String individualUniqueIdentifier) {
 		/*
 		 * get queryVariable of the subjectVariable to know its propertyName
 		 */
-		QueryVariable queryVariable = htblSubjectVariables.get(columnName);
+		QueryVariableUtility queryVariable = htblSubjectVariables.get(columnName);
 		String propertyName = queryVariable.getPropertyName();
 
 		/*
@@ -868,12 +867,12 @@ public class SelectionQueryResults {
 	 * variables. This method is called by constructQueryResult
 	 */
 	private static void constructResultOfVarColumn(String columnName,
-			Hashtable<String, QueryVariable> htblSubjectVariables,
+			Hashtable<String, QueryVariableUtility> htblSubjectVariables,
 			Hashtable<String, Object> htblSubjectVariablehtblpropVal, Object propValue) {
 		/*
 		 * get queryVariable of the subjectVariable to know its propertyName
 		 */
-		QueryVariable queryVariable = htblSubjectVariables.get(columnName);
+		QueryVariableUtility queryVariable = htblSubjectVariables.get(columnName);
 		String propertyName = queryVariable.getPropertyName();
 
 		/*
@@ -1012,12 +1011,12 @@ public class SelectionQueryResults {
 	 * and objectType variables
 	 */
 	private static void constructResultsOfObjectColumn(String objectColumnName, String objectUniqueIdentifier,
-			String objectClassTypeURI, Hashtable<String, QueryVariable> htblSubjectVariables,
+			String objectClassTypeURI, Hashtable<String, QueryVariableUtility> htblSubjectVariables,
 			Hashtable<String, Object> htblSubjectVariablehtblpropVal) {
 		/*
 		 * get queryVariable of the subjectVariable to know its propertyName
 		 */
-		QueryVariable queryVariable = htblSubjectVariables.get(objectColumnName);
+		QueryVariableUtility queryVariable = htblSubjectVariables.get(objectColumnName);
 		String propertyName = queryVariable.getPropertyName();
 
 		/*
@@ -1175,12 +1174,12 @@ public class SelectionQueryResults {
 	 * columnName = objecttype
 	 */
 	private static void constructResultOfObjectTypeColumn(String columnName, Object propValue,
-			Hashtable<String, QueryVariable> htblSubjectVariables,
+			Hashtable<String, QueryVariableUtility> htblSubjectVariables,
 			Hashtable<String, Object> htblSubjectVariablehtblpropVal) {
 		/*
 		 * get queryVariable of the subjectVariable to know its propertyName
 		 */
-		QueryVariable queryVariable = htblSubjectVariables.get(columnName);
+		QueryVariableUtility queryVariable = htblSubjectVariables.get(columnName);
 
 		/*
 		 * get subjectVariable of the objectVariable (columnName)

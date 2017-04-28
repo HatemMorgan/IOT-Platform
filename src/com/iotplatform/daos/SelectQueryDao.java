@@ -14,8 +14,8 @@ import org.springframework.stereotype.Repository;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.queries.SelectionQuery;
 import com.iotplatform.query.results.SelectionQueryResults;
-import com.iotplatform.utilities.QueryField;
-import com.iotplatform.utilities.QueryVariable;
+import com.iotplatform.utilities.QueryFieldUtility;
+import com.iotplatform.utilities.QueryVariableUtility;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -44,7 +44,7 @@ public class SelectQueryDao {
 	 * the user
 	 */
 	public List<LinkedHashMap<String, Object>> queryData(
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty,
 			String applicationModelName,Hashtable<String, Boolean> htblOptions) {
 
 		Iterator<String> htblClassNamePropertyIterator = htblClassNameProperty.keySet().iterator();
@@ -62,7 +62,7 @@ public class SelectQueryDao {
 				mainInstanceUniqueIdentifier, applicationModelName,htblOptions);
 
 		String queryString = returnObject[0].toString();
-		Hashtable<String, QueryVariable> htblSubjectVariables = (Hashtable<String, QueryVariable>) returnObject[1];
+		Hashtable<String, QueryVariableUtility> htblSubjectVariables = (Hashtable<String, QueryVariableUtility>) returnObject[1];
 		System.out.println(queryString);
 		System.out.println(htblSubjectVariables);
 		try {

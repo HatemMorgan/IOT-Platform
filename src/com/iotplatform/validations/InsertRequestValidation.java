@@ -8,11 +8,9 @@ import java.util.UUID;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.iotplatform.daos.DynamicConceptsDao;
 import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
@@ -21,21 +19,18 @@ import com.iotplatform.exceptions.InvalidRequestBodyException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.exceptions.InvalidTypeValidationException;
 import com.iotplatform.exceptions.NotSuppliedObligatoryFieldsException;
-import com.iotplatform.models.DynamicConceptModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
-import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.InsertionPropertyValue;
-import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
+import com.iotplatform.utilities.NotMappedInsertRequestFieldUtility;
 import com.iotplatform.utilities.ValueOfTypeClass;
 
-import oracle.net.aso.s;
 import oracle.spatial.rdf.client.jena.Oracle;
 
 /**
@@ -126,7 +121,7 @@ public class InsertRequestValidation {
 		 * static property mapping and are waited to be checked for mapping
 		 * after loading dynamic properties
 		 */
-		ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList = new ArrayList<>();
+		ArrayList<NotMappedInsertRequestFieldUtility> notFoundFieldValueList = new ArrayList<>();
 
 		/*
 		 * htblClassPropertyValue holds the constructed propertyValue
@@ -326,7 +321,7 @@ public class InsertRequestValidation {
 	 */
 	private boolean isFieldMapsToStaticProperty(Class subjectClass, String fieldName, Object value,
 			ArrayList<String> notMappedFieldsClassesList,
-			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList, int index) {
+			ArrayList<NotMappedInsertRequestFieldUtility> notFoundFieldValueList, int index) {
 
 		if (subjectClass.getProperties().containsKey(fieldName)) {
 			return true;
@@ -335,7 +330,7 @@ public class InsertRequestValidation {
 			// System.out.println(subjectClass.getName() + " " + fieldName);
 
 			notMappedFieldsClassesList.add(subjectClass.getName());
-			ValueOfFieldNotMappedToStaticProperty notMappedFieldValue = new ValueOfFieldNotMappedToStaticProperty(
+			NotMappedInsertRequestFieldUtility notMappedFieldValue = new NotMappedInsertRequestFieldUtility(
 					subjectClass, value, index, fieldName);
 			notFoundFieldValueList.add(notMappedFieldValue);
 
@@ -389,7 +384,7 @@ public class InsertRequestValidation {
 	private void parseAndConstructFieldValue(Class subjectClass, Property property, Object value,
 			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue,
 			ArrayList<String> notMappedFieldsClassesList,
-			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList, int indexCount,
+			ArrayList<NotMappedInsertRequestFieldUtility> notFoundFieldValueList, int indexCount,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			ArrayList<ValueOfTypeClass> classValueList, String requestClassName, String applicationModelName) {
 		/*
@@ -430,7 +425,7 @@ public class InsertRequestValidation {
 					} else {
 						notMappedFieldsClassesList.add(objectClassName);
 
-						ValueOfFieldNotMappedToStaticProperty notMappedFieldValue = new ValueOfFieldNotMappedToStaticProperty(
+						NotMappedInsertRequestFieldUtility notMappedFieldValue = new NotMappedInsertRequestFieldUtility(
 								subjectClass, value, indexCount, property.getName());
 						notFoundFieldValueList.add(notMappedFieldValue);
 
@@ -600,7 +595,7 @@ public class InsertRequestValidation {
 					} else {
 						notMappedFieldsClassesList.add(objectClassName);
 
-						ValueOfFieldNotMappedToStaticProperty notMappedFieldValue = new ValueOfFieldNotMappedToStaticProperty(
+						NotMappedInsertRequestFieldUtility notMappedFieldValue = new NotMappedInsertRequestFieldUtility(
 								subjectClass, value, indexCount, property.getName());
 						notFoundFieldValueList.add(notMappedFieldValue);
 
@@ -904,7 +899,7 @@ public class InsertRequestValidation {
 	private void parseAndConstructNotMappedFieldsValues(String applicationName, String requestClassName,
 			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue,
 			ArrayList<String> notMappedFieldsClassesList,
-			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList,
+			ArrayList<NotMappedInsertRequestFieldUtility> notFoundFieldValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			ArrayList<ValueOfTypeClass> classValueList, String applicationModelName) {
 
@@ -913,9 +908,9 @@ public class InsertRequestValidation {
 					notMappedFieldsClassesList);
 
 			ArrayList<String> newNotMappedFieldsClassesList = new ArrayList<>();
-			ArrayList<ValueOfFieldNotMappedToStaticProperty> newNotFoundFieldValueList = new ArrayList<>();
+			ArrayList<NotMappedInsertRequestFieldUtility> newNotFoundFieldValueList = new ArrayList<>();
 
-			for (ValueOfFieldNotMappedToStaticProperty notFoundFieldValue : notFoundFieldValueList) {
+			for (NotMappedInsertRequestFieldUtility notFoundFieldValue : notFoundFieldValueList) {
 
 				String field = notFoundFieldValue.getFieldName();
 				String subjectClassName = notFoundFieldValue.getPropertyClass().getName().toLowerCase();

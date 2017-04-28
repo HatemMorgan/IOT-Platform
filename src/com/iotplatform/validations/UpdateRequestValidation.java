@@ -8,10 +8,11 @@ import java.util.LinkedHashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.utilities.UpdatePropertyValue;
-import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
+import com.iotplatform.utilities.UpdatePropertyValueUtility;
+import com.iotplatform.utilities.NotMappedInsertRequestFieldUtility;
 
 /**
  * 
@@ -53,11 +54,11 @@ import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
 @Component
 public class UpdateRequestValidation {
 
-	private ValidationDao validationDao;
+	private DynamicOntologyDao dynamicOntologyDao;
 
 	@Autowired
-	public UpdateRequestValidation(ValidationDao validationDao) {
-		this.validationDao = validationDao;
+	public UpdateRequestValidation(DynamicOntologyDao dynamicOntologyDao) {
+		this.dynamicOntologyDao = dynamicOntologyDao;
 	}
 
 	/**
@@ -90,7 +91,8 @@ public class UpdateRequestValidation {
 	 *         parsing requestBody and it will be used by UpdateQuery class to
 	 *         generate update query
 	 */
-	public ArrayList<UpdatePropertyValue> validateUpdateRequest(String applicationName,
+	
+	public ArrayList<UpdatePropertyValueUtility> validateUpdateRequest(String applicationName,
 			LinkedHashMap<String, Object> htblRequestBody, Class subjectClass) {
 
 		/*
@@ -98,7 +100,10 @@ public class UpdateRequestValidation {
 		 * of parsing requestBody and it will be used by UpdateQuery class to
 		 * generate update query
 		 */
-		ArrayList<UpdatePropertyValue> validationResult = new ArrayList<>();
+		ArrayList<UpdatePropertyValueUtility> validationResult = new ArrayList<>();
+		
+//		ArrayList<Not>
+		
 
 		/*
 		 * Iterate over htblRequestBody to validate that the fields(key) maps to
@@ -166,7 +171,7 @@ public class UpdateRequestValidation {
 	 *         checked again after loading dynamic properties
 	 */
 	private boolean isFieldMapsToProperty(Class subjectClass, String fieldName, Object value,
-			ArrayList<ValueOfFieldNotMappedToStaticProperty> notFoundFieldValueList) {
+			ArrayList<NotMappedInsertRequestFieldUtility> notFoundFieldValueList) {
 
 		/*
 		 * check that fieldName maps to a property in subjectClass and return
@@ -185,7 +190,7 @@ public class UpdateRequestValidation {
 			 * properties of subjectClass
 			 * 
 			 */
-			ValueOfFieldNotMappedToStaticProperty notMappedFieldValue = new ValueOfFieldNotMappedToStaticProperty(
+			NotMappedInsertRequestFieldUtility notMappedFieldValue = new NotMappedInsertRequestFieldUtility(
 					subjectClass, value, fieldName);
 			notFoundFieldValueList.add(notMappedFieldValue);
 

@@ -9,7 +9,7 @@ package com.iotplatform.utilities;
  * @author HatemMorgan
  *
  */
-public class UpdatePropertyValue {
+public class UpdatePropertyValueUtility {
 
 	/*
 	 * propertyPrefixedName holds prefixName of the preroprty eg: foaf:member
@@ -34,7 +34,7 @@ public class UpdatePropertyValue {
 	 */
 	private Object newValue;
 
-	public UpdatePropertyValue(String propertyPrefixedName, boolean isPropertyMultipleValued, Object oldValue,
+	public UpdatePropertyValueUtility(String propertyPrefixedName, boolean isPropertyMultipleValued, Object oldValue,
 			Object newValue) {
 		this.propertyPrefixedName = propertyPrefixedName;
 		this.isPropertyMultipleValued = isPropertyMultipleValued;

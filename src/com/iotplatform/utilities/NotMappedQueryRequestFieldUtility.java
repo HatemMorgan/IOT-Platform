@@ -2,7 +2,7 @@ package com.iotplatform.utilities;
 
 import com.iotplatform.ontology.Class;
 
-public class NotMappedDynamicQueryFields {
+public class NotMappedQueryRequestFieldUtility {
 
 	/*
 	 * class type of the not mapped feild
@@ -22,13 +22,13 @@ public class NotMappedDynamicQueryFields {
 	 */
 	private String individualUniqueIdintifier;
 
-	public NotMappedDynamicQueryFields(Class subjectClass, String fieldName, String individualUniqueIdintifier) {
+	public NotMappedQueryRequestFieldUtility(Class subjectClass, String fieldName, String individualUniqueIdintifier) {
 		this.subjectClass = subjectClass;
 		this.fieldName = fieldName;
 		this.individualUniqueIdintifier = individualUniqueIdintifier;
 	}
 
-	public NotMappedDynamicQueryFields(Class subjectClass, String fieldName, Object fieldObject,
+	public NotMappedQueryRequestFieldUtility(Class subjectClass, String fieldName, Object fieldObject,
 			String individualUniqueIdintifier) {
 		this.subjectClass = subjectClass;
 		this.fieldName = fieldName;

@@ -12,7 +12,7 @@ import com.iotplatform.ontology.XSDDatatype;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.InsertionPropertyValue;
-import com.iotplatform.utilities.ValueOfFieldNotMappedToStaticProperty;
+import com.iotplatform.utilities.NotMappedInsertRequestFieldUtility;
 
 public class InsertionQuery {
 

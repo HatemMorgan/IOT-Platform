@@ -9,18 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
-import com.iotplatform.daos.DynamicConceptsDao;
 import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.InsertionDao;
-import com.iotplatform.daos.MainDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.CannotCreateApplicationModelException;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.models.SuccessfullInsertionModel;
-import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.query.results.SelectionQueryResults;
 import com.iotplatform.utilities.InsertionPropertyValue;
 import com.iotplatform.validations.InsertRequestValidation;
 
@@ -119,8 +114,6 @@ public class ApplicationService {
 
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
-		DynamicConceptsDao dynamicConceptDao = new DynamicConceptsDao(dataSource);
-
 		ValidationDao validationDao = new ValidationDao(oracle);
 
 		DynamicOntologyDao dynamicOntologyDao = new DynamicOntologyDao(oracle);
@@ -140,9 +133,10 @@ public class ApplicationService {
 		// applicationDao.dropApplicationModel("Test Application");
 
 		LinkedHashMap<String, Object> res = applicationService.insertApplication(htblPropValue);
-//		LinkedHashMap<String, Object>[] json = (LinkedHashMap<String, Object>[])
-//		 res.get("errors");
-//		 System.out.println(json[0].toString());
+		// LinkedHashMap<String, Object>[] json = (LinkedHashMap<String,
+		// Object>[])
+		// res.get("errors");
+		// System.out.println(json[0].toString());
 		System.out.println(res.toString());
 
 	}

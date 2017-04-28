@@ -1,7 +1,6 @@
 package com.iotplatform.services;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
-import com.iotplatform.daos.DynamicConceptsDao;
 import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.SelectQueryDao;
 import com.iotplatform.exceptions.ErrorObjException;
@@ -18,11 +16,10 @@ import com.iotplatform.exceptions.InvalidClassNameException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.utilities.QueryField;
-import com.iotplatform.utilities.ValidationResult;
+import com.iotplatform.utilities.QueryFieldUtility;
+import com.iotplatform.utilities.QueryRequestValidationResultUtility;
 import com.iotplatform.validations.SelectQueryRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -128,9 +125,9 @@ public class SelectQueryService {
 			/*
 			 * validate query request
 			 */
-			ValidationResult validationResult = selectQueryRequestValidation.validateRequest(applicationNameCode,
-					htblFieldValue, subjectClass, applicationModelName);
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = validationResult
+			QueryRequestValidationResultUtility validationResult = selectQueryRequestValidation
+					.validateRequest(applicationNameCode, htblFieldValue, subjectClass, applicationModelName);
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty = validationResult
 					.getHtblClassNameProperty();
 
 			List<LinkedHashMap<String, Object>> resultsList = selectQueryDao.queryData(htblClassNameProperty,

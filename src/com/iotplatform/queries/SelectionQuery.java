@@ -12,8 +12,8 @@ import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.utilities.QueryField;
-import com.iotplatform.utilities.QueryVariable;
+import com.iotplatform.utilities.QueryFieldUtility;
+import com.iotplatform.utilities.QueryVariableUtility;
 
 /*
  * SelectionQuery is used to construct the appropriate select query to query data.
@@ -39,7 +39,7 @@ public class SelectionQuery {
 	 * the results from database
 	 */
 	public static Object[] constructSelectQuery(
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty,
 			String mainClassPrefixedName, String mainInstanceUniqueIdentifier, String applicationModelName,
 			Hashtable<String, Boolean> htblOptions) {
 
@@ -101,14 +101,14 @@ public class SelectionQuery {
 		 * Getting propertyList of the main subject(this list constructs the
 		 * main graph pattern)
 		 */
-		ArrayList<QueryField> currentClassPropertyValueList = htblClassNameProperty.get(mainClassPrefixedName)
+		ArrayList<QueryFieldUtility> currentClassPropertyValueList = htblClassNameProperty.get(mainClassPrefixedName)
 				.get(mainInstanceUniqueIdentifier);
 
 		/*
 		 * htblSubjectVariablePropertyName holds subjectVariable as key and its
 		 * associated property as value
 		 */
-		Hashtable<String, QueryVariable> htblSubjectVariables = new Hashtable<>();
+		Hashtable<String, QueryVariableUtility> htblSubjectVariables = new Hashtable<>();
 
 		/*
 		 * htblIndividualIDSubjVarName is used to hold uniqueIdentifier of an
@@ -172,7 +172,7 @@ public class SelectionQuery {
 		 * main graph pattern and break through values recursively to construct
 		 * other graph nodes and patterns using endGraphPatternBuilder
 		 */
-		for (QueryField queryField : currentClassPropertyValueList) {
+		for (QueryFieldUtility queryField : currentClassPropertyValueList) {
 
 			constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
 					queryBuilder, filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
@@ -304,13 +304,13 @@ public class SelectionQuery {
 	 * parameters of this method and then call it
 	 */
 	private static void constructSelectQueryHelper(
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			Hashtable<String, QueryVariable> htblSubjectVariables,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty,
+			Hashtable<String, QueryVariableUtility> htblSubjectVariables,
 			Hashtable<String, String> htblIndividualIDSubjVarName, StringBuilder queryBuilder,
 			StringBuilder filterConditionsBuilder, StringBuilder endGraphPatternBuilder,
 			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder,
 			StringBuilder filterBuilder, StringBuilder objectPropValueTypesOptionBuilder, String currentClassURI,
-			String currentClassInstanceUniqueIdentifier, QueryField queryField, int[] vairableNum, int[] subjectNum,
+			String currentClassInstanceUniqueIdentifier, QueryFieldUtility queryField, int[] vairableNum, int[] subjectNum,
 			int[] objectNum, Hashtable<String, String> htblValueTypePropObjectVariable,
 			Hashtable<String, ArrayList<String>> htblOptionalTypeClassList, Hashtable<String, Boolean> htblOptions,
 			String applicationModelName) {
@@ -357,12 +357,12 @@ public class SelectionQuery {
 	 * eg. ?subject foaf:userName ?var
 	 */
 	private static void constructQueryPatternsForQueryFieldsWithSingleValue(
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			Hashtable<String, QueryVariable> htblSubjectVariables,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty,
+			Hashtable<String, QueryVariableUtility> htblSubjectVariables,
 			Hashtable<String, String> htblIndividualIDSubjVarName, StringBuilder queryBuilder,
 			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder,
 			StringBuilder objectPropValueTypesOptionBuilder, String currentClassURI,
-			String currentClassInstanceUniqueIdentifier, QueryField queryField, int[] vairableNum, int[] objectNum,
+			String currentClassInstanceUniqueIdentifier, QueryFieldUtility queryField, int[] vairableNum, int[] objectNum,
 			Hashtable<String, Boolean> htblOptions, String applicationModelName) {
 		/*
 		 * get class object of the currentClassURI
@@ -440,7 +440,7 @@ public class SelectionQuery {
 			 * query results
 			 */
 			htblSubjectVariables.put("var" + vairableNum[0],
-					new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
+					new QueryVariableUtility(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
 							getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 
 			if (htblClassNameProperty.get(currentClassURI).get(currentClassInstanceUniqueIdentifier)
@@ -487,7 +487,7 @@ public class SelectionQuery {
 				 * construct query results
 				 */
 				htblSubjectVariables.put("object" + objectNum[0],
-						new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
+						new QueryVariableUtility(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
 								getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 
 				if (htblClassNameProperty.get(currentClassURI).get(currentClassInstanceUniqueIdentifier)
@@ -537,7 +537,7 @@ public class SelectionQuery {
 				objectPropValueTypesOptionBuilder.append(" ) \n");
 
 				htblSubjectVariables.put("objecttype" + objectNum[0],
-						new QueryVariable("object" + objectNum[0], "type", null));
+						new QueryVariableUtility("object" + objectNum[0], "type", null));
 
 				/*
 				 * add bind aliases to sparqlProjectedFieldsBuilder
@@ -578,13 +578,13 @@ public class SelectionQuery {
 	 * 
 	 */
 	private static void constructQueryPatternsForQueryFieldsWithObjectValue(
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			Hashtable<String, QueryVariable> htblSubjectVariables,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty,
+			Hashtable<String, QueryVariableUtility> htblSubjectVariables,
 			Hashtable<String, String> htblIndividualIDSubjVarName, StringBuilder queryBuilder,
 			StringBuilder filterConditionsBuilder, StringBuilder endGraphPatternBuilder,
 			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder,
 			StringBuilder filterBuilder, StringBuilder objectPropValueTypesOptionBuilder, String currentClassURI,
-			String currentClassInstanceUniqueIdentifier, QueryField queryField, int[] vairableNum, int[] subjectNum,
+			String currentClassInstanceUniqueIdentifier, QueryFieldUtility queryField, int[] vairableNum, int[] subjectNum,
 			int[] objectNum, Hashtable<String, String> htblValueTypePropObjectVariable,
 			Hashtable<String, ArrayList<String>> htblOptionalTypeClassList, Hashtable<String, Boolean> htblOptions,
 			String applicationModelName) {
@@ -1054,7 +1054,7 @@ public class SelectionQuery {
 			 * query results
 			 */
 			htblSubjectVariables.put("objecttype" + objectNum[0],
-					new QueryVariable("subject" + (subjectNum[0] - 1), "type", null));
+					new QueryVariableUtility("subject" + (subjectNum[0] - 1), "type", null));
 
 			/*
 			 * add bind aliases to sparqlProjectedFieldsBuilder
@@ -1094,7 +1094,7 @@ public class SelectionQuery {
 		 * to be used to properly construct query results
 		 */
 		htblSubjectVariables.put(subjectVariable,
-				new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
+				new QueryVariableUtility(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
 						getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 
 		/*
@@ -1106,7 +1106,7 @@ public class SelectionQuery {
 		/*
 		 * get the objectValueInstance's propertyValueList
 		 */
-		ArrayList<QueryField> queryFieldList = htblClassNameProperty.get(objectClassTypeName)
+		ArrayList<QueryFieldUtility> queryFieldList = htblClassNameProperty.get(objectClassTypeName)
 				.get(objectVaueUniqueIdentifier);
 
 		/*
@@ -1135,7 +1135,7 @@ public class SelectionQuery {
 			 * optional query (builded using tempBuilder)
 			 */
 			StringBuilder optionalqueryPattern = new StringBuilder();
-			for (QueryField objectPropertyValue : queryFieldList) {
+			for (QueryFieldUtility objectPropertyValue : queryFieldList) {
 
 				constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
 						tempBuilder, filterConditionsBuilder, optionalqueryPattern, sparqlProjectedFieldsBuilder,
@@ -1205,7 +1205,7 @@ public class SelectionQuery {
 			 * an optional patterns
 			 */
 			StringBuilder nestedQueryPattern = new StringBuilder();
-			for (QueryField objectPropertyValue : queryFieldList) {
+			for (QueryFieldUtility objectPropertyValue : queryFieldList) {
 
 				constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
 						tempBuilder, filterConditionsBuilder, nestedQueryPattern, sparqlProjectedFieldsBuilder,
@@ -1263,7 +1263,7 @@ public class SelectionQuery {
 			Hashtable<String, ArrayList<String>> htbloptionalTypeClassList, int[] objectNum,
 			Hashtable<String, String> htblfilterClassesURI, StringBuilder unProjectOptionalPartBuilder,
 			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder,
-			StringBuilder filterBuilder, Hashtable<String, QueryVariable> htblSubjectVariables) {
+			StringBuilder filterBuilder, Hashtable<String, QueryVariableUtility> htblSubjectVariables) {
 		/*
 		 * iterate over htbloptionalTypeClassList and for each key add a new
 		 * optionalQuery (each key represent and objectValueQueryVariable for a
@@ -1499,9 +1499,9 @@ public class SelectionQuery {
 			 * ?objectType)
 			 */
 			htblSubjectVariables.put("object" + classVariableCounter,
-					new QueryVariable(subjectClassQueryVariable, propertyName, subjectClassURI));
+					new QueryVariableUtility(subjectClassQueryVariable, propertyName, subjectClassURI));
 			htblSubjectVariables.put("objecttype" + classVariableCounter,
-					new QueryVariable("object" + classVariableCounter, "type", null));
+					new QueryVariableUtility("object" + classVariableCounter, "type", null));
 
 			/*
 			 * add bind aliases to sparqlProjectedFieldsBuilder
