@@ -60,39 +60,52 @@ public class UpdateDao {
 			UpdateRequestValidationResultUtility updateRequestValidationResult,
 			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassInsertionPropertyValue) {
 
-		/*
-		 * check if the update request will update the uniqueIdentfier by
-		 * checking updateRequestValidationResult;s boolean flag
-		 * isRequestUpdatesUniqueIdentifierValue
-		 */
-		if (updateRequestValidationResult.isRequestUpdatesUniqueIdentifierValue()) {
+		try {
 			/*
-			 * get newUniqueIdentifierValue which is stored in
-			 * updateRequestValidationResult
+			 * check if the update request will update the uniqueIdentfier by
+			 * checking updateRequestValidationResult;s boolean flag
+			 * isRequestUpdatesUniqueIdentifierValue
 			 */
-			String newUniqueIdentifierValue = updateRequestValidationResult.getNewUniqueIdentifierValue().toString();
+			if (updateRequestValidationResult.isRequestUpdatesUniqueIdentifierValue()) {
+				/*
+				 * get newUniqueIdentifierValue which is stored in
+				 * updateRequestValidationResult
+				 */
+				String newUniqueIdentifierValue = updateRequestValidationResult.getNewUniqueIdentifierValue()
+						.toString();
 
-			/*
-			 * call constructUpdateQueryToUpdateUniqueIdentifierValue method in
-			 * UpdateQuery class to construct update query to update the
-			 * uniqueIdentifier
-			 */
-			String updateUniqueIdentifierQuery = UpdateQuery.constructUpdateQueryToUpdateUniqueIdentifierValue(
-					subjectClass, newUniqueIdentifierValue, uniqueIdentifier, applicationModelName);
+				/*
+				 * call constructUpdateQueryToUpdateUniqueIdentifierValue method
+				 * in UpdateQuery class to construct update query to update the
+				 * uniqueIdentifier
+				 */
+				String updateUniqueIdentifierQuery = UpdateQuery.constructUpdateQueryToUpdateUniqueIdentifierValue(
+						subjectClass, newUniqueIdentifierValue, uniqueIdentifier, applicationModelName);
 
-			System.out.println(updateUniqueIdentifierQuery);
+				System.out.println(updateUniqueIdentifierQuery);
 
-			try {
 				GraphOracleSem graphOracleSem = new GraphOracleSem(oracle, applicationModelName);
 				DatasetGraphOracleSem dsgos = DatasetGraphOracleSem.createFrom(graphOracleSem);
 
 				UpdateAction.parseExecute(updateUniqueIdentifierQuery, dsgos);
 				dsgos.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-				throw new DatabaseException(e.getMessage(), "Update API");
+
 			}
 
+			String updateQuery = UpdateQuery.constructUpdateQuery(subjectClass, uniqueIdentifier,
+					updateRequestValidationResult.getValidationResult(), htblClassInsertionPropertyValue,
+					applicationModelName);
+
+			System.out.println(updateQuery);
+
+			GraphOracleSem graphOracleSem = new GraphOracleSem(oracle, applicationModelName);
+			DatasetGraphOracleSem dsgos = DatasetGraphOracleSem.createFrom(graphOracleSem);
+
+			UpdateAction.parseExecute(updateQuery, dsgos);
+			dsgos.close();
+
+		} catch (SQLException ex) {
+			throw new DatabaseException(ex.getMessage(), "Update API");
 		}
 
 	}
