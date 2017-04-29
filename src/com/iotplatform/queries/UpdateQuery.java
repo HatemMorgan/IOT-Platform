@@ -18,7 +18,25 @@ public class UpdateQuery {
 			ArrayList<UpdatePropertyValueUtility> updatePropertyValueList,
 			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassInsertionPropertyValue) {
 
+		/*
+		 * updateQueryBuilder is the main query builder
+		 */
 		StringBuilder updateQueryBuilder = new StringBuilder();
+
+		/*
+		 * deleteClauseBuilder is the delete part builder
+		 */
+		StringBuilder deleteClauseBuilder = new StringBuilder();
+
+		/*
+		 * insertClauseBuiler is the insert part builder
+		 */
+		StringBuilder insertClauseBuiler = new StringBuilder();
+
+		/*
+		 * whereClauseBuilder is the where part builder
+		 */
+		StringBuilder whereClauseBuilder = new StringBuilder();
 
 		return updateQueryBuilder.toString();
 	}
@@ -43,12 +61,13 @@ public class UpdateQuery {
 	 * 
 	 * @return return update query that is constructed
 	 */
-	public static String constructUpdateQueryToUpdateUniqueIdentifierValue(String requestSubjectClassName,
+	public static String constructUpdateQueryToUpdateUniqueIdentifierValue(Class subjectClass,
 			Object newUniqueIdentifierValue, String oldUniqueIdentifier, String applicationModelName) {
 
 		StringBuilder updateQueryBuilder = new StringBuilder();
 
-		String newPrefixedSubjectUniqueIdentfier = Prefix.IOT_PLATFORM.getPrefix() + newUniqueIdentifierValue;
+		String newPrefixedSubjectUniqueIdentfier = Prefix.IOT_PLATFORM.getPrefix()
+				+ newUniqueIdentifierValue.toString().toLowerCase();
 
 		if (prefixesString == null) {
 			StringBuilder prefixStringBuilder = new StringBuilder();
@@ -59,30 +78,6 @@ public class UpdateQuery {
 			prefixesString = prefixStringBuilder.toString();
 		}
 
-		/*
-		 * get subjectClass from dynamicOntology cache if it exist
-		 */
-		Class subjectClass = null;
-		if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().contains(applicationModelName)
-				&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
-						.containsKey(requestSubjectClassName.toLowerCase()))) {
-
-			subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
-					.get(requestSubjectClassName.toLowerCase());
-
-		} else {
-
-			if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(requestSubjectClassName.toLowerCase())) {
-
-				/*
-				 * get the objectClass from MainOntologyClassesMapper
-				 */
-				subjectClass = OntologyMapper.getHtblMainOntologyClassesMappers()
-						.get(requestSubjectClassName.toLowerCase());
-
-			}
-		}
-
 		updateQueryBuilder.append(prefixesString);
 		updateQueryBuilder.append("DELETE  \n ");
 		updateQueryBuilder.append("{ ?subject ?property ?value . } \n");
@@ -90,7 +85,9 @@ public class UpdateQuery {
 		updateQueryBuilder.append("{ " + newPrefixedSubjectUniqueIdentfier + " a "
 				+ subjectClass.getPrefix().getPrefix() + subjectClass.getName() + "; ?property ?value . } \n");
 		updateQueryBuilder.append("WHERE \n");
-		updateQueryBuilder.append("{ ?subject ?property ?value . } ");
+		updateQueryBuilder.append("{ \n  ?subject ?property ?value . \n ");
+		updateQueryBuilder.append("FILTER( ?subject = iot-platform:" + oldUniqueIdentifier + " ) \n");
+		updateQueryBuilder.append(" } \n");
 
 		return updateQueryBuilder.toString();
 

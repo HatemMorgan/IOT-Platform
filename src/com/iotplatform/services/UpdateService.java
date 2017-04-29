@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.DynamicOntologyDao;
+import com.iotplatform.daos.InsertionDao;
+import com.iotplatform.daos.UpdateDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidClassNameException;
@@ -32,14 +34,19 @@ public class UpdateService {
 	private ApplicationDao applicationDao;
 	private InsertRequestValidation insertRequestValidation;
 	private UpdateRequestValidation updateRequestValidation;
+	private UpdateDao updateDao;
+	private InsertionDao InsertionDao;
 
 	@Autowired
 	public UpdateService(DynamicOntologyDao dynamicOntologyDao, ApplicationDao applicationDao,
-			InsertRequestValidation insertRequestValidation, UpdateRequestValidation updateRequestValidation) {
+			InsertRequestValidation insertRequestValidation, UpdateRequestValidation updateRequestValidation,
+			UpdateDao updateDao, InsertionDao insertionDao) {
 		this.dynamicOntologyDao = dynamicOntologyDao;
 		this.applicationDao = applicationDao;
 		this.insertRequestValidation = insertRequestValidation;
 		this.updateRequestValidation = updateRequestValidation;
+		this.updateDao = updateDao;
+		this.InsertionDao = insertionDao;
 	}
 
 	public LinkedHashMap<String, Object> update(String applicationName, String className,
@@ -132,10 +139,10 @@ public class UpdateService {
 				/*
 				 * check that the update part of the request body is valid
 				 */
-				UpdateRequestValidationResultUtility res = updateRequestValidation
+				UpdateRequestValidationResultUtility updateRequestValidationResult = updateRequestValidation
 						.validateUpdateRequest(applicationModelName, htblUpdateRequestBody, subjectClass);
 
-				System.out.println(res);
+				System.out.println(updateRequestValidationResult);
 
 				/*
 				 * check if the request body has insert part with update part
@@ -159,16 +166,25 @@ public class UpdateService {
 					 */
 					Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> insertValidationRes = insertRequestValidation
 							.validateRequestFields(htblInsertRequestBody, subjectClass, applicationModelName,
-									res.getHtblUniquePropValueList(), res.getClassValueList());
+									updateRequestValidationResult.getHtblUniquePropValueList(),
+									updateRequestValidationResult.getClassValueList());
 
 					System.out.println(insertValidationRes);
+
+					updateDao.updateData(applicationModelName, subjectClass, individualUniqueIdentifier,
+							updateRequestValidationResult, insertValidationRes);
+
 				} else {
 
 					/*
 					 * check that the insert part is valid
 					 */
 					insertRequestValidation.validateRequestFields(new LinkedHashMap<>(), subjectClass,
-							applicationModelName, res.getHtblUniquePropValueList(), res.getClassValueList());
+							applicationModelName, updateRequestValidationResult.getHtblUniquePropValueList(),
+							updateRequestValidationResult.getClassValueList());
+
+					updateDao.updateData(applicationModelName, subjectClass, individualUniqueIdentifier,
+							updateRequestValidationResult, null);
 				}
 
 			} else {
@@ -196,7 +212,11 @@ public class UpdateService {
 					 */
 					Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> insertValidationRes = insertRequestValidation
 							.validateRequestFields(htblInsertRequestBody, subjectClass, applicationModelName);
+
 					System.out.println(insertValidationRes);
+
+					InsertionDao.insertData(applicationModelName, subjectClass.getName(), insertValidationRes);
+
 				} else {
 					throw new InvalidUpdateRequestBodyException("Invalid Update Request Body."
 							+ " The Request body must contains an update or insert fields with an object"
@@ -235,7 +255,7 @@ public class UpdateService {
 
 		htbUpdatePart.put("firstName", "mohamed");
 
-		htbUpdatePart.put("userName", "HatemElsayed");
+//		htbUpdatePart.put("userName", "HatemElsayed");
 
 		LinkedHashMap<String, Object> htbMbox = new LinkedHashMap<>();
 		htbMbox.put("oldValue", "hatemmorgan17@gmail.com");
@@ -246,10 +266,9 @@ public class UpdateService {
 
 		LinkedHashMap<String, Object> htblhates = new LinkedHashMap<>();
 		htblhates.put("oldValue", "MariamMazen");
-		htblhates.put("newValue", "HatemMorgan");
+		htblhates.put("newValue", "HatemElsayed");
 
 		htbUpdatePart.put("hates", htblhates);
-
 
 		LinkedHashMap<String, Object> htbInsertPart = new LinkedHashMap<>();
 		htblRequestBody.put("insert", htbInsertPart);
@@ -265,7 +284,7 @@ public class UpdateService {
 		htblKnows.put("middleName", "Mostaga");
 		htblKnows.put("age", 20);
 		htblKnows.put("loves", "HaythamIsmailss");
-		htblKnows.put("job","Engineer");
+		htblKnows.put("job", "Engineer");
 
 		htbInsertPart.put("knows", htblKnows);
 
@@ -276,10 +295,14 @@ public class UpdateService {
 		InsertRequestValidation insertRequestValidation = new InsertRequestValidation(new ValidationDao(oracle),
 				dynamicOntologyDao);
 
-		UpdateService updateService = new UpdateService(dynamicOntologyDao, applicationDao, insertRequestValidation,
-				updateRequestValidation);
+		UpdateDao updateDao = new UpdateDao(oracle);
 
-		updateService.update("test application", "admin", "HatemMorgan", htblRequestBody);
+		InsertionDao insertionDao = new InsertionDao(oracle);
+
+		UpdateService updateService = new UpdateService(dynamicOntologyDao, applicationDao, insertRequestValidation,
+				updateRequestValidation, updateDao, insertionDao);
+
+		updateService.update("test application", "developer", "HatemElsayed", htblRequestBody);
 
 	}
 

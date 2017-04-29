@@ -237,6 +237,8 @@ public class SelectionQueryResults {
 				}
 			}
 		}
+		
+		System.out.println(temp);
 		return responseJson;
 	}
 

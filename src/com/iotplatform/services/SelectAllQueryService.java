@@ -157,7 +157,7 @@ public class SelectAllQueryService {
 		SelectAllQueryService selectAllQueryService = new SelectAllQueryService(applicationDao, selectAllQueryDao,
 				dynamicOntologyDao);
 
-		System.out.println(selectAllQueryService.selectAll("test application", "admin"));
+		System.out.println(selectAllQueryService.selectAll("test application", "developer"));
 
 	}
 
