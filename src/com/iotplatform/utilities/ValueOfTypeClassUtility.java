@@ -35,7 +35,7 @@ public class ValueOfTypeClassUtility {
 
 	@Override
 	public String toString() {
-		return "ValueOfTypeClass [typeClass=" + typeClass + ", value=" + value + "]";
+		return "ValueOfTypeClass [typeClass=" + typeClass.getName() + ", value=" + value + "]";
 	}
 
 }

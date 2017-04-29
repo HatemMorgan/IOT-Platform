@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.DynamicOntologyDao;
+import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidClassNameException;
 import com.iotplatform.exceptions.InvalidUpdateRequestBodyException;
@@ -25,7 +26,7 @@ import com.iotplatform.validations.UpdateRequestValidation;
 import oracle.spatial.rdf.client.jena.Oracle;
 
 @Service("updatingService")
-public class UpdatingService {
+public class UpdateService {
 
 	private DynamicOntologyDao dynamicOntologyDao;
 	private ApplicationDao applicationDao;
@@ -33,7 +34,7 @@ public class UpdatingService {
 	private UpdateRequestValidation updateRequestValidation;
 
 	@Autowired
-	public UpdatingService(DynamicOntologyDao dynamicOntologyDao, ApplicationDao applicationDao,
+	public UpdateService(DynamicOntologyDao dynamicOntologyDao, ApplicationDao applicationDao,
 			InsertRequestValidation insertRequestValidation, UpdateRequestValidation updateRequestValidation) {
 		this.dynamicOntologyDao = dynamicOntologyDao;
 		this.applicationDao = applicationDao;
@@ -161,6 +162,13 @@ public class UpdatingService {
 									res.getHtblUniquePropValueList(), res.getClassValueList());
 
 					System.out.println(insertValidationRes);
+				} else {
+
+					/*
+					 * check that the insert part is valid
+					 */
+					insertRequestValidation.validateRequestFields(new LinkedHashMap<>(), subjectClass,
+							applicationModelName, res.getHtblUniquePropValueList(), res.getClassValueList());
 				}
 
 			} else {
@@ -198,6 +206,7 @@ public class UpdatingService {
 			}
 
 		} catch (ErrorObjException ex) {
+			System.out.println(ex.getExceptionMessage());
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			return ex.getExceptionHashTable(timeTaken);
 		}
@@ -220,21 +229,57 @@ public class UpdatingService {
 		UpdateRequestValidation updateRequestValidation = new UpdateRequestValidation(dynamicOntologyDao);
 
 		LinkedHashMap<String, Object> htblRequestBody = new LinkedHashMap<>();
-		// htblRequestBody.put("firstName", "mohamed");
+
+		LinkedHashMap<String, Object> htbUpdatePart = new LinkedHashMap<>();
+		htblRequestBody.put("update", htbUpdatePart);
+
+		htbUpdatePart.put("firstName", "mohamed");
+
+		htbUpdatePart.put("userName", "HatemElsayed");
 
 		LinkedHashMap<String, Object> htbMbox = new LinkedHashMap<>();
 		htbMbox.put("oldValue", "hatemmorgan17@gmail.com");
+		// htbMbox.put("newValue", "hatem.el-sayed@student.guc.edu.eg");
 		htbMbox.put("newValue", "hatemmorgan@yahoo.com");
 
-		htblRequestBody.put("mbox", htbMbox);
+		htbUpdatePart.put("mbox", htbMbox);
 
 		LinkedHashMap<String, Object> htblhates = new LinkedHashMap<>();
 		htblhates.put("oldValue", "MariamMazen");
-		htblhates.put("newValue", "AhmedMorgan");
+		htblhates.put("newValue", "HatemMorgan");
 
-		htblRequestBody.put("hates", htblhates);
+		htbUpdatePart.put("hates", htblhates);
 
-		htblRequestBody.put("job", "Computer Engineer");
+
+		LinkedHashMap<String, Object> htbInsertPart = new LinkedHashMap<>();
+		htblRequestBody.put("insert", htbInsertPart);
+
+		// htbInsertPart.put("userName", "HatemMorgan");
+		htbInsertPart.put("topic_interest", "Computer Science");
+		htbInsertPart.put("gender", "Male");
+
+		LinkedHashMap<String, Object> htblKnows = new LinkedHashMap<>();
+		htblKnows.put("type", "Developer");
+		htblKnows.put("userName", "GamalMostafa");
+		htblKnows.put("firstName", "Gamal");
+		htblKnows.put("middleName", "Mostaga");
+		htblKnows.put("age", 20);
+		htblKnows.put("loves", "HaythamIsmailss");
+		htblKnows.put("job","Engineer");
+
+		htbInsertPart.put("knows", htblKnows);
+
+		System.out.println(htblRequestBody);
+
+		ApplicationDao applicationDao = new ApplicationDao(oracle);
+
+		InsertRequestValidation insertRequestValidation = new InsertRequestValidation(new ValidationDao(oracle),
+				dynamicOntologyDao);
+
+		UpdateService updateService = new UpdateService(dynamicOntologyDao, applicationDao, insertRequestValidation,
+				updateRequestValidation);
+
+		updateService.update("test application", "admin", "HatemMorgan", htblRequestBody);
 
 	}
 

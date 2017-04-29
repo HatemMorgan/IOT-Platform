@@ -54,7 +54,7 @@ public class ValidationDao {
 
 		String queryString = constructViolationsCheckQueryStr(applicationModelName, classValueList,
 				htblUniquePropValueList);
-		System.out.println(queryString);
+		// System.out.println(queryString);
 		try {
 			ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
 			resultSet.next();

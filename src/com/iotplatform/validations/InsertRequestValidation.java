@@ -390,6 +390,11 @@ public class InsertRequestValidation {
 
 		}
 
+		ArrayList<ArrayList<InsertionPropertyValue>> instancesList = new ArrayList<>();
+		ArrayList<InsertionPropertyValue> propertyValueList = new ArrayList<>();
+		instancesList.add(propertyValueList);
+		htblClassPropertyValue.put(subjectClass.getName(), instancesList);
+
 		/*
 		 * Iterate on htblFieldValue
 		 */
@@ -432,7 +437,8 @@ public class InsertRequestValidation {
 		parseAndConstructNotMappedFieldsValues(subjectClass.getName(), htblClassPropertyValue,
 				htbNotMappedFieldsClasses, notFoundFieldValueList, htblUniquePropValueList, classValueList,
 				applicationModelName);
-
+		System.out.println(classValueList);
+		System.out.println(htblUniquePropValueList);
 		/*
 		 * Call ValidationDao to check for data constraint voilations
 		 * (DataIntegerityConstraint and uniqueConstraint)
@@ -704,7 +710,6 @@ public class InsertRequestValidation {
 			/*
 			 * add PropertyValue object to htblClassPropertyValue
 			 */
-
 			htblClassPropertyValue.get(subjectClass.getName()).get(indexCount).add(propertyValue);
 
 		} else {
