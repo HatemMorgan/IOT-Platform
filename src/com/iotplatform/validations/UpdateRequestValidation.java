@@ -219,7 +219,7 @@ public class UpdateRequestValidation {
 				 */
 				if (subjectClass.isHasUniqueIdentifierProperty()
 						&& subjectClass.getUniqueIdentifierPropertyName().equals(property.getName())) {
-					
+
 					/*
 					 * set NewUniqueIdentifierValue to the fieldValue in order
 					 * to be used by the updateDao to update the
@@ -561,7 +561,7 @@ public class UpdateRequestValidation {
 		 * create a new UpdatePropertyValueUtility to hold parsed value
 		 */
 		UpdatePropertyValueUtility updatePropertyValueUtility = new UpdatePropertyValueUtility(
-				property.getPrefix().getPrefix() + property.getName(), true, null, value);
+				property.getPrefix().getPrefix() + property.getName(), false, null, value);
 
 		/*
 		 * add the new UpdatePropertyValueUtility instance to validationResult
@@ -723,7 +723,7 @@ public class UpdateRequestValidation {
 		 * create a new UpdatePropertyValueUtility to hold parsed value
 		 */
 		UpdatePropertyValueUtility updatePropertyValueUtility = new UpdatePropertyValueUtility(
-				property.getPrefix().getPrefix() + property.getName(), true, null, value);
+				property.getPrefix().getPrefix() + property.getName(), false, null, value);
 
 		/*
 		 * add the new UpdatePropertyValueUtility instance to validationResult
@@ -1084,7 +1084,7 @@ public class UpdateRequestValidation {
 		htbUserName.put("newValue", "HatemMorgan");
 
 		htblRequestBody.put("userName", htbUserName);
-		
+
 		LinkedHashMap<String, Object> htbMbox = new LinkedHashMap<>();
 		htbMbox.put("oldValue", "hatemmorgan17@gmail.com");
 		htbMbox.put("newValue", "hatemmorgan@yahoo.com");
