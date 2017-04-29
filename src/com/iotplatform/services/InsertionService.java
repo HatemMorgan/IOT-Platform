@@ -84,19 +84,20 @@ public class InsertionService {
 			 * check if the className has a valid class Mapping
 			 */
 			Class subjectClass = null;
-			if (OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().containsKey(className)) {
-				subjectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(className);
+			if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
+					&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+							.containsKey(className))) {
+				subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+						.get(className);
 			} else {
 
 				/*
-				 * The class is not from MainOntology so check it in
-				 * DynamicOntology cache of this application
+				 * The class is not in dynamicOntology cache of requested
+				 * application so check it in main ontology
 				 */
-				if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
-						&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
-								.containsKey(className))) {
-					subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
-							.get(className);
+
+				if (OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().containsKey(className)) {
+					subjectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(className);
 				} else {
 
 					/*
