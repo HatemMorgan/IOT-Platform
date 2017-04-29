@@ -22,6 +22,8 @@ import com.iotplatform.utilities.UpdateRequestValidationResultUtility;
 import com.iotplatform.validations.InsertRequestValidation;
 import com.iotplatform.validations.UpdateRequestValidation;
 
+import oracle.spatial.rdf.client.jena.Oracle;
+
 @Service("updatingService")
 public class UpdatingService {
 
@@ -201,6 +203,39 @@ public class UpdatingService {
 		}
 
 		return null;
+	}
+
+	public static void main(String[] args) {
+
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+
+		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+
+		System.out.println("Database connected");
+
+		DynamicOntologyDao dynamicOntologyDao = new DynamicOntologyDao(oracle);
+
+		UpdateRequestValidation updateRequestValidation = new UpdateRequestValidation(dynamicOntologyDao);
+
+		LinkedHashMap<String, Object> htblRequestBody = new LinkedHashMap<>();
+		// htblRequestBody.put("firstName", "mohamed");
+
+		LinkedHashMap<String, Object> htbMbox = new LinkedHashMap<>();
+		htbMbox.put("oldValue", "hatemmorgan17@gmail.com");
+		htbMbox.put("newValue", "hatemmorgan@yahoo.com");
+
+		htblRequestBody.put("mbox", htbMbox);
+
+		LinkedHashMap<String, Object> htblhates = new LinkedHashMap<>();
+		htblhates.put("oldValue", "MariamMazen");
+		htblhates.put("newValue", "AhmedMorgan");
+
+		htblRequestBody.put("hates", htblhates);
+
+		htblRequestBody.put("job", "Computer Engineer");
+
 	}
 
 }

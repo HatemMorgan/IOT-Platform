@@ -66,6 +66,10 @@ public class InsertionPropertyValue {
 		return isPropertyHasSingleValue;
 	}
 
+	public void setValue(Object value) {
+		this.value = value;
+	}
+
 	public void setPropertyHasSingleValue(boolean isPropertyHasSingleValue) {
 		this.isPropertyHasSingleValue = isPropertyHasSingleValue;
 	}
