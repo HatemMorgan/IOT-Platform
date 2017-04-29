@@ -69,4 +69,10 @@ public class UpdateRequestValidationResultUtility {
 		return htblUniquePropValueList;
 	}
 
+	@Override
+	public String toString() {
+		return "UpdateRequestValidationResultUtility [validationResult=" + validationResult + ", classValueList="
+				+ classValueList + ", htblUniquePropValueList=" + htblUniquePropValueList + "]";
+	}
+
 }

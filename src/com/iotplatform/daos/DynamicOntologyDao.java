@@ -116,7 +116,7 @@ public class DynamicOntologyDao {
 		insertQueryBuilder.append("} \n");
 		insertQueryBuilder.append("} \n");
 
-		System.out.println(insertQueryBuilder.toString());
+//		System.out.println(insertQueryBuilder.toString());
 
 		try {
 			GraphOracleSem graphOracleSem = new GraphOracleSem(oracle, applicationModelName);
@@ -422,7 +422,7 @@ public class DynamicOntologyDao {
 		queryBuilder.append(
 				"sem_models('" + applicationModelName + "'),null, \n " + "SEM_ALIASES(" + prefixes + "),null))");
 
-		// System.out.println(queryBuilder.toString());
+//		 System.out.println(queryBuilder.toString());
 		try {
 
 			ResultSet results = oracle.executeQuery(queryBuilder.toString(), 0, 1);

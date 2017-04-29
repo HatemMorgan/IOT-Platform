@@ -9,8 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.daos.DynamicOntologyDao;
+import com.iotplatform.exceptions.ErrorObjException;
+import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.exceptions.InvalidUpdateRequestBodyException;
 import com.iotplatform.ontology.Class;
+import com.iotplatform.ontology.MainOntology;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
@@ -18,6 +21,8 @@ import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.UpdatePropertyValueUtility;
 import com.iotplatform.utilities.UpdateRequestValidationResultUtility;
 import com.iotplatform.utilities.ValueOfTypeClassUtility;
+
+import oracle.spatial.rdf.client.jena.Oracle;
 
 /**
  * 
@@ -204,6 +209,18 @@ public class UpdateRequestValidation {
 			}
 		}
 
+		/*
+		 * call reValidateNotMappedFields to load any needed dynamic classes or
+		 * properties and revalidates the values of the notMappedFields if the
+		 * maps to a dynamic property
+		 */
+		reValidateNotMappedFields(subjectClass, validationResult, classValueList, htblUniquePropValueList,
+				htbNotMappedFieldsClasses, notMappedFieldsList, applicationModelName, htblRequestBody);
+
+		/*
+		 * construct UpdateRequestValidationResultUtility to be returned to
+		 * UpdateService
+		 */
 		UpdateRequestValidationResultUtility updateRequestValidationResult = new UpdateRequestValidationResultUtility(
 				validationResult, classValueList, htblUniquePropValueList);
 
@@ -369,11 +386,11 @@ public class UpdateRequestValidation {
 	 * 
 	 * 
 	 */
-	private void reValidateNotMappedFields(Class subjectClass, Property property, Object fieldValue,
-			ArrayList<UpdatePropertyValueUtility> validationResult, ArrayList<ValueOfTypeClassUtility> classValueList,
+	private void reValidateNotMappedFields(Class subjectClass, ArrayList<UpdatePropertyValueUtility> validationResult,
+			ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
-			String applicationModelName) {
+			String applicationModelName, LinkedHashMap<String, Object> htblRequestBody) {
 
 		/*
 		 * check that there is a need dynamic properties and/or classes needed
@@ -389,8 +406,63 @@ public class UpdateRequestValidation {
 					htbNotMappedFieldsClasses);
 
 			/*
+			 * construct new data structures to hold new unmapped fields
+			 */
+			Hashtable<String, String> htblNewNotMappedFieldsClasses = new Hashtable<>();
+			ArrayList<String> newNotMappedFieldsList = new ArrayList<>();
+
+			/*
 			 * iterating over notMappedFieldsList
 			 */
+			for (String notMappedField : notMappedFieldsList) {
+
+				/*
+				 * After loading dynamic Properties, I am caching all the loaded
+				 * properties so If field does not mapped to one of the
+				 * properties(contains static ones and cached dynamic ones) of
+				 * the subjectClass , I will throw InvalidRequestFieldsException
+				 * to indicate the field is invalid
+				 */
+				if (!(DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
+						&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+								.containsKey(subjectClass.getName().toLowerCase())
+						&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+								.get(subjectClass.getName().toLowerCase()).getProperties()
+								.containsKey(notMappedField))) {
+
+					throw new InvalidRequestFieldsException(subjectClass.getName(), notMappedField);
+				} else {
+
+					/*
+					 * get dynamic property that is the mapping of
+					 * notMappedField
+					 */
+					Property property = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+							.get(applicationModelName).get(subjectClass.getName().toLowerCase()).getProperties()
+							.get(notMappedField);
+
+					/*
+					 * call validateUpdateRequestFieldValue to validate the
+					 * value of notMappedField
+					 */
+					validateUpdateRequestFieldValue(subjectClass, property, htblRequestBody.get(notMappedField),
+							validationResult, classValueList, htblUniquePropValueList, htblNewNotMappedFieldsClasses,
+							newNotMappedFieldsList, applicationModelName);
+
+				}
+
+			}
+
+			/*
+			 * check if there are new not mapped fields added to reload dynamic
+			 * properties and/or classes from dynamic ontology of the requested
+			 * application
+			 */
+			if (newNotMappedFieldsList.size() > 0 && htblNewNotMappedFieldsClasses.size() > 0) {
+
+				reValidateNotMappedFields(subjectClass, validationResult, classValueList, htblUniquePropValueList,
+						htblNewNotMappedFieldsClasses, newNotMappedFieldsList, applicationModelName, htblRequestBody);
+			}
 		}
 
 	}
@@ -419,6 +491,13 @@ public class UpdateRequestValidation {
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
 			String applicationModelName) {
+
+		if (property.isMulitpleValues()) {
+			throw new InvalidUpdateRequestBodyException(
+					" Field with name: " + property.getName() + " has invalid value format because this field maps "
+							+ "to a multiValued Property. So to update its value, "
+							+ "you must supply the oldValue that will be updated " + "and the new value.");
+		}
 
 		if (!(value instanceof String))
 			throw new InvalidUpdateRequestBodyException("Field with name: " + property.getName()
@@ -594,6 +673,13 @@ public class UpdateRequestValidation {
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
 			String applicationModelName) {
+
+		if (property.isMulitpleValues()) {
+			throw new InvalidUpdateRequestBodyException(
+					" Field with name: " + property.getName() + " has invalid value format because this field maps "
+							+ "to a multiValued Property. So to update its value, "
+							+ "you must supply the oldValue that will be updated " + "and the new value.");
+		}
 
 		if (!(value instanceof String))
 			throw new InvalidUpdateRequestBodyException("Field with name: " + property.getName()
@@ -937,15 +1023,68 @@ public class UpdateRequestValidation {
 			 * notMappedFieldsList to be checked again after loading dynamic
 			 * properteis of subjectClass
 			 */
-			// notMappedFieldsList.add(field);
+			notMappedFieldsList.add(field);
 
-			// notMappedFieldsClassesList.add(e)
+			/*
+			 * add className to htbNotMappedFieldsClasses
+			 */
+			htbNotMappedFieldsClasses.put(subjectClass.getName(), subjectClass.getName());
+
+			/*
+			 * add superClasses names to htbNotMappedFieldsClasses in order to
+			 * load any inherited properties
+			 */
+			for (Class superClass : subjectClass.getSuperClassesList()) {
+				htbNotMappedFieldsClasses.put(superClass.getName(), superClass.getName());
+
+			}
 
 			/*
 			 * return false becuase no mapping found
 			 */
 			return false;
 		}
+	}
+
+	public static void main(String[] args) {
+
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+
+		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+
+		DynamicOntologyDao dynamicOntologyDao = new DynamicOntologyDao(oracle);
+
+		UpdateRequestValidation updateRequestValidation = new UpdateRequestValidation(dynamicOntologyDao);
+
+		LinkedHashMap<String, Object> htblRequestBody = new LinkedHashMap<>();
+		// htblRequestBody.put("firstName", "mohamed");
+
+		LinkedHashMap<String, Object> htbMbox = new LinkedHashMap<>();
+		htbMbox.put("oldValue", "hatemmorgan17@gmail.com");
+		htbMbox.put("newValue", "hatemmorgan@yahoo.com");
+
+		htblRequestBody.put("mbox", htbMbox);
+
+		LinkedHashMap<String, Object> htblhates = new LinkedHashMap<>();
+		htblhates.put("oldValue", "MariamMazen");
+		htblhates.put("newValue", "AhmedMorgan");
+
+		htblRequestBody.put("hates", htblhates);
+
+		htblRequestBody.put("job", "Computer Engineer");
+
+		try {
+			UpdateRequestValidationResultUtility res = updateRequestValidation.validateUpdateRequest(
+					"TESTAPPLICATION_MODEL", htblRequestBody,
+					OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("developer"));
+
+			System.out.println(res);
+		} catch (ErrorObjException e) {
+			System.out.println(e.getExceptionMessage());
+		}
+
 	}
 
 }

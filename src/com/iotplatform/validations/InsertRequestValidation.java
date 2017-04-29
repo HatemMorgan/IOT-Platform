@@ -922,6 +922,9 @@ public class InsertRequestValidation {
 			dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName,
 					htbNotMappedFieldsClasses);
 
+			/*
+			 * construct new data structures to hold new unmapped fields
+			 */
 			Hashtable<String, String> htblnewNotMappedFieldsClasses = new Hashtable<>();
 			ArrayList<NotMappedInsertRequestFieldUtility> newNotFoundFieldValueList = new ArrayList<>();
 

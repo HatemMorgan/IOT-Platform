@@ -58,4 +58,11 @@ public class UpdatePropertyValueUtility {
 		return newValue;
 	}
 
+	@Override
+	public String toString() {
+		return "UpdatePropertyValueUtility [propertyPrefixedName=" + propertyPrefixedName
+				+ ", isPropertyMultipleValued=" + isPropertyMultipleValued + ", oldValue=" + oldValue + ", newValue="
+				+ newValue + "]";
+	}
+
 }
