@@ -468,6 +468,9 @@ public class OntologyMapper {
 
 				Class subjectClass = htblMainOntologyClasses.get(classMapperName.toLowerCase());
 				boolean isPropertyUnique = isPropertyUnique(prop.getURI(), PropertyType.ObjectProperty.toString());
+				boolean isPropertyMultiValued = isPropertyMultValued(prop.getURI(),
+						PropertyType.ObjectProperty.toString());
+
 				String propName = prop.getLocalName();
 				Prefix prefix = getPrefix(prop.getNameSpace());
 
@@ -477,7 +480,7 @@ public class OntologyMapper {
 				 * restriction with value 1
 				 */
 				ObjectProperty objectProperty = new ObjectProperty(subjectClass, prop.getLocalName(), prefix,
-						objectClassName, true, isPropertyUnique);
+						objectClassName, isPropertyMultiValued, isPropertyUnique);
 				subjectClass.getProperties().put(propName, objectProperty);
 				subjectClass.getHtblPropUriName().put(prop.getURI(), propName);
 			}
@@ -518,7 +521,11 @@ public class OntologyMapper {
 				if (datatype != "") {
 
 					Class subjectClass = htblMainOntologyClasses.get(classMapperName.toLowerCase());
-					boolean isPropertyUnique = isPropertyUnique(prop.getURI(), PropertyType.ObjectProperty.toString());
+					boolean isPropertyUnique = isPropertyUnique(prop.getURI(),
+							PropertyType.DatatypeProperty.toString());
+					boolean isPropertyMultiValued = isPropertyMultValued(prop.getURI(),
+							PropertyType.DatatypeProperty.toString());
+
 					String propName = prop.getLocalName();
 					Prefix prefix = getPrefix(prop.getNameSpace());
 					XSDDatatype xsdDataType = getXSDDataTypeEnum(datatype);
@@ -529,7 +536,7 @@ public class OntologyMapper {
 					 * restriction with value 1
 					 */
 					DataTypeProperty dataTypeProperty = new DataTypeProperty(subjectClass, propName, prefix,
-							xsdDataType, true, isPropertyUnique);
+							xsdDataType, isPropertyMultiValued, isPropertyUnique);
 					subjectClass.getProperties().put(propName, dataTypeProperty);
 					subjectClass.getHtblPropUriName().put(prop.getURI(), propName);
 
@@ -591,11 +598,17 @@ public class OntologyMapper {
 						PropertyType.DatatypeProperty.toString());
 
 				/*
+				 * check if the property is multiValued property
+				 */
+				boolean isPropertyMultiValued = isPropertyMultValued(property.getURI(),
+						PropertyType.DatatypeProperty.toString());
+
+				/*
 				 * create a new DataTypeProperty and add it to the
 				 * subjectClassMapper
 				 */
 				DataTypeProperty dataTypeProperty = new DataTypeProperty(subjectClassMapper, propertyName, prefix,
-						xsdDatatype, true, isPropertyUnique);
+						xsdDatatype, isPropertyMultiValued, isPropertyUnique);
 				subjectClassMapper.getProperties().put(propertyName, dataTypeProperty);
 				subjectClassMapper.getHtblPropUriName().put(property.getURI(), propertyName);
 
@@ -613,11 +626,17 @@ public class OntologyMapper {
 				boolean isPropertyUnique = isPropertyUnique(property.getURI(), PropertyType.ObjectProperty.toString());
 
 				/*
+				 * check if the property is multiValued property
+				 */
+				boolean isPropertyMultiValued = isPropertyMultValued(property.getURI(),
+						PropertyType.ObjectProperty.toString());
+
+				/*
 				 * create a new ObjectProperty and add it to the
 				 * subjectClassMapper
 				 */
 				ObjectProperty objectProperty = new ObjectProperty(subjectClassMapper, propertyName, prefix,
-						property.getRange().getLocalName(), true, isPropertyUnique);
+						property.getRange().getLocalName(), isPropertyMultiValued, isPropertyUnique);
 				subjectClassMapper.getProperties().put(propertyName, objectProperty);
 				subjectClassMapper.getHtblPropUriName().put(property.getURI(), propertyName);
 			}
@@ -665,6 +684,39 @@ public class OntologyMapper {
 
 		String queryStr = "SELECT (COUNT(*) as ?isFound ) \n WHERE { <" + propertyUri + ">   a   owl:" + propertyType
 				+ " ; \n " + "iot-platform:isUnique  \"true\"^^xsd:boolean . \n" + "}";
+
+		queryBuilder.append(queryStr);
+		// System.out.println(queryBuilder.toString());
+		Query query = QueryFactory.create(queryBuilder.toString());
+
+		QueryExecution queryExecution = QueryExecutionFactory.create(query, model);
+		ResultSet resultSet = queryExecution.execSelect();
+
+		QuerySolution sol = resultSet.next();
+		int isFound = sol.get("isFound").asLiteral().getInt();
+
+		if (isFound == 0) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/*
+	 * isPropertyMultValued method queries the ontology for a given property to
+	 * check if it has an annotation property (iot-platform:hasMultipleValues)
+	 * which tells that this propertyValue is a multiValuedProperty (can has
+	 * more than one value)
+	 */
+	private static boolean isPropertyMultValued(String propertyUri, String propertyType) {
+
+		StringBuilder queryBuilder = new StringBuilder();
+		for (Prefix prefix : Prefix.values()) {
+			queryBuilder.append("PREFIX	" + prefix.getPrefix() + "	<" + prefix.getUri() + ">\n");
+		}
+
+		String queryStr = "SELECT (COUNT(*) as ?isFound ) \n WHERE { <" + propertyUri + ">   a   owl:" + propertyType
+				+ " ; \n " + "iot-platform:hasMultipleValues  \"true\"^^xsd:boolean . \n" + "}";
 
 		queryBuilder.append(queryStr);
 		// System.out.println(queryBuilder.toString());
