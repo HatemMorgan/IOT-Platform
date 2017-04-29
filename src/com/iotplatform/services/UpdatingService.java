@@ -1,5 +1,6 @@
 package com.iotplatform.services;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 
@@ -16,6 +17,7 @@ import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
+import com.iotplatform.utilities.InsertionPropertyValue;
 import com.iotplatform.utilities.UpdateRequestValidationResultUtility;
 import com.iotplatform.validations.InsertRequestValidation;
 import com.iotplatform.validations.UpdateRequestValidation;
@@ -117,18 +119,80 @@ public class UpdatingService {
 						.get("update");
 
 				/*
+				 * make sure that the update part is not an empty object
+				 */
+				if (htblUpdateRequestBody.isEmpty()) {
+					throw new InvalidUpdateRequestBodyException(
+							"Invalid Update request body." + " The object Value of update field must not be empty.");
+				}
+
+				/*
 				 * check that the update part of the request body is valid
 				 */
 				UpdateRequestValidationResultUtility res = updateRequestValidation
 						.validateUpdateRequest(applicationModelName, htblUpdateRequestBody, subjectClass);
-				
-			
+
+				System.out.println(res);
+
+				/*
+				 * check if the request body has insert part with update part
+				 */
+				if (htblRequestBody.containsKey("insert")
+						&& htblRequestBody.get("insert") instanceof LinkedHashMap<?, ?>) {
+
+					LinkedHashMap<String, Object> htblInsertRequestBody = (LinkedHashMap<String, Object>) htblRequestBody
+							.get("insert");
+
+					/*
+					 * make sure that the insert part is not an empty object
+					 */
+					if (htblInsertRequestBody.isEmpty()) {
+						throw new InvalidUpdateRequestBodyException("Invalid Update request body."
+								+ " The object Value of insert field must not be empty.");
+					}
+
+					/*
+					 * check that the insert part is valid
+					 */
+					Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> insertValidationRes = insertRequestValidation
+							.validateRequestFields(htblInsertRequestBody, subjectClass, applicationModelName,
+									res.getHtblUniquePropValueList(), res.getClassValueList());
+
+					System.out.println(insertValidationRes);
+				}
+
 			} else {
 
-				throw new InvalidUpdateRequestBodyException("Invalid Update Request Body."
-						+ " The Request body must contains an update field with an object"
-						+ " value to hold the need updated fields and values. ");
+				/*
+				 * check if the request body has insert part only without update
+				 * part
+				 */
+				if (htblRequestBody.containsKey("insert")
+						&& htblRequestBody.get("insert") instanceof LinkedHashMap<?, ?>) {
 
+					LinkedHashMap<String, Object> htblInsertRequestBody = (LinkedHashMap<String, Object>) htblRequestBody
+							.get("insert");
+
+					/*
+					 * make sure that the insert part is not an empty object
+					 */
+					if (htblInsertRequestBody.isEmpty()) {
+						throw new InvalidUpdateRequestBodyException("Invalid Update request body."
+								+ " The object Value of insert field must not be empty.");
+					}
+
+					/*
+					 * check that the insert part is valid
+					 */
+					Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> insertValidationRes = insertRequestValidation
+							.validateRequestFields(htblInsertRequestBody, subjectClass, applicationModelName);
+					System.out.println(insertValidationRes);
+				} else {
+					throw new InvalidUpdateRequestBodyException("Invalid Update Request Body."
+							+ " The Request body must contains an update or insert fields with an object"
+							+ " values to hold the need updated or new fields and values."
+							+ " ex: {\"update\":{}, \"insert\":{} ");
+				}
 			}
 
 		} catch (ErrorObjException ex) {

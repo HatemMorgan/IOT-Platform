@@ -49,6 +49,19 @@ public class UpdateRequestValidationResultUtility {
 	 */
 	private LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList = new LinkedHashMap<>();
 
+	/*
+	 * isRequestUpdatesUniqueIdentifierValue is a boolean that tells if the
+	 * update request updates the unique identifier of the individual.
+	 * 
+	 * ex. update userName value of a foaf:Person individual
+	 */
+	private boolean isRequestUpdatesUniqueIdentifierValue;
+
+	/*
+	 * newUniqueIdentifierValue holds the value of the new unique identifier
+	 */
+	private Object newUniqueIdentifierValue;
+
 	public UpdateRequestValidationResultUtility(ArrayList<UpdatePropertyValueUtility> validationResult,
 			ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList) {
@@ -69,10 +82,25 @@ public class UpdateRequestValidationResultUtility {
 		return htblUniquePropValueList;
 	}
 
+	public boolean isRequestUpdatesUniqueIdentifierValue() {
+		return isRequestUpdatesUniqueIdentifierValue;
+	}
+
+	public Object getNewUniqueIdentifierValue() {
+		return newUniqueIdentifierValue;
+	}
+
+	public void setNewUniqueIdentifierValue(Object newUniqueIdentifierValue) {
+		this.newUniqueIdentifierValue = newUniqueIdentifierValue;
+		this.isRequestUpdatesUniqueIdentifierValue = true;
+	}
+
 	@Override
 	public String toString() {
 		return "UpdateRequestValidationResultUtility [validationResult=" + validationResult + ", classValueList="
-				+ classValueList + ", htblUniquePropValueList=" + htblUniquePropValueList + "]";
+				+ classValueList + ", htblUniquePropValueList=" + htblUniquePropValueList
+				+ ", isRequestUpdatesUniqueIdentifierValue=" + isRequestUpdatesUniqueIdentifierValue
+				+ ", newUniqueIdentifierValue=" + newUniqueIdentifierValue + "]";
 	}
 
 }

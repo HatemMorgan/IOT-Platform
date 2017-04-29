@@ -80,7 +80,7 @@ public class ApplicationService {
 			 */
 
 			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue = requestFieldsValidation
-					.validateRequestFields(applicationName, htblPropValue,
+					.validateRequestFields(htblPropValue,
 							OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("application"),
 							applicationModelName);
 

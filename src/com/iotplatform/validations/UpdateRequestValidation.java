@@ -182,6 +182,13 @@ public class UpdateRequestValidation {
 		Hashtable<String, String> htbNotMappedFieldsClasses = new Hashtable<>();
 
 		/*
+		 * construct UpdateRequestValidationResultUtility to be returned to
+		 * UpdateService
+		 */
+		UpdateRequestValidationResultUtility updateRequestValidationResult = new UpdateRequestValidationResultUtility(
+				validationResult, classValueList, htblUniquePropValueList);
+
+		/*
 		 * Iterate over htblRequestBody to validate that the fields(key) maps to
 		 * an actual property in the applicationDomain ontology and also check
 		 * that no value of any of the fields (value) violates any constraints
@@ -206,6 +213,22 @@ public class UpdateRequestValidation {
 				validateUpdateRequestFieldValue(subjectClass, property, fieldValue, validationResult, classValueList,
 						htblUniquePropValueList, htbNotMappedFieldsClasses, notMappedFieldsList, applicationModelName);
 
+				/*
+				 * check if the property is the uniqueIdentifier of the
+				 * subjectClass
+				 */
+				if (subjectClass.isHasUniqueIdentifierProperty()
+						&& subjectClass.getUniqueIdentifierPropertyName().equals(property.getName())) {
+					
+					/*
+					 * set NewUniqueIdentifierValue to the fieldValue in order
+					 * to be used by the updateDao to update the
+					 * uniqueIdentifier (subject) of the individual being
+					 * updated
+					 */
+					updateRequestValidationResult.setNewUniqueIdentifierValue(fieldValue);
+				}
+
 			}
 		}
 
@@ -216,13 +239,6 @@ public class UpdateRequestValidation {
 		 */
 		reValidateNotMappedFields(subjectClass, validationResult, classValueList, htblUniquePropValueList,
 				htbNotMappedFieldsClasses, notMappedFieldsList, applicationModelName, htblRequestBody);
-
-		/*
-		 * construct UpdateRequestValidationResultUtility to be returned to
-		 * UpdateService
-		 */
-		UpdateRequestValidationResultUtility updateRequestValidationResult = new UpdateRequestValidationResultUtility(
-				validationResult, classValueList, htblUniquePropValueList);
 
 		return updateRequestValidationResult;
 
@@ -1054,6 +1070,8 @@ public class UpdateRequestValidation {
 
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
+		System.out.println("Database connected");
+
 		DynamicOntologyDao dynamicOntologyDao = new DynamicOntologyDao(oracle);
 
 		UpdateRequestValidation updateRequestValidation = new UpdateRequestValidation(dynamicOntologyDao);
@@ -1061,6 +1079,12 @@ public class UpdateRequestValidation {
 		LinkedHashMap<String, Object> htblRequestBody = new LinkedHashMap<>();
 		// htblRequestBody.put("firstName", "mohamed");
 
+		LinkedHashMap<String, Object> htbUserName = new LinkedHashMap<>();
+		htbUserName.put("oldValue", "HatemELsayed");
+		htbUserName.put("newValue", "HatemMorgan");
+
+		htblRequestBody.put("userName", htbUserName);
+		
 		LinkedHashMap<String, Object> htbMbox = new LinkedHashMap<>();
 		htbMbox.put("oldValue", "hatemmorgan17@gmail.com");
 		htbMbox.put("newValue", "hatemmorgan@yahoo.com");

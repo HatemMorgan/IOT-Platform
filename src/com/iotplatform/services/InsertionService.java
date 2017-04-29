@@ -13,6 +13,8 @@ import com.iotplatform.daos.InsertionDao;
 import com.iotplatform.daos.ValidationDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidClassNameException;
+import com.iotplatform.exceptions.InvalidInsertRequestBodyException;
+import com.iotplatform.exceptions.InvalidUpdateRequestBodyException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
@@ -63,6 +65,11 @@ public class InsertionService {
 		className = className.toLowerCase().replaceAll(" ", "");
 
 		try {
+
+			if (htblFieldValue.isEmpty()) {
+				throw new InvalidInsertRequestBodyException(" The request body must not be empty !");
+			}
+
 			boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
 
 			/*
@@ -132,7 +139,7 @@ public class InsertionService {
 			 * Check if the request is valid or not
 			 */
 			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue = insertRequestValidations
-					.validateRequestFields(applicationNameCode, htblFieldValue, subjectClass, applicationModelName);
+					.validateRequestFields(htblFieldValue, subjectClass, applicationModelName);
 			insertionDao.insertData(applicationModelName, subjectClass.getName(), htblClassPropertyValue);
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);

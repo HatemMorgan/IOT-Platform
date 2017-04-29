@@ -18,6 +18,7 @@ import com.iotplatform.exceptions.InvalidPropertyValuesException;
 import com.iotplatform.exceptions.InvalidRequestBodyException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.exceptions.InvalidTypeValidationException;
+import com.iotplatform.exceptions.InvalidUpdateRequestBodyException;
 import com.iotplatform.exceptions.NotSuppliedObligatoryFieldsException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
@@ -97,7 +98,7 @@ public class InsertRequestValidation {
 	 * method
 	 * 
 	 */
-	public Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> validateRequestFields(String applicationName,
+	public Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> validateRequestFields(
 			LinkedHashMap<String, Object> htblFieldValue, Class subjectClass, String applicationModelName) {
 		/*
 		 * check if the obligatory fields exist. if does not exist throw an
@@ -261,7 +262,7 @@ public class InsertRequestValidation {
 
 		}
 
-		parseAndConstructNotMappedFieldsValues(applicationName, subjectClass.getName(), htblClassPropertyValue,
+		parseAndConstructNotMappedFieldsValues(subjectClass.getName(), htblClassPropertyValue,
 				htbNotMappedFieldsClasses, notFoundFieldValueList, htblUniquePropValueList, classValueList,
 				applicationModelName);
 
@@ -280,7 +281,7 @@ public class InsertRequestValidation {
 			 * if there is no constraints violations a boolean true will be
 			 * returned
 			 */
-			if (validationDao.hasNoConstraintViolations(applicationName, classValueList, htblUniquePropValueList,
+			if (validationDao.hasNoConstraintViolations(applicationModelName, classValueList, htblUniquePropValueList,
 					subjectClass)) {
 				return htblClassPropertyValue;
 			}
@@ -301,6 +302,159 @@ public class InsertRequestValidation {
 		// System.out.println(
 		// validationDao.constructUniqueContstraintCheckSubQueryStr2(htblUniquePropValueList,
 		// subjectClass));
+		return htblClassPropertyValue;
+	}
+
+	public Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> validateRequestFields(
+			LinkedHashMap<String, Object> htblFieldValue, Class subjectClass, String applicationModelName,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
+			ArrayList<ValueOfTypeClassUtility> classValueList) {
+
+		Iterator<String> htblFieldValueIterator = htblFieldValue.keySet().iterator();
+
+		/*
+		 * Hashtable of classes' name that need to get their dynamic properties
+		 * to check if the fields maps to one of them or these fields are
+		 * invalid fields
+		 */
+		Hashtable<String, String> htbNotMappedFieldsClasses = new Hashtable<>();
+
+		/*
+		 * notFoundFieldValueList holds fieldsValue pairs that do not have a
+		 * static property mapping and are waited to be checked for mapping
+		 * after loading dynamic properties
+		 */
+		ArrayList<NotMappedInsertRequestFieldUtility> notFoundFieldValueList = new ArrayList<>();
+
+		/*
+		 * htblClassPropertyValue holds the constructed propertyValue
+		 */
+		Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue = new Hashtable<>();
+
+		/*
+		 * check if there is a fieldName= type which means that value of this
+		 * field describes a type class then change the subClass type to be the
+		 * subjectClass
+		 * 
+		 * Here I iterating on the main fields not breaking down object values
+		 * or list values
+		 * 
+		 * calling parseAndConstructFieldValue will do the parsing and breaking
+		 * down object values and list values plus making fieldValidation,
+		 * dataIntegrityValidation and uniqueConstraintValidation and add
+		 * prefixing property and value to be well mapped to application
+		 * ontology to be used after that by DAOs to generate triples and insert
+		 * data
+		 */
+		if (htblFieldValue.containsKey("type") && isobjectValueValidType(subjectClass, htblFieldValue.get("type"))) {
+			Class subClassSubject = subjectClass.getClassTypesList().get(htblFieldValue.get("type").toString());
+			subjectClass = subClassSubject;
+
+		} else {
+
+			/*
+			 * throw an error if the type field value is not a valid type
+			 */
+			if (htblFieldValue.containsKey("type") && !isobjectValueValidType(subjectClass, htblFieldValue.get("type")))
+
+				throw new InvalidTypeValidationException(subjectClass.getName(),
+						subjectClass.getClassTypesList().keySet(), subjectClass.getName());
+		}
+
+		/*
+		 * check that the user is not trying to insert a new uniqueIdentifer
+		 * value
+		 */
+		if (subjectClass.isHasUniqueIdentifierProperty()
+				&& htblFieldValue.containsKey(subjectClass.getUniqueIdentifierPropertyName())) {
+			throw new InvalidUpdateRequestBodyException(
+					"Invalid Update requet body. you cannot insert a new value for field: "
+							+ subjectClass.getUniqueIdentifierPropertyName() + ". because "
+							+ "this field is a unique one which only has only one unique "
+							+ "value. If you want to change its value you have to add it "
+							+ "to update part in the update request body. ");
+		} else {
+
+			/*
+			 * check that the user is not inserting a new id to an individual of
+			 * type class that has not uniqueIdnetifer and the system is
+			 * generating a UUID for it
+			 */
+			if (!subjectClass.isHasUniqueIdentifierProperty() && htblFieldValue.containsKey("id")) {
+				throw new InvalidUpdateRequestBodyException(
+						"Invalid Update requet body. you cannot insert a new value for field: " + " id . because "
+								+ "this field is a unique one which only has only one unique "
+								+ "value. If you want to change its value you have to add it "
+								+ "to update part in the update request body (not recommended ). ");
+			}
+
+		}
+
+		/*
+		 * Iterate on htblFieldValue
+		 */
+		while (htblFieldValueIterator.hasNext()) {
+			String fieldName = htblFieldValueIterator.next();
+			Object value = htblFieldValue.get(fieldName);
+
+			/*
+			 * skip if the fieldName is type because type is not a property it
+			 * only express a type(subClassName) of superClass
+			 */
+			if (fieldName.equals("type")) {
+				continue;
+			}
+
+			/*
+			 * if it returns true then the field is a valid field so we have to
+			 * parse the value to determine if we need to do further check if
+			 * value maps another class eg. hasSurvivalRange property for Sensor
+			 * or ActuatingDevice or it need to reconstruct the value to follow
+			 * the semantic web structure in order to do further validations and
+			 * insertion
+			 * 
+			 * if it return false means that no static mapping so it will add
+			 * the subject class to classList and fieldNameValue pair to
+			 * htblNotFoundFieldValue
+			 */
+
+			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, htbNotMappedFieldsClasses,
+					notFoundFieldValueList, 0)) {
+				Property property = subjectClass.getProperties().get(fieldName);
+
+				parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue,
+						htbNotMappedFieldsClasses, notFoundFieldValueList, 0, htblUniquePropValueList, classValueList,
+						subjectClass.getName(), applicationModelName);
+			}
+
+		}
+
+		parseAndConstructNotMappedFieldsValues(subjectClass.getName(), htblClassPropertyValue,
+				htbNotMappedFieldsClasses, notFoundFieldValueList, htblUniquePropValueList, classValueList,
+				applicationModelName);
+
+		/*
+		 * Call ValidationDao to check for data constraint voilations
+		 * (DataIntegerityConstraint and uniqueConstraint)
+		 * 
+		 */
+		if (classValueList.size() > 0 || htblUniquePropValueList.size() > 0) {
+
+			/*
+			 * check if there are any constraints violations if there are any
+			 * violations hasConstraintViolations method will throw the
+			 * appropriate error that describes the type of the violation
+			 * 
+			 * if there is no constraints violations a boolean true will be
+			 * returned
+			 */
+			if (validationDao.hasNoConstraintViolations(applicationModelName, classValueList, htblUniquePropValueList,
+					subjectClass)) {
+				return htblClassPropertyValue;
+			}
+
+		}
+
 		return htblClassPropertyValue;
 	}
 
@@ -540,6 +694,14 @@ public class InsertRequestValidation {
 			}
 
 			/*
+			 * check if the property is not multiValued (has only one value) in
+			 * order to set isPropertyHasSingleValue of propertyValue to true
+			 */
+			if (!property.isMulitpleValues()) {
+				propertyValue.setPropertyHasSingleValue(true);
+			}
+
+			/*
 			 * add PropertyValue object to htblClassPropertyValue
 			 */
 
@@ -692,6 +854,15 @@ public class InsertRequestValidation {
 					InsertionPropertyValue propertyValue = new InsertionPropertyValue(
 							property.getPrefix().getPrefix() + property.getName(),
 							getValue(property, objectUniqueIdentifier), true);
+
+					/*
+					 * check if the property is not multiValued (has only one
+					 * value) in order to set isPropertyHasSingleValue of
+					 * propertyValue to true
+					 */
+					if (!property.isMulitpleValues()) {
+						propertyValue.setPropertyHasSingleValue(true);
+					}
 
 					/*
 					 * add PropertyValue object to htblClassPropertyValue
@@ -911,7 +1082,7 @@ public class InsertRequestValidation {
 
 	}
 
-	private void parseAndConstructNotMappedFieldsValues(String applicationName, String requestClassName,
+	private void parseAndConstructNotMappedFieldsValues(String requestClassName,
 			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue,
 			Hashtable<String, String> htbNotMappedFieldsClasses,
 			ArrayList<NotMappedInsertRequestFieldUtility> notFoundFieldValueList,
@@ -963,7 +1134,7 @@ public class InsertRequestValidation {
 			}
 
 			if (newNotFoundFieldValueList.size() > 0 && htblnewNotMappedFieldsClasses.size() > 0) {
-				parseAndConstructNotMappedFieldsValues(applicationName, requestClassName, htblClassPropertyValue,
+				parseAndConstructNotMappedFieldsValues(requestClassName, htblClassPropertyValue,
 						htblnewNotMappedFieldsClasses, newNotFoundFieldValueList, htblUniquePropValueList,
 						classValueList, applicationModelName);
 			}
@@ -1494,7 +1665,7 @@ public class InsertRequestValidation {
 		try {
 			long startTime = System.currentTimeMillis();
 			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue = requestFieldsValidation
-					.validateRequestFields("TESTAPPLICATION", htblFieldValue,
+					.validateRequestFields(htblFieldValue,
 							OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("admin"),
 							"TESTAPPLICATION_MODEL");
 			// Hashtable<Class, ArrayList<ArrayList<PropertyValue>>>

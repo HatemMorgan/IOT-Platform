@@ -14,6 +14,8 @@ import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.SelectQueryDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidClassNameException;
+import com.iotplatform.exceptions.InvalidInsertRequestBodyException;
+import com.iotplatform.exceptions.InvalidQueryRequestBodyFormatException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
@@ -56,6 +58,10 @@ public class SelectQueryService {
 		long startTime = System.currentTimeMillis();
 
 		try {
+
+			if (htblFieldValue.isEmpty()) {
+				throw new InvalidQueryRequestBodyFormatException(" The body must not be empty!");
+			}
 
 			boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
 
