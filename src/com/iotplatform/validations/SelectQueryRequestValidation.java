@@ -71,10 +71,11 @@ public class SelectQueryRequestValidation {
 			LinkedHashMap<String, Object> htblFieldValue, Class subjectClass, String applicationModelName) {
 
 		/*
-		 * List of classes that need to get their dynamic properties to check if
-		 * the fields maps to one of them or these fields are invalid fields
+		 * Hashtable of classes' names that need to get their dynamic properties
+		 * to check if the fields maps to one of them or these fields are
+		 * invalid fields
 		 */
-		ArrayList<String> notMappedFieldsClassesList = new ArrayList<>();
+		Hashtable<String, String> htbNotMappedFieldsClasses = new Hashtable<>();
 
 		/*
 		 * list of NotMappedDynamicQueryFields which holds the unmapped fields
@@ -168,14 +169,12 @@ public class SelectQueryRequestValidation {
 			htblUniqueIdentierQueryFieldsList.put(randomUUID, queryFieldsList);
 			htblClassNameProperty.put(subjectClass.getUri(), htblUniqueIdentierQueryFieldsList);
 
-			validateProjectionFields(subjectClass, notMappedFieldsClassesList, notMappedFieldList,
+			validateProjectionFields(subjectClass, htbNotMappedFieldsClasses, notMappedFieldList,
 					htblFieldValue.get("fields"), htblClassNameProperty, randomUUID, subjectClass.getName(), null,
 					applicationModelName);
 
-			if (notMappedFieldsClassesList.size() > 0) {
-				validateNotMappedFieldsValues(applicationName, notMappedFieldsClassesList, notMappedFieldList,
-						htblClassNameProperty, subjectClass.getName(), applicationModelName);
-			}
+			validateNotMappedFieldsValues(applicationName, htbNotMappedFieldsClasses, notMappedFieldList,
+					htblClassNameProperty, subjectClass.getName(), applicationModelName);
 
 		} else {
 			/*
@@ -224,7 +223,7 @@ public class SelectQueryRequestValidation {
 	 * valuesFieldName. It will be null otherwise (if it is not values key)
 	 * 
 	 */
-	private void validateProjectionFields(Class subjectClass, ArrayList<String> notMappedFieldsClassesList,
+	private void validateProjectionFields(Class subjectClass, Hashtable<String, String> htbNotMappedFieldsClasses,
 			ArrayList<NotMappedQueryRequestFieldUtility> notMappedFieldList, Object field,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty,
 			String uniqueIdentifier, String requestClassName, String valuesFieldName, String applicationModelName) {
@@ -238,7 +237,7 @@ public class SelectQueryRequestValidation {
 			 * check if the field has a property mapping
 			 */
 			if (isFieldMapsToStaticProperty(subjectClass, field.toString(), null, uniqueIdentifier,
-					notMappedFieldsClassesList, notMappedFieldList)) {
+					htbNotMappedFieldsClasses, notMappedFieldList)) {
 
 				/*
 				 * get prefixedPropertyName
@@ -336,7 +335,7 @@ public class SelectQueryRequestValidation {
 					 * subjectClass
 					 */
 					if (isFieldMapsToStaticProperty(subjectClass, fieldName, field, uniqueIdentifier,
-							notMappedFieldsClassesList, notMappedFieldList)) {
+							htbNotMappedFieldsClasses, notMappedFieldList)) {
 
 						Property property = subjectClass.getProperties().get(fieldName);
 
@@ -351,7 +350,7 @@ public class SelectQueryRequestValidation {
 							 */
 							if (htblfieldObject.containsKey("values")) {
 								Object values = htblfieldObject.get("values");
-								validateProjectionFields(subjectClass, notMappedFieldsClassesList, notMappedFieldList,
+								validateProjectionFields(subjectClass, htbNotMappedFieldsClasses, notMappedFieldList,
 										values, htblClassNameProperty, uniqueIdentifier, requestClassName, fieldName,
 										applicationModelName);
 							} else {
@@ -372,7 +371,7 @@ public class SelectQueryRequestValidation {
 								 */
 								if (htblfieldObject.containsKey("classType")) {
 									objectValueClassType = getPropertyObject(property, subjectClass,
-											notMappedFieldsClassesList, notMappedFieldList, field, applicationModelName,
+											htbNotMappedFieldsClasses, notMappedFieldList, field, applicationModelName,
 											uniqueIdentifier);
 
 									/*
@@ -401,7 +400,7 @@ public class SelectQueryRequestValidation {
 									 * class name
 									 */
 									objectValueClassType = getPropertyObject(property, subjectClass,
-											notMappedFieldsClassesList, notMappedFieldList, field, applicationModelName,
+											htbNotMappedFieldsClasses, notMappedFieldList, field, applicationModelName,
 											uniqueIdentifier);
 
 								}
@@ -477,7 +476,7 @@ public class SelectQueryRequestValidation {
 									ArrayList<Object> objectFieldList = (ArrayList<Object>) htblfieldObject
 											.get("fields");
 
-									validateProjectionFields(objectValueClassType, notMappedFieldsClassesList,
+									validateProjectionFields(objectValueClassType, htbNotMappedFieldsClasses,
 											notMappedFieldList, objectFieldList, htblClassNameProperty, randomUUID,
 											requestClassName, null, applicationModelName);
 								} else {
@@ -529,7 +528,7 @@ public class SelectQueryRequestValidation {
 					 */
 					for (Object fieldkey : fieldList) {
 
-						validateProjectionFields(subjectClass, notMappedFieldsClassesList, notMappedFieldList, fieldkey,
+						validateProjectionFields(subjectClass, htbNotMappedFieldsClasses, notMappedFieldList, fieldkey,
 								htblClassNameProperty, uniqueIdentifier, requestClassName, valuesFieldName,
 								applicationModelName);
 					}
@@ -564,13 +563,18 @@ public class SelectQueryRequestValidation {
 	 * instance
 	 */
 	private boolean isFieldMapsToStaticProperty(Class subjectClass, String fieldName, Object fieldObject,
-			String uniqueIdentifier, ArrayList<String> notMappedFieldsClassesList,
+			String uniqueIdentifier, Hashtable<String, String> htbNotMappedFieldsClasses,
 			ArrayList<NotMappedQueryRequestFieldUtility> notMappedFieldList) {
 		if (subjectClass.getProperties().containsKey(fieldName)) {
 			return true;
 		} else {
 
-			notMappedFieldsClassesList.add(subjectClass.getName());
+			htbNotMappedFieldsClasses.put(subjectClass.getName(), subjectClass.getName());
+
+			for (Class superClass : subjectClass.getSuperClassesList()) {
+				htbNotMappedFieldsClasses.put(superClass.getName(), superClass.getName());
+			}
+
 			NotMappedQueryRequestFieldUtility notMappedDynamicQueryField;
 
 			if (fieldObject == null) {
@@ -586,17 +590,18 @@ public class SelectQueryRequestValidation {
 		}
 	}
 
-	private void validateNotMappedFieldsValues(String applicationName, ArrayList<String> notMappedFieldsClassesList,
+	private void validateNotMappedFieldsValues(String applicationName,
+			Hashtable<String, String> htbNotMappedFieldsClasses,
 			ArrayList<NotMappedQueryRequestFieldUtility> notMappedFieldList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty,
 			String requestClassName, String applicationModelName) {
 
-		if (notMappedFieldList.size() > 0 && notMappedFieldsClassesList.size() > 0) {
+		if (notMappedFieldList.size() > 0 && htbNotMappedFieldsClasses.size() > 0) {
 
 			dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName,
-					notMappedFieldsClassesList);
+					htbNotMappedFieldsClasses);
 
-			ArrayList<String> newNotMappedFieldsClasses = new ArrayList<>();
+			Hashtable<String, String> htbNewNotMappedFieldsClasses = new Hashtable<>();
 			ArrayList<NotMappedQueryRequestFieldUtility> newNotMappedFieldList = new ArrayList<>();
 
 			for (NotMappedQueryRequestFieldUtility notMappedDynamicQueryField : notMappedFieldList) {
@@ -621,10 +626,6 @@ public class SelectQueryRequestValidation {
 
 				} else {
 
-					Property property = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
-							.get(applicationModelName).get(subjectClassName).getProperties().get(field);
-					Class subjectClass = notMappedDynamicQueryField.getSubjectClass();
-
 					if (notMappedDynamicQueryField.getFieldObject() == null) {
 
 						/*
@@ -633,14 +634,14 @@ public class SelectQueryRequestValidation {
 						 * prefixes
 						 */
 						validateProjectionFields(notMappedDynamicQueryField.getSubjectClass(),
-								newNotMappedFieldsClasses, newNotMappedFieldList, field, htblClassNameProperty,
+								htbNewNotMappedFieldsClasses, newNotMappedFieldList, field, htblClassNameProperty,
 								notMappedDynamicQueryField.getIndividualUniqueIdintifier(), requestClassName, null,
 								applicationModelName);
 
 					} else {
 
 						validateProjectionFields(notMappedDynamicQueryField.getSubjectClass(),
-								newNotMappedFieldsClasses, newNotMappedFieldList,
+								htbNewNotMappedFieldsClasses, newNotMappedFieldList,
 								notMappedDynamicQueryField.getFieldObject(), htblClassNameProperty,
 								notMappedDynamicQueryField.getIndividualUniqueIdintifier(), requestClassName, null,
 								applicationModelName);
@@ -651,8 +652,8 @@ public class SelectQueryRequestValidation {
 
 			}
 
-			if (newNotMappedFieldsClasses.size() > 0 && newNotMappedFieldList.size() > 0) {
-				validateNotMappedFieldsValues(applicationName, newNotMappedFieldsClasses, newNotMappedFieldList,
+			if (htbNewNotMappedFieldsClasses.size() > 0 && newNotMappedFieldList.size() > 0) {
+				validateNotMappedFieldsValues(applicationName, htbNewNotMappedFieldsClasses, newNotMappedFieldList,
 						htblClassNameProperty, requestClassName, applicationModelName);
 
 			}
@@ -810,7 +811,8 @@ public class SelectQueryRequestValidation {
 	//
 	// }
 
-	private Class getPropertyObject(Property property, Class subjectClass, ArrayList<String> notMappedFieldsClassesList,
+	private Class getPropertyObject(Property property, Class subjectClass,
+			Hashtable<String, String> htbNotMappedFieldsClasses,
 			ArrayList<NotMappedQueryRequestFieldUtility> notMappedFieldList, Object fieldObject,
 			String applicationModelName, String uniqueIdentifier) {
 		/*
@@ -821,23 +823,26 @@ public class SelectQueryRequestValidation {
 		String objectClassName = ((ObjectProperty) property).getObjectClassName();
 
 		/*
-		 * get objectClass from mainOntology if it exist
+		 * get objectClass from dynamicOntology cache if it exists
 		 */
-		if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(objectClassName.toLowerCase())) {
-
-			/*
-			 * get the objectClass from MainOntologyClassesMapper
-			 */
-			objectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(objectClassName.toLowerCase());
+		if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().contains(applicationModelName)
+				&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+						.containsKey(objectClassName.toLowerCase()))) {
+			objectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+					.get(objectClassName.toLowerCase());
 		} else {
+			/*
+			 * get objectClass from mainOntology if it exist
+			 */
+			if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(objectClassName.toLowerCase())) {
 
-			if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().contains(applicationModelName)
-					&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
-							.containsKey(objectClassName.toLowerCase()))) {
-				objectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
-						.get(objectClassName.toLowerCase());
+				/*
+				 * get the objectClass from MainOntologyClassesMapper
+				 */
+				objectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(objectClassName.toLowerCase());
 			} else {
-				notMappedFieldsClassesList.add(objectClassName);
+
+				htbNotMappedFieldsClasses.put(objectClassName, objectClassName);
 
 				NotMappedQueryRequestFieldUtility notMappedDynamicQueryField;
 				if (fieldObject == null) {

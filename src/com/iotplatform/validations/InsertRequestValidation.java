@@ -111,11 +111,11 @@ public class InsertRequestValidation {
 		Iterator<String> htblFieldValueIterator = htblFieldValue.keySet().iterator();
 
 		/*
-		 * List of classes' name that need to get their dynamic properties to
-		 * check if the fields maps to one of them or these fields are invalid
-		 * fields
+		 * Hashtable of classes' name that need to get their dynamic properties
+		 * to check if the fields maps to one of them or these fields are
+		 * invalid fields
 		 */
-		ArrayList<String> notMappedFieldsClassesList = new ArrayList<>();
+		Hashtable<String, String> htbNotMappedFieldsClasses = new Hashtable<>();
 
 		/*
 		 * notFoundFieldValueList holds fieldsValue pairs that do not have a
@@ -250,19 +250,19 @@ public class InsertRequestValidation {
 			 * htblNotFoundFieldValue
 			 */
 
-			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, notMappedFieldsClassesList,
+			if (isFieldMapsToStaticProperty(subjectClass, fieldName, value, htbNotMappedFieldsClasses,
 					notFoundFieldValueList, 0)) {
 				Property property = subjectClass.getProperties().get(fieldName);
 
 				parseAndConstructFieldValue(subjectClass, property, value, htblClassPropertyValue,
-						notMappedFieldsClassesList, notFoundFieldValueList, 0, htblUniquePropValueList, classValueList,
+						htbNotMappedFieldsClasses, notFoundFieldValueList, 0, htblUniquePropValueList, classValueList,
 						subjectClass.getName(), applicationModelName);
 			}
 
 		}
 
 		parseAndConstructNotMappedFieldsValues(applicationName, subjectClass.getName(), htblClassPropertyValue,
-				notMappedFieldsClassesList, notFoundFieldValueList, htblUniquePropValueList, classValueList,
+				htbNotMappedFieldsClasses, notFoundFieldValueList, htblUniquePropValueList, classValueList,
 				applicationModelName);
 
 		/*
@@ -320,7 +320,7 @@ public class InsertRequestValidation {
 	 * instance
 	 */
 	private boolean isFieldMapsToStaticProperty(Class subjectClass, String fieldName, Object value,
-			ArrayList<String> notMappedFieldsClassesList,
+			Hashtable<String, String> htbNotMappedFieldsClasses,
 			ArrayList<NotMappedInsertRequestFieldUtility> notFoundFieldValueList, int index) {
 
 		if (subjectClass.getProperties().containsKey(fieldName)) {
@@ -329,13 +329,13 @@ public class InsertRequestValidation {
 
 			// System.out.println(subjectClass.getName() + " " + fieldName);
 
-			notMappedFieldsClassesList.add(subjectClass.getName());
+			htbNotMappedFieldsClasses.put(subjectClass.getName(), subjectClass.getName());
 			NotMappedInsertRequestFieldUtility notMappedFieldValue = new NotMappedInsertRequestFieldUtility(
 					subjectClass, value, index, fieldName);
 			notFoundFieldValueList.add(notMappedFieldValue);
 
 			for (Class superClass : subjectClass.getSuperClassesList()) {
-				notMappedFieldsClassesList.add(superClass.getName());
+				htbNotMappedFieldsClasses.put(superClass.getName(), subjectClass.getName());
 
 			}
 
@@ -383,7 +383,7 @@ public class InsertRequestValidation {
 	 */
 	private void parseAndConstructFieldValue(Class subjectClass, Property property, Object value,
 			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue,
-			ArrayList<String> notMappedFieldsClassesList,
+			Hashtable<String, String> htbNotMappedFieldsClasses,
 			ArrayList<NotMappedInsertRequestFieldUtility> notFoundFieldValueList, int indexCount,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			ArrayList<ValueOfTypeClassUtility> classValueList, String requestClassName, String applicationModelName) {
@@ -429,7 +429,7 @@ public class InsertRequestValidation {
 						objectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
 								.get(objectClassName.toLowerCase());
 					} else {
-						notMappedFieldsClassesList.add(objectClassName);
+						htbNotMappedFieldsClasses.put(objectClassName, objectClassName);
 
 						NotMappedInsertRequestFieldUtility notMappedFieldValue = new NotMappedInsertRequestFieldUtility(
 								subjectClass, value, indexCount, property.getName());
@@ -602,7 +602,7 @@ public class InsertRequestValidation {
 
 						mainOntologyClassType = true;
 					} else {
-						notMappedFieldsClassesList.add(objectClassName);
+						htbNotMappedFieldsClasses.put(objectClassName, objectClassName);
 
 						NotMappedInsertRequestFieldUtility notMappedFieldValue = new NotMappedInsertRequestFieldUtility(
 								subjectClass, value, indexCount, property.getName());
@@ -795,7 +795,7 @@ public class InsertRequestValidation {
 						 * fieldNameValue pair to htblNotFoundFieldValue
 						 */
 						Object fieldValue = valueObject.get(fieldName);
-						if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, notMappedFieldsClassesList,
+						if (isFieldMapsToStaticProperty(classType, fieldName, fieldValue, htbNotMappedFieldsClasses,
 								notFoundFieldValueList, classInstanceIndex)) {
 
 							Property classTypeProperty = classType.getProperties().get(fieldName);
@@ -820,7 +820,7 @@ public class InsertRequestValidation {
 							 */
 							if (property instanceof ObjectProperty) {
 								parseAndConstructFieldValue(classType, classTypeProperty, fieldValue,
-										htblClassPropertyValue, notMappedFieldsClassesList, notFoundFieldValueList,
+										htblClassPropertyValue, htbNotMappedFieldsClasses, notFoundFieldValueList,
 										classInstanceIndex, htblUniquePropValueList, classValueList, requestClassName,
 										applicationModelName);
 							} else {
@@ -833,7 +833,7 @@ public class InsertRequestValidation {
 								 * value is an object value
 								 */
 								parseAndConstructFieldValue(classType, classTypeProperty, fieldValue,
-										htblClassPropertyValue, notMappedFieldsClassesList, notFoundFieldValueList,
+										htblClassPropertyValue, htbNotMappedFieldsClasses, notFoundFieldValueList,
 										classInstanceIndex, htblUniquePropValueList, classValueList, requestClassName,
 										applicationModelName);
 							}
@@ -881,7 +881,7 @@ public class InsertRequestValidation {
 						for (Object singleValue : valueList) {
 
 							parseAndConstructFieldValue(subjectClass, property, singleValue, htblClassPropertyValue,
-									notMappedFieldsClassesList, notFoundFieldValueList, indexCount,
+									htbNotMappedFieldsClasses, notFoundFieldValueList, indexCount,
 									htblUniquePropValueList, classValueList, requestClassName, applicationModelName);
 						}
 					} else {
@@ -913,16 +913,16 @@ public class InsertRequestValidation {
 
 	private void parseAndConstructNotMappedFieldsValues(String applicationName, String requestClassName,
 			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue,
-			ArrayList<String> notMappedFieldsClassesList,
+			Hashtable<String, String> htbNotMappedFieldsClasses,
 			ArrayList<NotMappedInsertRequestFieldUtility> notFoundFieldValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			ArrayList<ValueOfTypeClassUtility> classValueList, String applicationModelName) {
 
-		if (notFoundFieldValueList.size() > 0 && notMappedFieldsClassesList.size() > 0) {
+		if (notFoundFieldValueList.size() > 0 && htbNotMappedFieldsClasses.size() > 0) {
 			dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName,
-					notMappedFieldsClassesList);
+					htbNotMappedFieldsClasses);
 
-			ArrayList<String> newNotMappedFieldsClassesList = new ArrayList<>();
+			Hashtable<String, String> htblnewNotMappedFieldsClasses = new Hashtable<>();
 			ArrayList<NotMappedInsertRequestFieldUtility> newNotFoundFieldValueList = new ArrayList<>();
 
 			for (NotMappedInsertRequestFieldUtility notFoundFieldValue : notFoundFieldValueList) {
@@ -953,15 +953,15 @@ public class InsertRequestValidation {
 					Object propertyValue = notFoundFieldValue.getPropertyValue();
 
 					parseAndConstructFieldValue(subjectClass, property, propertyValue, htblClassPropertyValue,
-							newNotMappedFieldsClassesList, newNotFoundFieldValueList, index, htblUniquePropValueList,
+							htblnewNotMappedFieldsClasses, newNotFoundFieldValueList, index, htblUniquePropValueList,
 							classValueList, requestClassName, applicationModelName);
 				}
 
 			}
 
-			if (newNotFoundFieldValueList.size() > 0 && newNotMappedFieldsClassesList.size() > 0) {
+			if (newNotFoundFieldValueList.size() > 0 && htblnewNotMappedFieldsClasses.size() > 0) {
 				parseAndConstructNotMappedFieldsValues(applicationName, requestClassName, htblClassPropertyValue,
-						newNotMappedFieldsClassesList, newNotFoundFieldValueList, htblUniquePropValueList,
+						htblnewNotMappedFieldsClasses, newNotFoundFieldValueList, htblUniquePropValueList,
 						classValueList, applicationModelName);
 			}
 

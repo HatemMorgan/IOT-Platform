@@ -57,14 +57,14 @@ public class SelectionQueryResults {
 
 		if (propertyName == null) {
 
-			ArrayList<String> classList = new ArrayList<>();
-			classList.add(subjectClass.getName());
+			Hashtable<String, String> htbclassesNames = new Hashtable<>();
+			htbclassesNames.put(subjectClass.getName(), subjectClass.getName());
 
 			for (Class superClass : subjectClass.getSuperClassesList()) {
-				classList.add(superClass.getName());
+				htbclassesNames.put(superClass.getName(), superClass.getName());
 			}
 
-			dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName, classList);
+			dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName, htbclassesNames);
 
 			subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
 					.get(subjectClass.getName().toLowerCase());

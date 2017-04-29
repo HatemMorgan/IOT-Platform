@@ -228,7 +228,7 @@ public class DynamicOntologyDao {
 		queryBuilder.append(
 				"sem_models('" + applicationModelName + "'),null, \n " + "SEM_ALIASES(" + prefixes + "),null))");
 
-//		System.out.println(queryBuilder.toString());
+		// System.out.println(queryBuilder.toString());
 
 		try {
 			ResultSet results = oracle.executeQuery(queryBuilder.toString(), 0, 1);
@@ -268,7 +268,7 @@ public class DynamicOntologyDao {
 		queryBuilder.append("} ' , \n");
 		queryBuilder.append("sem_models('" + applicationModelName + "'),null, \n SEM_ALIASES(" + prefixes + "),null))");
 
-//		System.out.println(queryBuilder.toString());
+		// System.out.println(queryBuilder.toString());
 
 		try {
 			ResultSet results = oracle.executeQuery(queryBuilder.toString(), 0, 1);
@@ -314,7 +314,7 @@ public class DynamicOntologyDao {
 		queryBuilder.append("} ' , \n");
 		queryBuilder.append("sem_models('" + applicationModelName + "'),null, \n SEM_ALIASES(" + prefixes + "),null))");
 
-//		System.out.println(queryBuilder.toString());
+		// System.out.println(queryBuilder.toString());
 
 		try {
 			ResultSet results = oracle.executeQuery(queryBuilder.toString(), 0, 1);
@@ -370,11 +370,11 @@ public class DynamicOntologyDao {
 	 *            hold the applicationModelName of the applicationModel where
 	 *            the data and dynamic ontology stored there.
 	 * 
-	 * @param dyanmicClassesNameList
+	 * @param htblDyanmicClassesName
 	 *            Holds classesNames that need to be loaded if they exist
 	 */
 	public void loadAndCacheDynamicClassesofApplicationDomain(String applicationModelName,
-			ArrayList<String> dyanmicClassesNameList) {
+			Hashtable<String, String> htblDyanmicClassesName) {
 		StringBuilder queryBuilder = new StringBuilder();
 
 		/*
@@ -393,7 +393,7 @@ public class DynamicOntologyDao {
 		queryBuilder.append("FILTER ( \n");
 
 		boolean start = true;
-		for (String className : dyanmicClassesNameList) {
+		for (String className : htblDyanmicClassesName.keySet()) {
 			if (start) {
 				queryBuilder.append(" LCASE(?className) = \"" + className.toLowerCase() + "\"");
 				start = false;
@@ -1033,11 +1033,11 @@ public class DynamicOntologyDao {
 		dynamicOntologyDao.addNewObjectPropertyToOntology("loves", "foaf:Person", "foaf:Person", true, false,
 				"TESTAPPLICATION_MODEL");
 
-		ArrayList<String> dyanmicClassesNameList = new ArrayList<>();
-		dyanmicClassesNameList.add("VirtualSensor");
-		dyanmicClassesNameList.add("Device");
-		dyanmicClassesNameList.add("Person");
-		dyanmicClassesNameList.add("Developer");
+		Hashtable<String, String> dyanmicClassesNameList = new Hashtable<>();
+		dyanmicClassesNameList.put("VirtualSensor", "VirtualSensor");
+		dyanmicClassesNameList.put("Device", "Device");
+		dyanmicClassesNameList.put("Person", "Person");
+		dyanmicClassesNameList.put("Developer", "Developer");
 
 		dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain("TESTAPPLICATION_MODEL",
 				dyanmicClassesNameList);

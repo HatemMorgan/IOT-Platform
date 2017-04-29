@@ -1,6 +1,7 @@
 package com.iotplatform.services;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -99,10 +100,11 @@ public class SelectQueryService {
 					 * It doesnot exist so It might not cached before so I will
 					 * load and cache it if its a valid class
 					 */
-					ArrayList<String> classNameListToBeloaded = new ArrayList<>();
+					Hashtable<String, String> htbClassNameToBeloaded = new Hashtable<>();
+					htbClassNameToBeloaded.put(className, className);
 
 					dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName,
-							classNameListToBeloaded);
+							htbClassNameToBeloaded);
 
 					if (DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
 							.containsKey(className)) {

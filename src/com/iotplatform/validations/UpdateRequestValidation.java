@@ -1,6 +1,7 @@
 package com.iotplatform.validations;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -43,14 +44,35 @@ import com.iotplatform.utilities.ValueOfTypeClassUtility;
  * the ontology classes). It also load dynamic properties or classes that was
  * created for the requested application domain, to check if the fields that
  * does not mapped to a property in the mainOntology that it maps to a dynamic
- * one
+ * one.
  * 
- * 2- it checks that there is no unique constraint or data integrity constrains
- * Violations
+ * 2- It constructs the data structures and add any values to it that need to be
+ * checked for any data integrity or unique constraints violations. The check
+ * will be done by InsertRequestValidation because the update request body
+ * consists of two parts (part for updating existing values of an existing
+ * individual and part for inserting a new patterns to an existing individual)
  * 
- * 3- It parse request body (JSON) into classes and properties in order to
- * perform a mapping from JSON to semantic web structure to be used by
+ * 3- It parse request body (JSON) into UpdatePropertyValueUtility instances in
+ * order to perform a mapping from JSON to semantic web structure to be used by
  * UpdatngQuery class to create update query
+ * 
+ * 
+ * UpdateRequestValidation loads the dynamicProperties here not passing it to
+ * InsertRequestValidation. Because :
+ * 
+ * 1- It is more efficient to load it here to fully validate that the request
+ * maps to the application domain ontology.
+ * 
+ * 2- It will keep UpdateRequestValidation class independent from
+ * InsertRequestValidation because no one will be waiting for the other to
+ * perform something to it . The UpdateService will handle passing
+ * dataStructures results from UpdateRequestValidation to
+ * InsertRequestValidation. to check for any constraints violations.
+ * 
+ * 3- There will be a little chance to load any dynamic properties or classes in
+ * InsertRequestValidation because updateRequest will load any dynamicProperties
+ * if exist for the request class which is the most common class that might need
+ * to load its dynamicProperties
  * 
  * @author HatemMorgan
  */
@@ -148,11 +170,11 @@ public class UpdateRequestValidation {
 		ArrayList<ValueOfTypeClassUtility> classValueList = new ArrayList<>();
 
 		/*
-		 * List of classes' name that need to get their dynamic properties to
-		 * check if the fields maps to one of them or these fields are invalid
-		 * fields
+		 * Hashtable of classes' name that need to get their dynamic properties
+		 * to check if the fields maps to one of them or these fields are
+		 * invalid fields
 		 */
-		ArrayList<String> notMappedFieldsClassesList = new ArrayList<>();
+		Hashtable<String, String> htbNotMappedFieldsClasses = new Hashtable<>();
 
 		/*
 		 * Iterate over htblRequestBody to validate that the fields(key) maps to
@@ -164,7 +186,7 @@ public class UpdateRequestValidation {
 		while (htblRequestBodyIter.hasNext()) {
 			String field = htblRequestBodyIter.next();
 
-			if (isFieldMapsToProperty(subjectClass, field, notMappedFieldsList)) {
+			if (isFieldMapsToProperty(subjectClass, field, notMappedFieldsList, htbNotMappedFieldsClasses)) {
 
 				/*
 				 * get fieldValue
@@ -177,7 +199,7 @@ public class UpdateRequestValidation {
 				Property property = subjectClass.getProperties().get(field);
 
 				validateUpdateRequestFieldValue(subjectClass, property, fieldValue, validationResult, classValueList,
-						htblUniquePropValueList, notMappedFieldsClassesList, notMappedFieldsList, applicationModelName);
+						htblUniquePropValueList, htbNotMappedFieldsClasses, notMappedFieldsList, applicationModelName);
 
 			}
 		}
@@ -240,8 +262,8 @@ public class UpdateRequestValidation {
 	 * 
 	 *            }
 	 * 
-	 * @param notMappedFieldsClassesList
-	 *            List of classes' name that need to get their dynamic
+	 * @param htbNotMappedFieldsClasses
+	 *            Hashtable of classes' name that need to get their dynamic
 	 *            properties to check if the fields maps to one of them or these
 	 *            fields are invalid fields
 	 * 
@@ -264,7 +286,7 @@ public class UpdateRequestValidation {
 	private void validateUpdateRequestFieldValue(Class subjectClass, Property property, Object fieldValue,
 			ArrayList<UpdatePropertyValueUtility> validationResult, ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
-			ArrayList<String> notMappedFieldsClassesList, ArrayList<String> notMappedFieldsList,
+			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
 			String applicationModelName) {
 
 		if (property instanceof ObjectProperty) {
@@ -284,7 +306,7 @@ public class UpdateRequestValidation {
 				 * valueObject
 				 */
 				validateMultiValuedObjectPropertyField(valueObject, subjectClass, property, fieldValue,
-						validationResult, classValueList, htblUniquePropValueList, notMappedFieldsClassesList,
+						validationResult, classValueList, htblUniquePropValueList, htbNotMappedFieldsClasses,
 						notMappedFieldsList, applicationModelName);
 
 			} else {
@@ -294,7 +316,7 @@ public class UpdateRequestValidation {
 				 * be string which represents the new value for this property
 				 */
 				validateSingleValuedObjectPropertyField(fieldValue, subjectClass, property, fieldValue,
-						validationResult, classValueList, htblUniquePropValueList, notMappedFieldsClassesList,
+						validationResult, classValueList, htblUniquePropValueList, htbNotMappedFieldsClasses,
 						notMappedFieldsList, applicationModelName);
 
 			}
@@ -320,7 +342,7 @@ public class UpdateRequestValidation {
 				 * valueObject
 				 */
 				validateMultiValuedDataTypePropertyField(valueObject, subjectClass, property, fieldValue,
-						validationResult, classValueList, htblUniquePropValueList, notMappedFieldsClassesList,
+						validationResult, classValueList, htblUniquePropValueList, htbNotMappedFieldsClasses,
 						notMappedFieldsList, applicationModelName);
 
 			} else {
@@ -330,12 +352,47 @@ public class UpdateRequestValidation {
 				 * be string which represents the new value for this property
 				 */
 				validateSingleValuedDataTypePropertyField(fieldValue, subjectClass, property, fieldValue,
-						validationResult, classValueList, htblUniquePropValueList, notMappedFieldsClassesList,
+						validationResult, classValueList, htblUniquePropValueList, htbNotMappedFieldsClasses,
 						notMappedFieldsList, applicationModelName);
 
 			}
 
 		}
+	}
+
+	/**
+	 * reValidateNotMappedFields revalidates all the not mapped fields after
+	 * loading dynamic properties and classes need from dynamic ontology of the
+	 * requested application domain
+	 * 
+	 * The Parameters are the same as validateUpdateRequestFieldValue method
+	 * 
+	 * 
+	 */
+	private void reValidateNotMappedFields(Class subjectClass, Property property, Object fieldValue,
+			ArrayList<UpdatePropertyValueUtility> validationResult, ArrayList<ValueOfTypeClassUtility> classValueList,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
+			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
+			String applicationModelName) {
+
+		/*
+		 * check that there is a need dynamic properties and/or classes needed
+		 * to be loaded. by checking that the notMappedFieldsClassesList has
+		 * classNames and notMappedFieldsList has notMappedFieldsName
+		 */
+		if (htbNotMappedFieldsClasses.size() > 0 && notMappedFieldsList.size() > 0) {
+
+			/*
+			 * load dynamic properties and/or classes
+			 */
+			dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName,
+					htbNotMappedFieldsClasses);
+
+			/*
+			 * iterating over notMappedFieldsList
+			 */
+		}
+
 	}
 
 	/**
@@ -360,7 +417,7 @@ public class UpdateRequestValidation {
 			Object fieldValue, ArrayList<UpdatePropertyValueUtility> validationResult,
 			ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
-			ArrayList<String> notMappedFieldsClassesList, ArrayList<String> notMappedFieldsList,
+			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
 			String applicationModelName) {
 
 		if (!(value instanceof String))
@@ -384,7 +441,7 @@ public class UpdateRequestValidation {
 		 * an object value reference) is a valid exist object in the model of
 		 * the requested application )
 		 */
-		Class objectPropertyRangeClass = getPropertyObject(property, subjectClass, notMappedFieldsClassesList,
+		Class objectPropertyRangeClass = getPropertyObject(property, subjectClass, htbNotMappedFieldsClasses,
 				notMappedFieldsList, fieldValue, applicationModelName);
 
 		/*
@@ -441,7 +498,7 @@ public class UpdateRequestValidation {
 			Property property, Object fieldValue, ArrayList<UpdatePropertyValueUtility> validationResult,
 			ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
-			ArrayList<String> notMappedFieldsClassesList, ArrayList<String> notMappedFieldsList,
+			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
 			String applicationModelName) {
 		/*
 		 * check that the valueObject is not empty
@@ -480,7 +537,7 @@ public class UpdateRequestValidation {
 		 * an object value reference) is a valid exist object in the model of
 		 * the requested application )
 		 */
-		Class objectPropertyRangeClass = getPropertyObject(property, subjectClass, notMappedFieldsClassesList,
+		Class objectPropertyRangeClass = getPropertyObject(property, subjectClass, htbNotMappedFieldsClasses,
 				notMappedFieldsList, fieldValue, applicationModelName);
 
 		/*
@@ -535,7 +592,7 @@ public class UpdateRequestValidation {
 			Object fieldValue, ArrayList<UpdatePropertyValueUtility> validationResult,
 			ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
-			ArrayList<String> notMappedFieldsClassesList, ArrayList<String> notMappedFieldsList,
+			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
 			String applicationModelName) {
 
 		if (!(value instanceof String))
@@ -596,7 +653,7 @@ public class UpdateRequestValidation {
 			Property property, Object fieldValue, ArrayList<UpdatePropertyValueUtility> validationResult,
 			ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
-			ArrayList<String> notMappedFieldsClassesList, ArrayList<String> notMappedFieldsList,
+			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
 			String applicationModelName) {
 		/*
 		 * check that the valueObject is not empty
@@ -663,8 +720,9 @@ public class UpdateRequestValidation {
 	 * @param applicationModelName
 	 * @return
 	 */
-	private Class getPropertyObject(Property property, Class subjectClass, ArrayList<String> notMappedFieldsClassesList,
-			ArrayList<String> notMappedFieldList, Object fieldValue, String applicationModelName) {
+	private Class getPropertyObject(Property property, Class subjectClass,
+			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldList,
+			Object fieldValue, String applicationModelName) {
 		/*
 		 * get property range objectClass if it is an objectProperty
 		 */
@@ -694,7 +752,7 @@ public class UpdateRequestValidation {
 				objectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(objectClassName.toLowerCase());
 			} else {
 
-				notMappedFieldsClassesList.add(objectClassName);
+				htbNotMappedFieldsClasses.put(objectClassName, objectClassName);
 
 				notMappedFieldList.add(property.getName());
 
@@ -832,7 +890,7 @@ public class UpdateRequestValidation {
 	 *            semantic model defined by ontology of this application domain
 	 *            with applicationName passed.
 	 * 
-	 * @param fieldName
+	 * @param field
 	 *            is the fieldName in requestBody that are checked if it maps to
 	 *            a valid property from the propertiesList
 	 *            of @param(subjectClass) in the application's ontology
@@ -851,6 +909,11 @@ public class UpdateRequestValidation {
 	 *            to @param(subjectClass) in the requested applicationDomain
 	 *            ontology
 	 * 
+	 * @param htbNotMappedFieldsClasses
+	 *            Hashtable of classes' name that need to get their dynamic
+	 *            properties to check if the fields maps to one of them or these
+	 *            fields are invalid fields
+	 * 
 	 * @return true if there is a mapping.
 	 * 
 	 *         false if there is no mapping and add subject class to passed
@@ -858,7 +921,8 @@ public class UpdateRequestValidation {
 	 *         add the field and value to htblNotFoundFieldValue hashtable to be
 	 *         checked again after loading dynamic properties
 	 */
-	private boolean isFieldMapsToProperty(Class subjectClass, String field, ArrayList<String> notMappedFieldsList) {
+	private boolean isFieldMapsToProperty(Class subjectClass, String field, ArrayList<String> notMappedFieldsList,
+			Hashtable<String, String> htbNotMappedFieldsClasses) {
 
 		/*
 		 * check that field maps to a property in subjectClass and return true
@@ -873,7 +937,9 @@ public class UpdateRequestValidation {
 			 * notMappedFieldsList to be checked again after loading dynamic
 			 * properteis of subjectClass
 			 */
-			notMappedFieldsList.add(field);
+			// notMappedFieldsList.add(field);
+
+			// notMappedFieldsClassesList.add(e)
 
 			/*
 			 * return false becuase no mapping found
