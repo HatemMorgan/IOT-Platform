@@ -85,7 +85,7 @@ public class InsertionQuery {
 					&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
 							.containsKey(subjectClassName))) {
 				subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
-						.get(subjectClassName.toLowerCase());
+						.get(subjectClassName);
 
 			} else {
 
@@ -116,8 +116,8 @@ public class InsertionQuery {
 			 * Iterate on instances of type subjectClass
 			 */
 			for (int i = 0; i < htblClassPropertyValue.get(subjectClass.getName()).size(); i++) {
-				ArrayList<InsertionPropertyValue> instancePropertyValueList = htblClassPropertyValue.get(subjectClass.getName())
-						.get(i);
+				ArrayList<InsertionPropertyValue> instancePropertyValueList = htblClassPropertyValue
+						.get(subjectClass.getName()).get(i);
 				String instanceTriples = constructClassInstanceTriples(subjectClass, uniqueIdentifierProperty,
 						instancePropertyValueList);
 				insertQueryBuilder.append(instanceTriples);
