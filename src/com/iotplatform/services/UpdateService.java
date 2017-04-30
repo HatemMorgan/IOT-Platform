@@ -84,6 +84,8 @@ public class UpdateService {
 							.containsKey(className))) {
 				subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
 						.get(className);
+				System.out
+						.println("hereee---> " + subjectClass.getClassTypesList() + "  " + subjectClass.getProperties());
 			} else {
 
 				/*
@@ -288,7 +290,7 @@ public class UpdateService {
 		htbUpdatePart.put("title", "MR");
 
 		LinkedHashMap<String, Object> htbInsertPart = new LinkedHashMap<>();
-//		htblRequestBody.put("insert", htbInsertPart);
+		// htblRequestBody.put("insert", htbInsertPart);
 
 		// htbInsertPart.put("userName", "HatemMorgan");
 		htbInsertPart.put("topic_interest", "Sales");

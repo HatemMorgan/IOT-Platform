@@ -116,7 +116,7 @@ public class DynamicOntologyDao {
 		insertQueryBuilder.append("} \n");
 		insertQueryBuilder.append("} \n");
 
-//		System.out.println(insertQueryBuilder.toString());
+		// System.out.println(insertQueryBuilder.toString());
 
 		try {
 			GraphOracleSem graphOracleSem = new GraphOracleSem(oracle, applicationModelName);
@@ -422,7 +422,7 @@ public class DynamicOntologyDao {
 		queryBuilder.append(
 				"sem_models('" + applicationModelName + "'),null, \n " + "SEM_ALIASES(" + prefixes + "),null))");
 
-//		 System.out.println(queryBuilder.toString());
+		// System.out.println(queryBuilder.toString());
 		try {
 
 			ResultSet results = oracle.executeQuery(queryBuilder.toString(), 0, 1);
@@ -588,11 +588,14 @@ public class DynamicOntologyDao {
 
 			try {
 				newClass = (Class) mainOntologyClass.clone();
+				System.out.println(
+						newClass.getName() + "  " + newClass.getClassTypesList() + "  " + newClass.getProperties());
 			} catch (CloneNotSupportedException e) {
 
 				e.printStackTrace();
 			}
 		} else {
+
 			newClass = new Class(dynamicClassName, dynamicClassURI, prefix);
 		}
 
@@ -600,16 +603,16 @@ public class DynamicOntologyDao {
 
 			DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName).put(dynamicClassURI,
 					newClass);
-			DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName).put(dynamicClassName,
-					newClass);
+			DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+					.put(dynamicClassName.toLowerCase(), newClass);
 		} else {
 			DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().put(applicationModelName, new Hashtable<>());
 			DynamicOntologyMapper.getHtblappDynamicOntologyClasses().put(applicationModelName, new Hashtable<>());
 
 			DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName).put(dynamicClassURI,
 					newClass);
-			DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName).put(dynamicClassName,
-					newClass);
+			DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+					.put(dynamicClassName.toLowerCase(), newClass);
 		}
 
 	}
@@ -770,6 +773,8 @@ public class DynamicOntologyDao {
 
 			addInheritedCachedPropertiesToSubClasses(subjectClassName, newProperty, applicationModelName);
 		}
+
+		cacheDynamicClass(subjectClassURI, applicationModelName);
 	}
 
 	private void addInheritedCachedPropertiesToSubClasses(String subjectClassName, Property property,
@@ -1063,6 +1068,8 @@ public class DynamicOntologyDao {
 		System.out.println("==> " + DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
 				.get("TESTAPPLICATION_MODEL").get("developer").getUniqueIdentifierPropertyName());
 
+		System.out.println("==> " + DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+				.get("TESTAPPLICATION_MODEL").get("person").getClassTypesList());
 	}
 
 }

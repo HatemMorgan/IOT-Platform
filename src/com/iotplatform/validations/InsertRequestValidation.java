@@ -740,7 +740,7 @@ public class InsertRequestValidation {
 				/*
 				 * true if the type Class of objectProperty is from MainOntology
 				 */
-				boolean mainOntologyClassType = false;
+				// boolean mainOntologyClassType = false;
 
 				/*
 				 * get Object property range classType
@@ -757,7 +757,11 @@ public class InsertRequestValidation {
 								.containsKey(objectClassName.toLowerCase()))) {
 					classType = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
 							.get(objectClassName.toLowerCase());
-
+					System.out.println(classType.getName() + " Loaded from cache");
+					System.out.println(
+							DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName));
+					System.out.println(classType.getClassTypesList());
+					System.out.println(classType.getProperties());
 				} else {
 					if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(objectClassName.toLowerCase())) {
 
@@ -767,7 +771,7 @@ public class InsertRequestValidation {
 						classType = OntologyMapper.getHtblMainOntologyClassesMappers()
 								.get(objectClassName.toLowerCase());
 
-						mainOntologyClassType = true;
+						// mainOntologyClassType = true;
 					} else {
 						htbNotMappedFieldsClasses.put(objectClassName, objectClassName);
 
@@ -949,17 +953,21 @@ public class InsertRequestValidation {
 							continue;
 						}
 
-						if (mainOntologyClassType) {
-							if (!classType.getProperties().containsKey(fieldName)
-									&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
-											.containsKey(applicationModelName)
-									&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
-											.get(applicationModelName).containsKey(classType.getName().toLowerCase())) {
-
-								classType = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
-										.get(applicationModelName).get(classType.getName().toLowerCase());
-							}
-						}
+						// if (mainOntologyClassType) {
+						// if (!classType.getProperties().containsKey(fieldName)
+						// &&
+						// DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+						// .containsKey(applicationModelName)
+						// &&
+						// DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+						// .get(applicationModelName).containsKey(classType.getName().toLowerCase()))
+						// {
+						//
+						// classType =
+						// DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+						// .get(applicationModelName).get(classType.getName().toLowerCase());
+						// }
+						// }
 
 						/*
 						 * if it returns true then the field is a valid field

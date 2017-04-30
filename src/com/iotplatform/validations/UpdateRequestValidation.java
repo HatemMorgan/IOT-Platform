@@ -414,7 +414,7 @@ public class UpdateRequestValidation {
 		 * classNames and notMappedFieldsList has notMappedFieldsName
 		 */
 		if (htbNotMappedFieldsClasses.size() > 0 && notMappedFieldsList.size() > 0) {
-
+			System.out.println("loading dynamic properties from database");
 			/*
 			 * load dynamic properties and/or classes
 			 */
