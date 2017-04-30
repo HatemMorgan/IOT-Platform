@@ -9,6 +9,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.iotplatform.cache.QueryCache;
 import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.SelectQueryDao;
@@ -21,6 +22,7 @@ import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
+import com.iotplatform.utilities.QueryCachedObjectUtility;
 import com.iotplatform.utilities.QueryFieldUtility;
 import com.iotplatform.utilities.QueryRequestValidationResultUtility;
 import com.iotplatform.validations.SelectQueryRequestValidation;
@@ -138,13 +140,26 @@ public class SelectQueryService {
 			/*
 			 * validate query request
 			 */
-			QueryRequestValidationResultUtility validationResult = selectQueryRequestValidation
-					.validateRequest(applicationNameCode, htblFieldValue, subjectClass, applicationModelName);
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty = validationResult
-					.getHtblClassNameProperty();
+			List<LinkedHashMap<String, Object>> resultsList;
+			if (!QueryCache.getHtblQueryCache().containsKey(htblFieldValue.toString())) {
 
-			List<LinkedHashMap<String, Object>> resultsList = selectQueryDao.queryData(htblClassNameProperty,
-					applicationModelName, validationResult.getHtblOptions());
+				QueryRequestValidationResultUtility validationResult = selectQueryRequestValidation
+						.validateRequest(applicationNameCode, htblFieldValue, subjectClass, applicationModelName);
+				LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty = validationResult
+						.getHtblClassNameProperty();
+				resultsList = selectQueryDao.queryData(htblClassNameProperty, applicationModelName,
+						validationResult.getHtblOptions(), null, validationResult, htblFieldValue.toString());
+
+			} else {
+
+				QueryCachedObjectUtility queryCachedObject = QueryCache.getHtblQueryCache()
+						.get(htblFieldValue.toString());
+				LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty = queryCachedObject
+						.getQueryRequestValidationResultUtility().getHtblClassNameProperty();
+				resultsList = selectQueryDao.queryData(htblClassNameProperty, applicationModelName, null,
+						queryCachedObject, null, null);
+
+			}
 
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			return new SuccessfullSelectAllJsonModel(resultsList, timeTaken).getJson();
@@ -285,7 +300,11 @@ public class SelectQueryService {
 		LinkedHashMap<String, Object> res = selectQueryService.QueryData("test application", "communicating device",
 				htblQueryFields);
 
+		LinkedHashMap<String, Object> res2 = selectQueryService.QueryData("test application", "communicating device",
+				htblQueryFields);
+
 		System.out.println(res);
+		System.out.println(res2);
 
 		// Hashtable<String, Object>[] err = (Hashtable<String, Object>[])
 		// res.get("errors");

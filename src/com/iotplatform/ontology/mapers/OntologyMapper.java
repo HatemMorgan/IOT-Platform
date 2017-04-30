@@ -878,9 +878,9 @@ public class OntologyMapper {
 		// System.out.println(ontologyMapper.htblMainOntologyClasses.size());
 		// System.out.println(ontologyMapper.htblMainOntologyProperties.size());
 
-		String className = "SurvivalProperty";
+		String className = "survivalproperty";
 
-		Hashtable<String, Property> htblProperties = OntologyMapper.getHtblMainOntologyClassesMappers().get(className)
+		Hashtable<String, Property> htblProperties = OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get(className)
 				.getProperties();
 		Iterator<String> itr = htblProperties.keySet().iterator();
 
@@ -903,7 +903,7 @@ public class OntologyMapper {
 		// superClass.isHasUniqueIdentifierProperty());
 		// }
 		System.out.println(htblMainOntologyClasses.get(className).getUniqueIdentifierPropertyName());
-
+		System.out.println(htblMainOntologyClasses.get("person").getClassTypesList());
 		// System.out.println(htblMainOntologyClasses.get("Coverage").getClassTypesList().toString());
 
 		// String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";

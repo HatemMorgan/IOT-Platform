@@ -1037,7 +1037,7 @@ public class SelectQueryRequestValidation {
 
 			SelectQueryDao selectQueryDao = new SelectQueryDao(oracle);
 
-			selectQueryDao.queryData(htblClassNameProperty, "TESTAPPLICATION_MODEL", validationResult.getHtblOptions());
+//			selectQueryDao.queryData(htblClassNameProperty, "TESTAPPLICATION_MODEL", validationResult.getHtblOptions());
 
 		} catch (ErrorObjException e) {
 			System.out.println(e.getExceptionMessage());

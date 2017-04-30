@@ -697,7 +697,8 @@ public class UpdateRequestValidation {
 							+ "you must supply the oldValue that will be updated " + "and the new value.");
 		}
 
-		if (!(value instanceof String))
+		if (!((value instanceof String) || (value instanceof Integer) || (value instanceof Float)
+				|| (value instanceof Double) || (value instanceof Boolean)))
 			throw new InvalidUpdateRequestBodyException("Field with name: " + property.getName()
 					+ " has invalid value format because its value must be String holding "
 					+ "the new value that reference an existing object ");

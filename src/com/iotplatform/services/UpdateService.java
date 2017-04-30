@@ -269,20 +269,20 @@ public class UpdateService {
 		LinkedHashMap<String, Object> htbUpdatePart = new LinkedHashMap<>();
 		htblRequestBody.put("update", htbUpdatePart);
 
-		htbUpdatePart.put("age", "28");
+		htbUpdatePart.put("age", 28);
 
-		htbUpdatePart.put("userName", "KarimElzeeny");
+		htbUpdatePart.put("userName", "KimoElzeeny");
 
 		LinkedHashMap<String, Object> htbMbox = new LinkedHashMap<>();
-		htbMbox.put("oldValue", "karim.mohamed@gmail.com");
+		htbMbox.put("newValue", "karim.mohamed@gmail.com");
 		// htbMbox.put("newValue", "hatem.el-sayed@student.guc.edu.eg");
-		htbMbox.put("newValue", "kimoElzoz@gmail.com");
+		htbMbox.put("oldValue", "kimoElzoz@gmail.com");
 
 		htbUpdatePart.put("mbox", htbMbox);
 
 		LinkedHashMap<String, Object> htblloves = new LinkedHashMap<>();
-		htblloves.put("oldValue", "OmarTag");
-		htblloves.put("newValue", "HatemElsayed");
+		htblloves.put("newValue", "OmarTag");
+		htblloves.put("oldValue", "HatemElsayed");
 
 		htbUpdatePart.put("loves", htblloves);
 		htbUpdatePart.put("title", "MR");
@@ -320,7 +320,7 @@ public class UpdateService {
 		UpdateService updateService = new UpdateService(dynamicOntologyDao, applicationDao, insertRequestValidation,
 				updateRequestValidation, updateDao, insertionDao);
 
-		updateService.update("test application", "developer", "KarimsElzeeny", htblRequestBody);
+		updateService.update("test application", "developer", "KarimElzeeny", htblRequestBody);
 
 	}
 
