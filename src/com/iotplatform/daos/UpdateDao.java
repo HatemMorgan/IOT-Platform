@@ -82,6 +82,8 @@ public class UpdateDao {
 				String updateUniqueIdentifierQuery = UpdateQuery.constructUpdateQueryToUpdateUniqueIdentifierValue(
 						subjectClass, newUniqueIdentifierValue, uniqueIdentifier, applicationModelName);
 
+				uniqueIdentifier = newUniqueIdentifierValue;
+
 				System.out.println(updateUniqueIdentifierQuery);
 
 				GraphOracleSem graphOracleSem = new GraphOracleSem(oracle, applicationModelName);

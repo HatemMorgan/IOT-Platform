@@ -253,20 +253,20 @@ public class UpdateService {
 		LinkedHashMap<String, Object> htbUpdatePart = new LinkedHashMap<>();
 		htblRequestBody.put("update", htbUpdatePart);
 
-		htbUpdatePart.put("age", "30");
+		htbUpdatePart.put("age", "28");
 
-//		htbUpdatePart.put("userName", "KimoElzeeny");
+		htbUpdatePart.put("userName", "KarimsElzeeny");
 
 		LinkedHashMap<String, Object> htbMbox = new LinkedHashMap<>();
-		htbMbox.put("oldValue", "karim.mohamed@gmail.com");
+		htbMbox.put("newValue", "karim.mohamed@gmail.com");
 		// htbMbox.put("newValue", "hatem.el-sayed@student.guc.edu.eg");
-		htbMbox.put("newValue", "kimoElzoz@gmail.com");
+		htbMbox.put("oldValue", "kimoElzoz@gmail.com");
 
 		htbUpdatePart.put("mbox", htbMbox);
 
 		LinkedHashMap<String, Object> htblloves = new LinkedHashMap<>();
-		htblloves.put("oldValue", "OmarTag");
-		htblloves.put("newValue", "HatemElsayed");
+		htblloves.put("newValue", "OmarTag");
+		htblloves.put("oldValue", "HatemElsayed");
 
 		htbUpdatePart.put("loves", htblloves);
 		htbUpdatePart.put("title", "MR");
@@ -281,12 +281,12 @@ public class UpdateService {
 
 		LinkedHashMap<String, Object> htblKnows = new LinkedHashMap<>();
 		htblKnows.put("type", "Developer");
-		htblKnows.put("userName", "EL3ankboot");
+		htblKnows.put("userName", "EL3ankboots");
 		htblKnows.put("firstName", "Gamal");
 		htblKnows.put("middleName", "Mostafa");
-		htblKnows.put("age", 20);
-		htblKnows.put("hates", "OmarTag");
-		htblKnows.put("job", "Engineer");
+		htblKnows.put("age", 22);
+		htblKnows.put("hates", "HatemElsayed");
+		htblKnows.put("job", "Accounter");
 
 		 htbInsertPart.put("knows", htblKnows);
 
