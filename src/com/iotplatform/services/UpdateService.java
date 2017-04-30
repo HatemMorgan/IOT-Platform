@@ -16,7 +16,9 @@ import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidClassNameException;
 import com.iotplatform.exceptions.InvalidUpdateRequestBodyException;
 import com.iotplatform.exceptions.NoApplicationModelException;
+import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
+import com.iotplatform.models.SuccessfullUpdateJSONModel;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
@@ -174,6 +176,11 @@ public class UpdateService {
 					updateDao.updateData(applicationModelName, subjectClass, individualUniqueIdentifier,
 							updateRequestValidationResult, insertValidationRes);
 
+					double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+					SuccessfullUpdateJSONModel successModel = new SuccessfullUpdateJSONModel(subjectClass.getName(),
+							timeTaken);
+					return successModel.getResponseJson();
+
 				} else {
 
 					/*
@@ -185,6 +192,11 @@ public class UpdateService {
 
 					updateDao.updateData(applicationModelName, subjectClass, individualUniqueIdentifier,
 							updateRequestValidationResult, null);
+
+					double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+					SuccessfullUpdateJSONModel successModel = new SuccessfullUpdateJSONModel(subjectClass.getName(),
+							timeTaken);
+					return successModel.getResponseJson();
 				}
 
 			} else {
@@ -217,6 +229,11 @@ public class UpdateService {
 
 					InsertionDao.insertData(applicationModelName, subjectClass.getName(), insertValidationRes);
 
+					double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+					SuccessfullInsertionModel successModel = new SuccessfullInsertionModel(subjectClass.getName(),
+							timeTaken);
+					return successModel.getResponseJson();
+
 				} else {
 					throw new InvalidUpdateRequestBodyException("Invalid Update Request Body."
 							+ " The Request body must contains an update or insert fields with an object"
@@ -231,7 +248,6 @@ public class UpdateService {
 			return ex.getExceptionHashTable(timeTaken);
 		}
 
-		return null;
 	}
 
 	public static void main(String[] args) {
@@ -255,24 +271,24 @@ public class UpdateService {
 
 		htbUpdatePart.put("age", "28");
 
-		htbUpdatePart.put("userName", "KarimsElzeeny");
+		htbUpdatePart.put("userName", "KarimElzeeny");
 
 		LinkedHashMap<String, Object> htbMbox = new LinkedHashMap<>();
-		htbMbox.put("newValue", "karim.mohamed@gmail.com");
+		htbMbox.put("oldValue", "karim.mohamed@gmail.com");
 		// htbMbox.put("newValue", "hatem.el-sayed@student.guc.edu.eg");
-		htbMbox.put("oldValue", "kimoElzoz@gmail.com");
+		htbMbox.put("newValue", "kimoElzoz@gmail.com");
 
 		htbUpdatePart.put("mbox", htbMbox);
 
 		LinkedHashMap<String, Object> htblloves = new LinkedHashMap<>();
-		htblloves.put("newValue", "OmarTag");
-		htblloves.put("oldValue", "HatemElsayed");
+		htblloves.put("oldValue", "OmarTag");
+		htblloves.put("newValue", "HatemElsayed");
 
 		htbUpdatePart.put("loves", htblloves);
 		htbUpdatePart.put("title", "MR");
 
 		LinkedHashMap<String, Object> htbInsertPart = new LinkedHashMap<>();
-		htblRequestBody.put("insert", htbInsertPart);
+//		htblRequestBody.put("insert", htbInsertPart);
 
 		// htbInsertPart.put("userName", "HatemMorgan");
 		htbInsertPart.put("topic_interest", "Sales");
@@ -288,7 +304,7 @@ public class UpdateService {
 		htblKnows.put("hates", "HatemElsayed");
 		htblKnows.put("job", "Accounter");
 
-		 htbInsertPart.put("knows", htblKnows);
+		htbInsertPart.put("knows", htblKnows);
 
 		System.out.println(htblRequestBody);
 
@@ -304,7 +320,7 @@ public class UpdateService {
 		UpdateService updateService = new UpdateService(dynamicOntologyDao, applicationDao, insertRequestValidation,
 				updateRequestValidation, updateDao, insertionDao);
 
-		updateService.update("test application", "developer", "KimoElzeeny", htblRequestBody);
+		updateService.update("test application", "developer", "KarimsElzeeny", htblRequestBody);
 
 	}
 
