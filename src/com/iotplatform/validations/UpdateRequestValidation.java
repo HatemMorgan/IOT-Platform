@@ -210,7 +210,7 @@ public class UpdateRequestValidation {
 				 */
 				Property property = subjectClass.getProperties().get(field);
 
-				validateUpdateRequestFieldValue(subjectClass, property, fieldValue, validationResult, classValueList,
+				validateUpdateRequestFieldValue(property, fieldValue, validationResult, classValueList,
 						htblUniquePropValueList, htbNotMappedFieldsClasses, notMappedFieldsList, applicationModelName);
 
 				/*
@@ -316,7 +316,7 @@ public class UpdateRequestValidation {
 	 *            applicationModel that stores its data
 	 * 
 	 */
-	private void validateUpdateRequestFieldValue(Class subjectClass, Property property, Object fieldValue,
+	private void validateUpdateRequestFieldValue(Property property, Object fieldValue,
 			ArrayList<UpdatePropertyValueUtility> validationResult, ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
@@ -338,9 +338,9 @@ public class UpdateRequestValidation {
 				 * call validateMultiValuedPropertyField method to validate the
 				 * valueObject
 				 */
-				validateMultiValuedObjectPropertyField(valueObject, subjectClass, property, fieldValue,
-						validationResult, classValueList, htblUniquePropValueList, htbNotMappedFieldsClasses,
-						notMappedFieldsList, applicationModelName);
+				validateMultiValuedObjectPropertyField(valueObject, property, fieldValue, validationResult,
+						classValueList, htblUniquePropValueList, htbNotMappedFieldsClasses, notMappedFieldsList,
+						applicationModelName);
 
 			} else {
 
@@ -348,9 +348,9 @@ public class UpdateRequestValidation {
 				 * property is not multiValued so the expected fieldValue is to
 				 * be string which represents the new value for this property
 				 */
-				validateSingleValuedObjectPropertyField(fieldValue, subjectClass, property, fieldValue,
-						validationResult, classValueList, htblUniquePropValueList, htbNotMappedFieldsClasses,
-						notMappedFieldsList, applicationModelName);
+				validateSingleValuedObjectPropertyField(fieldValue, property, fieldValue, validationResult,
+						classValueList, htblUniquePropValueList, htbNotMappedFieldsClasses, notMappedFieldsList,
+						applicationModelName);
 
 			}
 
@@ -374,9 +374,8 @@ public class UpdateRequestValidation {
 				 * call validateMultiValuedPropertyField method to validate the
 				 * valueObject
 				 */
-				validateMultiValuedDataTypePropertyField(valueObject, subjectClass, property, fieldValue,
-						validationResult, classValueList, htblUniquePropValueList, htbNotMappedFieldsClasses,
-						notMappedFieldsList, applicationModelName);
+				validateMultiValuedDataTypePropertyField(valueObject, property, fieldValue, validationResult,
+						classValueList, htblUniquePropValueList, applicationModelName);
 
 			} else {
 
@@ -384,9 +383,8 @@ public class UpdateRequestValidation {
 				 * property is not multiValued so the expected fieldValue is to
 				 * be string which represents the new value for this property
 				 */
-				validateSingleValuedDataTypePropertyField(fieldValue, subjectClass, property, fieldValue,
-						validationResult, classValueList, htblUniquePropValueList, htbNotMappedFieldsClasses,
-						notMappedFieldsList, applicationModelName);
+				validateSingleValuedDataTypePropertyField(fieldValue, property, fieldValue, validationResult,
+						classValueList, htblUniquePropValueList, applicationModelName);
 
 			}
 
@@ -461,8 +459,8 @@ public class UpdateRequestValidation {
 					 * call validateUpdateRequestFieldValue to validate the
 					 * value of notMappedField
 					 */
-					validateUpdateRequestFieldValue(subjectClass, property, htblRequestBody.get(notMappedField),
-							validationResult, classValueList, htblUniquePropValueList, htblNewNotMappedFieldsClasses,
+					validateUpdateRequestFieldValue(property, htblRequestBody.get(notMappedField), validationResult,
+							classValueList, htblUniquePropValueList, htblNewNotMappedFieldsClasses,
 							newNotMappedFieldsList, applicationModelName);
 
 				}
@@ -501,9 +499,8 @@ public class UpdateRequestValidation {
 	 * @param notMappedFieldsList
 	 * @param applicationModelName
 	 */
-	private void validateSingleValuedObjectPropertyField(Object value, Class subjectClass, Property property,
-			Object fieldValue, ArrayList<UpdatePropertyValueUtility> validationResult,
-			ArrayList<ValueOfTypeClassUtility> classValueList,
+	private void validateSingleValuedObjectPropertyField(Object value, Property property, Object fieldValue,
+			ArrayList<UpdatePropertyValueUtility> validationResult, ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
 			String applicationModelName) {
@@ -515,9 +512,10 @@ public class UpdateRequestValidation {
 							+ "you must supply the oldValue that will be updated " + "and the new value.");
 		}
 
-		if (!(value instanceof String))
+		if (!((value instanceof String) || (value instanceof Integer) || (value instanceof Float)
+				|| (value instanceof Double) || (value instanceof Boolean)))
 			throw new InvalidUpdateRequestBodyException("Field with name: " + property.getName()
-					+ " has invalid value format because its value must be String holding "
+					+ " has invalid value format because its value must be a string holding "
 					+ "the new value that reference an existing object ");
 
 		/*
@@ -536,8 +534,8 @@ public class UpdateRequestValidation {
 		 * an object value reference) is a valid exist object in the model of
 		 * the requested application )
 		 */
-		Class objectPropertyRangeClass = getPropertyObject(property, subjectClass, htbNotMappedFieldsClasses,
-				notMappedFieldsList, fieldValue, applicationModelName);
+		Class objectPropertyRangeClass = getPropertyObject(property, htbNotMappedFieldsClasses, notMappedFieldsList,
+				fieldValue, applicationModelName);
 
 		/*
 		 * check that notMappedFieldsList is not null (it will be null if the
@@ -589,8 +587,8 @@ public class UpdateRequestValidation {
 	 * @param notMappedFieldsList
 	 * @param applicationModelName
 	 */
-	private void validateMultiValuedObjectPropertyField(LinkedHashMap<String, Object> valueObject, Class subjectClass,
-			Property property, Object fieldValue, ArrayList<UpdatePropertyValueUtility> validationResult,
+	private void validateMultiValuedObjectPropertyField(LinkedHashMap<String, Object> valueObject, Property property,
+			Object fieldValue, ArrayList<UpdatePropertyValueUtility> validationResult,
 			ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
@@ -610,8 +608,15 @@ public class UpdateRequestValidation {
 		 * and newValue)
 		 */
 		if (!(valueObject.size() == 2 && valueObject.containsKey("oldValue")
-				&& valueObject.get("oldValue") instanceof String && valueObject.containsKey("newValue")
-				&& valueObject.get("newValue") instanceof String)) {
+				&& ((valueObject.get("oldValue") instanceof String) || (valueObject.get("oldValue") instanceof Integer)
+						|| (valueObject.get("oldValue") instanceof Float)
+						|| (valueObject.get("oldValue") instanceof Double)
+						|| (valueObject.get("oldValue") instanceof Boolean))
+				&& valueObject.containsKey("newValue")
+				&& ((valueObject.get("newValue") instanceof String) || (valueObject.get("newValue") instanceof Integer)
+						|| (valueObject.get("newValue") instanceof Float)
+						|| (valueObject.get("newValue") instanceof Double)
+						|| (valueObject.get("newValue") instanceof Boolean)))) {
 
 			throw new InvalidUpdateRequestBodyException(
 					" Field with name: " + property.getName() + " has invalid value format because this field maps "
@@ -632,8 +637,8 @@ public class UpdateRequestValidation {
 		 * an object value reference) is a valid exist object in the model of
 		 * the requested application )
 		 */
-		Class objectPropertyRangeClass = getPropertyObject(property, subjectClass, htbNotMappedFieldsClasses,
-				notMappedFieldsList, fieldValue, applicationModelName);
+		Class objectPropertyRangeClass = getPropertyObject(property, htbNotMappedFieldsClasses, notMappedFieldsList,
+				fieldValue, applicationModelName);
 
 		/*
 		 * check that notMappedFieldsList is not null (it will be null if the
@@ -683,11 +688,10 @@ public class UpdateRequestValidation {
 	 * @param notMappedFieldsList
 	 * @param applicationModelName
 	 */
-	private void validateSingleValuedDataTypePropertyField(Object value, Class subjectClass, Property property,
-			Object fieldValue, ArrayList<UpdatePropertyValueUtility> validationResult,
-			ArrayList<ValueOfTypeClassUtility> classValueList,
+	private void validateSingleValuedDataTypePropertyField(Object value, Property property, Object fieldValue,
+			ArrayList<UpdatePropertyValueUtility> validationResult, ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
-			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
+
 			String applicationModelName) {
 
 		if (property.isMulitpleValues()) {
@@ -700,7 +704,7 @@ public class UpdateRequestValidation {
 		if (!((value instanceof String) || (value instanceof Integer) || (value instanceof Float)
 				|| (value instanceof Double) || (value instanceof Boolean)))
 			throw new InvalidUpdateRequestBodyException("Field with name: " + property.getName()
-					+ " has invalid value format because its value must be String holding "
+					+ " has invalid value format because its value must be the propertyDataType value holding "
 					+ "the new value that reference an existing object ");
 
 		/*
@@ -752,11 +756,10 @@ public class UpdateRequestValidation {
 	 * @param notMappedFieldsList
 	 * @param applicationModelName
 	 */
-	private void validateMultiValuedDataTypePropertyField(LinkedHashMap<String, Object> valueObject, Class subjectClass,
-			Property property, Object fieldValue, ArrayList<UpdatePropertyValueUtility> validationResult,
+	private void validateMultiValuedDataTypePropertyField(LinkedHashMap<String, Object> valueObject, Property property,
+			Object fieldValue, ArrayList<UpdatePropertyValueUtility> validationResult,
 			ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
-			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
 			String applicationModelName) {
 		/*
 		 * check that the valueObject is not empty
@@ -773,8 +776,15 @@ public class UpdateRequestValidation {
 		 * and newValue)
 		 */
 		if (!(valueObject.size() == 2 && valueObject.containsKey("oldValue")
-				&& valueObject.get("oldValue") instanceof String && valueObject.containsKey("newValue")
-				&& valueObject.get("newValue") instanceof String)) {
+				&& ((valueObject.get("oldValue") instanceof String) || (valueObject.get("oldValue") instanceof Integer)
+						|| (valueObject.get("oldValue") instanceof Float)
+						|| (valueObject.get("oldValue") instanceof Double)
+						|| (valueObject.get("oldValue") instanceof Boolean))
+				&& valueObject.containsKey("newValue")
+				&& ((valueObject.get("newValue") instanceof String) || (valueObject.get("newValue") instanceof Integer)
+						|| (valueObject.get("newValue") instanceof Float)
+						|| (valueObject.get("newValue") instanceof Double)
+						|| (valueObject.get("newValue") instanceof Boolean)))) {
 
 			throw new InvalidUpdateRequestBodyException(
 					" Field with name: " + property.getName() + " has invalid value format because this field maps "
@@ -823,9 +833,8 @@ public class UpdateRequestValidation {
 	 * @param applicationModelName
 	 * @return
 	 */
-	private Class getPropertyObject(Property property, Class subjectClass,
-			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldList,
-			Object fieldValue, String applicationModelName) {
+	private Class getPropertyObject(Property property, Hashtable<String, String> htbNotMappedFieldsClasses,
+			ArrayList<String> notMappedFieldList, Object fieldValue, String applicationModelName) {
 		/*
 		 * get property range objectClass if it is an objectProperty
 		 */

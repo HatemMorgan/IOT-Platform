@@ -84,8 +84,7 @@ public class UpdateService {
 							.containsKey(className))) {
 				subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
 						.get(className);
-				System.out
-						.println("hereee---> " + subjectClass.getClassTypesList() + "  " + subjectClass.getProperties());
+
 			} else {
 
 				/*
