@@ -2,6 +2,7 @@ package com.iotplatform.validations;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.iotplatform.daos.DynamicOntologyDao;
+import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidDeleteRequestBodyException;
 import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.ontology.Class;
@@ -18,7 +20,10 @@ import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
+import com.iotplatform.ontology.mapers.OntologyMapper;
 import com.iotplatform.utilities.DeletePropertyValueUtility;
+
+import oracle.spatial.rdf.client.jena.Oracle;
 
 /**
  * DeleteRequestValidation is used to validate delete request body by :
@@ -109,62 +114,80 @@ public class DeleteRequestValidation {
 			 */
 
 			for (Object deleteField : deleteFieldsList) {
-
-				if (deleteField instanceof String) {
-
-					String field = deleteField.toString();
-					/*
-					 * get fieldValue
-					 */
-					Object fieldValue = htblRequestBody.get(field);
-
-					if (isFieldMapsToProperty(subjectClass, field, fieldValue, htblNotMappedFields,
-							htbNotMappedFieldsClasses)) {
-
-						/*
-						 * get property with name = field
-						 */
-						Property property = subjectClass.getProperties().get(field);
-
-						if (property.isMulitpleValues()) {
-							throw new InvalidDeleteRequestBodyException("Invalid field " + "with name: " + field
-									+ ". This " + "field maps to a property that has multiple"
-									+ " values so you must specify which value to delete. "
-									+ "See documentation for more details on how to use deleteAPI");
-						} else {
-
-							/*
-							 * create a new UpdatePropertyValueUtility to hold
-							 * parsed value
-							 */
-							DeletePropertyValueUtility deletePropertyValue = new DeletePropertyValueUtility(
-									property.getPrefix().getPrefix() + property.getName());
-							deletePropValueList.add(deletePropertyValue);
-
-						}
-
-					}
-				} else {
-
-					if (deleteField instanceof LinkedHashMap<?, ?>) {
-
-						LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) deleteField;
-
-						validateDeleteListObjectField(valueObject, subjectClass, deletePropValueList,
-								htbNotMappedFieldsClasses, htblNotMappedFields, applicationModelName);
-					} else {
-
-						throw new InvalidDeleteRequestBodyException("The delete field list must have either "
-								+ "1- A string value that maps to a valid property that has "
-								+ "a single value . 2- An object value that has fieldName "
-								+ "key (obligatory) where its value maps to a valid multiValued property and value key (optional) where its value maps to an existing value that needs to be deleted");
-					}
-
-				}
-
+				validateDeleteRequestField(deleteField, subjectClass, deletePropValueList, htbNotMappedFieldsClasses,
+						htblNotMappedFields);
 			}
+
+			/*
+			 * revalidates notMappedProperty by loading needed dynamic
+			 * properties and/or class
+			 */
+			reValidateNotMappedFields(subjectClass, deletePropValueList, htbNotMappedFieldsClasses, htblNotMappedFields,
+					applicationModelName, htblRequestBody);
+
 		}
 		return deletePropValueList;
+
+	}
+
+	private void validateDeleteRequestField(Object deleteField, Class subjectClass,
+			ArrayList<DeletePropertyValueUtility> deletePropValueList,
+			Hashtable<String, String> htbNotMappedFieldsClasses, Hashtable<String, Object> htblNotMappedFields) {
+
+		if (deleteField instanceof String) {
+			validateDeleteStringField(deleteField.toString(), subjectClass, deletePropValueList,
+					htbNotMappedFieldsClasses, htblNotMappedFields);
+		} else {
+
+			if (deleteField instanceof LinkedHashMap<?, ?>) {
+
+				LinkedHashMap<String, Object> valueObject = (LinkedHashMap<String, Object>) deleteField;
+
+				validateDeleteListObjectField(valueObject, subjectClass, deletePropValueList, htbNotMappedFieldsClasses,
+						htblNotMappedFields);
+			} else {
+
+				throw new InvalidDeleteRequestBodyException("The delete field list must have either "
+						+ "1- A string value that maps to a valid property that has "
+						+ "a single value . 2- An object value that has fieldName "
+						+ "key (obligatory) where its value maps to a valid multiValued property and value key (optional) where its value maps to an existing value that needs to be deleted");
+			}
+
+		}
+
+	}
+
+	private void validateDeleteStringField(String field, Class subjectClass,
+			ArrayList<DeletePropertyValueUtility> deletePropValueList,
+			Hashtable<String, String> htbNotMappedFieldsClasses, Hashtable<String, Object> htblNotMappedFields) {
+
+		/*
+		 * check if field maps to a valid property
+		 */
+		if (isFieldMapsToProperty(subjectClass, field, null, htblNotMappedFields, htbNotMappedFieldsClasses)) {
+
+			/*
+			 * get property with name = field
+			 */
+			Property property = subjectClass.getProperties().get(field);
+
+			if (property.isMulitpleValues()) {
+				throw new InvalidDeleteRequestBodyException("Invalid field " + "with name: " + field + ". This "
+						+ "field maps to a property that has multiple"
+						+ " values so you must specify which value to delete. "
+						+ "See documentation for more details on how to use deleteAPI");
+			} else {
+
+				/*
+				 * create a new UpdatePropertyValueUtility to hold parsed value
+				 */
+				DeletePropertyValueUtility deletePropertyValue = new DeletePropertyValueUtility(
+						property.getPrefix().getPrefix() + property.getName());
+				deletePropValueList.add(deletePropertyValue);
+
+			}
+
+		}
 
 	}
 
@@ -194,8 +217,7 @@ public class DeleteRequestValidation {
 	 */
 	private void validateDeleteListObjectField(LinkedHashMap<String, Object> valueObject, Class subjectClass,
 			ArrayList<DeletePropertyValueUtility> deletePropValueList,
-			Hashtable<String, String> htbNotMappedFieldsClasses, Hashtable<String, Object> htblNotMappedFields,
-			String applicationModelName) {
+			Hashtable<String, String> htbNotMappedFieldsClasses, Hashtable<String, Object> htblNotMappedFields) {
 		/*
 		 * check that the valueObject is not empty
 		 */
@@ -257,15 +279,17 @@ public class DeleteRequestValidation {
 				 * check if valueToBeDeleted has a valid dataType based on the
 				 * property type
 				 */
-				if (!(property instanceof ObjectProperty && valueToBeDeleted instanceof String))
+				if (property instanceof ObjectProperty && !(valueToBeDeleted instanceof String))
+
 					throw new InvalidDeleteRequestBodyException("The fieldName : " + field
 							+ " maps to an objectProperty where its value is a reference to another object node. So the value must be of type String ");
 
-				if (!(property instanceof DataTypeProperty
-						&& isDataValueValid((DataTypeProperty) property, valueToBeDeleted)))
+				if (property instanceof DataTypeProperty
+						&& !isDataValueValid((DataTypeProperty) property, valueToBeDeleted)) {
 					throw new InvalidDeleteRequestBodyException("The fieldName : " + field
 							+ " maps to DataTypeProperty where its value must have a valid dataType which is : "
 							+ ((DataTypeProperty) property).getDataType().getDataType());
+				}
 
 				DeletePropertyValueUtility deletePropertyValue = new DeletePropertyValueUtility(
 						property.getPrefix().getPrefix() + property.getName(), true, valueToBeDeleted);
@@ -298,7 +322,7 @@ public class DeleteRequestValidation {
 	 */
 	private void reValidateNotMappedFields(Class subjectClass,
 			ArrayList<DeletePropertyValueUtility> deletePropValueList,
-			Hashtable<String, String> htbNotMappedFieldsClasses, ArrayList<String> notMappedFieldsList,
+			Hashtable<String, String> htbNotMappedFieldsClasses, Hashtable<String, Object> htblNotMappedFields,
 			String applicationModelName, LinkedHashMap<String, Object> htblRequestBody) {
 
 		/*
@@ -306,7 +330,7 @@ public class DeleteRequestValidation {
 		 * to be loaded. by checking that the notMappedFieldsClassesList has
 		 * classNames and notMappedFieldsList has notMappedFieldsName
 		 */
-		if (htbNotMappedFieldsClasses.size() > 0 && notMappedFieldsList.size() > 0) {
+		if (htbNotMappedFieldsClasses.size() > 0 && htblNotMappedFields.size() > 0) {
 
 			/*
 			 * load dynamic properties and/or classes
@@ -318,12 +342,15 @@ public class DeleteRequestValidation {
 			 * construct new data structures to hold new unmapped fields
 			 */
 			Hashtable<String, String> htblNewNotMappedFieldsClasses = new Hashtable<>();
-			ArrayList<String> newNotMappedFieldsList = new ArrayList<>();
+			Hashtable<String, Object> htblNewNotMappedFields = new Hashtable<>();
 
 			/*
-			 * iterating over notMappedFieldsList
+			 * iterating over htblNotMappedFields
 			 */
-			for (String notMappedField : notMappedFieldsList) {
+			Iterator<String> htblNotMappedFieldsIter = htblNotMappedFields.keySet().iterator();
+			while (htblNotMappedFieldsIter.hasNext()) {
+				String notMappedFieldName = htblNotMappedFieldsIter.next();
+				Object notMappedFieldVal = htblNotMappedFields.get(notMappedFieldName);
 
 				/*
 				 * After loading dynamic Properties, I am caching all the loaded
@@ -337,9 +364,9 @@ public class DeleteRequestValidation {
 								.containsKey(subjectClass.getName().toLowerCase())
 						&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
 								.get(subjectClass.getName().toLowerCase()).getProperties()
-								.containsKey(notMappedField))) {
+								.containsKey(notMappedFieldName))) {
 
-					throw new InvalidRequestFieldsException("Delete API", notMappedField);
+					throw new InvalidRequestFieldsException("Delete API", notMappedFieldName);
 
 				} else {
 
@@ -352,15 +379,8 @@ public class DeleteRequestValidation {
 					subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
 							.get(subjectClass.getName().toLowerCase());
 
-					/*
-					 * get dynamic property that is the mapping of
-					 * notMappedField
-					 */
-					Property property = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
-							.get(applicationModelName).get(subjectClass.getName().toLowerCase()).getProperties()
-							.get(notMappedField);
-
-					validateDeleteRequest(applicationModelName, htblRequestBody, subjectClass);
+					validateDeleteRequestField(notMappedFieldVal, subjectClass, deletePropValueList,
+							htblNewNotMappedFieldsClasses, htblNewNotMappedFields);
 
 				}
 
@@ -371,10 +391,10 @@ public class DeleteRequestValidation {
 			 * properties and/or classes from dynamic ontology of the requested
 			 * application
 			 */
-			if (newNotMappedFieldsList.size() > 0 && htblNewNotMappedFieldsClasses.size() > 0) {
+			if (htblNewNotMappedFields.size() > 0 && htblNewNotMappedFieldsClasses.size() > 0) {
 
 				reValidateNotMappedFields(subjectClass, deletePropValueList, htblNewNotMappedFieldsClasses,
-						newNotMappedFieldsList, applicationModelName, htblRequestBody);
+						htblNewNotMappedFields, applicationModelName, htblRequestBody);
 			}
 		}
 
@@ -450,8 +470,15 @@ public class DeleteRequestValidation {
 			 * field does not map to a valid property so I will add it to
 			 * notMappedFieldsList to be checked again after loading dynamic
 			 * properteis of subjectClass
+			 * 
+			 * the value will be null if the field was single value
 			 */
-			htblNotMappedFields.put(field, value);
+
+			if (value == null) {
+				htblNotMappedFields.put(field, field);
+			} else {
+				htblNotMappedFields.put(field, value);
+			}
 
 			/*
 			 * add className to htbNotMappedFieldsClasses
@@ -531,4 +558,41 @@ public class DeleteRequestValidation {
 
 	}
 
+	public static void main(String[] args) {
+
+		LinkedHashMap<String, Object> htbRequestBody = new LinkedHashMap<>();
+		ArrayList<Object> deleteList = new ArrayList<>();
+		htbRequestBody.put("delete", deleteList);
+
+		deleteList.add("firstName");
+		deleteList.add("title");
+		deleteList.add("job");
+
+		LinkedHashMap<String, Object> htblMbox = new LinkedHashMap<>();
+		htblMbox.put("fieldName", "mbox");
+		htblMbox.put("value", "hatemmorgan17@gmail.com");
+		deleteList.add(htblMbox);
+
+		LinkedHashMap<String, Object> htblHates = new LinkedHashMap<>();
+		htblHates.put("fieldName", "hates");
+		htblHates.put("value", "HatemMorgan");
+		deleteList.add(htblHates);
+
+		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
+		String szUser = "rdfusr";
+		String szPasswd = "rdfusr";
+
+		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
+
+		DynamicOntologyDao dynamicOntologyDao = new DynamicOntologyDao(oracle);
+
+		DeleteRequestValidation deleteRequestValidation = new DeleteRequestValidation(dynamicOntologyDao);
+
+		try {
+			System.out.println(deleteRequestValidation.validateDeleteRequest("TESTAPPLICATION_MODEL", htbRequestBody,
+					OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("developer")));
+		} catch (ErrorObjException e) {
+			System.out.println(e.getExceptionMessage());
+		}
+	}
 }

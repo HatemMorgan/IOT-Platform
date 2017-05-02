@@ -588,8 +588,7 @@ public class DynamicOntologyDao {
 
 			try {
 				newClass = (Class) mainOntologyClass.clone();
-				System.out.println(
-						newClass.getName() + "  " + newClass.getClassTypesList() + "  " + newClass.getProperties());
+
 			} catch (CloneNotSupportedException e) {
 
 				e.printStackTrace();
