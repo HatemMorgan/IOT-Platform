@@ -66,7 +66,8 @@ public class UpdateDao {
 			 * checking updateRequestValidationResult;s boolean flag
 			 * isRequestUpdatesUniqueIdentifierValue
 			 */
-			if (updateRequestValidationResult.isRequestUpdatesUniqueIdentifierValue()) {
+			if (updateRequestValidationResult != null
+					&& updateRequestValidationResult.isRequestUpdatesUniqueIdentifierValue()) {
 				/*
 				 * get newUniqueIdentifierValue which is stored in
 				 * updateRequestValidationResult
@@ -94,9 +95,15 @@ public class UpdateDao {
 
 			}
 
-			String updateQuery = UpdateQuery.constructUpdateQuery(subjectClass, uniqueIdentifier,
-					updateRequestValidationResult.getValidationResult(), htblClassInsertionPropertyValue,
-					applicationModelName);
+			String updateQuery;
+			if (updateRequestValidationResult != null) {
+				updateQuery = UpdateQuery.constructUpdateQuery(subjectClass, uniqueIdentifier,
+						updateRequestValidationResult.getValidationResult(), htblClassInsertionPropertyValue,
+						applicationModelName);
+			} else {
+				updateQuery = UpdateQuery.constructUpdateQuery(subjectClass, uniqueIdentifier, null,
+						htblClassInsertionPropertyValue, applicationModelName);
+			}
 
 			System.out.println(updateQuery);
 

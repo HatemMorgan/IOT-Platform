@@ -17,6 +17,7 @@ import com.iotplatform.exceptions.InvalidRequestFieldsException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
+import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.XSDDatatype;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
@@ -162,6 +163,26 @@ public class DeleteRequestValidation {
 			Hashtable<String, String> htbNotMappedFieldsClasses, Hashtable<String, Object> htblNotMappedFields) {
 
 		/*
+		 * check if the field = to uniqueIdentifierProperty in order to throw an
+		 * error.Because user cannot delete the uniqueIdentifier value
+		 */
+		if (subjectClass.isHasUniqueIdentifierProperty()) {
+			if (subjectClass.getUniqueIdentifierPropertyName().equals(field))
+				throw new InvalidDeleteRequestBodyException("You cannot delete the value of field: " + field
+						+ " because it maps to the unique identifier property. "
+						+ "You are able only to change its value or change the unique"
+						+ " identifier property of the class type of this individual ");
+		} else {
+
+			if (subjectClass.getUniqueIdentifierPropertyName().equals("id"))
+				throw new InvalidDeleteRequestBodyException("You cannot delete the value of field: " + field
+						+ " because it maps to the unique identifier property. "
+						+ "You are able only to change its value or change the unique"
+						+ " identifier property of the class type of this individual ");
+
+		}
+
+		/*
 		 * check if field maps to a valid property
 		 */
 		if (isFieldMapsToProperty(subjectClass, field, null, htblNotMappedFields, htbNotMappedFieldsClasses)) {
@@ -292,7 +313,8 @@ public class DeleteRequestValidation {
 				}
 
 				DeletePropertyValueUtility deletePropertyValue = new DeletePropertyValueUtility(
-						property.getPrefix().getPrefix() + property.getName(), true, valueToBeDeleted);
+						property.getPrefix().getPrefix() + property.getName(), true,
+						getValue(property, valueToBeDeleted));
 
 				deletePropValueList.add(deletePropertyValue);
 
@@ -556,6 +578,17 @@ public class DeleteRequestValidation {
 			return false;
 		}
 
+	}
+
+	private Object getValue(Property property, Object value) {
+
+		if (property instanceof DataTypeProperty) {
+			XSDDatatype xsdDataType = ((DataTypeProperty) property).getDataType();
+			value = "\"" + value.toString() + "\"" + xsdDataType.getXsdType();
+			return value;
+		} else {
+			return Prefix.IOT_PLATFORM.getPrefix() + value.toString().toLowerCase().replaceAll(" ", "");
+		}
 	}
 
 	public static void main(String[] args) {

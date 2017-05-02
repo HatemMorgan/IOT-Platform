@@ -389,7 +389,7 @@ public class UpdateQuery {
 	private static void constructInsertTriplesForRequestIndividual(Class subjectClass,
 			ArrayList<InsertionPropertyValue> instancePropertyValueList, StringBuilder deleteClauseBuilder,
 			StringBuilder insertClauseBuilder, StringBuilder whereClauseBuilder, int[] varNum) {
-
+		System.out.println("here");
 		/*
 		 * iterate over instancePropertyValueList
 		 */

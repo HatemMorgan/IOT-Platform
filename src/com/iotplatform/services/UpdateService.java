@@ -224,11 +224,13 @@ public class UpdateService {
 					 * check that the insert part is valid
 					 */
 					Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> insertValidationRes = insertRequestValidation
-							.validateRequestFields(htblInsertRequestBody, subjectClass, applicationModelName);
+							.validateRequestFields(htblInsertRequestBody, subjectClass, applicationModelName,
+									new LinkedHashMap<>(), new ArrayList<>());
 
 					System.out.println(insertValidationRes);
 
-					InsertionDao.insertData(applicationModelName, subjectClass.getName(), insertValidationRes);
+					updateDao.updateData(applicationModelName, subjectClass, individualUniqueIdentifier, null,
+							insertValidationRes);
 
 					double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 					SuccessfullInsertionModel successModel = new SuccessfullInsertionModel(subjectClass.getName(),
@@ -268,7 +270,7 @@ public class UpdateService {
 		LinkedHashMap<String, Object> htblRequestBody = new LinkedHashMap<>();
 
 		LinkedHashMap<String, Object> htbUpdatePart = new LinkedHashMap<>();
-		htblRequestBody.put("update", htbUpdatePart);
+		// htblRequestBody.put("update", htbUpdatePart);
 
 		htbUpdatePart.put("age", 28);
 
@@ -289,23 +291,24 @@ public class UpdateService {
 		htbUpdatePart.put("title", "MR");
 
 		LinkedHashMap<String, Object> htbInsertPart = new LinkedHashMap<>();
-		// htblRequestBody.put("insert", htbInsertPart);
+		htblRequestBody.put("insert", htbInsertPart);
 
+		htbInsertPart.put("knows", "KhaledElzeeny");
 		// htbInsertPart.put("userName", "HatemMorgan");
-		htbInsertPart.put("topic_interest", "Sales");
-		htbInsertPart.put("gender", "Male");
-		htbInsertPart.put("job", "Sales Man");
-
-		LinkedHashMap<String, Object> htblKnows = new LinkedHashMap<>();
-		htblKnows.put("type", "Developer");
-		htblKnows.put("userName", "EL3ankboots");
-		htblKnows.put("firstName", "Gamal");
-		htblKnows.put("middleName", "Mostafa");
-		htblKnows.put("age", 22);
-		htblKnows.put("hates", "HatemElsayed");
-		htblKnows.put("job", "Accounter");
-
-		htbInsertPart.put("knows", htblKnows);
+		// htbInsertPart.put("topic_interest", "Sales");
+		// htbInsertPart.put("gender", "Male");
+		// htbInsertPart.put("job", "Sales Man");
+		
+		 LinkedHashMap<String, Object> htblKnows = new LinkedHashMap<>();
+		 htblKnows.put("type", "Developer");
+		 htblKnows.put("userName", "EL3ankboots");
+		 htblKnows.put("firstName", "Gamal");
+		 htblKnows.put("middleName", "Mostafa");
+		 htblKnows.put("age", 22);
+//		 htblKnows.put("hates", "HatemElsayed");
+		 htblKnows.put("job", "Accounter");
+		
+		 htbInsertPart.put("knows", htblKnows);
 
 		System.out.println(htblRequestBody);
 

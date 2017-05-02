@@ -217,16 +217,30 @@ public class UpdateRequestValidation {
 				 * check if the property is the uniqueIdentifier of the
 				 * subjectClass
 				 */
-				if (subjectClass.isHasUniqueIdentifierProperty()
-						&& subjectClass.getUniqueIdentifierPropertyName().equals(property.getName())) {
+				if (subjectClass.isHasUniqueIdentifierProperty()) {
+					if (subjectClass.getUniqueIdentifierPropertyName().equals(property.getName())) {
 
-					/*
-					 * set NewUniqueIdentifierValue to the fieldValue in order
-					 * to be used by the updateDao to update the
-					 * uniqueIdentifier (subject) of the individual being
-					 * updated
-					 */
-					updateRequestValidationResult.setNewUniqueIdentifierValue(fieldValue);
+						/*
+						 * set NewUniqueIdentifierValue to the fieldValue in
+						 * order to be used by the updateDao to update the
+						 * uniqueIdentifier (subject) of the individual being
+						 * updated
+						 */
+						updateRequestValidationResult.setNewUniqueIdentifierValue(fieldValue);
+					}
+				} else {
+
+					if (property.getName().equals("id")) {
+
+						/*
+						 * set NewUniqueIdentifierValue to the fieldValue in
+						 * order to be used by the updateDao to update the
+						 * uniqueIdentifier (subject) of the individual being
+						 * updated
+						 */
+						updateRequestValidationResult.setNewUniqueIdentifierValue(fieldValue);
+					}
+
 				}
 
 			}
