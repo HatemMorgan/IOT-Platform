@@ -11,11 +11,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.iotplatform.cache.QueryCache;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.queries.SelectionQuery;
 import com.iotplatform.query.results.SelectionQueryResults;
-import com.iotplatform.utilities.QueryField;
-import com.iotplatform.utilities.QueryVariable;
+import com.iotplatform.utilities.QueryCachedObjectUtility;
+import com.iotplatform.utilities.QueryFieldUtility;
+import com.iotplatform.utilities.QueryRequestValidationResultUtility;
+import com.iotplatform.utilities.QueryVariableUtility;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -44,8 +47,10 @@ public class SelectQueryDao {
 	 * the user
 	 */
 	public List<LinkedHashMap<String, Object>> queryData(
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			String applicationModelName,Hashtable<String, Boolean> htblOptions) {
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty,
+			String applicationModelName, Hashtable<String, Boolean> htblOptions,
+			QueryCachedObjectUtility queryCachedObject, QueryRequestValidationResultUtility validationResult,
+			String requestQueryStr) {
 
 		Iterator<String> htblClassNamePropertyIterator = htblClassNameProperty.keySet().iterator();
 
@@ -58,11 +63,23 @@ public class SelectQueryDao {
 		String prefixedClassName = htblClassNamePropertyIterator.next();
 		String mainInstanceUniqueIdentifier = htblClassNameProperty.get(prefixedClassName).keySet().iterator().next();
 
-		Object[] returnObject = SelectionQuery.constructSelectQuery(htblClassNameProperty, prefixedClassName,
-				mainInstanceUniqueIdentifier, applicationModelName,htblOptions);
+		String queryString;
+		Hashtable<String, QueryVariableUtility> htblSubjectVariables;
+		if (queryCachedObject == null) {
+			Object[] returnObject = SelectionQuery.constructSelectQuery(htblClassNameProperty, prefixedClassName,
+					mainInstanceUniqueIdentifier, applicationModelName, htblOptions);
+			queryString = returnObject[0].toString();
+			htblSubjectVariables = (Hashtable<String, QueryVariableUtility>) returnObject[1];
 
-		String queryString = returnObject[0].toString();
-		Hashtable<String, QueryVariable> htblSubjectVariables = (Hashtable<String, QueryVariable>) returnObject[1];
+			QueryCachedObjectUtility queryObject = new QueryCachedObjectUtility(returnObject, validationResult);
+			QueryCache.getHtblQueryCache().put(requestQueryStr, queryObject);
+		} else {
+			Object[] cachedQUeryObject = queryCachedObject.getSelectionQueryResult();
+			queryString = cachedQUeryObject[0].toString();
+			htblSubjectVariables = (Hashtable<String, QueryVariableUtility>) cachedQUeryObject[1];
+
+		}
+
 		System.out.println(queryString);
 		System.out.println(htblSubjectVariables);
 		try {

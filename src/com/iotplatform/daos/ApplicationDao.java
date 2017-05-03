@@ -35,7 +35,7 @@ public class ApplicationDao {
 	}
 
 	public boolean checkIfApplicationModelExsist(String applicationName) {
-
+		applicationName = applicationName.toLowerCase().replaceAll(" ", "");
 		try {
 
 			if (htblApplicationNameModelName.containsKey(applicationName)) {

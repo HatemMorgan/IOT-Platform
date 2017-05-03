@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidDynamicOntologyException;
 import com.iotplatform.ontology.Prefix;
+import com.iotplatform.ontology.XSDDatatype;
 
 /*
  * DynamicOntologyRequestValidation class is used to validate and parse dynamic ontology request body 
@@ -33,6 +34,12 @@ import com.iotplatform.ontology.Prefix;
 public class DynamicOntologyRequestValidation {
 
 	private static Hashtable<String, Prefix> htblPrefixes;
+	private static Hashtable<String, XSDDatatype> htblXSDDatatypes;
+
+	public DynamicOntologyRequestValidation() {
+		loadPrefixes();
+		loadXSDdataTypes();
+	}
 
 	/*
 	 * validateDynamicOntologyClassRequest validate requestBody of dynamic
@@ -89,7 +96,7 @@ public class DynamicOntologyRequestValidation {
 		 * get values name and prefixAlias keys
 		 */
 		String newClassName = newClassMap.get("name").toString();
-		Prefix newClassPrefix = getPrefix(newClassMap.get("prefixAlias").toString());
+		Prefix newClassPrefix = htblPrefixes.get(newClassMap.get("prefixAlias").toString());
 
 		/*
 		 * Capitalize the first character of the className in order to match
@@ -485,21 +492,183 @@ public class DynamicOntologyRequestValidation {
 	 * getPrefix is used to get Prefix enum that maps prefixAlias and it will
 	 * return null if the prefixAlias is not valid
 	 */
-	private static Prefix getPrefix(String prefixAlias) {
-		if (htblPrefixes == null) {
-			htblPrefixes = new Hashtable<>();
+	private static void loadPrefixes() {
 
-			for (Prefix prefix : Prefix.values()) {
-				htblPrefixes.put(prefix.getPrefixName(), prefix);
-			}
+		htblPrefixes = new Hashtable<>();
 
+		for (Prefix prefix : Prefix.values()) {
+			htblPrefixes.put(prefix.getPrefixName(), prefix);
 		}
 
-		if (htblPrefixes.containsKey(prefixAlias)) {
-			return htblPrefixes.get(prefixAlias);
+	}
+
+	/*
+	 * getPrefix is used to get Prefix enum that maps prefixAlias and it will
+	 * return null if the prefixAlias is not valid
+	 */
+	private static void loadXSDdataTypes() {
+
+		htblXSDDatatypes = new Hashtable<>();
+
+		for (XSDDatatype xsdDatatype : XSDDatatype.values()) {
+			htblXSDDatatypes.put(xsdDatatype.getDataType(), xsdDatatype);
+		}
+
+	}
+
+	private static boolean isPrefixValid(String prefixedName) {
+		int index = prefixedName.indexOf(":");
+		String prefix = prefixedName.substring(0, index + 1);
+
+		return (htblPrefixes.containsKey(prefix)) ? true : false;
+
+	}
+
+	/**
+	 * getXSDDataTypeEnumOfDataTypeName return XsdDataType enum instance
+	 * of @param(dataTypeName)
+	 * 
+	 * @param dataTypeName
+	 *            holds datatypeName eg. string,integer
+	 * @return
+	 */
+	private XSDDatatype getXSDDataTypeEnumOfDataTypeName(String dataTypeName) {
+
+		if (XSDDatatype.boolean_type.getDataType().equals(dataTypeName)) {
+			return XSDDatatype.boolean_type;
+		}
+
+		if (XSDDatatype.decimal_typed.getDataType().equals(dataTypeName)) {
+			return XSDDatatype.decimal_typed;
+		}
+
+		if (XSDDatatype.float_typed.getDataType().equals(dataTypeName)) {
+			return XSDDatatype.float_typed;
+		}
+
+		if (XSDDatatype.integer_typed.getDataType().equals(dataTypeName)) {
+			return XSDDatatype.integer_typed;
+		}
+
+		if (XSDDatatype.string_typed.getDataType().equals(dataTypeName)) {
+			return XSDDatatype.string_typed;
+		}
+
+		if (XSDDatatype.dateTime_typed.getDataType().equals(dataTypeName)) {
+			return XSDDatatype.dateTime_typed;
+		}
+
+		if (XSDDatatype.double_typed.getDataType().equals(dataTypeName)) {
+			return XSDDatatype.double_typed;
+		}
+
+		return null;
+	}
+
+	public static Hashtable<String, Object> validateNewClassOntologyRequest(Hashtable<String, Object> htblRequestBody) {
+
+		if (htblRequestBody.size() == 1 && htblRequestBody.containsKey("name")
+				&& htblRequestBody.get("name") instanceof String) {
+
+			return htblRequestBody;
 		} else {
-			return null;
+			throw new InvalidDynamicOntologyException("Invalid Dynamic Ontology class insertion request. "
+					+ "The request body must have only one key with value name and its "
+					+ "value is a String. ex: \"name\":\"Person\" ");
 		}
+
+	}
+
+	public static Hashtable<String, Object> validateNewObjectPropertyOntologyRequest(
+			Hashtable<String, Object> htbRequestBody) {
+
+		if (htbRequestBody.size() != 5) {
+			throw new InvalidDynamicOntologyException("Invalid Dynamic Ontology  ObjectProperty insertion request. "
+					+ "The request body must have propertyName,domainPrefixName,rangePrefixName,hasMultipleValues,isUnique ");
+		}
+
+		if (!(htbRequestBody.containsKey("propertyName") && htbRequestBody.get("propertyName") instanceof String)) {
+			throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
+					+ "The request body must have key with value propertyName and its "
+					+ "value is a String. ex: \"propertyName\":\"knows\" ");
+		}
+
+		if (!(htbRequestBody.containsKey("domainPrefixName")
+				&& htbRequestBody.get("domainPrefixName") instanceof String)
+				&& isPrefixValid(htbRequestBody.get("domainPrefixName").toString())) {
+			throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
+					+ "The request body must have key with value domainPrefixName and its "
+					+ "value is a String. ex: \"domainPrefixName\":\"foaf:Person\" ");
+		}
+
+		if (!(htbRequestBody.containsKey("rangePrefixName") && htbRequestBody.get("rangePrefixName") instanceof String)
+				&& isPrefixValid(htbRequestBody.get("rangePrefixName").toString())) {
+			throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
+					+ "The request body must have key with value rangePrefixName and its "
+					+ "value is a String. ex: \"rangePrefixName\":\"foaf:Person\" ");
+		}
+
+		if (!(htbRequestBody.containsKey("hasMultipleValues")
+				&& htbRequestBody.get("hasMultipleValues") instanceof Boolean)) {
+			throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
+					+ "The request body must have key with value hasMultipleValues and its "
+					+ "value is a boolean. ex: \"hasMultipleValues\": true ");
+		}
+
+		if (!(htbRequestBody.containsKey("isUnique") && htbRequestBody.get("isUnique") instanceof Boolean)) {
+			throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
+					+ "The request body must have key with value isUnique and its "
+					+ "value is a boolean. ex: \"isUnique\": false ");
+		}
+
+		return htbRequestBody;
+
+	}
+
+	public static Hashtable<String, Object> validateNewDataTypPropertyOntologyRequest(
+			Hashtable<String, Object> htbRequestBody) {
+
+		if (htbRequestBody.size() != 5) {
+			throw new InvalidDynamicOntologyException("Invalid Dynamic Ontology  DataTypeProperty insertion request. "
+					+ "The request body must have propertyName,domainPrefixName,dataType,hasMultipleValues,isUnique ");
+		}
+
+		if (!(htbRequestBody.containsKey("propertyName") && htbRequestBody.get("propertyName") instanceof String)) {
+			throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
+					+ "The request body must have key with value propertyName and its "
+					+ "value is a String. ex: \"propertyName\":\"knows\" ");
+		}
+
+		if (!(htbRequestBody.containsKey("domainPrefixName")
+				&& htbRequestBody.get("domainPrefixName") instanceof String)
+				&& isPrefixValid(htbRequestBody.get("domainPrefixName").toString())) {
+			throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
+					+ "The request body must have key with value domainPrefixName and its "
+					+ "value is a String. ex: \"domainPrefixName\":\"foaf:Person\" ");
+		}
+
+		if (!(htbRequestBody.containsKey("dataType") && htbRequestBody.get("dataType") instanceof String)
+				&& htblXSDDatatypes.containsKey(htbRequestBody.get("rangePrefixName").toString().toLowerCase())) {
+			throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
+					+ "The request body must have key with value dataType and its "
+					+ "value is a String. ex: \"dataType\":\"string\" ");
+		}
+
+		if (!(htbRequestBody.containsKey("hasMultipleValues")
+				&& htbRequestBody.get("hasMultipleValues") instanceof Boolean)) {
+			throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
+					+ "The request body must have key with value hasMultipleValues and its "
+					+ "value is a boolean. ex: \"hasMultipleValues\": true ");
+		}
+
+		if (!(htbRequestBody.containsKey("isUnique") && htbRequestBody.get("isUnique") instanceof Boolean)) {
+			throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
+					+ "The request body must have key with value isUnique and its "
+					+ "value is a boolean. ex: \"isUnique\": false ");
+		}
+
+		return htbRequestBody;
+
 	}
 
 	public static void main(String[] args) {

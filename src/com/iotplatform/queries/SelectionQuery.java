@@ -10,9 +10,10 @@ import com.iotplatform.ontology.DataTypeProperty;
 import com.iotplatform.ontology.ObjectProperty;
 import com.iotplatform.ontology.Prefix;
 import com.iotplatform.ontology.Property;
+import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.utilities.QueryField;
-import com.iotplatform.utilities.QueryVariable;
+import com.iotplatform.utilities.QueryFieldUtility;
+import com.iotplatform.utilities.QueryVariableUtility;
 
 /*
  * SelectionQuery is used to construct the appropriate select query to query data.
@@ -38,7 +39,7 @@ public class SelectionQuery {
 	 * the results from database
 	 */
 	public static Object[] constructSelectQuery(
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty,
 			String mainClassPrefixedName, String mainInstanceUniqueIdentifier, String applicationModelName,
 			Hashtable<String, Boolean> htblOptions) {
 
@@ -100,14 +101,14 @@ public class SelectionQuery {
 		 * Getting propertyList of the main subject(this list constructs the
 		 * main graph pattern)
 		 */
-		ArrayList<QueryField> currentClassPropertyValueList = htblClassNameProperty.get(mainClassPrefixedName)
+		ArrayList<QueryFieldUtility> currentClassPropertyValueList = htblClassNameProperty.get(mainClassPrefixedName)
 				.get(mainInstanceUniqueIdentifier);
 
 		/*
 		 * htblSubjectVariablePropertyName holds subjectVariable as key and its
 		 * associated property as value
 		 */
-		Hashtable<String, QueryVariable> htblSubjectVariables = new Hashtable<>();
+		Hashtable<String, QueryVariableUtility> htblSubjectVariables = new Hashtable<>();
 
 		/*
 		 * htblIndividualIDSubjVarName is used to hold uniqueIdentifier of an
@@ -171,13 +172,13 @@ public class SelectionQuery {
 		 * main graph pattern and break through values recursively to construct
 		 * other graph nodes and patterns using endGraphPatternBuilder
 		 */
-		for (QueryField queryField : currentClassPropertyValueList) {
+		for (QueryFieldUtility queryField : currentClassPropertyValueList) {
 
 			constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
 					queryBuilder, filterConditionsBuilder, endGraphPatternBuilder, sparqlProjectedFieldsBuilder,
 					sqlProjectedFieldsBuilder, filterBuilder, objectPropValueTypesOptionBuilder, mainClassPrefixedName,
 					mainInstanceUniqueIdentifier, queryField, vairableNum, subjectNum, objectNum,
-					htblValueTypePropObjectVariable, htbloptionalTypeClassList, htblOptions);
+					htblValueTypePropObjectVariable, htbloptionalTypeClassList, htblOptions, applicationModelName);
 
 		}
 
@@ -303,15 +304,16 @@ public class SelectionQuery {
 	 * parameters of this method and then call it
 	 */
 	private static void constructSelectQueryHelper(
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			Hashtable<String, QueryVariable> htblSubjectVariables,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty,
+			Hashtable<String, QueryVariableUtility> htblSubjectVariables,
 			Hashtable<String, String> htblIndividualIDSubjVarName, StringBuilder queryBuilder,
 			StringBuilder filterConditionsBuilder, StringBuilder endGraphPatternBuilder,
 			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder,
 			StringBuilder filterBuilder, StringBuilder objectPropValueTypesOptionBuilder, String currentClassURI,
-			String currentClassInstanceUniqueIdentifier, QueryField queryField, int[] vairableNum, int[] subjectNum,
+			String currentClassInstanceUniqueIdentifier, QueryFieldUtility queryField, int[] vairableNum, int[] subjectNum,
 			int[] objectNum, Hashtable<String, String> htblValueTypePropObjectVariable,
-			Hashtable<String, ArrayList<String>> htblOptionalTypeClassList, Hashtable<String, Boolean> htblOptions) {
+			Hashtable<String, ArrayList<String>> htblOptionalTypeClassList, Hashtable<String, Boolean> htblOptions,
+			String applicationModelName) {
 
 		if (!htblIndividualIDSubjVarName.containsKey(currentClassInstanceUniqueIdentifier)) {
 			/*
@@ -333,14 +335,14 @@ public class SelectionQuery {
 					sparqlProjectedFieldsBuilder, sqlProjectedFieldsBuilder, filterBuilder,
 					objectPropValueTypesOptionBuilder, currentClassURI, currentClassInstanceUniqueIdentifier,
 					queryField, vairableNum, subjectNum, objectNum, htblValueTypePropObjectVariable,
-					htblOptionalTypeClassList, htblOptions);
+					htblOptionalTypeClassList, htblOptions, applicationModelName);
 
 		} else {
 
 			constructQueryPatternsForQueryFieldsWithSingleValue(htblClassNameProperty, htblSubjectVariables,
 					htblIndividualIDSubjVarName, queryBuilder, sparqlProjectedFieldsBuilder, sqlProjectedFieldsBuilder,
 					objectPropValueTypesOptionBuilder, currentClassURI, currentClassInstanceUniqueIdentifier,
-					queryField, vairableNum, objectNum, htblOptions);
+					queryField, vairableNum, objectNum, htblOptions, applicationModelName);
 
 		}
 
@@ -355,13 +357,13 @@ public class SelectionQuery {
 	 * eg. ?subject foaf:userName ?var
 	 */
 	private static void constructQueryPatternsForQueryFieldsWithSingleValue(
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			Hashtable<String, QueryVariable> htblSubjectVariables,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty,
+			Hashtable<String, QueryVariableUtility> htblSubjectVariables,
 			Hashtable<String, String> htblIndividualIDSubjVarName, StringBuilder queryBuilder,
 			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder,
 			StringBuilder objectPropValueTypesOptionBuilder, String currentClassURI,
-			String currentClassInstanceUniqueIdentifier, QueryField queryField, int[] vairableNum, int[] objectNum,
-			Hashtable<String, Boolean> htblOptions) {
+			String currentClassInstanceUniqueIdentifier, QueryFieldUtility queryField, int[] vairableNum, int[] objectNum,
+			Hashtable<String, Boolean> htblOptions, String applicationModelName) {
 		/*
 		 * get class object of the currentClassURI
 		 */
@@ -373,12 +375,45 @@ public class SelectionQuery {
 		Property prop = subjectClass.getProperties().get(getPropertyName(queryField.getPrefixedPropertyName()));
 
 		/*
+		 * get property range objectClass if it is an objectProperty
+		 */
+		Class objectClass = null;
+		if (prop instanceof ObjectProperty) {
+			String objectClassName = ((ObjectProperty) prop).getObjectClassName();
+
+			/*
+			 * get objectClass from dynamicOntology cache if it exist
+			 */
+			if (DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
+					&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+							.containsKey(objectClassName.toLowerCase())) {
+
+				/*
+				 * The object class does not exist in the main ontology so it
+				 * will be sure existing in dynamicOntology of the requested
+				 * application. I do not need to check if its exist in
+				 * dynamicOntology because I had already loaded all the dynamic
+				 * properties and class needed by the queryRequest when
+				 * validating
+				 */
+				objectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+						.get(objectClassName.toLowerCase());
+
+			} else {
+
+				/*
+				 * get the objectClass from MainOntologyClassesMapper
+				 */
+				objectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(objectClassName.toLowerCase());
+			}
+		}
+
+		/*
 		 * check that the property is a DataTypeProperty or an ObjectProperty
-		 * but its range has no types or autoGetObjValType isn not provided or
+		 * but its range has no types or autoGetObjValType is not provided or
 		 * false
 		 */
-		if (prop instanceof DataTypeProperty || (((prop instanceof ObjectProperty)
-				&& (!((ObjectProperty) prop).getObject().isHasTypeClasses()))
+		if (prop instanceof DataTypeProperty || (((prop instanceof ObjectProperty) && (!objectClass.isHasTypeClasses()))
 				|| ((prop instanceof ObjectProperty)
 						&& (htblOptions.containsKey("autoGetObjValType") && !htblOptions.get("autoGetObjValType"))
 						|| !htblOptions.containsKey("autoGetObjValType")))) {
@@ -405,7 +440,7 @@ public class SelectionQuery {
 			 * query results
 			 */
 			htblSubjectVariables.put("var" + vairableNum[0],
-					new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
+					new QueryVariableUtility(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
 							getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 
 			if (htblClassNameProperty.get(currentClassURI).get(currentClassInstanceUniqueIdentifier)
@@ -452,7 +487,7 @@ public class SelectionQuery {
 				 * construct query results
 				 */
 				htblSubjectVariables.put("object" + objectNum[0],
-						new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
+						new QueryVariableUtility(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
 								getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 
 				if (htblClassNameProperty.get(currentClassURI).get(currentClassInstanceUniqueIdentifier)
@@ -491,8 +526,8 @@ public class SelectionQuery {
 				 */
 				objectPropValueTypesOptionBuilder.append("FILTER(");
 
-				objectPropValueTypesOptionBuilder.append(
-						" ?objecttype" + objectNum[0] + " != <" + ((ObjectProperty) prop).getObject().getUri() + ">");
+				objectPropValueTypesOptionBuilder
+						.append(" ?objecttype" + objectNum[0] + " != <" + objectClass.getUri() + ">");
 
 				for (Class superClass : subjectClass.getSuperClassesList()) {
 					objectPropValueTypesOptionBuilder
@@ -502,7 +537,7 @@ public class SelectionQuery {
 				objectPropValueTypesOptionBuilder.append(" ) \n");
 
 				htblSubjectVariables.put("objecttype" + objectNum[0],
-						new QueryVariable("object" + objectNum[0], "type", null));
+						new QueryVariableUtility("object" + objectNum[0], "type", null));
 
 				/*
 				 * add bind aliases to sparqlProjectedFieldsBuilder
@@ -543,15 +578,16 @@ public class SelectionQuery {
 	 * 
 	 */
 	private static void constructQueryPatternsForQueryFieldsWithObjectValue(
-			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty,
-			Hashtable<String, QueryVariable> htblSubjectVariables,
+			LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty,
+			Hashtable<String, QueryVariableUtility> htblSubjectVariables,
 			Hashtable<String, String> htblIndividualIDSubjVarName, StringBuilder queryBuilder,
 			StringBuilder filterConditionsBuilder, StringBuilder endGraphPatternBuilder,
 			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder,
 			StringBuilder filterBuilder, StringBuilder objectPropValueTypesOptionBuilder, String currentClassURI,
-			String currentClassInstanceUniqueIdentifier, QueryField queryField, int[] vairableNum, int[] subjectNum,
+			String currentClassInstanceUniqueIdentifier, QueryFieldUtility queryField, int[] vairableNum, int[] subjectNum,
 			int[] objectNum, Hashtable<String, String> htblValueTypePropObjectVariable,
-			Hashtable<String, ArrayList<String>> htblOptionalTypeClassList, Hashtable<String, Boolean> htblOptions) {
+			Hashtable<String, ArrayList<String>> htblOptionalTypeClassList, Hashtable<String, Boolean> htblOptions,
+			String applicationModelName) {
 		String subjectVariable = "subject" + subjectNum[0];
 
 		/*
@@ -742,11 +778,46 @@ public class SelectionQuery {
 				optionalTypeClassList.add(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier));
 
 				/*
+				 * get property range objectClass if it is an objectProperty
+				 */
+				Class objectClass = null;
+				Property prop = subjectClass.getProperties().get(propName);
+				if (prop instanceof ObjectProperty) {
+					String objectClassName = ((ObjectProperty) prop).getObjectClassName();
+
+					/*
+					 * get objectClass from dynamicOntology cache if it exist
+					 */
+					if (DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
+							&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+									.containsKey(objectClassName.toLowerCase())) {
+
+						/*
+						 * The object class does not exist in the main ontology
+						 * so it will be sure existing in dynamicOntology of the
+						 * requested application. I do not need to check if its
+						 * exist in dynamicOntology because I had already loaded
+						 * all the dynamic properties and class needed by the
+						 * queryRequest when validating
+						 */
+						objectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+								.get(objectClassName.toLowerCase());
+
+					} else {
+
+						/*
+						 * get the objectClass from MainOntologyClassesMapper
+						 */
+						objectClass = OntologyMapper.getHtblMainOntologyClassesMappers()
+								.get(objectClassName.toLowerCase());
+					}
+				}
+
+				/*
 				 * add range classType of property as the third element in the
 				 * list
 				 */
-				optionalTypeClassList
-						.add(((ObjectProperty) subjectClass.getProperties().get(propName)).getObject().getUri());
+				optionalTypeClassList.add(objectClass.getUri());
 
 				/*
 				 * add objectValueTypeClassName to optionalTypeClassList
@@ -900,6 +971,34 @@ public class SelectionQuery {
 		 */
 		Property prop = subjectClass.getProperties().get(getPropertyName(queryField.getPrefixedPropertyName()));
 
+		Class objectClass = null;
+		if (prop instanceof ObjectProperty) {
+			String objectClassName = ((ObjectProperty) prop).getObjectClassName();
+
+			if (DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
+					&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+							.containsKey(objectClassName.toLowerCase())) {
+
+				/*
+				 * The object class does not exist in the main ontology so it
+				 * will be sure existing in dynamicOntology of the requested
+				 * application. I do not need to check if its exist in
+				 * dynamicOntology because I had already loaded all the dynamic
+				 * properties and class needed by the queryRequest when
+				 * validating
+				 */
+				objectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+						.get(objectClassName.toLowerCase());
+
+			} else {
+
+				/*
+				 * get the objectClass from MainOntologyClassesMapper
+				 */
+				objectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(objectClassName.toLowerCase());
+			}
+		}
+
 		/*
 		 * check if the user enable the autoGetObjValType option and check if
 		 * the propertyRange has type classes and also check that the
@@ -907,8 +1006,8 @@ public class SelectionQuery {
 		 * the user
 		 */
 		if (htblOptions.containsKey("autoGetObjValType") && htblOptions.get("autoGetObjValType")
-				&& ((ObjectProperty) prop).getObject().isHasTypeClasses()
-				&& ((ObjectProperty) prop).getObject().getUri().equals(queryField.getObjectValueTypeClassName())) {
+				&& (objectClass.isHasTypeClasses()
+						&& objectClass.getUri().equals(queryField.getObjectValueTypeClassName()))) {
 
 			/*
 			 * subjectNum[0]-- because I increment the subjectCounter to create
@@ -931,9 +1030,8 @@ public class SelectionQuery {
 			 */
 			Hashtable<String, String> htblFilterClassURIs = new Hashtable<>();
 
-			objectTypePatternBuilder.append(
-					" ?objecttype" + objectNum[0] + " != <" + ((ObjectProperty) prop).getObject().getUri() + ">");
-			htblFilterClassURIs.put(((ObjectProperty) prop).getObject().getUri(), "");
+			objectTypePatternBuilder.append(" ?objecttype" + objectNum[0] + " != <" + objectClass.getUri() + ">");
+			htblFilterClassURIs.put(objectClass.getUri(), "");
 
 			for (Class superClass : subjectClass.getSuperClassesList()) {
 
@@ -956,7 +1054,7 @@ public class SelectionQuery {
 			 * query results
 			 */
 			htblSubjectVariables.put("objecttype" + objectNum[0],
-					new QueryVariable("subject" + (subjectNum[0] - 1), "type", null));
+					new QueryVariableUtility("subject" + (subjectNum[0] - 1), "type", null));
 
 			/*
 			 * add bind aliases to sparqlProjectedFieldsBuilder
@@ -996,7 +1094,7 @@ public class SelectionQuery {
 		 * to be used to properly construct query results
 		 */
 		htblSubjectVariables.put(subjectVariable,
-				new QueryVariable(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
+				new QueryVariableUtility(htblIndividualIDSubjVarName.get(currentClassInstanceUniqueIdentifier),
 						getPropertyName(queryField.getPrefixedPropertyName()), currentClassURI));
 
 		/*
@@ -1008,7 +1106,7 @@ public class SelectionQuery {
 		/*
 		 * get the objectValueInstance's propertyValueList
 		 */
-		ArrayList<QueryField> queryFieldList = htblClassNameProperty.get(objectClassTypeName)
+		ArrayList<QueryFieldUtility> queryFieldList = htblClassNameProperty.get(objectClassTypeName)
 				.get(objectVaueUniqueIdentifier);
 
 		/*
@@ -1037,13 +1135,14 @@ public class SelectionQuery {
 			 * optional query (builded using tempBuilder)
 			 */
 			StringBuilder optionalqueryPattern = new StringBuilder();
-			for (QueryField objectPropertyValue : queryFieldList) {
+			for (QueryFieldUtility objectPropertyValue : queryFieldList) {
 
 				constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
 						tempBuilder, filterConditionsBuilder, optionalqueryPattern, sparqlProjectedFieldsBuilder,
 						sqlProjectedFieldsBuilder, filterBuilder, objectPropValueTypesOptionBuilder,
 						objectClassTypeName, objectVaueUniqueIdentifier, objectPropertyValue, vairableNum, subjectNum,
-						objectNum, htblValueTypePropObjectVariable, htblOptionalTypeClassList, htblOptions);
+						objectNum, htblValueTypePropObjectVariable, htblOptionalTypeClassList, htblOptions,
+						applicationModelName);
 			}
 
 			/*
@@ -1106,13 +1205,14 @@ public class SelectionQuery {
 			 * an optional patterns
 			 */
 			StringBuilder nestedQueryPattern = new StringBuilder();
-			for (QueryField objectPropertyValue : queryFieldList) {
+			for (QueryFieldUtility objectPropertyValue : queryFieldList) {
 
 				constructSelectQueryHelper(htblClassNameProperty, htblSubjectVariables, htblIndividualIDSubjVarName,
 						tempBuilder, filterConditionsBuilder, nestedQueryPattern, sparqlProjectedFieldsBuilder,
 						sqlProjectedFieldsBuilder, filterBuilder, objectPropValueTypesOptionBuilder,
 						objectClassTypeName, objectVaueUniqueIdentifier, objectPropertyValue, vairableNum, subjectNum,
-						objectNum, htblValueTypePropObjectVariable, htblOptionalTypeClassList, htblOptions);
+						objectNum, htblValueTypePropObjectVariable, htblOptionalTypeClassList, htblOptions,
+						applicationModelName);
 			}
 
 			/*
@@ -1163,7 +1263,7 @@ public class SelectionQuery {
 			Hashtable<String, ArrayList<String>> htbloptionalTypeClassList, int[] objectNum,
 			Hashtable<String, String> htblfilterClassesURI, StringBuilder unProjectOptionalPartBuilder,
 			StringBuilder sparqlProjectedFieldsBuilder, StringBuilder sqlProjectedFieldsBuilder,
-			StringBuilder filterBuilder, Hashtable<String, QueryVariable> htblSubjectVariables) {
+			StringBuilder filterBuilder, Hashtable<String, QueryVariableUtility> htblSubjectVariables) {
 		/*
 		 * iterate over htbloptionalTypeClassList and for each key add a new
 		 * optionalQuery (each key represent and objectValueQueryVariable for a
@@ -1399,9 +1499,9 @@ public class SelectionQuery {
 			 * ?objectType)
 			 */
 			htblSubjectVariables.put("object" + classVariableCounter,
-					new QueryVariable(subjectClassQueryVariable, propertyName, subjectClassURI));
+					new QueryVariableUtility(subjectClassQueryVariable, propertyName, subjectClassURI));
 			htblSubjectVariables.put("objecttype" + classVariableCounter,
-					new QueryVariable("object" + classVariableCounter, "type", null));
+					new QueryVariableUtility("object" + classVariableCounter, "type", null));
 
 			/*
 			 * add bind aliases to sparqlProjectedFieldsBuilder

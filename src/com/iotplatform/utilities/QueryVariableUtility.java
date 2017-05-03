@@ -7,7 +7,7 @@ package com.iotplatform.utilities;
  *  
  *  where ?subject2 is object value and  ?subject1 is subject variable
  */
-public class QueryVariable {
+public class QueryVariableUtility {
 
 	/*
 	 * class type of subjectVariableName
@@ -25,7 +25,7 @@ public class QueryVariable {
 	 */
 	private String prefixedPropertyName;
 
-	public QueryVariable(String subjectVariableName, String prefixedPropertyName, String subjectClassUri) {
+	public QueryVariableUtility(String subjectVariableName, String prefixedPropertyName, String subjectClassUri) {
 		this.subjectVariableName = subjectVariableName;
 		this.prefixedPropertyName = prefixedPropertyName;
 		this.subjectClassUri = subjectClassUri;

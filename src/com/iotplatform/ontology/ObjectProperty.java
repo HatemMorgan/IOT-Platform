@@ -5,27 +5,27 @@ package com.iotplatform.ontology;
  * It must have a subject of type class and a value of instance of Class
  */
 public class ObjectProperty extends Property {
-	private Class object;
+	private String objectClassName;
 
-	public ObjectProperty(Class subjectClass, String name, Prefix prefix, Class object, boolean mulitpleValues,
-			boolean unique) {
+	public ObjectProperty(Class subjectClass, String name, Prefix prefix, String objectClassName,
+			boolean mulitpleValues, boolean unique) {
 		super(subjectClass, name, prefix, mulitpleValues, unique);
-		this.object = object;
+		this.objectClassName = objectClassName;
 	}
 
-	public ObjectProperty(Class subjectClass, String name, Prefix prefix, Class object, String applicationName,
-			int mulitpleValues, int unique) {
+	public ObjectProperty(Class subjectClass, String name, Prefix prefix, String objectClassName,
+			String applicationName, int mulitpleValues, int unique) {
 		super(subjectClass, name, prefix, applicationName, mulitpleValues, unique);
-		this.object = object;
+		this.objectClassName = objectClassName;
 	}
 
-	public Class getObject() {
-		return object;
+	public String getObjectClassName() {
+		return objectClassName;
 	}
 
 	@Override
 	public String toString() {
-		return "ObjectProperty [ getObject()=" + getObject() + ", getName()=" + getName() + ", getPrefix()="
+		return "ObjectProperty [ getObject()=" + getObjectClassName() + ", getName()=" + getName() + ", getPrefix()="
 				+ getPrefix() + ", getApplicationName()=" + getApplicationName() + ", isMulitpleValues()="
 				+ isMulitpleValues() + ", isUnique()=" + isUnique() + ", getSubjectClass()=" + getSubjectClass() + "]";
 	}

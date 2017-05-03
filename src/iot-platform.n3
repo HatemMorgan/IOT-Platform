@@ -26,6 +26,10 @@
 # #################################################################
 # 
 # 
+# http://iot-platform#hasMultipleValues
+
+:hasMultipleValues a owl:AnnotationProperty .
+# 
 # http://iot-platform#hasUniqueIdentifier
 
 :hasUniqueIdentifier a owl:AnnotationProperty .
@@ -78,6 +82,7 @@ rdfs:seeAlso a owl:AnnotationProperty .
 :hasDevice a owl:ObjectProperty ;
 	rdfs:domain :DeviceModule ;
 	rdfs:range ssn:Device ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Describes relation between Device module and its device Components(eg: communicatingDevice,Sensor etc.)" ;
 	rdfs:label "has Device" .
 # 
@@ -86,6 +91,7 @@ rdfs:seeAlso a owl:AnnotationProperty .
 :hasDeviceModule a owl:ObjectProperty ;
 	rdfs:domain :IOTSystem ;
 	rdfs:range :DeviceModule ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Describes the relation between an IOTSystem and DeviceModule." ;
 	rdfs:label "has Device Module" .
 # 
@@ -101,6 +107,7 @@ rdfs:seeAlso a owl:AnnotationProperty .
 :usesSystem a owl:ObjectProperty ;
 	rdfs:domain :Application ;
 	rdfs:range :IOTSystem ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "It describes the relation that an IOT application uses a system (smart campus)" .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#exposedBy
@@ -108,6 +115,7 @@ rdfs:seeAlso a owl:AnnotationProperty .
 iot-lite:exposedBy a owl:ObjectProperty ;
 	rdfs:domain ssn:Device ;
 	rdfs:range iot-lite:Service ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "A device is exposed by a service." .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#hasAttribute
@@ -115,6 +123,7 @@ iot-lite:exposedBy a owl:ObjectProperty ;
 iot-lite:hasAttribute a owl:ObjectProperty ;
 	rdfs:domain iot-lite:Object ;
 	rdfs:range iot-lite:Attribute ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Links an Object with their attributes." .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#hasCoverage
@@ -122,6 +131,7 @@ iot-lite:hasAttribute a owl:ObjectProperty ;
 iot-lite:hasCoverage a owl:ObjectProperty ;
 	rdfs:domain ssn:Device ;
 	rdfs:range iot-lite:Coverage ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Links the devices with their coverages." .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#hasMetadata
@@ -129,6 +139,7 @@ iot-lite:hasCoverage a owl:ObjectProperty ;
 iot-lite:hasMetadata a owl:ObjectProperty ;
 	rdfs:domain ssn:Device ;
 	rdfs:range iot-lite:Metadata ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Links any concept with metadata about that concept." .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#hasQuantityKind
@@ -136,6 +147,7 @@ iot-lite:hasMetadata a owl:ObjectProperty ;
 iot-lite:hasQuantityKind a owl:ObjectProperty ;
 	rdfs:domain iot-lite:Attribute , ssn:Sensor ;
 	rdfs:range qu:QuantityKind ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Links a sensor or an attribute with the quantity  kind it measures (e.g. A sensor -sensor1- measures temperature: sensor1 hasQuantityKind temperature)." .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#hasSensingDevice
@@ -143,12 +155,14 @@ iot-lite:hasQuantityKind a owl:ObjectProperty ;
 iot-lite:hasSensingDevice a owl:ObjectProperty ;
 	rdfs:domain ssn:Sensor ;
 	rdfs:range ssn:SensingDevice ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "It describes the relation that a device can has attached snesing device (sensor) . ie: A module (device) has sensing device Tempreture sensor (sensing device )attached to it ." .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#hasUnit
 
 iot-lite:hasUnit a owl:ObjectProperty ;
 	rdfs:range qu:Unit ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Links the sensor with the units of the quantity kind it measures (e.g. A sensor -sensor1- measures temperature in Celsius: senso1 hasUnit celsius)." .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#isAssociatedWith
@@ -156,6 +170,7 @@ iot-lite:hasUnit a owl:ObjectProperty ;
 iot-lite:isAssociatedWith a owl:ObjectProperty ;
 	rdfs:domain iot-lite:Object ;
 	rdfs:range iot-lite:Service ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Defines the associations between objects and sensors (e.g. A table (object) has an attribute (temperature at the table) which is associated with a sensor (the temperature sensor of the room). " .
 # 
 # http://purl.oclc.org/NET/ssnx/ssn#deployedOnPlatform
@@ -177,6 +192,7 @@ It says that a ssn:deploymentProcess is part of another ssn:deploymentProcess"""
 # http://purl.oclc.org/NET/ssnx/ssn#detects
 
 ssn:detects a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment """A relation from a sensor to the Stimulus that the sensor can detect.   
 The Stimulus itself will be serving as a proxy for (see isProxyOf) some observable property.""" ;
 	rdfs:label "detects" ;
@@ -185,6 +201,7 @@ The Stimulus itself will be serving as a proxy for (see isProxyOf) some observab
 # http://purl.oclc.org/NET/ssnx/ssn#featureOfInterest
 
 ssn:featureOfInterest a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "A relation between an observation and the entity whose quality was observed.   For example, in an observation of the weight of a person, the feature of interest is the person and the quality is weight." ;
 	rdfs:label "feature of interest" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
@@ -192,6 +209,7 @@ ssn:featureOfInterest a owl:ObjectProperty ;
 # http://purl.oclc.org/NET/ssnx/ssn#forProperty
 
 ssn:forProperty a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment """A relation between some aspect of a sensing entity and a property.  For example, from a sensor to the properties it can observe, or from a deployment to the properties it was installed to observe.  Also from a measurement capability to the property the capability is described for.  (Used in conjunction with ofFeature).
 
 A ssn:MeasurementCapability is something that is a ssn:Property and has a ssn:hasMeasurementProperty property who must be a ssn:MeasurementProperty . 
@@ -210,6 +228,7 @@ ssn:hasDeployment a owl:ObjectProperty ;
 # http://purl.oclc.org/NET/ssnx/ssn#hasInput
 
 ssn:hasInput a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:label "has input" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Model#Process" .
 # 
@@ -217,6 +236,7 @@ ssn:hasInput a owl:ObjectProperty ;
 
 ssn:hasMeasurementCapability a owl:ObjectProperty ;
 	rdfs:subPropertyOf ssn:hasProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Relation from a Sensor to a MeasurementCapability describing the measurement properties of the sensor." ;
 	rdfs:label "has measurement  capability" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Sensor#MeasuringCapability" .
@@ -225,6 +245,7 @@ ssn:hasMeasurementCapability a owl:ObjectProperty ;
 
 ssn:hasMeasurementProperty a owl:ObjectProperty ;
 	rdfs:subPropertyOf ssn:hasProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Relation from a MeasurementCapability to a MeasurementProperty.  For example, to an accuracy (see notes at MeasurementCapability)." ;
 	rdfs:label "has measurement property" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Sensor#MeasuringCapability" .
@@ -233,6 +254,7 @@ ssn:hasMeasurementProperty a owl:ObjectProperty ;
 
 ssn:hasOperatingProperty a owl:ObjectProperty ;
 	rdfs:subPropertyOf ssn:hasProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Relation from an OperatingRange to a Property.  For example, to a battery lifetime." ;
 	rdfs:label "has operating property" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Deploy#OperatingRestriction" .
@@ -241,6 +263,7 @@ ssn:hasOperatingProperty a owl:ObjectProperty ;
 
 ssn:hasOperatingRange a owl:ObjectProperty ;
 	rdfs:subPropertyOf ssn:hasProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Relation from a System to an OperatingRange describing the normal operating environment of the System." ;
 	rdfs:label "has operating range" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Deploy#OperatingRestriction" .
@@ -248,12 +271,14 @@ ssn:hasOperatingRange a owl:ObjectProperty ;
 # http://purl.oclc.org/NET/ssnx/ssn#hasOutput
 
 ssn:hasOutput a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:label "has output" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Model#Process" .
 # 
 # http://purl.oclc.org/NET/ssnx/ssn#hasProperty
 
 ssn:hasProperty a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "A relation between a FeatureOfInterest and a Property of that feature. A FeatureOfInterest can have more than one property." ;
 	rdfs:label "has property" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
@@ -263,6 +288,7 @@ ssn:hasProperty a owl:ObjectProperty ;
 ssn:hasSubSystem a owl:ObjectProperty ;
 	rdfs:domain ssn:System ;
 	rdfs:range ssn:System ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Haspart relation between a system and its parts." ;
 	rdfs:label "has subsystem" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Model#System" .
@@ -271,6 +297,7 @@ ssn:hasSubSystem a owl:ObjectProperty ;
 
 ssn:hasSurvivalProperty a owl:ObjectProperty ;
 	rdfs:subPropertyOf ssn:hasProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Relation from a SurvivalRange to a Property describing the survial range of a system.  For example, to the temperature extreme that a system can withstand before being considered damaged." ;
 	rdfs:label "has survival property" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Deploy#OperatingRestriction" .
@@ -279,6 +306,7 @@ ssn:hasSurvivalProperty a owl:ObjectProperty ;
 
 ssn:hasSurvivalRange a owl:ObjectProperty ;
 	rdfs:subPropertyOf ssn:hasProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "A Relation from a System to a SurvivalRange." ;
 	rdfs:label "has survival range" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Deploy#OperatingRestriction" .
@@ -286,12 +314,14 @@ ssn:hasSurvivalRange a owl:ObjectProperty ;
 # http://purl.oclc.org/NET/ssnx/ssn#hasValue
 
 ssn:hasValue a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:label "has value" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Base#Data" .
 # 
 # http://purl.oclc.org/NET/ssnx/ssn#implements
 
 ssn:implements a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "A relation between an entity that implements a method in some executable way and the description of an algorithm, procedure or method.  For example, between a Sensor and the scientific measuring method that the Sensor uses to observe a Property." ;
 	rdfs:label "implements" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
@@ -299,6 +329,7 @@ ssn:implements a owl:ObjectProperty ;
 # http://purl.oclc.org/NET/ssnx/ssn#inCondition
 
 ssn:inCondition a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Describes the prevailing environmental conditions for MeasurementCapabilites, OperatingConditions and SurvivalRanges.  Used for example to say that a sensor has a particular accuracy in particular conditions.  (see also MeasurementCapability)" ;
 	rdfs:label "in condition" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Base#ConstraintBlock" .
@@ -306,6 +337,7 @@ ssn:inCondition a owl:ObjectProperty ;
 # http://purl.oclc.org/NET/ssnx/ssn#isProducedBy
 
 ssn:isProducedBy a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Relation between a producer and a produced entity: for example, between a sensor and the produced output." ;
 	rdfs:label "is produced by" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Model#Process" .
@@ -313,6 +345,7 @@ ssn:isProducedBy a owl:ObjectProperty ;
 # http://purl.oclc.org/NET/ssnx/ssn#isProxyFor
 
 ssn:isProxyFor a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment """A relation from a Stimulus to the Property that the Stimulus is serving as a proxy for.
 
 For example, the expansion of the quicksilver is a stimulus that serves as a proxy for temperature, or an increase or decrease in the spinning of cups on a wind sensor is serving as a proxy for wind speed.""" ;
@@ -322,6 +355,7 @@ For example, the expansion of the quicksilver is a stimulus that serves as a pro
 # http://purl.oclc.org/NET/ssnx/ssn#observationResult
 
 ssn:observationResult a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Relation linking an Observation (i.e., a description of the context, the Situation, in which the observatioin was made) and a Result(Sensor Output), which contains a value representing the value associated with the observed Property." ;
 	rdfs:label "observation result" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
@@ -329,6 +363,7 @@ ssn:observationResult a owl:ObjectProperty ;
 # http://purl.oclc.org/NET/ssnx/ssn#observedProperty
 
 ssn:observedProperty a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Relation linking an Observation to the Property that was observed.  The observedProperty should be a Property (hasProperty) of the FeatureOfInterest (linked by featureOfInterest) of this observation." ;
 	rdfs:label "observed property" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
@@ -336,6 +371,7 @@ ssn:observedProperty a owl:ObjectProperty ;
 # http://purl.oclc.org/NET/ssnx/ssn#observes
 
 ssn:observes a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Relation between a Sensor and a Property that the sensor can observe. It points to a property observed by a sensor (e.g., temperature, acceleration, wind speed)." ;
 	rdfs:label "observes" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Sensor#Measuring" .
@@ -350,6 +386,7 @@ ssn:onPlatform a owl:ObjectProperty ;
 # http://purl.oclc.org/NET/ssnx/ssn#sensingMethodUsed
 
 ssn:sensingMethodUsed a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "A (measurement) procedure is a detailed description of a measurement according to one or more measurement principles and to a given measurement method, based on a measurement model and including any calculation to obtain a measurement result [VIM 2.6]" ;
 	rdfs:label "sensing method used" ;
 	rdfs:seeAlso "http://www.w3.org/2005/Incubator/ssn/wiki/SSN_Skeleton#Skeleton" .
@@ -357,6 +394,7 @@ ssn:sensingMethodUsed a owl:ObjectProperty ;
 # http://www.loa-cnr.it/ontologies/DUL.owl#includesEvent
 
 DUL:includesEvent a owl:ObjectProperty ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Links an observation to its stimulus(Event)." .
 # 
 # http://www.w3.org/2003/01/geo/wgs84_pos#location
@@ -369,6 +407,7 @@ geo:location a owl:ObjectProperty ;
 foaf:fundedBy a owl:ObjectProperty ;
 	rdfs:domain :Application ;
 	rdfs:range foaf:Organization ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "An organization funding a project or person." ;
 	rdfs:label "funded by" .
 # 
@@ -377,6 +416,7 @@ foaf:fundedBy a owl:ObjectProperty ;
 foaf:knows a owl:ObjectProperty ;
 	rdfs:domain foaf:Person ;
 	rdfs:range foaf:Person ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "A person known by this person (indicating some level of reciprocated interaction between the parties)." ;
 	rdfs:label "knows" .
 # 
@@ -385,6 +425,7 @@ foaf:knows a owl:ObjectProperty ;
 foaf:member a owl:ObjectProperty ;
 	rdfs:domain foaf:Group ;
 	rdfs:range foaf:Agent ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Indicates a member of a Group" ;
 	rdfs:label "member" .
 # 
@@ -401,6 +442,7 @@ foaf:member a owl:ObjectProperty ;
 
 :description a owl:DatatypeProperty ;
 	rdfs:range xsd:string ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Description of a thing" .
 # 
 # http://iot-platform#dutyCycle
@@ -487,6 +529,7 @@ foaf:member a owl:ObjectProperty ;
 iot-lite:endpoint a owl:DatatypeProperty ;
 	rdfs:domain iot-lite:Service ;
 	rdfs:range xsd:string ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Endpoint of a service (i.e. URL that provides a RESTful interface (website fo example to give more information about the service ) to access a service) ," .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#id
@@ -500,6 +543,7 @@ iot-lite:id a owl:DatatypeProperty ;
 iot-lite:interfaceDescription a owl:DatatypeProperty ;
 	rdfs:domain iot-lite:Service ;
 	rdfs:range xsd:string ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Description of the service." .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#interfaceType
@@ -529,6 +573,7 @@ iot-lite:metadataType a owl:DatatypeProperty ;
 iot-lite:metadataValue a owl:DatatypeProperty ;
 	rdfs:domain iot-lite:Metadata ;
 	rdfs:range xsd:string ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "Value of the metadata" .
 # 
 # http://purl.oclc.org/NET/UNIS/fiware/iot-lite#radius
@@ -639,6 +684,7 @@ foaf:gender a owl:DatatypeProperty , owl:FunctionalProperty ;
 foaf:mbox a owl:DatatypeProperty ;
 	rdfs:domain foaf:Agent ;
 	rdfs:range xsd:string ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	:isUnique "true"^^xsd:boolean .
 # 
 # http://xmlns.com/foaf/0.1/middleName
@@ -670,6 +716,7 @@ foaf:title a owl:DatatypeProperty ;
 foaf:topic_interest a owl:DatatypeProperty ;
 	rdfs:domain foaf:Agent ;
 	rdfs:range xsd:string ;
+	:hasMultipleValues "true"^^xsd:boolean ;
 	rdfs:comment "A thing of interest to this person." ;
 	rdfs:label "topic of interest" .
 # 

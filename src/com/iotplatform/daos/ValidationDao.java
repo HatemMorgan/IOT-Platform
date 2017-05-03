@@ -14,14 +14,13 @@ import com.iotplatform.exceptions.InvalidPropertyValuesException;
 import com.iotplatform.exceptions.UniqueConstraintViolationException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.ontology.Prefix;
-import com.iotplatform.utilities.ValueOfTypeClass;
+import com.iotplatform.utilities.ValueOfTypeClassUtility;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
 @Component
 public class ValidationDao {
 	private Oracle oracle;
-	private final String suffix = "_MODEL";
 
 	@Autowired
 	public ValidationDao(Oracle oracle) {
@@ -48,12 +47,14 @@ public class ValidationDao {
 	 * constraint
 	 */
 
-	public boolean hasNoConstraintViolations(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
+	public boolean hasNoConstraintViolations(String applicationModelName,
+			ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList,
 			Class subjectClass) {
 
-		String queryString = constructViolationsCheckQueryStr(applicationName, classValueList, htblUniquePropValueList);
-//		System.out.println(queryString);
+		String queryString = constructViolationsCheckQueryStr(applicationModelName, classValueList,
+				htblUniquePropValueList);
+//		 System.out.println(queryString);
 		try {
 			ResultSet resultSet = oracle.executeQuery(queryString, 0, 1);
 			resultSet.next();
@@ -127,7 +128,8 @@ public class ValidationDao {
 	 * cnr.it/ontologies/DUL.owl#')),null))
 	 *
 	 */
-	private String constructViolationsCheckQueryStr(String applicationName, ArrayList<ValueOfTypeClass> classValueList,
+	private String constructViolationsCheckQueryStr(String applicationModelName,
+			ArrayList<ValueOfTypeClassUtility> classValueList,
 			LinkedHashMap<String, LinkedHashMap<String, ArrayList<Object>>> htblUniquePropValueList) {
 
 		StringBuilder stringBuilder = new StringBuilder();
@@ -163,7 +165,6 @@ public class ValidationDao {
 
 			counter++;
 		}
-		String applicationModelName = applicationName.toUpperCase().replaceAll(" ", "") + suffix;
 		stringBuilder.append("}',sem_models('" + applicationModelName + "'),null,");
 		stringBuilder.append("SEM_ALIASES(" + prefixStringBuilder.toString() + "),null))");
 
@@ -180,7 +181,7 @@ public class ValidationDao {
 	 * iot-platform:karammorgan a foaf:Person . }}
 	 */
 
-	private String constructIntegrityConstraintCheckSubQuery(ArrayList<ValueOfTypeClass> classValueList) {
+	private String constructIntegrityConstraintCheckSubQuery(ArrayList<ValueOfTypeClassUtility> classValueList) {
 
 		StringBuilder stringBuilder = new StringBuilder();
 
@@ -190,7 +191,7 @@ public class ValidationDao {
 
 		stringBuilder.append("{ SELECT (COUNT(*) as ?isFound ) WHERE { ");
 
-		for (ValueOfTypeClass valueOfTypeClass : classValueList) {
+		for (ValueOfTypeClassUtility valueOfTypeClass : classValueList) {
 			Class valueClassType = valueOfTypeClass.getTypeClass();
 			Object value = valueOfTypeClass.getValue();
 

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.iotplatform.exceptions.DatabaseException;
 import com.iotplatform.ontology.Class;
 import com.iotplatform.queries.InsertionQuery;
-import com.iotplatform.utilities.PropertyValue;
+import com.iotplatform.utilities.InsertionPropertyValue;
 
 import oracle.spatial.rdf.client.jena.ModelOracleSem;
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -45,7 +45,7 @@ public class InsertionDao {
 	 * InsertionService
 	 */
 	public void insertData(String applicationModelName, String requestSubjectClassName,
-			Hashtable<Class, ArrayList<ArrayList<PropertyValue>>> htblClassPropertyValue) {
+			Hashtable<String, ArrayList<ArrayList<InsertionPropertyValue>>> htblClassPropertyValue) {
 		try {
 
 			String insertQuery = InsertionQuery.constructInsertQuery(applicationModelName, requestSubjectClassName,

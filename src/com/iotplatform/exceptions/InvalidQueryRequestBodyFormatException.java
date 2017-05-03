@@ -9,7 +9,7 @@ public class InvalidQueryRequestBodyFormatException extends ErrorObjException {
 
 	public InvalidQueryRequestBodyFormatException(String exceptionMessage) {
 		super(HttpStatus.BAD_REQUEST.name(), HttpStatus.BAD_REQUEST.value(),
-				"Invalid request body format. " + exceptionMessage, "QueryAPI");
+				"Invalid request body format. " + exceptionMessage, "Query API");
 	}
 
 }

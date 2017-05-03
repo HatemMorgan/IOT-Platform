@@ -11,7 +11,7 @@ package com.iotplatform.utilities;
  * This Class is also used to construct the proper propertyValue pair that will be used in the insert query
  */
 
-public class PropertyValue {
+public class InsertionPropertyValue {
 
 	/*
 	 * the prefixedName of objectValue class type
@@ -20,24 +20,26 @@ public class PropertyValue {
 	private String propertyName;
 	private Object value;
 	private boolean isObject;
+	private boolean isPropertyHasSingleValue;
 
-	public PropertyValue(String propertyName, Object value) {
+	public InsertionPropertyValue(String propertyName, Object value) {
 		this.propertyName = propertyName;
 		this.value = value;
 	}
 
-	public PropertyValue(String propertyName, Object value, boolean isObject) {
+	public InsertionPropertyValue(String propertyName, Object value, boolean isObject) {
 		this.propertyName = propertyName;
 		this.value = value;
 		this.isObject = isObject;
 	}
 
-	public PropertyValue(Object value, boolean isObject) {
+	public InsertionPropertyValue(Object value, boolean isObject) {
 		this.value = value;
 		this.isObject = isObject;
 	}
 
-	public PropertyValue(String prefixedObjectValueClassName, String propertyName, Object value, boolean isObject) {
+	public InsertionPropertyValue(String prefixedObjectValueClassName, String propertyName, Object value,
+			boolean isObject) {
 		this.prefixedObjectValueClassName = prefixedObjectValueClassName;
 		this.propertyName = propertyName;
 		this.value = value;
@@ -52,30 +54,31 @@ public class PropertyValue {
 		return value;
 	}
 
-	public void setPropertyName(String propertyName) {
-		this.propertyName = propertyName;
-	}
-
-	public void setValue(Object value) {
-		this.value = value;
-	}
-
 	public boolean isObject() {
 		return isObject;
-	}
-
-	public void setObject(boolean isObject) {
-		this.isObject = isObject;
 	}
 
 	public String getPrefixedObjectValueClassName() {
 		return prefixedObjectValueClassName;
 	}
 
+	public boolean isPropertyHasSingleValue() {
+		return isPropertyHasSingleValue;
+	}
+
+	public void setValue(Object value) {
+		this.value = value;
+	}
+
+	public void setPropertyHasSingleValue(boolean isPropertyHasSingleValue) {
+		this.isPropertyHasSingleValue = isPropertyHasSingleValue;
+	}
+
 	@Override
 	public String toString() {
-		return "PropertyValue [prefixedClassName=" + prefixedObjectValueClassName + ", propertyName=" + propertyName
-				+ ", value=" + value + ", isObject=" + isObject + "]";
+		return "InsertionPropertyValue [prefixedObjectValueClassName=" + prefixedObjectValueClassName
+				+ ", propertyName=" + propertyName + ", value=" + value + ", isObject=" + isObject
+				+ ", isPropertyHasSingleValue=" + isPropertyHasSingleValue + "]";
 	}
 
 }

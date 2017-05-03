@@ -9,18 +9,22 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.iotplatform.cache.QueryCache;
 import com.iotplatform.daos.ApplicationDao;
-import com.iotplatform.daos.DynamicConceptsDao;
+import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.SelectQueryDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidClassNameException;
+import com.iotplatform.exceptions.InvalidInsertRequestBodyException;
+import com.iotplatform.exceptions.InvalidQueryRequestBodyFormatException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
 import com.iotplatform.ontology.Class;
-import com.iotplatform.ontology.dynamicConcepts.DynamicConceptsUtility;
+import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.OntologyMapper;
-import com.iotplatform.utilities.QueryField;
-import com.iotplatform.utilities.ValidationResult;
+import com.iotplatform.utilities.QueryCachedObjectUtility;
+import com.iotplatform.utilities.QueryFieldUtility;
+import com.iotplatform.utilities.QueryRequestValidationResultUtility;
 import com.iotplatform.validations.SelectQueryRequestValidation;
 
 import oracle.spatial.rdf.client.jena.Oracle;
@@ -39,68 +43,131 @@ public class SelectQueryService {
 	private SelectQueryRequestValidation selectQueryRequestValidation;
 	private ApplicationDao applicationDao;
 	private SelectQueryDao selectQueryDao;
+	private DynamicOntologyDao dynamicOntologyDao;
 
 	@Autowired
 	public SelectQueryService(SelectQueryRequestValidation selectQueryRequestValidation, ApplicationDao applicationDao,
-			SelectQueryDao selectQueryDao) {
+			SelectQueryDao selectQueryDao, DynamicOntologyDao dynamicOntologyDao) {
 		this.selectQueryRequestValidation = selectQueryRequestValidation;
 		this.applicationDao = applicationDao;
 		this.selectQueryDao = selectQueryDao;
+		this.dynamicOntologyDao = dynamicOntologyDao;
 	}
 
 	public LinkedHashMap<String, Object> QueryData(String applicationNameCode, String className,
 			LinkedHashMap<String, Object> htblFieldValue) {
 
 		long startTime = System.currentTimeMillis();
-		boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
 
-		className = className.toLowerCase().replaceAll(" ", "");
-		/*
-		 * check if the className has a valid class Mapping
-		 */
-		if (OntologyMapper.getHtblMainOntologyClassesMappers().containsKey(className)) {
-			Class subjectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(className);
+		try {
+
+			if (htblFieldValue.isEmpty()) {
+				throw new InvalidQueryRequestBodyFormatException(" The body must not be empty!");
+			}
+
+			boolean exist = applicationDao.checkIfApplicationModelExsist(applicationNameCode);
+
+			className = className.toLowerCase().replaceAll(" ", "");
 
 			/*
 			 * check if the model exist or not .
 			 */
 
 			if (!exist) {
-				NoApplicationModelException exception = new NoApplicationModelException(applicationNameCode,
-						subjectClass.getName());
+				NoApplicationModelException exception = new NoApplicationModelException(applicationNameCode, className);
 				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 				return new SuccessfullSelectAllJsonModel(exception.getExceptionHashTable(timeTaken)).getJson();
 			}
-			try {
-				/*
-				 * validate query request
-				 */
-				ValidationResult validationResult = selectQueryRequestValidation.validateRequest(applicationNameCode,
-						htblFieldValue, subjectClass);
-				LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryField>>> htblClassNameProperty = validationResult
-						.getHtblClassNameProperty();
+
+			/*
+			 * get application modelName
+			 */
+			String applicationModelName = applicationDao.getHtblApplicationNameModelName()
+					.get(applicationNameCode.toLowerCase().replaceAll(" ", ""));
+
+			/*
+			 * check if the className has a valid class Mapping
+			 */
+			Class subjectClass = null;
+			if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
+					&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+							.containsKey(className))) {
+				subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+						.get(className);
+			} else {
 
 				/*
-				 * get application modelName
+				 * The class is not in dynamicOntology cache of requested
+				 * application so check it in main ontology
 				 */
-				String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationNameCode);
+				if (OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().containsKey(className)) {
+					subjectClass = OntologyMapper.getHtblMainOntologyClassesMappers().get(className);
+				} else {
 
-				List<LinkedHashMap<String, Object>> resultsList = selectQueryDao.queryData(htblClassNameProperty,
-						applicationModelName, validationResult.getHtblOptions());
+					/*
+					 * The class is not from MainOntology so check it in
+					 * DynamicOntology cache of this application
+					 */
 
-				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-				return new SuccessfullSelectAllJsonModel(resultsList, timeTaken).getJson();
+					/*
+					 * It doesnot exist so It might not cached before so I will
+					 * load and cache it if its a valid class
+					 */
+					Hashtable<String, String> htbClassNameToBeloaded = new Hashtable<>();
+					htbClassNameToBeloaded.put(className, className);
 
-			} catch (ErrorObjException e) {
-				double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-				return new SuccessfullSelectAllJsonModel(e.getExceptionHashTable(timeTaken)).getJson();
+					dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain(applicationModelName,
+							htbClassNameToBeloaded);
+
+					if (DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
+							.containsKey(className)) {
+						subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+								.get(applicationModelName).get(className);
+					} else {
+
+						/*
+						 * Not a valid class so return an error to the user
+						 */
+						double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+						InvalidClassNameException invalidClassNameException = new InvalidClassNameException(className);
+						return invalidClassNameException.getExceptionHashTable(timeTaken);
+					}
+
+				}
 
 			}
 
-		} else {
+			/*
+			 * validate query request
+			 */
+			List<LinkedHashMap<String, Object>> resultsList;
+			if (!QueryCache.getHtblQueryCache().containsKey(htblFieldValue.toString())) {
+
+				QueryRequestValidationResultUtility validationResult = selectQueryRequestValidation
+						.validateRequest(applicationNameCode, htblFieldValue, subjectClass, applicationModelName);
+				LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty = validationResult
+						.getHtblClassNameProperty();
+				resultsList = selectQueryDao.queryData(htblClassNameProperty, applicationModelName,
+						validationResult.getHtblOptions(), null, validationResult, htblFieldValue.toString());
+
+			} else {
+
+				QueryCachedObjectUtility queryCachedObject = QueryCache.getHtblQueryCache()
+						.get(htblFieldValue.toString());
+				LinkedHashMap<String, LinkedHashMap<String, ArrayList<QueryFieldUtility>>> htblClassNameProperty = queryCachedObject
+						.getQueryRequestValidationResultUtility().getHtblClassNameProperty();
+				resultsList = selectQueryDao.queryData(htblClassNameProperty, applicationModelName, null,
+						queryCachedObject, null, null);
+
+			}
+
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
-			InvalidClassNameException invalidClassNameException = new InvalidClassNameException(className);
-			return invalidClassNameException.getExceptionHashTable(timeTaken);
+			return new SuccessfullSelectAllJsonModel(resultsList, timeTaken).getJson();
+
+		} catch (ErrorObjException e) {
+			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
+			return new SuccessfullSelectAllJsonModel(e.getExceptionHashTable(timeTaken)).getJson();
+
 		}
 
 	}
@@ -202,7 +269,7 @@ public class SelectQueryService {
 
 		System.out.println(htblQueryFields);
 
-		System.out.println(OntologyMapper.getHtblMainOntologyClassesUriMappers()
+		System.out.println(OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesUriMappers()
 				.get("http://purl.oclc.org/NET/ssnx/ssn#SurvivalProperty").getClassTypesList());
 
 		String szJdbcURL = "jdbc:oracle:thin:@127.0.0.1:1539:cdb1";
@@ -219,19 +286,25 @@ public class SelectQueryService {
 		Oracle oracle = new Oracle(szJdbcURL, szUser, szPasswd);
 
 		SelectQueryRequestValidation selectQueryRequestValidation = new SelectQueryRequestValidation(
-				new DynamicConceptsUtility(new DynamicConceptsDao(dataSource)));
+				(new DynamicOntologyDao(oracle)));
 
 		ApplicationDao applicationDao = new ApplicationDao(oracle);
 
 		SelectQueryDao selectQueryDao = new SelectQueryDao(oracle);
 
+		DynamicOntologyDao dynamicOntologyDao = new DynamicOntologyDao(oracle);
+
 		SelectQueryService selectQueryService = new SelectQueryService(selectQueryRequestValidation, applicationDao,
-				selectQueryDao);
+				selectQueryDao, dynamicOntologyDao);
 
 		LinkedHashMap<String, Object> res = selectQueryService.QueryData("test application", "communicating device",
 				htblQueryFields);
 
+		LinkedHashMap<String, Object> res2 = selectQueryService.QueryData("test application", "communicating device",
+				htblQueryFields);
+
 		System.out.println(res);
+		System.out.println(res2);
 
 		// Hashtable<String, Object>[] err = (Hashtable<String, Object>[])
 		// res.get("errors");
