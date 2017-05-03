@@ -87,7 +87,7 @@ public class OntologyDao {
 						if (property instanceof ObjectProperty) {
 							LinkedHashMap<String, String> objectPropMap = new LinkedHashMap<>();
 
-							objectPropMap.put("name", propertyName);
+							objectPropMap.put("name", property.getName());
 							objectPropMap.put("domain", property.getSubjectClass().getName());
 							objectPropMap.put("range", ((ObjectProperty) property).getObjectClassName());
 
@@ -96,7 +96,7 @@ public class OntologyDao {
 
 							LinkedHashMap<String, String> objectPropMap = new LinkedHashMap<>();
 
-							objectPropMap.put("name", propertyName);
+							objectPropMap.put("name", property.getName());
 							objectPropMap.put("domain", property.getSubjectClass().getName());
 							objectPropMap.put("range", ((DataTypeProperty) property).getDataType().getDataType());
 
@@ -118,7 +118,7 @@ public class OntologyDao {
 						.get(applicationModelName).get(className);
 
 				LinkedHashMap<String, String> classMap = new LinkedHashMap<>();
-				classMap.put("name", className);
+				classMap.put("name", dynamicOntologyClassMapper.getName());
 				classMap.put("prefix", dynamicOntologyClassMapper.getPrefix().getPrefix());
 
 				classList.add(classMap);
@@ -138,7 +138,7 @@ public class OntologyDao {
 							if (property instanceof ObjectProperty) {
 								LinkedHashMap<String, String> objectPropMap = new LinkedHashMap<>();
 
-								objectPropMap.put("name", propertyName);
+								objectPropMap.put("name", property.getName());
 								objectPropMap.put("domain", property.getSubjectClass().getName());
 								objectPropMap.put("range", ((ObjectProperty) property).getObjectClassName());
 
@@ -147,7 +147,7 @@ public class OntologyDao {
 
 								LinkedHashMap<String, String> objectPropMap = new LinkedHashMap<>();
 
-								objectPropMap.put("name", propertyName);
+								objectPropMap.put("name", property.getName());
 								objectPropMap.put("domain", property.getSubjectClass().getName());
 								objectPropMap.put("range", ((DataTypeProperty) property).getDataType().getDataType());
 
