@@ -24,7 +24,7 @@ public class DeleteAPIController {
 			@PathVariable(value = "individualUnqiueIdentifier") String individualUnqiueIdentifier,
 			@RequestBody LinkedHashMap<String, Object> htblRequestBody) {
 
-		return deleteService.deleteData(applicationNameCode, instanceType, individualUnqiueIdentifier, htblRequestBody);
+		return deleteService.deleteData(instanceType, applicationNameCode, individualUnqiueIdentifier, htblRequestBody);
 
 	}
 }
