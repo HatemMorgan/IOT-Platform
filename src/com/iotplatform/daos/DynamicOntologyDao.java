@@ -574,7 +574,7 @@ public class DynamicOntologyDao {
 	private void cacheDynamicClass(String dynamicClassURI, String applicationModelName) {
 
 		String[] res = getValueFromURI(dynamicClassURI);
-		String dynamicClassName = res[0].toLowerCase();
+		String dynamicClassName = res[0];
 		String dynamicClassPrefixURI = res[1];
 		Prefix prefix = getPrefix(dynamicClassPrefixURI);
 
