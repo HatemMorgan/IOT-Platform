@@ -130,16 +130,21 @@ public class DeleteQuery {
 		deleteQueryBuilder.append(prefixesString);
 
 		deleteQueryBuilder.append("DELETE { \n");
-		deleteQueryBuilder.append("iot-platform:" + individualUniqueIdentifier.toLowerCase().replaceAll(" ", "")
-				+ " ?prop ?val . \n");
+		deleteQueryBuilder.append(
+				"iot-platform:" + individualUniqueIdentifier.toLowerCase().replaceAll(" ", "") + " ?prop ?val . \n");
 		deleteQueryBuilder.append("?subject ?property ?value . \n");
 		deleteQueryBuilder.append("} \n");
 
 		deleteQueryBuilder.append("WHERE{ \n");
 
+		deleteQueryBuilder.append(
+				"iot-platform:" + individualUniqueIdentifier.toLowerCase().replaceAll(" ", "") + " ?prop ?val . \n");
+
+		deleteQueryBuilder.append("OPTIONAL { \n");
 		deleteQueryBuilder.append("?subject ?property ?value . \n");
 		deleteQueryBuilder.append("FILTER( ?value = iot-platform:"
 				+ individualUniqueIdentifier.toLowerCase().replaceAll(" ", "") + " ) \n");
+		deleteQueryBuilder.append("} \n");
 		deleteQueryBuilder.append("} \n");
 
 		return deleteQueryBuilder.toString();
