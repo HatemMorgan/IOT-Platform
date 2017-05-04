@@ -66,7 +66,6 @@ import oracle.spatial.rdf.client.jena.Oracle;
 public class InsertRequestValidation {
 
 	private ValidationDao validationDao;
-	// private DynamicConceptsUtility dynamicPropertiesUtility;
 	private DynamicOntologyDao dynamicOntologyDao;
 
 	@Autowired
