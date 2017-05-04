@@ -141,7 +141,7 @@ public class DeleteService {
 
 		LinkedHashMap<String, Object> htbRequestBody = new LinkedHashMap<>();
 		ArrayList<Object> deleteList = new ArrayList<>();
-//		htbRequestBody.put("delete", deleteList);
+		// htbRequestBody.put("delete", deleteList);
 
 		deleteList.add("firstName");
 		deleteList.add("title");
@@ -174,7 +174,7 @@ public class DeleteService {
 
 		DeleteService deleteService = new DeleteService(deleteRequestValidation, deleteDao, applicationDao);
 
-		System.out.println(deleteService.deleteData("Developer", "test application", "EL3ankboots", htbRequestBody));
+		System.out.println(deleteService.deleteData("developer", "test application", "tag", htbRequestBody));
 
 	}
 }
