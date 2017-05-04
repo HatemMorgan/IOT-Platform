@@ -511,15 +511,29 @@ public class UpdateQuery {
 		}
 
 		updateQueryBuilder.append(prefixesString);
-		updateQueryBuilder.append("DELETE  \n ");
-		updateQueryBuilder.append("{ ?subject ?property ?value . } \n");
-		updateQueryBuilder.append("INSERT \n");
-		updateQueryBuilder.append("{ " + newPrefixedSubjectUniqueIdentfier + " a "
-				+ subjectClass.getPrefix().getPrefix() + subjectClass.getName() + "; ?property ?value . } \n");
-		updateQueryBuilder.append("WHERE \n");
-		updateQueryBuilder.append("{ \n  ?subject ?property ?value . \n ");
+
+		updateQueryBuilder.append("DELETE { \n ");
 		updateQueryBuilder.append(
-				"FILTER( ?subject = iot-platform:" + oldUniqueIdentifier.toLowerCase().replaceAll(" ", "") + " ) \n");
+				" iot-platform:" + oldUniqueIdentifier.toLowerCase().replaceAll(" ", "") + " ?property ?value .  \n");
+
+		updateQueryBuilder.append("?subject2 ?property2 ?value2 . \n");
+
+		updateQueryBuilder.append("} \n");
+
+		updateQueryBuilder.append("INSERT { \n");
+		updateQueryBuilder.append(newPrefixedSubjectUniqueIdentfier + " ?property ?value .  \n");
+		updateQueryBuilder.append("?subject2 ?property2 " + newPrefixedSubjectUniqueIdentfier + " . \n");
+		updateQueryBuilder.append("}");
+
+		updateQueryBuilder.append("WHERE { \n");
+		updateQueryBuilder.append(
+				"  iot-platform:" + oldUniqueIdentifier.toLowerCase().replaceAll(" ", "") + " ?property ?value . \n ");
+
+		updateQueryBuilder.append("OPTIONAL { \n");
+		updateQueryBuilder.append("?subject2 ?property2 ?value2 . \n");
+		updateQueryBuilder.append(
+				"FILTER( ?value2 = iot-platform:" + oldUniqueIdentifier.toLowerCase().replaceAll(" ", "") + " ) \n");
+		updateQueryBuilder.append(" } \n");
 		updateQueryBuilder.append(" } \n");
 
 		return updateQueryBuilder.toString();
