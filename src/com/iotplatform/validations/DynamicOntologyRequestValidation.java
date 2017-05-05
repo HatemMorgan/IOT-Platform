@@ -5,6 +5,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidDynamicOntologyException;
 import com.iotplatform.ontology.Prefix;
@@ -31,14 +34,30 @@ import com.iotplatform.ontology.XSDDatatype;
  * 
  */
 
+@Component
 public class DynamicOntologyRequestValidation {
 
 	private static Hashtable<String, Prefix> htblPrefixes;
 	private static Hashtable<String, XSDDatatype> htblXSDDatatypes;
 
+	// private OntExtension ontExtension;
+	// private OntologyDao ontologyDao;
+
+	// @Autowired
+	// public DynamicOntologyRequestValidation(OntExtension ontExtension,
+	// OntologyDao ontologyDao) {
+	// loadPrefixes();
+	// loadXSDdataTypes();
+	// System.out.println("DynamicOntologyRequestValidation Bean Created");
+	// // this.ontExtension = ontExtension;
+	// // this.ontologyDao = ontologyDao;
+	// }
+
+	@Autowired
 	public DynamicOntologyRequestValidation() {
 		loadPrefixes();
 		loadXSDdataTypes();
+		System.out.println("DynamicOntologyRequestValidation Bean Created");
 	}
 
 	/*
@@ -518,7 +537,7 @@ public class DynamicOntologyRequestValidation {
 
 	private static boolean isPrefixValid(String prefixedName) {
 		int index = prefixedName.indexOf(":");
-		String prefix = prefixedName.substring(0, index + 1);
+		String prefix = prefixedName.substring(0, index);
 
 		return (htblPrefixes.containsKey(prefix)) ? true : false;
 
@@ -565,57 +584,117 @@ public class DynamicOntologyRequestValidation {
 		return null;
 	}
 
-	public static Hashtable<String, Object> validateNewClassOntologyRequest(Hashtable<String, Object> htblRequestBody) {
+	public Hashtable<String, Object> validateNewClassOntologyRequest(Hashtable<String, Object> htblRequestBody,
+			String applicationModelName) {
 
 		if (htblRequestBody.size() == 1 && htblRequestBody.containsKey("name")
-				&& htblRequestBody.get("name") instanceof String) {
+				&& htblRequestBody.get("name") instanceof String
+				&& !htblRequestBody.get("name").toString().replaceAll(" ", "").isEmpty()) {
 
 			return htblRequestBody;
 		} else {
-			throw new InvalidDynamicOntologyException("Invalid Dynamic Ontology class insertion request. "
-					+ "The request body must have only one key with value name and its "
-					+ "value is a String. ex: \"name\":\"Person\" ");
+
+			if (htblRequestBody.get("name").toString().replaceAll(" ", "").isEmpty()) {
+
+				throw new InvalidDynamicOntologyException("Invalid Dynamic Ontology class insertion request. "
+						+ "The Field: name must not have an empty value .");
+
+			} else {
+				throw new InvalidDynamicOntologyException("Invalid Dynamic Ontology class insertion request. "
+						+ "The request body must have only one key with value name and its "
+						+ "value is a String. ex: \"name\":\"Person\" ");
+			}
 		}
 
 	}
 
-	public static Hashtable<String, Object> validateNewObjectPropertyOntologyRequest(
-			Hashtable<String, Object> htbRequestBody) {
+	public Hashtable<String, Object> validateNewObjectPropertyOntologyRequest(Hashtable<String, Object> htbRequestBody,
+			String applicationModelName) {
 
 		if (htbRequestBody.size() != 5) {
 			throw new InvalidDynamicOntologyException("Invalid Dynamic Ontology  ObjectProperty insertion request. "
 					+ "The request body must have propertyName,domainPrefixName,rangePrefixName,hasMultipleValues,isUnique ");
 		}
 
-		if (!(htbRequestBody.containsKey("propertyName") && htbRequestBody.get("propertyName") instanceof String)) {
+		if (!(htbRequestBody.containsKey("propertyName") && htbRequestBody.get("propertyName") instanceof String
+				&& !htbRequestBody.get("propertyName").toString().replaceAll(" ", "").isEmpty())) {
+
+			if (htbRequestBody.get("propertyName").toString().replaceAll(" ", "").isEmpty()) {
+
+				throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
+						+ "The Field: propertyName must not have an empty value .");
+			}
 			throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
 					+ "The request body must have key with value propertyName and its "
 					+ "value is a String. ex: \"propertyName\":\"knows\" ");
 		}
 
-		if (!(htbRequestBody.containsKey("domainPrefixName")
-				&& htbRequestBody.get("domainPrefixName") instanceof String)
-				&& isPrefixValid(htbRequestBody.get("domainPrefixName").toString())) {
+		if (!(htbRequestBody.containsKey("domainPrefixName") && htbRequestBody.get("domainPrefixName") instanceof String
+				&& !htbRequestBody.get("domainPrefixName").toString().replaceAll(" ", "").isEmpty())
+				|| !isPrefixValid(htbRequestBody.get("domainPrefixName").toString())) {
+
+			if (htbRequestBody.get("domainPrefixName").toString().replaceAll(" ", "").isEmpty()) {
+
+				throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
+						+ "The Field: domainPrefixName must not have an empty value .");
+			}
+
+			if (!isPrefixValid(htbRequestBody.get("domainPrefixName").toString())) {
+				throw new InvalidDynamicOntologyException(
+						"Invalid Dynamic ObjectProperty insertion request. value of field: domainPrefixName has invalid prefix."
+								+ " It must be one of " + htblPrefixes.keySet().toString());
+			}
+
 			throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
 					+ "The request body must have key with value domainPrefixName and its "
 					+ "value is a String. ex: \"domainPrefixName\":\"foaf:Person\" ");
 		}
 
-		if (!(htbRequestBody.containsKey("rangePrefixName") && htbRequestBody.get("rangePrefixName") instanceof String)
-				&& isPrefixValid(htbRequestBody.get("rangePrefixName").toString())) {
+		if (!(htbRequestBody.containsKey("rangePrefixName") && htbRequestBody.get("rangePrefixName") instanceof String
+				&& !htbRequestBody.get("rangePrefixName").toString().replaceAll(" ", "").isEmpty())
+				|| !isPrefixValid(htbRequestBody.get("rangePrefixName").toString())) {
+
+			if (htbRequestBody.get("rangePrefixName").toString().replaceAll(" ", "").isEmpty()) {
+
+				throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
+						+ "The Field: rangePrefixName must not have an empty value .");
+			}
+
+			if (!isPrefixValid(htbRequestBody.get("rangePrefixName").toString())) {
+				throw new InvalidDynamicOntologyException(
+						"Invalid Dynamic ObjectProperty insertion request. value of field: rangePrefixName has invalid prefix."
+								+ " It must be one of " + htblPrefixes.keySet().toString());
+			}
+
 			throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
 					+ "The request body must have key with value rangePrefixName and its "
 					+ "value is a String. ex: \"rangePrefixName\":\"foaf:Person\" ");
 		}
 
 		if (!(htbRequestBody.containsKey("hasMultipleValues")
-				&& htbRequestBody.get("hasMultipleValues") instanceof Boolean)) {
+				&& htbRequestBody.get("hasMultipleValues") instanceof Boolean
+				&& !htbRequestBody.get("hasMultipleValues").toString().replaceAll(" ", "").isEmpty())) {
+
+			if (htbRequestBody.get("hasMultipleValues").toString().replaceAll(" ", "").isEmpty()) {
+
+				throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
+						+ "The Field: hasMultipleValues must not have an empty value .");
+			}
+
 			throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
 					+ "The request body must have key with value hasMultipleValues and its "
 					+ "value is a boolean. ex: \"hasMultipleValues\": true ");
 		}
 
-		if (!(htbRequestBody.containsKey("isUnique") && htbRequestBody.get("isUnique") instanceof Boolean)) {
+		if (!(htbRequestBody.containsKey("isUnique") && htbRequestBody.get("isUnique") instanceof Boolean
+				&& !htbRequestBody.get("isUnique").toString().replaceAll(" ", "").isEmpty())) {
+
+			if (htbRequestBody.get("isUnique").toString().replaceAll(" ", "").isEmpty()) {
+
+				throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
+						+ "The Field: isUnique must not have an empty value .");
+			}
+
 			throw new InvalidDynamicOntologyException("Invalid Dynamic ObjectProperty insertion request. "
 					+ "The request body must have key with value isUnique and its "
 					+ "value is a boolean. ex: \"isUnique\": false ");
@@ -633,35 +712,87 @@ public class DynamicOntologyRequestValidation {
 					+ "The request body must have propertyName,domainPrefixName,dataType,hasMultipleValues,isUnique ");
 		}
 
-		if (!(htbRequestBody.containsKey("propertyName") && htbRequestBody.get("propertyName") instanceof String)) {
+		if (!(htbRequestBody.containsKey("propertyName") && htbRequestBody.get("propertyName") instanceof String
+				&& !htbRequestBody.get("propertyName").toString().replaceAll(" ", "").isEmpty())) {
+
+			if (htbRequestBody.get("propertyName").toString().replaceAll(" ", "").isEmpty()) {
+
+				throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
+						+ "The Field: propertyName must not have an empty value .");
+			}
+
 			throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
 					+ "The request body must have key with value propertyName and its "
 					+ "value is a String. ex: \"propertyName\":\"knows\" ");
 		}
 
-		if (!(htbRequestBody.containsKey("domainPrefixName")
-				&& htbRequestBody.get("domainPrefixName") instanceof String)
-				&& isPrefixValid(htbRequestBody.get("domainPrefixName").toString())) {
+		if (!(htbRequestBody.containsKey("domainPrefixName") && htbRequestBody.get("domainPrefixName") instanceof String
+				&& !htbRequestBody.get("domainPrefixName").toString().replaceAll(" ", "").isEmpty())
+				|| !isPrefixValid(htbRequestBody.get("domainPrefixName").toString())) {
+
+			if (htbRequestBody.get("domainPrefixName").toString().replaceAll(" ", "").isEmpty()) {
+
+				throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
+						+ "The Field: domainPrefixName must not have an empty value .");
+			}
+
+			if (!isPrefixValid(htbRequestBody.get("domainPrefixName").toString())) {
+				throw new InvalidDynamicOntologyException(
+						"Invalid Dynamic DataTypeProperty insertion request. value of "
+								+ "field: domainPrefixName has invalid prefix ." + " It must be one of "
+								+ htblPrefixes.keySet().toString());
+			}
+
 			throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
 					+ "The request body must have key with value domainPrefixName and its "
 					+ "value is a String. ex: \"domainPrefixName\":\"foaf:Person\" ");
 		}
 
-		if (!(htbRequestBody.containsKey("dataType") && htbRequestBody.get("dataType") instanceof String)
-				&& htblXSDDatatypes.containsKey(htbRequestBody.get("rangePrefixName").toString().toLowerCase())) {
+		if (!(htbRequestBody.containsKey("dataType") && htbRequestBody.get("dataType") instanceof String
+				&& !htbRequestBody.get("dataType").toString().replaceAll(" ", "").isEmpty())
+				|| !htblXSDDatatypes.containsKey(htbRequestBody.get("dataType").toString().toLowerCase())) {
+
+			if (htbRequestBody.get("dataType").toString().replaceAll(" ", "").isEmpty()) {
+
+				throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
+						+ "The Field: dataType must not have an empty value .");
+			}
+
+			if (!htblXSDDatatypes.containsKey(htbRequestBody.get("dataType").toString().toLowerCase())) {
+				throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
+						+ "The value of Field: dataType is not a valid datatype . It must be one of "
+						+ htblXSDDatatypes.keySet().toString());
+			}
+
 			throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
 					+ "The request body must have key with value dataType and its "
 					+ "value is a String. ex: \"dataType\":\"string\" ");
 		}
 
 		if (!(htbRequestBody.containsKey("hasMultipleValues")
-				&& htbRequestBody.get("hasMultipleValues") instanceof Boolean)) {
+				&& htbRequestBody.get("hasMultipleValues") instanceof Boolean
+				&& !htbRequestBody.get("hasMultipleValues").toString().replaceAll(" ", "").isEmpty())) {
+
+			if (htbRequestBody.get("hasMultipleValues").toString().replaceAll(" ", "").isEmpty()) {
+
+				throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
+						+ "The Field: hasMultipleValues must not have an empty value .");
+			}
+
 			throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
 					+ "The request body must have key with value hasMultipleValues and its "
 					+ "value is a boolean. ex: \"hasMultipleValues\": true ");
 		}
 
-		if (!(htbRequestBody.containsKey("isUnique") && htbRequestBody.get("isUnique") instanceof Boolean)) {
+		if (!(htbRequestBody.containsKey("isUnique") && htbRequestBody.get("isUnique") instanceof Boolean
+				&& !htbRequestBody.get("isUnique").toString().replaceAll(" ", "").isEmpty())) {
+
+			if (htbRequestBody.get("isUnique").toString().replaceAll(" ", "").isEmpty()) {
+
+				throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
+						+ "The Field: isUnique must not have an empty value .");
+			}
+
 			throw new InvalidDynamicOntologyException("Invalid Dynamic DataTypeProperty insertion request. "
 					+ "The request body must have key with value isUnique and its "
 					+ "value is a boolean. ex: \"isUnique\": false ");

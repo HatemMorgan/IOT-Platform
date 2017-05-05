@@ -73,7 +73,7 @@ public class ApplicationDao {
 			String modelConventionName = applicationName.replaceAll(" ", "").toUpperCase() + suffix;
 			Model newModel = ModelOracleSem.createOracleSemModel(oracle, modelConventionName);
 			newModel.close();
-			htblApplicationNameModelName.put(applicationName, modelConventionName);
+			htblApplicationNameModelName.put(applicationName.toLowerCase().replaceAll(" ", ""), modelConventionName);
 			return true;
 		} catch (SQLException e) {
 			throw new DatabaseException(e.getMessage(), "Application");
@@ -88,81 +88,17 @@ public class ApplicationDao {
 		try {
 			String modelConventionName = applicationName.replaceAll(" ", "").toUpperCase() + suffix;
 			OracleUtils.dropSemanticModel(oracle, modelConventionName);
+
+			if (htblApplicationNameModelName.containsKey(applicationName.toLowerCase().replaceAll(" ", ""))) {
+				htblApplicationNameModelName.remove(applicationName.toLowerCase().replaceAll(" ", ""));
+			}
+
 			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return false;
-	}
-
-	/*
-	 * getApplication method perform a query on application data graph
-	 */
-	public Hashtable<String, Object> getApplication(String applicationName) {
-		String applicationModelName = applicationName.replaceAll(" ", "").toUpperCase() + suffix;
-		long startTime = System.currentTimeMillis();
-		System.out.println("Started at : " + startTime / 1000);
-
-		String subject = Prefix.IOT_PLATFORM.getPrefix() + applicationName.replaceAll(" ", "").toLowerCase();
-		Hashtable<String, Object> results = new Hashtable<>();
-
-		ResultSetMetaData metadata;
-		try {
-			String queryString = "select p,o from table(sem_match('select  ?p ?o where {" + subject + "  ?p ?o.}',"
-					+ "SEM_Models('" + applicationModelName + "'), null,"
-					+ "SEM_ALIASES(SEM_ALIAS('iot-platform','http://iot-platform#')),null))";
-
-			System.out.println(queryString);
-			java.sql.ResultSet res = oracle.executeQuery(queryString, 0, 1);
-			metadata = res.getMetaData();
-			// int columnCount = metadata.getColumnCount();
-
-			while (res.next()) {
-
-				results.put(res.getString(1), res.getObject(2));
-
-			}
-			System.out.println(
-					"test selecting: elapsed time (sec): " + ((System.currentTimeMillis() - startTime) / 1000));
-			return results;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-
-	public Hashtable<String, Object> getOntology(String applicationName) {
-		String applicationModelName = applicationName.replaceAll(" ", "").toUpperCase() + suffix;
-		long startTime = System.currentTimeMillis();
-		System.out.println("Started at : " + startTime / 1000);
-
-		String subject = Prefix.IOT_PLATFORM.getPrefix() + applicationName.replaceAll(" ", "").toLowerCase();
-		Hashtable<String, Object> results = new Hashtable<>();
-
-		ResultSetMetaData metadata;
-		try {
-			String queryString = "select s,o from table(sem_match(' select  ?s ?o where {?s ?p ?o.}',SEM_Models('MAIN_ONTOLOGY_MODEL'), null,SEM_ALIASES(SEM_ALIAS('iot-platform','http://iot-platform#')),null))";
-			System.out.println(queryString);
-			java.sql.ResultSet res = oracle.executeQuery(queryString, 0, 1);
-			metadata = res.getMetaData();
-			int columnCount = metadata.getColumnCount();
-
-			while (res.next()) {
-				results.put(res.getString(1), res.getObject(2));
-
-			}
-			System.out.println(
-					"test selecting: elapsed time (sec): " + ((System.currentTimeMillis() - startTime) / 1000));
-			return results;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return null;
 	}
 
 	public Hashtable<String, String> getHtblApplicationNameModelName() {
@@ -215,7 +151,5 @@ public class ApplicationDao {
 		// Testing select query of an application
 		// System.out.println("Application Found :" +
 		// applicationDAO.checkIfApplicationModelExsist("Test App"));
-		Hashtable<String, Object> res = applicationDAO.getApplication("TESTAPPLICATIONS");
-		System.out.println(res.toString());
 	}
 }

@@ -81,7 +81,7 @@ public class InsertionQuery {
 			/*
 			 * get subjectClass from dynamicOntology cache if it exist
 			 */
-			if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().contains(applicationModelName)
+			if ((DynamicOntologyMapper.getHtblappDynamicOntologyClasses().containsKey(applicationModelName)
 					&& DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)
 							.containsKey(subjectClassName))) {
 				subjectClass = DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get(applicationModelName)

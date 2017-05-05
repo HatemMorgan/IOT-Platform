@@ -10,6 +10,7 @@ import com.iotplatform.daos.ApplicationDao;
 import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.OntologyDao;
 import com.iotplatform.exceptions.ErrorObjException;
+import com.iotplatform.exceptions.InvalidDynamicOntologyException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullInsertionModel;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;
@@ -23,13 +24,15 @@ public class OntologyService {
 	private OntologyDao ontologyDao;
 	private ApplicationDao applicationDao;
 	private DynamicOntologyDao dynamicOntologyDao;
+	private DynamicOntologyRequestValidation dynamicOntologyRequestValidation;
 
 	@Autowired
 	public OntologyService(OntologyDao ontologyDao, ApplicationDao applicationDao,
-			DynamicOntologyDao dynamicOntologyDao) {
+			DynamicOntologyDao dynamicOntologyDao, DynamicOntologyRequestValidation dynamicOntologyRequestValidation) {
 		this.ontologyDao = ontologyDao;
 		this.applicationDao = applicationDao;
 		this.dynamicOntologyDao = dynamicOntologyDao;
+		this.dynamicOntologyRequestValidation = dynamicOntologyRequestValidation;
 	}
 
 	public LinkedHashMap<String, Object> getApplicationOntology(String applicationName) {
@@ -81,10 +84,14 @@ public class OntologyService {
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName()
 					.get(applicationName.toLowerCase().replaceAll(" ", ""));
 
+			if (htblRequestBody == null || htblRequestBody.size() == 0) {
+				throw new InvalidDynamicOntologyException("Invlid Request Body. ");
+			}
+
 			/*
 			 * check that request is valid
 			 */
-			DynamicOntologyRequestValidation.validateNewClassOntologyRequest(htblRequestBody);
+			dynamicOntologyRequestValidation.validateNewClassOntologyRequest(htblRequestBody, applicationModelName);
 
 			/*
 			 * insert new class
@@ -95,6 +102,8 @@ public class OntologyService {
 			return successModel.getResponseJson();
 
 		} catch (ErrorObjException ex) {
+			System.out.println(ex.getExceptionMessage());
+
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			return ex.getExceptionHashTable(timeTaken);
 		}
@@ -125,10 +134,15 @@ public class OntologyService {
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName()
 					.get(applicationName.toLowerCase().replaceAll(" ", ""));
 
+			if (htblRequestBody == null || htblRequestBody.size() == 0) {
+				throw new InvalidDynamicOntologyException("Invlid Request Body. ");
+			}
+
 			/*
 			 * check that request is valid
 			 */
-			DynamicOntologyRequestValidation.validateNewObjectPropertyOntologyRequest(htblRequestBody);
+			dynamicOntologyRequestValidation.validateNewObjectPropertyOntologyRequest(htblRequestBody,
+					applicationModelName);
 
 			/*
 			 * insert new class
@@ -145,6 +159,7 @@ public class OntologyService {
 			return successModel.getResponseJson();
 
 		} catch (ErrorObjException ex) {
+			System.out.println(ex.getExceptionMessage());
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			return ex.getExceptionHashTable(timeTaken);
 		}
@@ -173,6 +188,11 @@ public class OntologyService {
 			 */
 			String applicationModelName = applicationDao.getHtblApplicationNameModelName()
 					.get(applicationName.toLowerCase().replaceAll(" ", ""));
+
+			if (htblRequestBody == null || htblRequestBody.size() == 0) {
+				throw new InvalidDynamicOntologyException("Invlid Request Body. ");
+			}
+
 			/*
 			 * check that request is valid
 			 */
@@ -191,6 +211,7 @@ public class OntologyService {
 			return successModel.getResponseJson();
 
 		} catch (ErrorObjException ex) {
+			System.out.println(ex.getExceptionMessage());
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			return ex.getExceptionHashTable(timeTaken);
 		}
@@ -208,12 +229,47 @@ public class OntologyService {
 		ApplicationDao applicationDao = new ApplicationDao(oracle);
 		DynamicOntologyDao dynamicOntologyDao = new DynamicOntologyDao(oracle);
 
-		OntologyService ontologyService = new OntologyService(ontologyDao, applicationDao, dynamicOntologyDao);
+		DynamicOntologyRequestValidation dynamicOntologyRequestValidation = new DynamicOntologyRequestValidation();
 
-		LinkedHashMap<String, Object> htblResults = ontologyService.getApplicationOntology("test application");
-		System.out.println(htblResults);
-		ontologyService.getApplicationOntology("test application");
-		System.out.println(htblResults);
+		OntologyService ontologyService = new OntologyService(ontologyDao, applicationDao, dynamicOntologyDao,
+				dynamicOntologyRequestValidation);
+
+		 LinkedHashMap<String, Object> htblResults =
+		 ontologyService.getApplicationOntology("test application");
+		 System.out.println(htblResults);
+		// ontologyService.getApplicationOntology("test application");
+		// System.out.println(htblResults);
+
+		// Hashtable<String, Object> htbNewClassRequest = new Hashtable<>();
+		//
+		// htbNewClassRequest.put("name", "check");
+		//
+		// System.out.println(ontologyService.insertNewClass("test application",
+		// htbNewClassRequest));
+
+		// Hashtable<String, Object> htblNewObjectPropertyRequest = new
+		// Hashtable<>();
+		//
+		// htblNewObjectPropertyRequest.put("propertyName", "hates");
+		// htblNewObjectPropertyRequest.put("domainPrefixName", "foaf:Person");
+		// htblNewObjectPropertyRequest.put("rangePrefixName", "foaf:Person");
+		// htblNewObjectPropertyRequest.put("hasMultipleValues", true);
+		// htblNewObjectPropertyRequest.put("isUnique", false);
+		//
+		// System.out.println(ontologyService.insertNewObjectProperty("test
+		// application", htblNewObjectPropertyRequest));
+
+//		Hashtable<String, Object> htblNewDataTypePropertyRequest = new Hashtable<>();
+//
+//		htblNewDataTypePropertyRequest.put("propertyName", "job");
+//		htblNewDataTypePropertyRequest.put("domainPrefixName", "foaf:Person");
+//		htblNewDataTypePropertyRequest.put("dataType", "string");
+//		htblNewDataTypePropertyRequest.put("hasMultipleValues", true);
+//		htblNewDataTypePropertyRequest.put("isUnique", false);
+//
+//		System.out
+//				.println(ontologyService.insertNewDataTypeProperty("test application", htblNewDataTypePropertyRequest));
+
 	}
 
 }

@@ -680,100 +680,36 @@ public class DynamicOntologyDao {
 		 * DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri() has the
 		 * applicationModelName
 		 */
-		if (DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().containsKey(applicationModelName)) {
+		if (!DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().containsKey(applicationModelName)
+				|| !DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get(applicationModelName)
+						.contains(subjectClassURI)) {
+			cacheDynamicClass(subjectClassURI, applicationModelName);
 
-			Hashtable<String, Class> htblDynamicOntologyClassesURI = DynamicOntologyMapper
-					.getHtblappDynamicOntologyClassesUri().get(applicationModelName);
-			Hashtable<String, Class> htblDynamicOntologyClasses = DynamicOntologyMapper
-					.getHtblappDynamicOntologyClasses().get(applicationModelName);
-			/*
-			 * check if the subjectClassURI exist or not in
-			 * htblDynamicOntologyClassesURI
-			 */
-			if (htblDynamicOntologyClassesURI.containsKey(subjectClassURI)) {
-				Class subjectClass = htblDynamicOntologyClassesURI.get(subjectClassURI);
-
-				/*
-				 * create new property
-				 */
-				Property newProperty = createProperty(subjectClass, propertyName, propertyPrefix, propertyType,
-						xsdDatatype, objectClassName, hasMultipleValued, isUnique);
-				/*
-				 * add new property to subjectClass's proprtiesList
-				 */
-				subjectClass.getProperties().put(propertyName, newProperty);
-				subjectClass.getHtblPropUriName().put(propertyURI, propertyName);
-
-				addInheritedCachedPropertiesToSubClasses(subjectClassName, newProperty, applicationModelName);
-
-			} else {
-
-				/*
-				 * the class does not exist so I will add it to
-				 * htblDynamicOntologyClassesURI
-				 */
-				Class subjectClass = new Class(subjectClassName, subjectClassURI, subjectClassPrefix);
-				htblDynamicOntologyClassesURI.put(subjectClassURI, subjectClass);
-
-				/*
-				 * also add it to htblDynamicOntologyClasses
-				 */
-				htblDynamicOntologyClasses.put(subjectClassName.toLowerCase(), subjectClass);
-
-				/*
-				 * create newProperty
-				 */
-				Property newProperty = createProperty(subjectClass, propertyName, propertyPrefix, propertyType,
-						xsdDatatype, objectClassName, hasMultipleValued, isUnique);
-				/*
-				 * add new property to subjectClass's proprtiesList
-				 */
-				subjectClass.getProperties().put(propertyName, newProperty);
-				subjectClass.getHtblPropUriName().put(propertyURI, propertyName);
-
-				addInheritedCachedPropertiesToSubClasses(subjectClassName, newProperty, applicationModelName);
-
-			}
-
-		} else {
-			/*
-			 * first time to to cache dynamic classes or properties of this
-			 * application.
-			 * 
-			 * create caches for this applicationModel with applicationModelName
-			 */
-			Hashtable<String, Class> htblDynamicOntologyClassesURI = new Hashtable<>();
-			DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().put(applicationModelName,
-					htblDynamicOntologyClassesURI);
-
-			Hashtable<String, Class> htblDynamicOntologyClasses = new Hashtable<>();
-			DynamicOntologyMapper.getHtblappDynamicOntologyClasses().put(applicationModelName,
-					htblDynamicOntologyClasses);
-
-			/*
-			 * the class does not exist so I will add it to
-			 * htblDynamicOntologyClassesURI
-			 */
-			Class subjectClass = new Class(subjectClassName, subjectClassURI, subjectClassPrefix);
-			htblDynamicOntologyClassesURI.put(subjectClassURI, subjectClass);
-
-			/*
-			 * also add it to htblDynamicOntologyClasses
-			 */
-			htblDynamicOntologyClasses.put(subjectClassName.toLowerCase(), subjectClass);
-
-			Property newProperty = createProperty(subjectClass, propertyName, propertyPrefix, propertyType, xsdDatatype,
-					objectClassName, hasMultipleValued, isUnique);
-			/*
-			 * add new property to subjectClass's proprtiesList
-			 */
-			subjectClass.getProperties().put(propertyName, newProperty);
-			subjectClass.getHtblPropUriName().put(propertyURI, propertyName);
-
-			addInheritedCachedPropertiesToSubClasses(subjectClassName, newProperty, applicationModelName);
 		}
 
-		cacheDynamicClass(subjectClassURI, applicationModelName);
+		Hashtable<String, Class> htblDynamicOntologyClassesURI = DynamicOntologyMapper
+				.getHtblappDynamicOntologyClassesUri().get(applicationModelName);
+		Hashtable<String, Class> htblDynamicOntologyClasses = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+				.get(applicationModelName);
+		/*
+		 * check if the subjectClassURI exist or not in
+		 * htblDynamicOntologyClassesURI
+		 */
+		Class subjectClass = htblDynamicOntologyClassesURI.get(subjectClassURI);
+
+		/*
+		 * create new property
+		 */
+		Property newProperty = createProperty(subjectClass, propertyName, propertyPrefix, propertyType, xsdDatatype,
+				objectClassName, hasMultipleValued, isUnique);
+		/*
+		 * add new property to subjectClass's proprtiesList
+		 */
+		subjectClass.getProperties().put(propertyName, newProperty);
+		subjectClass.getHtblPropUriName().put(propertyURI, propertyName);
+
+		addInheritedCachedPropertiesToSubClasses(subjectClassName, newProperty, applicationModelName);
+
 	}
 
 	private void addInheritedCachedPropertiesToSubClasses(String subjectClassName, Property property,
@@ -1022,20 +958,26 @@ public class DynamicOntologyDao {
 
 		DynamicOntologyDao dynamicOntologyDao = new DynamicOntologyDao(oracle);
 		System.out.println("Database Connected");
-		dynamicOntologyDao.addNewClassToOntology("VirtualSensor", "TESTAPPLICATION_MODEL");
-		dynamicOntologyDao.addNewObjectPropertyToOntology("virtual", "ssn:Device", "iot-platform:VirtualSensor", true,
-				true, "TESTAPPLICATION_MODEL");
-		dynamicOntologyDao.addNewDatatypePropertyToOntology("macAddress", "iot-platform:VirtualSensor", "string", false,
-				true, "TESTAPPLICATION_MODEL");
-
-		dynamicOntologyDao.addNewDatatypePropertyToOntology("job", "iot-platform:Developer", "string", false, false,
-				"TESTAPPLICATION_MODEL");
-
-		dynamicOntologyDao.addNewObjectPropertyToOntology("hates", "foaf:Person", "foaf:Person", true, false,
-				"TESTAPPLICATION_MODEL");
-
-		dynamicOntologyDao.addNewObjectPropertyToOntology("loves", "foaf:Person", "foaf:Person", true, false,
-				"TESTAPPLICATION_MODEL");
+		// dynamicOntologyDao.addNewClassToOntology("VirtualSensor",
+		// "TESTAPPLICATION_MODEL");
+		// dynamicOntologyDao.addNewObjectPropertyToOntology("virtual",
+		// "ssn:Device", "iot-platform:VirtualSensor", true,
+		// true, "TESTAPPLICATION_MODEL");
+		// dynamicOntologyDao.addNewDatatypePropertyToOntology("macAddress",
+		// "iot-platform:VirtualSensor", "string", false,
+		// true, "TESTAPPLICATION_MODEL");
+		//
+		// dynamicOntologyDao.addNewDatatypePropertyToOntology("job",
+		// "iot-platform:Developer", "string", false, false,
+		// "TESTAPPLICATION_MODEL");
+		//
+		// dynamicOntologyDao.addNewObjectPropertyToOntology("hates",
+		// "foaf:Person", "foaf:Person", true, false,
+		// "TESTAPPLICATION_MODEL");
+		//
+		// dynamicOntologyDao.addNewObjectPropertyToOntology("loves",
+		// "foaf:Person", "foaf:Person", true, false,
+		// "TESTAPPLICATION_MODEL");
 
 		Hashtable<String, String> dyanmicClassesNameList = new Hashtable<>();
 		dyanmicClassesNameList.put("VirtualSensor", "VirtualSensor");
@@ -1043,32 +985,36 @@ public class DynamicOntologyDao {
 		dyanmicClassesNameList.put("Person", "Person");
 		dyanmicClassesNameList.put("Developer", "Developer");
 
-		dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain("TESTAPPLICATION_MODEL",
-				dyanmicClassesNameList);
+		// dynamicOntologyDao.loadAndCacheDynamicClassesofApplicationDomain("TESTAPPLICATION_MODEL",
+		// dyanmicClassesNameList);
+
+		// dynamicOntologyDao.loadAndCacheApplicationDynamicOntology("TESTAPPLICATION_MODEL");
 
 		// dynamicOntologyDao.loadAndCacheAllApplicationDynamicOntologyClasses("TESTAPPLICATION_MODEL");
 		// dynamicOntologyDao.loadAndCacheAllApplicationDynamicOntologyObjectProperties("TESTAPPLICATION_MODEL");
-		// dynamicOntologyDao.loadAndCacheAllApplicationDynamicOntologyDataTypeProperties("TESTAPPLICATION_MODEL");
+		dynamicOntologyDao.loadAndCacheAllApplicationDynamicOntologyDataTypeProperties("TESTAPPLICATION_MODEL");
 
 		System.out.println(DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get("TESTAPPLICATION_MODEL"));
 		System.out.println(DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().get("TESTAPPLICATION_MODEL")
 				.get("http://iot-platform#VirtualSensor").getProperties());
 
 		System.out.println(DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get("TESTAPPLICATION_MODEL"));
-		System.out.println(DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get("TESTAPPLICATION_MODEL")
-				.get("device").getProperties());
+		// System.out.println(DynamicOntologyMapper.getHtblappDynamicOntologyClasses().get("TESTAPPLICATION_MODEL")
+		// .get("device").getProperties());
+
+		// System.out.println("--> " +
+		// DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+		// .get("TESTAPPLICATION_MODEL").get("person").getProperties());
 
 		System.out.println("--> " + DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
-				.get("TESTAPPLICATION_MODEL").get("person").getProperties());
-
-		System.out.println("--> " + DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
-				.get("TESTAPPLICATION_MODEL").get("admin").getProperties());
+				.get("TESTAPPLICATION_MODEL").get("developer").getProperties());
 
 		System.out.println("==> " + DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
 				.get("TESTAPPLICATION_MODEL").get("developer").getUniqueIdentifierPropertyName());
 
-		System.out.println("==> " + DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
-				.get("TESTAPPLICATION_MODEL").get("person").getClassTypesList());
+		// System.out.println("==> " +
+		// DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
+		// .get("TESTAPPLICATION_MODEL").get("person").getClassTypesList());
 	}
 
 }

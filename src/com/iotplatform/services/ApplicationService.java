@@ -73,7 +73,8 @@ public class ApplicationService {
 				}
 			}
 
-			String applicationModelName = applicationDao.getHtblApplicationNameModelName().get(applicationName);
+			String applicationModelName = applicationDao.getHtblApplicationNameModelName()
+					.get(applicationName.toLowerCase().replaceAll(" ", ""));
 
 			/*
 			 * Check if the request is valid or not
@@ -84,7 +85,7 @@ public class ApplicationService {
 							OntologyMapper.getOntologyMapper().getHtblMainOntologyClassesMappers().get("application"),
 							applicationModelName);
 
-			insertionDao.insertData(applicationDao.getHtblApplicationNameModelName().get(applicationName),
+			insertionDao.insertData(applicationModelName,
 					OntologyMapper.getHtblMainOntologyClassesMappers().get("application").getName(),
 					htblClassPropertyValue);
 
@@ -93,11 +94,19 @@ public class ApplicationService {
 			return successModel.getResponseJson();
 
 		} catch (ErrorObjException ex) {
+			ex.printStackTrace();
 			double timeTaken = ((System.currentTimeMillis() - startTime) / 1000.0);
 			return ex.getExceptionHashTable(timeTaken);
 
 		}
 
+	}
+
+	public LinkedHashMap<String, Object> dropApplication() {
+		applicationDao.dropApplicationModel("Test Application");
+
+		SuccessfullInsertionModel successModel = new SuccessfullInsertionModel("Application", 0);
+		return successModel.getResponseJson();
 	}
 
 	public static void main(String[] args) {
@@ -133,11 +142,13 @@ public class ApplicationService {
 		// applicationDao.dropApplicationModel("Test Application");
 
 		LinkedHashMap<String, Object> res = applicationService.insertApplication(htblPropValue);
-		// LinkedHashMap<String, Object>[] json = (LinkedHashMap<String,
-		// Object>[])
-		// res.get("errors");
-		// System.out.println(json[0].toString());
+		LinkedHashMap<String, Object>[] json = (LinkedHashMap<String, Object>[]) res.get("errors");
+		System.out.println(json[0].toString());
 		System.out.println(res.toString());
+
+		System.out.println(applicationDao.getHtblApplicationNameModelName().toString());
+		System.out.println(applicationService.dropApplication());
+		System.out.println(applicationDao.getHtblApplicationNameModelName().toString());
 
 	}
 }

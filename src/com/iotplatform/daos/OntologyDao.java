@@ -40,6 +40,8 @@ public class OntologyDao {
 
 		getApplicationOntology(applicationModelName, classList, propertiesList);
 
+		System.out.println(res);
+
 		return res;
 
 	}
@@ -55,6 +57,7 @@ public class OntologyDao {
 			DynamicOntologyMapper.getHtblappDynamicOntologyClasses().remove(applicationModelName);
 			DynamicOntologyMapper.getHtblappDynamicOntologyClassesUri().remove(applicationModelName);
 			dynamicOntologyDao.loadAndCacheApplicationDynamicOntology(applicationModelName);
+
 		}
 
 		Hashtable<String, String> htbAddedProps = new Hashtable<>();
@@ -126,11 +129,11 @@ public class OntologyDao {
 				if (!dynamicOntologyClassMapper.isHasTypeClasses()) {
 					Iterator<String> htblPropertiesIter = dynamicOntologyClassMapper.getProperties().keySet()
 							.iterator();
+
 					while (htblPropertiesIter.hasNext()) {
 						String propertyName = htblPropertiesIter.next();
 
 						if (!htbAddedProps.containsKey(propertyName)) {
-
 							Property property = dynamicOntologyClassMapper.getProperties().get(propertyName);
 
 							htbAddedProps.put(propertyName, propertyName);

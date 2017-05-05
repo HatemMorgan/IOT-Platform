@@ -25,13 +25,20 @@ public class ApplicationAPIController {
 			@RequestBody LinkedHashMap<String, Object> htblPropValue) {
 		LinkedHashMap<String, Object> responseJSON = applicationService.insertApplication(htblPropValue);
 
-//		ResponseEntity<LinkedHashMap<String, Object>> response = new ResponseEntity<>(HttpStatus.OK);
-//		response.getHeaders().putAll(AppConfig.HTTP_HEADERS);
-//		response.getBody().putAll(responseJSON);
-//
-//		return response;
+		// ResponseEntity<LinkedHashMap<String, Object>> response = new
+		// ResponseEntity<>(HttpStatus.OK);
+		// response.getHeaders().putAll(AppConfig.HTTP_HEADERS);
+		// response.getBody().putAll(responseJSON);
+		//
+		// return response;
 
-		 return responseJSON;
+		return responseJSON;
+	}
+
+	@RequestMapping(value = "/application/drop", method = RequestMethod.GET)
+	public LinkedHashMap<String, Object> dropApplication() {
+
+		return applicationService.dropApplication();
 	}
 
 }
