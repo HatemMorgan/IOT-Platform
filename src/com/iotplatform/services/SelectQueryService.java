@@ -15,7 +15,6 @@ import com.iotplatform.daos.DynamicOntologyDao;
 import com.iotplatform.daos.SelectQueryDao;
 import com.iotplatform.exceptions.ErrorObjException;
 import com.iotplatform.exceptions.InvalidClassNameException;
-import com.iotplatform.exceptions.InvalidInsertRequestBodyException;
 import com.iotplatform.exceptions.InvalidQueryRequestBodyFormatException;
 import com.iotplatform.exceptions.NoApplicationModelException;
 import com.iotplatform.models.SuccessfullSelectAllJsonModel;

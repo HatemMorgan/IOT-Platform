@@ -15,6 +15,7 @@ import com.iotplatform.ontology.Property;
 import com.iotplatform.ontology.mapers.DynamicOntologyMapper;
 import com.iotplatform.ontology.mapers.DynamicOntologyStateEnum;
 import com.iotplatform.ontology.mapers.OntologyMapper;
+import com.iotplatform.utilities.SimilartyCheckInput;
 
 import oracle.spatial.rdf.client.jena.Oracle;
 
@@ -38,14 +39,26 @@ public class OntologyDao {
 		ArrayList<Object> propertiesList = new ArrayList<>();
 		res.put("properties", propertiesList);
 
-		getApplicationOntology(applicationModelName, classList, propertiesList);
+		getApplicationOntology(applicationModelName, classList, propertiesList, null, null);
 
 		return res;
 
 	}
 
+	public SimilartyCheckInput loadApplicationOntologyForSimilartyCheck(String applicationModelName) {
+
+		ArrayList<String> classListArr = new ArrayList<>();
+
+		ArrayList<String> propertiesListArr = new ArrayList<>();
+
+		getApplicationOntology(applicationModelName, null, null, classListArr, propertiesListArr);
+
+		return new SimilartyCheckInput(classListArr.toArray(), propertiesListArr.toArray());
+
+	}
+
 	private void getApplicationOntology(String applicationModelName, ArrayList<Object> classList,
-			ArrayList<Object> propertiesList) {
+			ArrayList<Object> propertiesList, ArrayList<String> classListArr, ArrayList<String> propertiesListArr) {
 
 		if (!(DynamicOntologyMapper.getHtblApplicationOntologyState().containsKey(applicationModelName)
 				&& DynamicOntologyMapper.getHtblApplicationOntologyState().get(applicationModelName)
@@ -66,11 +79,17 @@ public class OntologyDao {
 			String className = htblMainOntologyClassesMappersIter.next();
 			Class ontologyClassMapper = OntologyMapper.getHtblMainOntologyClassesMappers().get(className);
 
-			LinkedHashMap<String, String> classMap = new LinkedHashMap<>();
-			classMap.put("name", ontologyClassMapper.getName());
-			classMap.put("prefix", ontologyClassMapper.getPrefix().getPrefix());
+			if (classList != null) {
+				LinkedHashMap<String, String> classMap = new LinkedHashMap<>();
+				classMap.put("name", ontologyClassMapper.getName());
+				classMap.put("prefix", ontologyClassMapper.getPrefix().getPrefix());
 
-			classList.add(classMap);
+				classList.add(classMap);
+			}
+
+			if (classListArr != null) {
+				classListArr.add(ontologyClassMapper.getName());
+			}
 
 			if (!ontologyClassMapper.isHasTypeClasses()) {
 
@@ -85,22 +104,36 @@ public class OntologyDao {
 						htbAddedProps.put(propertyName, propertyName);
 
 						if (property instanceof ObjectProperty) {
-							LinkedHashMap<String, String> objectPropMap = new LinkedHashMap<>();
 
-							objectPropMap.put("name", property.getName());
-							objectPropMap.put("domain", property.getSubjectClass().getName());
-							objectPropMap.put("range", ((ObjectProperty) property).getObjectClassName());
+							if (propertiesList != null) {
+								LinkedHashMap<String, String> objectPropMap = new LinkedHashMap<>();
 
-							propertiesList.add(objectPropMap);
+								objectPropMap.put("name", property.getName());
+								objectPropMap.put("domain", property.getSubjectClass().getName());
+								objectPropMap.put("range", ((ObjectProperty) property).getObjectClassName());
+
+								propertiesList.add(objectPropMap);
+							}
+
+							if (propertiesListArr != null) {
+								propertiesListArr.add(property.getName());
+							}
+
 						} else {
 
-							LinkedHashMap<String, String> objectPropMap = new LinkedHashMap<>();
+							if (propertiesList != null) {
+								LinkedHashMap<String, String> objectPropMap = new LinkedHashMap<>();
 
-							objectPropMap.put("name", property.getName());
-							objectPropMap.put("domain", property.getSubjectClass().getName());
-							objectPropMap.put("range", ((DataTypeProperty) property).getDataType().getDataType());
+								objectPropMap.put("name", property.getName());
+								objectPropMap.put("domain", property.getSubjectClass().getName());
+								objectPropMap.put("range", ((DataTypeProperty) property).getDataType().getDataType());
 
-							propertiesList.add(objectPropMap);
+								propertiesList.add(objectPropMap);
+							}
+
+							if (propertiesListArr != null) {
+								propertiesListArr.add(property.getName());
+							}
 
 						}
 					}
@@ -117,11 +150,17 @@ public class OntologyDao {
 				Class dynamicOntologyClassMapper = DynamicOntologyMapper.getHtblappDynamicOntologyClasses()
 						.get(applicationModelName).get(className);
 
-				LinkedHashMap<String, String> classMap = new LinkedHashMap<>();
-				classMap.put("name", dynamicOntologyClassMapper.getName());
-				classMap.put("prefix", dynamicOntologyClassMapper.getPrefix().getPrefix());
+				if (classList != null) {
+					LinkedHashMap<String, String> classMap = new LinkedHashMap<>();
+					classMap.put("name", dynamicOntologyClassMapper.getName());
+					classMap.put("prefix", dynamicOntologyClassMapper.getPrefix().getPrefix());
 
-				classList.add(classMap);
+					classList.add(classMap);
+				}
+
+				if (classListArr != null) {
+					classListArr.add(dynamicOntologyClassMapper.getName());
+				}
 
 				if (!dynamicOntologyClassMapper.isHasTypeClasses()) {
 					Iterator<String> htblPropertiesIter = dynamicOntologyClassMapper.getProperties().keySet()
@@ -136,22 +175,37 @@ public class OntologyDao {
 							htbAddedProps.put(propertyName, propertyName);
 
 							if (property instanceof ObjectProperty) {
-								LinkedHashMap<String, String> objectPropMap = new LinkedHashMap<>();
 
-								objectPropMap.put("name", property.getName());
-								objectPropMap.put("domain", property.getSubjectClass().getName());
-								objectPropMap.put("range", ((ObjectProperty) property).getObjectClassName());
+								if (propertiesList != null) {
+									LinkedHashMap<String, String> objectPropMap = new LinkedHashMap<>();
 
-								propertiesList.add(objectPropMap);
+									objectPropMap.put("name", property.getName());
+									objectPropMap.put("domain", property.getSubjectClass().getName());
+									objectPropMap.put("range", ((ObjectProperty) property).getObjectClassName());
+
+									propertiesList.add(objectPropMap);
+								}
+
+								if (propertiesListArr != null) {
+									propertiesListArr.add(property.getName());
+								}
+
 							} else {
 
-								LinkedHashMap<String, String> objectPropMap = new LinkedHashMap<>();
+								if (propertiesList != null) {
+									LinkedHashMap<String, String> objectPropMap = new LinkedHashMap<>();
 
-								objectPropMap.put("name", property.getName());
-								objectPropMap.put("domain", property.getSubjectClass().getName());
-								objectPropMap.put("range", ((DataTypeProperty) property).getDataType().getDataType());
+									objectPropMap.put("name", property.getName());
+									objectPropMap.put("domain", property.getSubjectClass().getName());
+									objectPropMap.put("range",
+											((DataTypeProperty) property).getDataType().getDataType());
 
-								propertiesList.add(objectPropMap);
+									propertiesList.add(objectPropMap);
+								}
+
+								if (propertiesListArr != null) {
+									propertiesListArr.add(property.getName());
+								}
 
 							}
 

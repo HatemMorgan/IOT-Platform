@@ -188,6 +188,32 @@
 			<artifactId>log4j-1.2.17</artifactId>
 			<version>12.1.0.2</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>edu.mit.jwi_2.1.5</artifactId>
+			<version>12.1.0.2</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>jaws-bin</artifactId>
+			<version>12.1.0.2</version>
+		</dependency>
+		
+		
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>jwktl-1.0.1</artifactId>
+			<version>12.1.0.2</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>slib-dist-0.9.4d-all-jar</artifactId>
+			<version>12.1.0.2</version>
+		</dependency>
+		
 	</dependencies>
 	<packaging>war</packaging>
 </project>
